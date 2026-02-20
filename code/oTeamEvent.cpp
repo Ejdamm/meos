@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,14 +31,13 @@
 #include "gdioutput.h"
 #include "oDataContainer.h"
 
-#include "random.h"
-#include "SportIdent.h"
 #include "Localizer.h"
 #include "intkeymapimpl.hpp"
 #include "MeOSFeatures.h"
 
 #include "meos_util.h"
-#include "meos.h"
+#include "xmlparser.h"
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////

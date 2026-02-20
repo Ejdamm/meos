@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -649,6 +649,68 @@ void oEvent::generatePreReport(gdioutput& gdi) {
         showRunner(xc, r, false, true);
       }
     }
+
+    vector<pRunner> unexpectedStartTime;
+    for (auto &cls : Classes) {
+      if (cls.isRemoved())
+        continue;
+      int id = cls.getId();
+      vector<pRunner> rCls;
+      getRunners(cls.getId(), -1, rCls, false);
+      vector<pair<int, pRunner>> cStartTimes;
+      for (pRunner r : rCls) {
+        if (r->getStartTime() > 0) {
+          if (r->getCard() && r->getCard()->getStartTime(-1) > 0)
+            continue; // Ignore start pucnhes
+          cStartTimes.emplace_back(r->getStartTime(), r);
+        }
+      }
+
+      if (cStartTimes.size() < 3)
+        continue;
+
+      sort(cStartTimes.begin(), cStartTimes.end());
+      map<int, int> startDiffCount;
+      for (int i = 1; i < cStartTimes.size(); i++) {
+        int diff = cStartTimes[i].first - cStartTimes[i - 1].first;
+        if (diff > 0)
+          ++startDiffCount[diff];
+      }
+      // Find most common interval in class
+      int expectedInterval = -1;
+      for (auto &[diff, cnt] : startDiffCount) {
+        if (cnt * 2 > cStartTimes.size())
+          expectedInterval = diff;
+      }
+      if (expectedInterval> 0) {
+        int diff1 = cStartTimes[1].first - cStartTimes[0].first;        
+        if (diff1 != expectedInterval && diff1 != 2 * expectedInterval)
+          unexpectedStartTime.push_back(cStartTimes[0].second);
+
+        int last = cStartTimes.size() - 1;
+        int diff2 = cStartTimes[last].first - cStartTimes[last-1].first;
+        if (diff2 != expectedInterval && diff2 != 2 * expectedInterval)
+          unexpectedStartTime.push_back(cStartTimes[last].second);
+
+        for (int i = 2; i + 2 < cStartTimes.size(); i++) {
+          int d1 = cStartTimes[i].first - cStartTimes[i - 1].first;
+          int d2 = cStartTimes[i + 1].first - cStartTimes[i].first;
+          if ((d1 == expectedInterval || d1 == 2 * expectedInterval) ||
+              (d2 == expectedInterval || d2 == 2 * expectedInterval)) {
+            continue;
+          }
+          unexpectedStartTime.push_back(cStartTimes[i].second);
+        }
+      }
+    }
+
+    gdi.dropLine();
+    showHeader("Deltagare med oväntad starttid i klassen: X.", unexpectedStartTime.size());
+
+    for (auto r : unexpectedStartTime) {
+      showRunner(xc, r, false, true);
+    }
+
   }
 
   map<int, int> objectMarkers;

@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -251,10 +251,10 @@ protected:
     void includeCourse(bool inc) { withCourse = inc; }
 
     const vector<int> &getControls(int classId, int legNumber) const;
-    bool synchronize(oEvent &oe, bool onlyCmp, const set<int> &classes, const set<int> &ctrls, bool allowDeletion);
+    bool synchronize(oEvent &oe, const wstring &cmpName, bool onlyCmp, const set<int> &classes, const set<int> &ctrls, bool allowDeletion);
     bool synchronize(oEvent &oe) {
       set<int> dmy;
-      return synchronize(oe, true, dmy, dmy, false);
+      return synchronize(oe, L"", true, dmy, dmy, false);
     }
     void getCompleteXML(xmlbuffer &xml);
     void getDiffXML(xmlbuffer &xml);

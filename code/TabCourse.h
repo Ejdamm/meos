@@ -1,7 +1,7 @@
 ﻿#pragma once
 /************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ public:
   static void runCourseImport(gdioutput& gdi, const wstring &filename,
                               oEvent *oe, bool addToClasses, bool createClasses);
 
+  static void showMap(oEvent* oe, gdioutput& gdi, pCourse crs);
   static void setupCourseImport(gdioutput& gdi, GUICALLBACK cb);
-
   friend int CourseCB(gdioutput *gdi, GuiEventType type, BaseInfo* data);
 };

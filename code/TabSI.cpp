@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -39,12 +39,12 @@
 #include "csvparser.h"
 
 #include "TabSI.h"
-#include "TabAuto.h"
 #include "TabList.h"
 #include "TabCompetition.h"
 #include "meos_util.h"
 #include <cassert>
 #include "TabRunner.h"
+#include "TabCourse.h"
 #include "onlineinput.h"
 #include "meosexception.h"
 #include "MeOSFeatures.h"
@@ -746,10 +746,16 @@ int TabSI::siCB(gdioutput& gdi, GuiEventType type, BaseInfo * data) {
       if (f < s) {
         f += 24 * timeConstHour;
       }
-      sic.FinishPunch.Time = f % (24 * timeConstHour);
-      sic.StartPunch.Time = s % (24 * timeConstHour);
-      sic.CheckPunch.Time = c % (24 * timeConstHour);
       
+      
+      if (NC > testControls.size())
+        testControls.resize(NC);
+
+      for (int i = 0; i < NC; i++)
+        testControls[i] = gdi.getTextNo("C" + itos(i + 1));
+
+      generateTestCard(sic, testControls, c, s, f);
+
       if (!gdi.isChecked("HasFinish")) {
         sic.FinishPunch.Code = -1;
         sic.FinishPunch.Time = 0;
@@ -763,26 +769,6 @@ int TabSI::siCB(gdioutput& gdi, GuiEventType type, BaseInfo * data) {
       if (!gdi.isChecked("HasCheck")) {
         sic.CheckPunch.Code = -1;
         sic.CheckPunch.Time = 0;
-      }
-
-      if (NC > testControls.size())
-        testControls.resize(NC);
-
-      for (int i = 0; i < NC; i++)
-        testControls[i] = gdi.getTextNo("C" + itos(i + 1));
-
-      double t = 0.1;
-      for (sic.nPunch = 0; sic.nPunch<unsigned(NC); sic.nPunch++) {
-        int c = testControls[sic.nPunch];
-        sic.Punch[sic.nPunch].Time = ((int(f * t + s * (1.0 - t))/ timeUnitsPerSecond) % (24 * timeConstSecPerHour)) * timeUnitsPerSecond;
-        t += ((1.0 - t) * (sic.nPunch + 1) / 10.0) * ((rand() % 100) + 400.0) / 500.0;
-        if ((sic.nPunch % 11) == 1 || 5 == (sic.nPunch % 8))
-          t += min(0.2, 0.9 - t);
-        if (sic.nPunch == 0 && c > 1000) {
-          sic.miliVolt = c;
-          c = c % 100;
-        }
-        sic.Punch[sic.nPunch].Code = c;
       }
 
       gdi.getRecorder().record("insertCard(" + itos(sic.CardNumber) + ", \"" + sic.serializePunches() + "\"); //Readout card");
@@ -1295,6 +1281,11 @@ int TabSI::siCB(gdioutput& gdi, GuiEventType type, BaseInfo * data) {
     }
     else if (bi.id == "RentCard" || bi.id == "Paid" || bi.id == "AllStages") {
       updateEntryInfo(gdi);
+    }
+    else if (bi.id == "ShowMap") {
+      pCourse crs = getRenderCourse(gdi);
+      if (crs)
+        TabCourse::showMap(oe, gdi, crs);
     }
     else if (bi.id == "ManualOK") {
       if (runnerMatchedId == -1)
@@ -3035,7 +3026,7 @@ void TabSI::processInsertCard(const SICard& sic)
   card->synchronize();
 
   if (runner) {
-    vector<int> mp;
+    vector<pair<int, pControl>> mp;
     runner->addCard(card, mp);
   }
 }
@@ -3307,7 +3298,7 @@ bool TabSI::processCard(gdioutput& gdi, pRunner runner, const SICard& csic, bool
 
     playReadoutSound(SND::NotOK);
     if (!rout.MP.empty()) {
-      for (int c : rout.MP) {
+      for (auto &[c, ctrl] : rout.MP) {
         if (!mpList.empty())
           mpList += L", ";
         mpList = mpList + itow(c);
@@ -3373,7 +3364,7 @@ void TabSI::StoredReadout::render(gdioutput& gdi, const RECT& rc) const {
   //gdi.addString("edit", rc.right - gdi.scaleLength(30), rc.top+gdi.scaleLength(4), textImage, "S" + itos(gdi.scaleLength(24)));
   if (runnerId > 0) {
     gdi.addImage("edit", rc.top + gdi.scaleLength(4), rc.right - gdi.scaleLength(30), 0,
-      itow(IDI_MEOSEDIT), gdi.scaleLength(24), gdi.scaleLength(24), SportIdentCB).setExtra(runnerId);
+      itow(IDI_MEOSEDIT), gdi.scaleLength(24), gdi.scaleLength(24), 0, 0, -1, -1, SportIdentCB).setExtra(runnerId);
   }
   int lh = gdi.getLineHeight();
   int marg = gdi.scaleLength(20);
@@ -3681,7 +3672,7 @@ void TabSI::generateEntryLine(gdioutput& gdi, pRunner r) {
 
   gdi.addSelection("Class", 150, 200, 0, L"Klass:").setHandler(&directEntryGUI);
   {
-    vector< pair<wstring, size_t> > d;
+    vector<pair<wstring, size_t>> d;
     oe->fillClasses(d, oEvent::extraNumMaps, oEvent::filterOnlyDirect);
     if (d.empty() && oe->getNumClasses() > 0) {
       gdi.alert(L"Inga klasser tillåter direktanmälan. På sidan klasser kan du ändra denna egenskap.");
@@ -3693,6 +3684,12 @@ void TabSI::generateEntryLine(gdioutput& gdi, pRunner r) {
   }
   else if (!gdi.selectItemByData("Class", lastClassId)) {
     gdi.selectFirstItem("Class");
+  }
+
+  if (oe->getRenderMaps()) {
+    gdi.dropLine(1);
+    gdi.addButton("ShowMap", "Visa karta", SportIdentCB);
+    gdi.dropLine(-1);
   }
 
   if (oe->getMeOSFeatures().hasFeature(MeOSFeatures::Economy)) {
@@ -3845,7 +3842,7 @@ void TabSI::generateSplits(const pRunner r, gdioutput& gdi)
       gdiprint.addStringUT(0, r->getCompleteIdentification(oRunner::IDType::OnlyThis));
     }
     else {
-      vector<int> mp;
+      vector<pair<int, pControl>> mp;
       r->evaluateCard(true, mp, 0, oBase::ChangeType::Quiet);
       r->printSplits(gdiprint);
     }
@@ -4925,7 +4922,7 @@ bool TabSI::checkpPrintQueue(gdioutput& gdi) {
   }
 
   gdioutput gdiprint(2.0, gdi.getHWNDTarget(), splitPrinter);
-  vector<int> mp;
+  vector<pair<int, pControl>> mp;
   for (size_t m = 0; m < printLen && !printPunchRunnerIdQueue.empty(); m++) {
     int rid = printPunchRunnerIdQueue.front().second;
     printPunchRunnerIdQueue.pop_front();
@@ -5987,7 +5984,7 @@ public:
       si->generateStartInfo(gdi, *r, false);
       fail = true;
     }
-    else if (r->getCard() || r->getFinishTime() > 0 || r->getStatus() == StatusNotCompetiting) {
+    else if (r->getCard() || r->getFinishTime() > 0 || r->getStatus() == StatusNotCompeting) {
       gdi.addStringUT(gdiFonts::fontLarge, r->getCompleteIdentification(oRunner::IDType::OnlyThis)).setColor(GDICOLOR::colorRed);
       gdi.addString("", gdiFonts::boldHuge, "Starttiden är  låst").setColor(GDICOLOR::colorRed);
       fail = true;
@@ -6035,6 +6032,7 @@ public:
       else {
         pClass cls = r->getClassRef(true);
         r->setStartTime(st, true, oBase::ChangeType::Update);
+        r->storeDefaultStartTime();
         r->synchronize();
 
         // There is no locking. Check that time is OK (at least in class)
@@ -6043,7 +6041,7 @@ public:
         oeLocal->getRunners(r->getClassId(true), 0, rl, false);
         int nDup = 0;
         for (pRunner rr : rl) {
-          if (!rr->isRemoved() && rr->getStatus() != StatusNotCompetiting && rr->getStartTime() > 0 && 
+          if (!rr->isRemoved() && rr->getStatus() != StatusNotCompeting && rr->getStartTime() > 0 && 
                rr->getStartTime() > st - interval && rr->getStartTime() < st + interval) {
             nDup++;
           }
@@ -6082,7 +6080,7 @@ public:
 
   void simulation(gdioutput& gdi) {
     wstring tmp = getTempFile();
-    oe->save(tmp, false);
+    oe->save(tmp, false, false);
     oEvent tmpOE(gdi);
     tmpOE.open(tmp, true, false, true);
 
@@ -6090,7 +6088,7 @@ public:
     tmpOE.getRunners(selectedClasses, rList);
     vector<pRunner> rListToUse;
     for (pRunner r : rList) {
-      if (r->getStartTime() == 0 && r->getStatus() != StatusNotCompetiting)
+      if (r->getStartTime() == 0 && r->getStatus() != StatusNotCompeting)
         rListToUse.push_back(r);
     }
 
@@ -6188,7 +6186,7 @@ public:
         wstring fileName = gdi.browseForSave(ext, L"meosxml", ix);
         if (!fileName.empty()) {
           tmpOE.setAnnotation(L"***ANALYSIS***");
-          tmpOE.save(fileName, false);
+          tmpOE.save(fileName, false, false);
         }
       }
     }
@@ -6197,13 +6195,6 @@ public:
 
     gdi.scrollToBottom();
     gdi.refresh();
-
-
-    /*for (pRunner r : rListToUse) {
-      r->setStartTime(0, true, oBase::ChangeType::Update, false);
-      r->synchronize();
-    }*/
-
   }
 
 };
@@ -6227,4 +6218,59 @@ void TabSI::requestStartTime(gdioutput& gdi, const SICard& sic) {
     throw std::exception("Internal error");
 
   h->handleCard(gdi, sic.CardNumber);
+}
+
+void TabSI::generateTestCard(SICard &sic, const vector<int> &testControls, int checkTime, int startTime, int finishTime) {
+  if (finishTime >= 0) {
+    sic.FinishPunch.Code = oPunch::PunchFinish;
+    sic.FinishPunch.Time = finishTime % (24 * timeConstHour);
+  }
+  else {
+    sic.FinishPunch.Code = -1;
+  }
+
+  if (startTime >= 0) {
+    sic.StartPunch.Time = startTime % (24 * timeConstHour);
+    sic.StartPunch.Code = oPunch::PunchStart;
+  }
+  else {
+    sic.StartPunch.Code = -1;
+  }
+
+  if (checkTime >= 0) {
+    sic.CheckPunch.Time = checkTime % (24 * timeConstHour);
+    sic.CheckPunch.Code = oPunch::PunchCheck;
+  }
+  else {
+    sic.CheckPunch.Code = -1;
+  }
+
+  int NC = testControls.size();
+  double t = 1.0 / (NC + 1);
+  for (sic.nPunch = 0; sic.nPunch<unsigned(NC); sic.nPunch++) {
+    int c = testControls[sic.nPunch];
+    int ct = ((int(finishTime * t + startTime * (1.0 - t)) / timeUnitsPerSecond) % (24 * timeConstSecPerHour)) * timeUnitsPerSecond;
+    sic.Punch[sic.nPunch].Time = ct % (24 * timeConstHour);
+    double remaining = 1.0 - t;
+    t += (remaining / double(1 + NC - sic.nPunch)) * ((rand() % 100) + 400.0) / 500.0;
+
+    if ((sic.nPunch % 11) == 1 || 5 == (sic.nPunch % 8))
+      t += min(5 / double(NC), max(0.0, 0.9 - t));
+    if (sic.nPunch == 0 && c > 1000) {
+      sic.miliVolt = c;
+      c = c % 100;
+    }
+    sic.Punch[sic.nPunch].Code = c;
+  }
+}
+
+pCourse TabSI::getRenderCourse(gdioutput& gdi) const {
+  ListBoxInfo lbi;
+  if (!gdi.getSelectedItem("Class", lbi))
+    return nullptr;
+
+  pClass clz = oe->getClass(lbi.data);
+  if (!clz)
+    return nullptr;
+  return clz->getCourse(false);
 }

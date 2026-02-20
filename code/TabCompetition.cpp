@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -174,7 +174,7 @@ bool TabCompetition::importFile(HWND hWnd, gdioutput &gdi)
     wstring base = constructBase(L"base", L"");
     wchar_t newBase[_MAX_PATH];
     getUserFile(newBase, base.c_str());
-    oe->save(newBase, false);
+    oe->save(newBase, true, false);
     return true;
   }
 
@@ -191,7 +191,7 @@ bool TabCompetition::exportFileAs(HWND hWnd, gdioutput &gdi)
     return false;
 
   gdi.setWaitCursor(true);
-  if (!oe->save(fileName.c_str(), false)) {
+  if (!oe->save(fileName.c_str(), false, false)) {
     gdi.alert(L"Fel: Filen " + fileName+ L" kunde inte skrivas.");
     return false;
   }
@@ -784,7 +784,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       wchar_t newBase[_MAX_PATH];
       getUserFile(newBase, base.c_str());
       if (!fileExists(newBase))
-        oe->save(newBase, false);
+        oe->save(newBase, true, false);
 
       loadConnectionPage(gdi);
     }
@@ -1235,7 +1235,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       set<int> classes;
       bool eventorUTC = oe->getPropertyInt("UseEventorUTC", 0) != 0;
       oe->exportIOFSplits(oEvent::IOF30, resultlist.c_str(), false,
-                          eventorUTC, classes, make_pair("", ""), -1, false, false, true,
+                          eventorUTC, classes, make_pair("", ""), L"", - 1, false, false, true,
                           false, true, true);
       vector<wstring> fileList;
       fileList.push_back(resultlist);
@@ -1433,7 +1433,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       DWORD id;
       DWORD db;
       DWORD withNoClub;
-
+      shared_ptr<MapData> readMapData;
       gdi.getData("EventorId", id);
       gdi.getData("UpdateDB", db);
       gdi.getData("IncludeWithoutClub", withNoClub);
@@ -1548,7 +1548,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
           if (importHiredCard)
             importDefaultHiredCards(gdi);
 
-          oe->importXML_EntryData(gdi, tEvent, false, false, noFilter, 0, 0, noType);
+          oe->importXML_EntryData(gdi, tEvent, false, false, noFilter, 0, 0, noType, readMapData);
           oe->setZeroTime(formatTimeHMS(zeroTime), true);
           oe->getDI().setDate("OrdinaryEntry", lastEntry);
           if (ci) {
@@ -1561,13 +1561,13 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
         }
         removeTempFile(tEvent);
 
-        oe->importXML_EntryData(gdi, tClass.c_str(), false, false, noFilter, 0, 0, noType);
+        oe->importXML_EntryData(gdi, tClass.c_str(), false, false, noFilter, 0, 0, noType, readMapData);
         removeTempFile(tClass);
 
         set<int> stageFilter;
         pair<string, string> preferredIdType;
         checkStageFilter(gdi, tEntry, stageFilter, preferredIdType);
-        oe->importXML_EntryData(gdi, tEntry.c_str(), false, removeRemoved, stageFilter, 0, 0, preferredIdType);
+        oe->importXML_EntryData(gdi, tEntry.c_str(), false, removeRemoved, stageFilter, 0, 0, preferredIdType, readMapData);
         if (!preferredIdType.second.empty())
           oe->setRunnerIdTypes(preferredIdType);
         
@@ -1661,7 +1661,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
     } 
     else if (bi.id == "WelcomeOK") {
       gdi.setFont(oe->getPropertyInt("TextSize", 0),
-                  oe->getPropertyString("TextFont", L"Arial"));
+                  oe->getPropertyString("UIFont", L"Segoe UI"));
 
       oe->setProperty("FirstTime", 0);
       loadPage(gdi);
@@ -2184,7 +2184,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
     else if (lbi.id=="TextSize") {
       int textSize = lbi.data;
       oe->setProperty("TextSize", textSize);
-      gdi.setFont(textSize, oe->getPropertyString("TextFont", L"Arial"));
+      gdi.setFont(textSize, oe->getPropertyString("UIFont", L"Segoe UI"));
       PostMessage(gdi.getHWNDTarget(), WM_USER + 2, TCmpTab, 0);
     }
     else if (lbi.id == "Language") {
@@ -2192,7 +2192,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       oe->updateTabs(true);
       oe->setProperty("Language", lbi.text);
       //gdi.setEncoding(interpetEncoding(lang.tl("encoding")));
-      gdi.setFont(oe->getPropertyInt("TextSize", 0), oe->getPropertyString("TextFont", L"Arial"));
+      gdi.setFont(oe->getPropertyInt("TextSize", 0), oe->getPropertyString("UIFont", L"Segoe UI"));
       PostMessage(gdi.getHWNDTarget(), WM_USER + 2, TCmpTab, 0);
     }
     else if (lbi.id == "PreEvent") {
@@ -2388,7 +2388,7 @@ void TabCompetition::copyrightLine(gdioutput &gdi) const
 
   gdi.dropLine(0.4);
   gdi.fillDown();
-  gdi.addString("", 0, makeDash(L"#Copyright © 2007-2025 Melin Software HB"));
+  gdi.addString("", 0, makeDash(L"#Copyright © 2007-2026 Melin Software HB"));
   gdi.dropLine(1);
   gdi.popX();
 
@@ -2417,7 +2417,7 @@ void TabCompetition::loadAboutPage(gdioutput &gdi) const
   gdi.dropLine(1.5);
   gdi.setCX(gdi.getCX() + gdi.scaleLength(20));
 
-  gdi.addStringUT(1, makeDash(L"Copyright © 2007-2025 Melin Software HB"));
+  gdi.addStringUT(1, makeDash(L"Copyright © 2007-2026 Melin Software HB"));
   gdi.dropLine();
   gdi.addStringUT(10, "The database used is MySQL, Copyright (c) 2008-2024 Oracle, Inc."
     "\n\nGerman Translation by Erik Nilsson-Simkovics"
@@ -2430,6 +2430,7 @@ void TabCompetition::loadAboutPage(gdioutput &gdi) const
     "\n\nSpanish Translation by Manuel Pedre"
     "\n\nUkranian Translation by Oleg Rozhko"
     "\n\nPortuguese Translation by Bruno Santos"
+    "\n\nBulgarian Translation by Kostadin Novakov"
     "\n\nHelp with English documentation: Torbjörn Wikström"
     "\n\nContribution to SI code: Eric Bäckström");
   
@@ -3631,9 +3632,11 @@ FlowOperation TabCompetition::saveEntries(gdioutput &gdi, bool removeRemoved, in
       if (!preferredIdType.second.empty())
         oe->setRunnerIdTypes(preferredIdType);
 
+
+      shared_ptr<MapData> readMapData;
       const int courseIdOffset = 0;
       oe->importXML_EntryData(gdi, filename[i], false, removeRemoved, stageFilter,
-                              classOffset, courseIdOffset, preferredIdType);
+                              classOffset, courseIdOffset, preferredIdType, readMapData);
     }
     if (!isGuide) {
       gdi.setWindowTitle(oe->getTitleName());
@@ -4317,6 +4320,7 @@ void TabCompetition::loadSettings(gdioutput &gdi) {
   fields.push_back("MaxTime");
   if (oe->getMeOSFeatures().hasFeature(MeOSFeatures::Rogaining)) {
     fields.push_back("DiffTime");
+    fields.push_back("ScoreDecimal");
   }
   gdi.fillDown();
   oe->getDI().buildDataFields(gdi, fields, 10);
@@ -4656,7 +4660,7 @@ void TabCompetition::exportSplitsData(oEvent* oe, const wstring& save,
 
     if (data.legType == -1) {
       oe->exportIOFSplits(ver, save.c_str(), true, useUTC,
-        allTransfer, data.preferredIdTypes, -1,
+        allTransfer, data.preferredIdTypes, L"", -1,
         data.withPartialResults, false, data.unroll, data.includeStage, false, false);
     }
     else {
@@ -4676,18 +4680,18 @@ void TabCompetition::exportSplitsData(oEvent* oe, const wstring& save,
         for (int leg = 0; leg < legMax; leg++) {
           file = fileBase + L"_" + itow(leg + 1) + fileEnd;
           oe->exportIOFSplits(ver, file.c_str(), true, useUTC,
-            allTransfer, data.preferredIdTypes, leg, data.withPartialResults,
+            allTransfer, data.preferredIdTypes, L"", leg, data.withPartialResults,
             false, data.unroll, data.includeStage, false, false);
         }
       }
       else if (data.legType == 3) {
         oe->exportIOFSplits(ver, file.c_str(), true, useUTC, allTransfer, data.preferredIdTypes,
-          -1, data.withPartialResults, true, data.unroll, data.includeStage, false, false);
+          L"", -1, data.withPartialResults, true, data.unroll, data.includeStage, false, false);
       }
       else {
         int leg = data.legType == 1 ? -1 : data.legType - 10;
         oe->exportIOFSplits(ver, file.c_str(), true, useUTC, allTransfer, data.preferredIdTypes,
-          leg, data.withPartialResults, false, data.unroll, data.includeStage, false, false);
+          L"", leg, data.withPartialResults, false, data.unroll, data.includeStage, false, false);
       }
     }
   }
@@ -4754,7 +4758,7 @@ void TabCompetition::mergeCompetition(gdioutput &gdi) {
           if (!thisFile.empty()) {
             wchar_t newBase[_MAX_PATH];
             getUserFile(newBase, thisFile.c_str());
-            mergeEvent->save(newBase, false);
+            mergeEvent->save(newBase, true, false);
           }
 
           tc->oe->merge(*mergeEvent, baseEvent.get(), allowRemove, numAdd, numRemove, numUpdate);

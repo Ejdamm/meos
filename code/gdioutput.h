@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@
 #include "subcommand.h"
 
 class Toolbar;
+class MapDataRenderer;
 
 class gdioutput;
 class oEvent;
@@ -144,6 +145,7 @@ protected:
   list<RectangleInfo> Rectangles;
   list<TableInfo> Tables;
   list<TimerInfo> timers;
+  shared_ptr<MapDataRenderer> renderMap;
 
   Toolbar* toolbar;
   ToolList toolTips;
@@ -475,6 +477,10 @@ public:
   wstring browseForFolder(const wstring& folderStart, const wchar_t* descr);
 
   bool clipOffset(int PageX, int PageY, int& MaxOffsetX, int& MaxOffsetY);
+
+  /** Set map decoration renderer*/
+  void setMapRenderer(shared_ptr<MapDataRenderer>& rdr);
+
   RectangleInfo& addRectangle(const RECT& rc, GDICOLOR Color = GDICOLOR(-1),
     bool DrawBorder = true, bool addFirst = false);
 
@@ -764,6 +770,11 @@ public:
                         const wstring& tooltip, 
                         bool absPos, bool hasState);
 
+  ButtonInfo& addImageButton(int x, int y, int width, int height,
+                             const string& id, int imgId, GUICALLBACK cb,
+                             const wstring& tooltip,
+                             bool absPos, bool hasState);
+
   ButtonInfo& addCheckbox(const string& id, const wstring& text, GUICALLBACK cb = nullptr,
     bool Checked = true, const wstring& tooltip = L"");
   ButtonInfo& addCheckbox(int x, int y, const string& id,
@@ -845,11 +856,14 @@ public:
 
   TextInfo& addImage(const string& id, int format, const wstring& imageId,
     int width = 0, int height = 0, GUICALLBACK cb = nullptr) {
-    return addImage(id, getCY(), getCX(), format, imageId, width, height, cb);
+    return addImage(id, getCY(), getCX(), format, imageId, width, height, 0, 0, -1, -1, cb);
   }
 
   TextInfo& addImage(const string& id, int yp, int xp, int format, const wstring& imageId,
-    int width = 0, int height = 0, GUICALLBACK cb = nullptr);
+                     int width = 0, int height = 0, 
+                     int offsetX = 0, int offsetY = 0,
+                     int srcWidth = -1, int srcHeight = -1,
+                     GUICALLBACK cb = nullptr);
 
   TextInfo& addTimer(int yp, int xp, int format, int zeroTime, const wstring &textSrc = L"",
                      int xlimit = 0, GUICALLBACK cb = nullptr, 

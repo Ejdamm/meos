@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -31,10 +31,10 @@ enum KeyCommandCode;
 
 class BaseInfo {
 protected:
-  void *extra;
-  GuiHandler *handler;
+  void *extra = nullptr;
+  GuiHandler *handler = nullptr;
   shared_ptr<GuiHandler> managedHandler;
-  bool dataString;
+  bool dataString = false;
 public:
 
   bool matchExtra(int requireExtraMatch) const {
@@ -58,8 +58,8 @@ public:
     return false;
   }
 
-  BaseInfo():extra(0), dataString(false), handler(0) {}
-  virtual ~BaseInfo() {}
+  BaseInfo() = default;
+  virtual ~BaseInfo() = default;
   string id;
 
   virtual HWND getControlWindow() const = 0;
@@ -186,13 +186,7 @@ class TextInfo final: public BaseInfo
 {
 public:
 
-  TextInfo():format(0), color(0), xlimit(0), hasTimer(false),
-    hasCapture(false), callBack(0), highlight(false),
-    active(false), lineBreakPrioity(0),
-    absPrintX(0), absPrintY(0), realWidth(0) {
-      textRect.left = 0; textRect.right = 0;
-      textRect.top = 0; textRect.bottom = 0;
-  }
+  TextInfo() = default;
 
   TextInfo &setColor(GDICOLOR c) {color = c; return *this;}
   GDICOLOR getColor() const { return GDICOLOR(color); }
@@ -220,24 +214,24 @@ public:
 
   uint64_t zeroTime = -1;
   uint64_t timeOut = 0;
-  GUICALLBACK callBack;
-
-  int format;
-  DWORD color;
+  GUICALLBACK callBack = nullptr;
   
-  RECT textRect;
+  int format = 0;
+  DWORD color = 0;
+  
+  RECT textRect = { 0,0,0,0 };
+  RECT srcRect = { 0,0,0,0 };
+  int xlimit = 0;
+  int absPrintX = 0;
+  int absPrintY = 0;
 
-  int xlimit;
-  int lineBreakPrioity;
-  int absPrintX;
-  int absPrintY;
+  int realWidth = 0; // The calculated actual width of the string in pixels
 
-  int realWidth; // The calculated actual width of the string in pixels
-
-  bool highlight;
-  bool active;
-  bool hasTimer;
-  bool hasCapture;
+  uint8_t lineBreakPrioity = 0;
+  bool highlight = false;
+  bool active = false;
+  bool hasTimer = false;
+  bool hasCapture = false;
 
   HWND getControlWindow() const final {throw std::exception("Unsupported");}
 

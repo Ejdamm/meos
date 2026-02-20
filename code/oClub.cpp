@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
 #include "HTMLWriter.h"
 #include "csvparser.h"
 #include "RunnerDB.h"
-
+#include "xmlparser.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -621,7 +621,7 @@ void oClub::addRunnerInvoiceLine(const pRunner r, bool inTeam,
     if (r->getTotalStatus()==StatusOK) {
       ts =  r->getPrintTotalPlaceS(true) + L" (" + r->getTotalRunningTimeS(SubSecond::Auto) + L")";
     }
-    else if (r->getTotalStatus()!=StatusNotCompetiting)
+    else if (r->getTotalStatus()!=StatusNotCompeting)
       ts =  r->getStatusS(true, true);
     else {
       ts = r->getInputStatusS();

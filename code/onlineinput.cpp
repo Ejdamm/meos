@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 
 #include "SportIdent.h"
 #include "TabSI.h"
+#include "xmlparser.h"
 
 int AutomaticCB(gdioutput *gdi, GuiEventType type, BaseInfo* data);
 
@@ -471,6 +472,13 @@ void OnlineInput::process(gdioutput& gdi, oEvent* oe, AutoSyncType ast) {
 }
 
 void OnlineInput::processPunches(oEvent &oe, const xmlList &punches) {
+  auto transformTime = [](int in) {
+    if (timeConstSecond <= 10)
+      return in / (10 / timeConstSecond);
+    else
+      return in * (timeConstSecond / 10);
+  };
+
   for (size_t k = 0; k < punches.size(); k++) {
     int code = punches[k].getObjectInt("code");
     wstring startno, type;
@@ -494,7 +502,7 @@ void OnlineInput::processPunches(oEvent &oe, const xmlList &punches) {
     pRunner r = 0;
 
     int card = punches[k].getObjectInt("card");
-    int time = punches[k].getObjectInt("time") / (10 / timeConstSecond);
+    int time = transformTime(punches[k].getObjectInt("time"));
 
     if (!oe.supportSubSeconds())
       time -= (time % timeConstSecond);
@@ -649,22 +657,30 @@ void OnlineInput::processPunchesSICenter(oEvent &oe, const wstring& filename) {
 }
 
 void OnlineInput::processCards(gdioutput &gdi, oEvent &oe, const xmlList &cards) {
+
+  auto transformTime = [](int in) {
+    if (timeConstSecond <= 10)
+      return in / (10 / timeConstSecond);
+    else
+      return in * (timeConstSecond/10);
+  };
+
   for (size_t k = 0; k < cards.size(); k++) {
     SICard sic(ConvertedTimeStatus::Hour24);
     sic.CardNumber = cards[k].getObjectInt("number");
 
     if (xmlobject fin = cards[k].getObject("finish"); fin) {
-      sic.FinishPunch.Time = fin.getObjectInt("time") / (10 / timeConstSecond);
+      sic.FinishPunch.Time = transformTime(fin.getObjectInt("time"));
       sic.FinishPunch.Code = fin.getObjectInt("code");
     }
 
     if (xmlobject sta = cards[k].getObject("start"); sta) {
-      sic.StartPunch.Time = sta.getObjectInt("time") / (10 / timeConstSecond);
+      sic.StartPunch.Time = transformTime(sta.getObjectInt("time"));
       sic.StartPunch.Code = sta.getObjectInt("code");
     }
 
     if (xmlobject chk = cards[k].getObject("check"); chk) {
-      sic.CheckPunch.Time = chk.getObjectInt("time") / (10 / timeConstSecond);
+      sic.CheckPunch.Time = transformTime(chk.getObjectInt("time"));
       sic.CheckPunch.Code = chk.getObjectInt("code");
     }
 
@@ -672,7 +688,7 @@ void OnlineInput::processCards(gdioutput &gdi, oEvent &oe, const xmlList &cards)
     cards[k].getObjects("p", punches);
     for (size_t j = 0; j < punches.size(); j++) {
       sic.Punch[j].Code = punches[j].getObjectInt("code");
-      sic.Punch[j].Time = punches[j].getObjectInt("time") / (10 / timeConstSecond);
+      sic.Punch[j].Time = transformTime(punches[j].getObjectInt("time"));
     }
     sic.nPunch = punches.size();
     TabSI::getSI(gdi).addCard(sic);

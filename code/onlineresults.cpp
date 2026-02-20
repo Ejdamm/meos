@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,20 +22,15 @@
 
 #include "stdafx.h"
 
-#include "resource.h"
-
-#include <commctrl.h>
-#include <commdlg.h>
 #include <sys/stat.h>
+#include <shellapi.h>
 
 #include "oEvent.h"
 #include "gdioutput.h"
 
 #include "onlineresults.h"
 #include "meos_util.h"
-#include <shellapi.h>
 
-#include "gdiconstants.h"
 #include "infoserver.h"
 #include "meosException.h"
 #include "Download.h"
@@ -131,16 +126,35 @@ void OnlineResults::settings(gdioutput &gdi, oEvent &oe, State state) {
   gdi.popY();
   gdi.fillDown();
 
-
- // gdi.dropLine();
- // gdi.addInput("Interval", time, 10, 0, "Uppdateringsintervall (sekunder):");
-
   gdi.addSelection("Format", 200, 200, OnlineCB, L"Exportformat:");
   gdi.addItem("Format", L"MeOS Online Protocol XML 2.0", int(DataType::MOP20));
   gdi.addItem("Format", L"MeOS Online Protocol XML 1.0", int(DataType::MOP10));
   gdi.addItem("Format", L"IOF XML 3.0", int(DataType::IOF3));
   gdi.addItem("Format", L"IOF XML 2.0.3", int(DataType::IOF2));
   gdi.selectItemByData("Format", int(dataType));
+
+  class HandleCmpName : public GuiHandler {
+    const oEvent& oe;
+  public:
+    HandleCmpName(const oEvent& oe) : oe(oe) {}
+
+    void handle(gdioutput& gdi, BaseInfo& info, GuiEventType type) final {
+      InputInfo& ii = dynamic_cast<InputInfo&>(info);
+      GDICOLOR c = ii.text.empty() || ii.text == oe.getName() ?
+         GDICOLOR::colorDefault : GDICOLOR::colorLightCyan;
+
+      if (c != ii.getBgColor()) {
+        ii.setBgColor(c);
+        ii.refresh();
+      }
+    }
+  };
+
+  auto cmp = getCompetitionName(oe);
+  auto& nameField = gdi.addInput("CmpName", cmp.first, 30, nullptr, L"Tävlingsnamn för export:");
+  if (cmp.second)
+    nameField.setBgColor(GDICOLOR::colorLightCyan);
+  nameField.setHandler(make_shared<HandleCmpName>(oe));
 
   gdi.addCheckbox("IncludeCourse", "Inkludera bana", 0, includeCourse);
 
@@ -268,6 +282,10 @@ void OnlineResults::save(oEvent &oe, gdioutput &gdi, bool doProcess) {
 
   if (!xurl.empty())
     oe.setProperty("MOPURL", xurl);
+
+  storedName = gdi.getText("CmpName");
+  if (storedName == oe.getName() || trim(storedName).empty())
+    storedName = L""; // Use default
 
   sendToURL = gdi.isChecked("ToURL");
   sendToFile = gdi.isChecked("ToFile");
@@ -411,7 +429,7 @@ void OnlineResults::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast) {
     InfoCompetition& ic = getInfoServer();
     xmlbuffer xmlbuff;
     if (dataType == DataType::MOP10 || dataType == DataType::MOP20) {
-      if (ic.synchronize(*oe, false, classes, controls, dataType != DataType::MOP10)) {
+      if (ic.synchronize(*oe, getCompetitionName(*oe).first, false, classes, controls, dataType != DataType::MOP10)) {
         lastSync = tick; // If error, avoid to quick retry
         ic.getDiffXML(xmlbuff);
       }
@@ -420,10 +438,10 @@ void OnlineResults::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast) {
       t = getTempFile();
       if (dataType == DataType::IOF2)
         oe->exportIOFSplits(oEvent::IOF20, t.c_str(), false, false,
-          classes, make_pair("", ""), -1, false, false, true, true, false, false);
+          classes, make_pair("", ""), getCompetitionName(*oe).first, -1, false, false, true, true, false, false);
       else if (dataType == DataType::IOF3)
         oe->exportIOFSplits(oEvent::IOF30, t.c_str(), false, false,
-          classes, make_pair("", ""), -1, true, false, true, true, false, false);
+          classes, make_pair("", ""), getCompetitionName(*oe).first, -1, true, false, true, true, false, false);
       else
         throw meosException("Internal error");
     }
@@ -608,6 +626,13 @@ wstring OnlineResults::getExportFileName() const {
   return bf;
 }
 
+pair<wstring, bool> OnlineResults::getCompetitionName(const oEvent& oe) const {
+  if (storedName.empty())
+    return make_pair(oe.getName(), false);
+  else
+    return make_pair(storedName, true);
+}
+
 void OnlineResults::saveMachine(oEvent &oe, const wstring &guiInterval) {
   AutoMachine::saveMachine(oe, guiInterval);
   auto &cnt = oe.getMachineContainer().set(getTypeString(), getMachineName());
@@ -632,6 +657,8 @@ void OnlineResults::saveMachine(oEvent &oe, const wstring &guiInterval) {
   cnt.set("doURL", sendToURL);
   cnt.set("doFile", sendToFile);
   cnt.set("script", exportScript);
+  if (!storedName.empty())
+    cnt.set("cname", storedName);
 }
 
 void OnlineResults::loadMachine(oEvent &oe, const wstring &name) {
@@ -660,4 +687,6 @@ void OnlineResults::loadMachine(oEvent &oe, const wstring &name) {
   sendToURL = cnt->getInt("doURL") != 0;
   sendToFile = cnt->getInt("doFile") != 0;
   exportScript = cnt->getString("script");
+  storedName = cnt->getString("cname");
 }
+

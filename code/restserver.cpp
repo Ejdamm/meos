@@ -1,6 +1,6 @@
 ﻿/************************************************************************
 MeOS - Orienteering Software
-Copyright (C) 2009-2025 Melin Software HB
+Copyright (C) 2009-2026 Melin Software HB
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -543,7 +543,8 @@ void RestServer::getData(oEvent &oe, const string &what, const multimap<string, 
       getSelection(param.find("class")->second, cls);
     pair<string, string> preferredIdTypes;
 
-    oe.exportIOFSplits(oEvent::IOF30, exportFile.c_str(), false, useUTC, cls, preferredIdTypes, -1, true, false, false, true, false, false);
+    oe.exportIOFSplits(oEvent::IOF30, exportFile.c_str(), false, useUTC, cls, preferredIdTypes, L"",
+                       - 1, true, false, false, true, false, false);
     ifstream fin(exportFile.c_str());
     string rbf;
     while (std::getline(fin, rbf)) {
@@ -1596,7 +1597,7 @@ xmlbuffer * RestServer::getMOPXML(oEvent &oe, int id, int &nextId) {
           }
         }
       }
-      c.cmpModel->synchronize(oe, false, c.classes, c.controls, true);
+      c.cmpModel->synchronize(oe, L"", false, c.classes, c.controls, true);
       c.lastData = make_shared<xmlbuffer>();
       c.cmpModel->getDiffXML(*c.lastData);
       c.cmpModel->commitComplete();

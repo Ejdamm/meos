@@ -183,6 +183,7 @@
     <ClCompile Include="liveresult.cpp" />
     <ClCompile Include="localizer.cpp" />
     <ClCompile Include="machinecontainer.cpp" />
+    <ClCompile Include="maprenderer.cpp" />
     <ClCompile Include="meos.cpp" />
     <ClCompile Include="MeOSFeatures.cpp" />
     <ClCompile Include="MeosSQL.cpp" />
@@ -252,6 +253,7 @@
     <ClCompile Include="tests.cpp" />
     <ClCompile Include="TimeStamp.cpp" />
     <ClCompile Include="toolbar.cpp" />
+    <ClCompile Include="utm.cpp" />
     <ClCompile Include="xmlparser.cpp" />
     <ClCompile Include="zip.cpp" />
   </ItemGroup>
@@ -285,6 +287,7 @@
     <ClInclude Include="liveresult.h" />
     <ClInclude Include="localizer.h" />
     <ClInclude Include="machinecontainer.h" />
+    <ClInclude Include="maprenderer.h" />
     <ClInclude Include="meos.h" />
     <ClInclude Include="meosexception.h" />
     <ClInclude Include="MeOSFeatures.h" />
@@ -349,6 +352,7 @@
     <ClInclude Include="timeconstants.hpp" />
     <ClInclude Include="TimeStamp.h" />
     <ClInclude Include="toolbar.h" />
+    <ClInclude Include="utm_interface.h" />
     <ClInclude Include="xmlparser.h" />
   </ItemGroup>
   <ItemGroup>

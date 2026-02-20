@@ -1,6 +1,6 @@
 ﻿/************************************************************************
     MeOS - Orienteering Software
-    Copyright (C) 2009-2025 Melin Software HB
+    Copyright (C) 2009-2026 Melin Software HB
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -110,10 +110,13 @@ InfoTeam::InfoTeam(int id) : InfoBaseCompetitor(id) {
 }
 
 
-bool InfoCompetition::synchronize(oEvent &oe, bool onlyCmp, const set<int> &includeCls, const set<int> &ctrls, bool allowDeletion) {
+bool InfoCompetition::synchronize(oEvent &oe, const wstring &cmpName, bool onlyCmp, const set<int> &includeCls, const set<int> &ctrls, bool allowDeletion) {
   bool changed = false;
-  if (oe.getName() != name) {
-    name = oe.getName();
+
+  const wstring& tmpName = cmpName.empty() ? oe.getName() : cmpName;
+
+  if (tmpName != name) {
+    name = tmpName;
     changed = true;
   }
 
@@ -567,7 +570,9 @@ bool InfoBaseCompetitor::synchronizeBase(oAbstractRunner &bc) {
 bool InfoCompetitor::synchronize(bool useTotalResults, bool useCourse, oRunner &r) {
   bool ch = synchronizeBase(r);
   bool isQF = r.getClassRef(false) && r.getClassRef(false)->getQualificationFinal() != nullptr;
-  changeTotalSt = r.getEvent()->hasPrevStage() || (r.getLegNumber()>0 && !isQF); // Always write full attributes
+  bool singleStage = r.getClassRef(false) && r.getClassRef(false)->isSingleStageOnly();
+  
+  changeTotalSt = (!singleStage && r.getEvent()->hasPrevStage()) || (!isQF && r.getLegNumber()>0); // Always write full attributes
   
   int s = StatusOK;
   int legInput = 0;
@@ -585,7 +590,7 @@ bool InfoCompetitor::synchronize(bool useTotalResults, bool useCourse, oRunner &
     ch = true;
 
   pTeam t = r.getTeam();
-  if (useTotalResults) {
+  if (useTotalResults && !singleStage) {
     legInput = r.getTotalTimeInput() * (10 / timeConstSecond);
     s = r.getTotalStatusInput();
   }
