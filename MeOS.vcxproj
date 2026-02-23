@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{60BC59CB-8987-4A39-B866-403066F59B0F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <CopyCppRuntimeToOutputDir>false</CopyCppRuntimeToOutputDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>./src;./src/app;./src/db;./src/domain;./src/hw;./src/io;./src/net;./src/print;./src/speaker;./src/ui;./src/util;./test;./third_party/libharu;./third_party/minizip;./third_party/mysql;./third_party/png;./third_party/restbed;./resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4267;4244;4018</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalLibraryDirectories>./third_party/lib/win32_debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Msimg32.lib;comctl32.lib;odbc32.lib;odbccp32.lib;winmm.lib;ws2_32.lib;wininet.lib;zlibstat_vc15.lib;libmysql.lib;libhpdf.lib;RestBed.lib;libpng.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>meos_dpi_manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4267;4244;4018</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>./src;./src/app;./src/db;./src/domain;./src/hw;./src/io;./src/net;./src/print;./src/speaker;./src/ui;./src/util;./test;./third_party/libharu;./third_party/minizip;./third_party/mysql;./third_party/png;./third_party/restbed;./resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>Msimg32.lib;comctl32.lib;odbc32.lib;odbccp32.lib;winmm.lib;ws2_32.lib;wininet.lib;zlibstat.lib;libharu.lib;RestBed.lib;libpng.lib;libmysql.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>./third_party/lib/win64_debug</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>meos_dpi_manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <DisableSpecificWarnings>4267;4244;4018</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>./src;./src/app;./src/db;./src/domain;./src/hw;./src/io;./src/net;./src/print;./src/speaker;./src/ui;./src/util;./test;./third_party/libharu;./third_party/minizip;./third_party/mysql;./third_party/png;./third_party/restbed;./resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>./third_party/lib/win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Msimg32.lib;comctl32.lib;odbc32.lib;odbccp32.lib;winmm.lib;ws2_32.lib;wininet.lib;zlibstat_vc15.lib;libmysql.lib;libhpdf.lib;RestBed.lib;libpng.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>meos_dpi_manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <DisableSpecificWarnings>4267;4244;4018</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalIncludeDirectories>./src;./src/app;./src/db;./src/domain;./src/hw;./src/io;./src/net;./src/print;./src/speaker;./src/ui;./src/util;./test;./third_party/libharu;./third_party/minizip;./third_party/mysql;./third_party/png;./third_party/restbed;./resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>Msimg32.lib;comctl32.lib;odbc32.lib;odbccp32.lib;winmm.lib;ws2_32.lib;wininet.lib;zlibstat.lib;libharu.lib;RestBed.lib;libpng.lib;libmysql.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>./third_party/lib/win64</AdditionalLibraryDirectories>
+    </Link>
+    <Manifest>
+      <AdditionalManifestFiles>meos_dpi_manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ui\animationdata.cpp" />
+    <ClCompile Include="src\ui\autocomplete.cpp" />
+    <ClCompile Include="src\app\autotask.cpp" />
+    <ClCompile Include="src\io\binencoder.cpp" />
+    <ClCompile Include="src\hw\cardsystem.cpp" />
+    <ClCompile Include="src\domain\classconfiginfo.cpp" />
+    <ClCompile Include="src\io\csvparser.cpp" />
+    <ClCompile Include="src\net\download.cpp" />
+    <ClCompile Include="src\ui\gdioutput.cpp" />
+    <ClCompile Include="src\domain\generalresult.cpp" />
+    <ClCompile Include="src\io\HTMLWriter.cpp" />
+    <ClCompile Include="src\ui\image.cpp" />
+    <ClCompile Include="src\io\importformats.cpp" />
+    <ClCompile Include="src\net\infoserver.cpp" />
+    <ClCompile Include="src\io\iof30interface.cpp" />
+    <ClCompile Include="src\ui\listeditor.cpp" />
+    <ClCompile Include="src\net\liveresult.cpp" />
+    <ClCompile Include="src\util\localizer.cpp" />
+    <ClCompile Include="src\util\machinecontainer.cpp" />
+    <ClCompile Include="src\ui\maprenderer.cpp" />
+    <ClCompile Include="src\app\meos.cpp" />
+    <ClCompile Include="src\app\MeOSFeatures.cpp" />
+    <ClCompile Include="src\db\MeosSQL.cpp" />
+    <ClCompile Include="src\app\meosversion.cpp" />
+    <ClCompile Include="src\util\meos_util.cpp" />
+    <ClCompile Include="src\ui\metalist.cpp" />
+    <ClCompile Include="src\ui\methodeditor.cpp" />
+    <ClCompile Include="src\db\mysqldaemon.cpp" />
+    <ClCompile Include="src\db\mysqlwrapper.cpp" />
+    <ClCompile Include="src\util\newcompetition.cpp" />
+    <ClCompile Include="src\domain\oBase.cpp" />
+    <ClCompile Include="src\domain\oCard.cpp" />
+    <ClCompile Include="src\domain\oClass.cpp" />
+    <ClCompile Include="src\domain\oClub.cpp" />
+    <ClCompile Include="src\domain\oControl.cpp" />
+    <ClCompile Include="src\domain\oCourse.cpp" />
+    <ClCompile Include="src\domain\oDataContainer.cpp" />
+    <ClCompile Include="src\domain\oEvent.cpp" />
+    <ClCompile Include="src\domain\oEventDraw.cpp" />
+    <ClCompile Include="src\domain\oEventResult.cpp" />
+    <ClCompile Include="src\domain\oEventSpeaker.cpp" />
+    <ClCompile Include="src\db\oEventSQL.cpp" />
+    <ClCompile Include="src\domain\oevent_transfer.cpp" />
+    <ClCompile Include="src\domain\oFreeImport.cpp" />
+    <ClCompile Include="src\domain\oFreePunch.cpp" />
+    <ClCompile Include="src\io\oImportExport.cpp" />
+    <ClCompile Include="src\domain\oListInfo.cpp" />
+    <ClCompile Include="src\net\onlineinput.cpp" />
+    <ClCompile Include="src\net\onlineresults.cpp" />
+    <ClCompile Include="src\domain\oPunch.cpp" />
+    <ClCompile Include="src\domain\oReport.cpp" />
+    <ClCompile Include="src\domain\oRunner.cpp" />
+    <ClCompile Include="src\domain\oTeam.cpp" />
+    <ClCompile Include="src\domain\oTeamEvent.cpp" />
+    <ClCompile Include="src\util\parser.cpp" />
+    <ClCompile Include="src\io\pdfwriter.cpp" />
+    <ClCompile Include="src\ui\prefseditor.cpp" />
+    <ClCompile Include="src\print\printer.cpp" />
+    <ClCompile Include="src\print\printresultservice.cpp" />
+    <ClCompile Include="src\ui\progress.cpp" />
+    <ClCompile Include="src\ui\qf_editor.cpp" />
+    <ClCompile Include="src\domain\qualification_final.cpp" />
+    <ClCompile Include="src\util\random.cpp" />
+    <ClCompile Include="src\app\recorder.cpp" />
+    <ClCompile Include="src\net\restserver.cpp" />
+    <ClCompile Include="src\net\RestService.cpp" />
+    <ClCompile Include="src\domain\RunnerDB.cpp" />
+    <ClCompile Include="src\net\socket.cpp" />
+    <ClCompile Include="src\speaker\speakermonitor.cpp" />
+    <ClCompile Include="src\hw\SportIdent.cpp" />
+    <ClCompile Include="src\app\StdAfx.cpp" />
+    <ClCompile Include="src\ui\TabAuto.cpp" />
+    <ClCompile Include="src\ui\TabBase.cpp" />
+    <ClCompile Include="src\ui\TabClass.cpp" />
+    <ClCompile Include="src\ui\TabClub.cpp" />
+    <ClCompile Include="src\ui\TabCompetition.cpp" />
+    <ClCompile Include="src\ui\TabControl.cpp" />
+    <ClCompile Include="src\ui\TabCourse.cpp" />
+    <ClCompile Include="src\ui\Table.cpp" />
+    <ClCompile Include="src\ui\TabList.cpp" />
+    <ClCompile Include="src\ui\TabMulti.cpp" />
+    <ClCompile Include="src\ui\TabRunner.cpp" />
+    <ClCompile Include="src\ui\TabSI.cpp" />
+    <ClCompile Include="src\ui\TabSpeaker.cpp" />
+    <ClCompile Include="src\ui\TabTeam.cpp" />
+    <ClCompile Include="test\testmeos.cpp" />
+    <ClCompile Include="test\tests.cpp" />
+    <ClCompile Include="src\util\TimeStamp.cpp" />
+    <ClCompile Include="src\ui\toolbar.cpp" />
+    <ClCompile Include="src\util\utm.cpp" />
+    <ClCompile Include="src\io\xmlparser.cpp" />
+    <ClCompile Include="src\util\zip.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ui\animationdata.h" />
+    <ClInclude Include="src\ui\autocomplete.h" />
+    <ClInclude Include="src\ui\autocompletehandler.h" />
+    <ClInclude Include="src\app\autotask.h" />
+    <ClInclude Include="src\io\binencoder.h" />
+    <ClInclude Include="src\hw\cardsystem.h" />
+    <ClInclude Include="src\domain\classconfiginfo.h" />
+    <ClInclude Include="src\io\csvparser.h" />
+    <ClInclude Include="src\domain\datadefiners.h" />
+    <ClInclude Include="src\net\download.h" />
+    <ClInclude Include="src\ui\gdiconstants.h" />
+    <ClInclude Include="src\ui\gdifonts.h" />
+    <ClInclude Include="src\ui\gdiimpl.h" />
+    <ClInclude Include="src\ui\gdioutput.h" />
+    <ClInclude Include="src\ui\gdistructures.h" />
+    <ClInclude Include="src\domain\generalresult.h" />
+    <ClInclude Include="src\ui\guihandler.h" />
+    <ClInclude Include="src\io\HTMLWriter.h" />
+    <ClInclude Include="src\ui\image.h" />
+    <ClInclude Include="src\io\importformats.h" />
+    <ClInclude Include="src\net\infoserver.h" />
+    <ClInclude Include="src\util\inthashmap.h" />
+    <ClInclude Include="src\util\intkeymap.hpp" />
+    <ClInclude Include="src\util\intkeymapimpl.hpp" />
+    <ClInclude Include="src\io\iof30interface.h" />
+    <ClInclude Include="src\ui\listeditor.h" />
+    <ClInclude Include="src\net\liveresult.h" />
+    <ClInclude Include="src\util\localizer.h" />
+    <ClInclude Include="src\util\machinecontainer.h" />
+    <ClInclude Include="src\ui\maprenderer.h" />
+    <ClInclude Include="src\app\meos.h" />
+    <ClInclude Include="src\app\meosexception.h" />
+    <ClInclude Include="src\app\MeOSFeatures.h" />
+    <ClInclude Include="src\db\MeosSQL.h" />
+    <ClInclude Include="src\util\meos_util.h" />
+    <ClInclude Include="src\ui\metalist.h" />
+    <ClInclude Include="src\ui\methodeditor.h" />
+    <ClInclude Include="src\db\mysqlwrapper.h" />
+    <ClInclude Include="src\domain\oBase.h" />
+    <ClInclude Include="src\domain\oCard.h" />
+    <ClInclude Include="src\domain\oClass.h" />
+    <ClInclude Include="src\domain\oClub.h" />
+    <ClInclude Include="src\domain\oControl.h" />
+    <ClInclude Include="src\domain\oCourse.h" />
+    <ClInclude Include="src\domain\oDataContainer.h" />
+    <ClInclude Include="src\domain\oEvent.h" />
+    <ClInclude Include="src\domain\oEventDraw.h" />
+    <ClInclude Include="src\domain\oFreeImport.h" />
+    <ClInclude Include="src\domain\oFreePunch.h" />
+    <ClInclude Include="src\domain\oListInfo.h" />
+    <ClInclude Include="src\net\onlineinput.h" />
+    <ClInclude Include="src\net\onlineresults.h" />
+    <ClInclude Include="src\domain\oPunch.h" />
+    <ClInclude Include="src\domain\oRunner.h" />
+    <ClInclude Include="src\speaker\ospeaker.h" />
+    <ClInclude Include="src\domain\oTeam.h" />
+    <ClInclude Include="src\util\parser.h" />
+    <ClInclude Include="src\io\pdfwriter.h" />
+    <ClInclude Include="src\ui\prefseditor.h" />
+    <ClInclude Include="src\print\Printer.h" />
+    <ClInclude Include="src\print\printresultservice.h" />
+    <ClInclude Include="src\ui\progress.h" />
+    <ClInclude Include="src\ui\qf_editor.h" />
+    <ClInclude Include="src\domain\qualification_final.h" />
+    <ClInclude Include="src\util\random.h" />
+    <ClInclude Include="src\app\recorder.h" />
+    <ClInclude Include="resources\resource.h" />
+    <ClInclude Include="src\net\restserver.h" />
+    <ClInclude Include="src\net\RestService.h" />
+    <ClInclude Include="src\domain\RunnerDB.h" />
+    <ClInclude Include="src\net\socket.h" />
+    <ClInclude Include="src\speaker\speakermonitor.h" />
+    <ClInclude Include="src\hw\SportIdent.h" />
+    <ClInclude Include="src\app\StdAfx.h" />
+    <ClInclude Include="src\ui\subcommand.h" />
+    <ClInclude Include="src\ui\TabAuto.h" />
+    <ClInclude Include="src\ui\TabBase.h" />
+    <ClInclude Include="src\ui\TabClass.h" />
+    <ClInclude Include="src\ui\TabClub.h" />
+    <ClInclude Include="src\ui\TabCompetition.h" />
+    <ClInclude Include="src\ui\TabControl.h" />
+    <ClInclude Include="src\ui\TabCourse.h" />
+    <ClInclude Include="src\ui\Table.h" />
+    <ClInclude Include="src\ui\TableType.h" />
+    <ClInclude Include="src\ui\TabList.h" />
+    <ClInclude Include="src\ui\TabMulti.h" />
+    <ClInclude Include="src\ui\TabRunner.h" />
+    <ClInclude Include="src\ui\TabSI.h" />
+    <ClInclude Include="src\ui\TabSpeaker.h" />
+    <ClInclude Include="src\ui\TabTeam.h" />
+    <ClInclude Include="test\testmeos.h" />
+    <ClInclude Include="src\util\timeconstants.hpp" />
+    <ClInclude Include="src\util\TimeStamp.h" />
+    <ClInclude Include="src\ui\toolbar.h" />
+    <ClInclude Include="src\util\utm_interface.h" />
+    <ClInclude Include="src\io\xmlparser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\meos.rc" />
+    <ResourceCompile Include="resources\meoslang.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\html1.htm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\announcer24.png" />
+    <Image Include="resources\bitmap1.bmp" />
+    <Image Include="resources\bmp00001.bmp" />
+    <Image Include="resources\class24.png" />
+    <Image Include="resources\clubs24.png" />
+    <Image Include="resources\competition24.png" />
+    <Image Include="resources\course24.png" />
+    <Image Include="resources\ctrl24.png" />
+    <Image Include="resources\edit.png" />
+    <Image Include="resources\info24.png" />
+    <Image Include="resources\lists24.png" />
+    <Image Include="meos.ICO" />
+    <Image Include="resources\meos.png" />
+    <Image Include="resources\readout24.png" />
+    <Image Include="resources\runner24.png" />
+    <Image Include="resources\services24.png" />
+    <Image Include="resources\team24.png" />
+    <Image Include="resources\title.png" />
+    <Image Include="resources\warn24.png" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
