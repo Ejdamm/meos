@@ -161,11 +161,8 @@ target_include_directories(MeOS PRIVATE
     src/util
     test
     resources
+    third_party
     third_party/libharu
-    third_party/minizip
-    third_party/mysql
-    third_party/png
-    third_party/restbed
 )
 
 # Compiler settings
