@@ -1,0 +1,9 @@
+1. [2026-02-24] Task 1.1 DONE: Kartlägg gdioutput-anrop i domänlagret.
+   34 filer i src/domain/ refererar gdioutput (~189 rader). Kategoriserat i:
+   - UI-rendering (~60 metoder som tar gdioutput& param, t.ex. generateList, speakerList, fill*)
+   - Användarinteraktion (alert: 15 anrop, ask: 3, askOkCancel: 2)
+   - Statiska utilities (widen/narrow/toUTF8/fromUTF8/getTimerText: 17 anrop)
+   - oEvent har gdioutput& gdibase som medlem-referens (satt i constructor)
+   Leverans: plans/gdioutput_domain_mapping.md med komplett lista.
+   Rekommendation: IEventNotifier ska wrappa alert/ask/askOkCancel/status/dataChanged.
+   Rendering-metoder bör flyttas ut ur domänen helt, ej wrappas.

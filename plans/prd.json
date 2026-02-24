@@ -1,0 +1,1142 @@
+{
+  "title": "MeOS React Migration — Plattformsoberoende GUI",
+  "description": "Migrera MeOS från Win32 GDI-baserat GUI till ett idiomatiskt React + TypeScript-baserat webbgränssnitt. C++-servern ska kunna köras headless och plattformsoberoende (Windows/Linux/Mac) med ett fristående React-GUI som kommunicerar via JSON REST API.",
+  "tech_stack": {
+    "frontend": "React 18+ med TypeScript (strict mode), Vite, funktionella komponenter, hooks, React Router, Tanstack Query för data-fetching",
+    "backend": "C++17, Restbed, nlohmann/json, headless-kapabel",
+    "communication": "JSON över REST"
+  },
+  "react_guidelines": "Idiomatiskt React med TypeScript: funktionella komponenter (inga class components), custom hooks för delad logik, strict TypeScript (noImplicitAny, strictNullChecks), interface-typer för alla API-responses, React.FC undviks till förmån för explicit return types, barrel exports, lazy loading av routes, error boundaries, Suspense för loading states.",
+  "phases": [
+    {
+      "name": "Fas 1: Dekouplera domän från UI",
+      "description": "oEvent tar idag en gdioutput&-referens. Domänlagret måste göras UI-agnostiskt så att servern kan köras utan GUI.",
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Kartlägg gdioutput-anrop i domänlagret",
+          "description": "Sök igenom src/domain/ (oEvent, oRunner, oTeam, oClass, oCourse, oControl, oClub etc.) och dokumentera varje ställe som anropar gdioutput-metoder. Lista metodnamn, signaturer och anropskontext. Leverans: en komplett lista av metoder som IEventNotifier-interfacet behöver wrappa.",
+          "done": true,
+          "dependencies": []
+        },
+        {
+          "id": "1.2",
+          "title": "Definiera IEventNotifier-interface",
+          "description": "Skapa src/domain/IEventNotifier.h med ett pure virtual interface. Basera metoderna på kartläggningen i 1.1: statusmeddelanden, progress-uppdateringar, felrapportering. Inga implementationer, bara deklarationer.",
+          "done": false,
+          "dependencies": [
+            "1.1"
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Refaktorera oEvent att ta IEventNotifier&",
+          "description": "Ändra oEvent (src/domain/oEvent.h/cpp) att ta emot en IEventNotifier& istället för gdioutput& i konstruktor/init. Spara som member-referens. Ersätt oEvents egna gdioutput-anrop att gå genom IEventNotifier.",
+          "done": false,
+          "dependencies": [
+            "1.2"
+          ]
+        },
+        {
+          "id": "1.4",
+          "title": "Migrera övriga domänobjekt till IEventNotifier",
+          "description": "Uppdatera alla ställen i oRunner, oTeam, oClass, oCourse, oControl, oClub och andra domänobjekt som anropar gdioutput att istället använda IEventNotifier via oEvent. Verifiera att src/domain/ kompilerar.",
+          "done": false,
+          "dependencies": [
+            "1.3"
+          ]
+        },
+        {
+          "id": "1.5",
+          "title": "Skapa GdiNotifier-adapter",
+          "description": "Skapa GdiNotifier-klass i src/ui/GdiNotifier.h/cpp som implementerar IEventNotifier och delegerar varje metod till motsvarande gdioutput-anrop. Kompilera och länka klassen.",
+          "done": false,
+          "dependencies": [
+            "1.4"
+          ]
+        },
+        {
+          "id": "1.6",
+          "title": "Koppla GdiNotifier i applikationsstart",
+          "description": "Uppdatera meos.cpp att instansiera GdiNotifier och skicka den till oEvent istället för gdioutput direkt. Starta applikationen och verifiera att Win32-GUI fungerar som innan.",
+          "done": false,
+          "dependencies": [
+            "1.5"
+          ]
+        },
+        {
+          "id": "1.7",
+          "title": "Skapa NullNotifier",
+          "description": "Skapa NullNotifier-klass i src/app/NullNotifier.h/cpp som implementerar IEventNotifier med tomma funktionskroppar (no-op). Inga sidoeffekter, inga loggningar.",
+          "done": false,
+          "dependencies": [
+            "1.2"
+          ]
+        },
+        {
+          "id": "1.8",
+          "title": "Lägg till --headless CLI-parameter",
+          "description": "Lägg till kommandoradsargument --headless i meos.cpp. När flaggan är satt, instansiera NullNotifier istället för GdiNotifier och hoppa över Win32 GUI-initialisering (fönster, meddelandeloop).",
+          "done": false,
+          "dependencies": [
+            "1.6",
+            "1.7"
+          ]
+        },
+        {
+          "id": "1.9",
+          "title": "Skapa MockNotifier testhjälpare",
+          "description": "Implementera MockNotifier i test/MockNotifier.h som implementerar IEventNotifier och registrerar alla anrop (metodnamn + argument) i en std::vector. Tillhandahåll verify-metoder för att kontrollera anropshistorik.",
+          "done": false,
+          "dependencies": [
+            "1.2"
+          ]
+        },
+        {
+          "id": "1.10",
+          "title": "Enhetstest: oEvent delegerar till IEventNotifier",
+          "description": "Skriv test som instansierar oEvent med MockNotifier, utför operationer som triggar notifieringar (statusändring, progress, fel) och verifierar att MockNotifier registrerat rätt anrop med rätt argument.",
+          "done": false,
+          "dependencies": [
+            "1.4",
+            "1.9"
+          ]
+        },
+        {
+          "id": "1.11",
+          "title": "Enhetstest: NullNotifier kraschar inte",
+          "description": "Skriv test som anropar alla NullNotifier-metoder med normala värden, tomma strängar, nollvärden och extremvärden. Verifiera att inget anrop kastar undantag eller kraschar.",
+          "done": false,
+          "dependencies": [
+            "1.7"
+          ]
+        },
+        {
+          "id": "1.12",
+          "title": "Integrationstest: headless startup och tävlingsladdning",
+          "description": "Skriv test som startar applikationen med --headless, laddar en tävlingsfil (*.meos) programmatiskt via oEvent med NullNotifier, och verifierar att tävlingsdata laddats korrekt utan krasch.",
+          "done": false,
+          "dependencies": [
+            "1.8"
+          ]
+        },
+        {
+          "id": "1.13",
+          "title": "Regressionstest: befintliga tester passerar",
+          "description": "Kör befintliga test/testmeos.cpp och test/tests.cpp med den refaktorerade koden. Alla existerande tester ska passera utan ändringar. Fixa eventuella kompileringsfel orsakade av refaktoreringen.",
+          "done": false,
+          "dependencies": [
+            "1.8"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fas 2: Cross-platform C++-server",
+      "description": "Byt ut vendored tredjepartsbibliotek mot pakethanterare (vcpkg), gör C++-servern byggbar och körbar på Linux och Mac utan Win32-beroenden.",
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Skapa vcpkg.json manifest",
+          "description": "Skapa vcpkg.json i projektets rot med alla beroenden: libmysql, libharu, restbed, libpng, zlib. Ange versioner som matchar nuvarande vendored bibliotek.",
+          "done": false,
+          "dependencies": [
+            "1.13"
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Konfigurera CMake för vcpkg toolchain",
+          "description": "Uppdatera CMakeLists.txt att stödja CMAKE_TOOLCHAIN_FILE från vcpkg. Skapa CMakePresets.json med vcpkg-preset så att cmake --preset=default fungerar direkt.",
+          "done": false,
+          "dependencies": [
+            "2.1"
+          ]
+        },
+        {
+          "id": "2.3",
+          "title": "Ersätt vendored MySQL med find_package",
+          "description": "Ta bort third_party/mysql/ (headers), third_party/lib/*/libmysql.lib och third_party/bin/*/libmySQL.dll. Ersätt hardkodade sökvägar i CMakeLists.txt med find_package(unofficial-libmysql) eller motsvarande vcpkg-paketnamn. Verifiera att projektet bygger.",
+          "done": false,
+          "dependencies": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "2.4",
+          "title": "Ersätt vendored libharu med find_package",
+          "description": "Ta bort third_party/libharu/ och tillhörande .lib/.dll i third_party/lib/ och third_party/bin/. Ersätt med find_package(unofficial-libharu) i CMakeLists.txt. Verifiera build.",
+          "done": false,
+          "dependencies": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "2.5",
+          "title": "Ersätt vendored restbed med find_package",
+          "description": "Ta bort third_party/restbed/ och tillhörande .lib. Ersätt med find_package(restbed) i CMakeLists.txt. Verifiera build.",
+          "done": false,
+          "dependencies": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "2.6",
+          "title": "Ersätt vendored libpng med find_package",
+          "description": "Ta bort third_party/png/ och tillhörande .lib. Ersätt med find_package(PNG) i CMakeLists.txt. Verifiera build.",
+          "done": false,
+          "dependencies": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "2.7",
+          "title": "Ersätt vendored zlib med find_package",
+          "description": "Ta bort third_party/minizip/ (zlib headers) och tillhörande zlibstat*.lib. Ersätt med find_package(ZLIB) i CMakeLists.txt. Verifiera build.",
+          "done": false,
+          "dependencies": [
+            "2.2"
+          ]
+        },
+        {
+          "id": "2.8",
+          "title": "Rensa third_party-katalogen",
+          "description": "Ta bort tomma kataloger i third_party/. Om katalogen är helt tom, ta bort den. Uppdatera .gitignore om det behövs.",
+          "done": false,
+          "dependencies": [
+            "2.3",
+            "2.4",
+            "2.5",
+            "2.6",
+            "2.7"
+          ]
+        },
+        {
+          "id": "2.9",
+          "title": "Dokumentera vcpkg-setup i README",
+          "description": "Uppdatera README.md med instruktioner för att bootstrappa vcpkg: installationsalternativ (git submodule eller systeminstallation), hur man kör cmake med vcpkg preset, vilka beroenden som installeras automatiskt.",
+          "done": false,
+          "dependencies": [
+            "2.8"
+          ]
+        },
+        {
+          "id": "2.10",
+          "title": "Kartlägg Win32-API-anrop utanför UI-lagret",
+          "description": "Sök igenom src/net/, src/io/, src/util/, src/app/, src/db/ efter Win32-specifika anrop: WinSock (WSAStartup, socket, send, recv), wininet (InternetOpen etc.), winmm, registry (RegOpenKey etc.), WCHAR-operationer, Windows-specifika filoperationer. Dokumentera varje anropsplats.",
+          "done": false,
+          "dependencies": [
+            "1.13"
+          ]
+        },
+        {
+          "id": "2.11",
+          "title": "Plattformsabstraktion: sockets",
+          "description": "Skapa src/util/platform_socket.h/cpp med #ifdef-baserad implementation. WinSock på Windows, POSIX sockets på Linux/Mac. Wrappa: create, bind, listen, connect, send, recv, close, select/poll.",
+          "done": false,
+          "dependencies": [
+            "2.10"
+          ]
+        },
+        {
+          "id": "2.12",
+          "title": "Plattformsabstraktion: filsystem och sökvägar",
+          "description": "Ersätt Windows-specifika fil- och path-operationer i src/io/ och src/util/ med std::filesystem (C++17). Hantera teckenkodning: Windows WCHAR ↔ UTF-8 konvertering.",
+          "done": false,
+          "dependencies": [
+            "2.10"
+          ]
+        },
+        {
+          "id": "2.13",
+          "title": "Plattformsabstraktion: trådar och synkronisering",
+          "description": "Ersätt Windows-specifika trådanrop (CreateThread, WaitForSingleObject, CRITICAL_SECTION etc.) i src/util/ och src/app/ med std::thread, std::mutex, std::condition_variable.",
+          "done": false,
+          "dependencies": [
+            "2.10"
+          ]
+        },
+        {
+          "id": "2.14",
+          "title": "Migrera src/net/ till portabla sockets",
+          "description": "Ersätt WinSock-anrop i src/net/socket.cpp och src/net/download.cpp med plattformsabstraktionen från 2.11. Uppdatera src/net/onlineinput.cpp och src/net/onlineresults.cpp.",
+          "done": false,
+          "dependencies": [
+            "2.11",
+            "2.8"
+          ]
+        },
+        {
+          "id": "2.15",
+          "title": "Verifiera restbed cross-platform",
+          "description": "Verifiera att restbed via vcpkg bygger och fungerar på Linux. Starta en minimal REST-endpoint och gör ett HTTP-anrop.",
+          "done": false,
+          "dependencies": [
+            "2.5",
+            "2.11"
+          ]
+        },
+        {
+          "id": "2.16",
+          "title": "Gör MySQL-koppling plattformsoberoende",
+          "description": "Verifiera att vcpkg-installerad MySQL-klient fungerar på Linux/Mac. Uppdatera src/db/ att undvika Windows-specifika MySQL-anrop.",
+          "done": false,
+          "dependencies": [
+            "2.3",
+            "2.12"
+          ]
+        },
+        {
+          "id": "2.17",
+          "title": "Gör MySQL valfritt med CMake-option",
+          "description": "Lägg till CMake-option MEOS_USE_MYSQL (default ON). När OFF, bygg utan MySQL-beroende. Lägg till SQLite som alternativ databasbackend i src/db/ med samma gränssnitt.",
+          "done": false,
+          "dependencies": [
+            "2.16"
+          ]
+        },
+        {
+          "id": "2.18",
+          "title": "Skapa CMake-target: MeOS-server (headless)",
+          "description": "Skapa separat CMake-target MeOS-server som bygger headless-servern utan Win32 UI-beroenden. Villkora Win32-libraries (Msimg32, comctl32, gdiplus etc.) så de bara länkas för MeOS-target.",
+          "done": false,
+          "dependencies": [
+            "2.14",
+            "2.12",
+            "2.13",
+            "2.16"
+          ]
+        },
+        {
+          "id": "2.19",
+          "title": "Lägg till Linux (Ubuntu) i CI-matris",
+          "description": "Uppdatera .github/workflows/build.yml med Ubuntu i build-matrisen. Installera vcpkg-beroenden. Bygg MeOS-server target på Ubuntu.",
+          "done": false,
+          "dependencies": [
+            "2.18"
+          ]
+        },
+        {
+          "id": "2.20",
+          "title": "Kör C++-tester i CI på Linux",
+          "description": "Konfigurera CI att köra befintliga C++-enhetstester på Linux. Fixa eventuella plattformsspecifika testfel.",
+          "done": false,
+          "dependencies": [
+            "2.19"
+          ]
+        },
+        {
+          "id": "2.21",
+          "title": "Test: cmake configure med vcpkg hittar alla paket",
+          "description": "Skriv CI-steg eller testskript som kör cmake configure med vcpkg toolchain och verifierar att alla find_package()-anrop lyckas (MySQL, libharu, restbed, PNG, ZLIB). Inga vendored filer ska behövas.",
+          "done": false,
+          "dependencies": [
+            "2.8"
+          ]
+        },
+        {
+          "id": "2.22",
+          "title": "Test: fullständig länkning mot vcpkg-paket",
+          "description": "Bygg MeOS-server target från scratch med vcpkg-paket. Verifiera att alla symboler resolvas utan undefined references.",
+          "done": false,
+          "dependencies": [
+            "2.21"
+          ]
+        },
+        {
+          "id": "2.23",
+          "title": "Test: socket-abstraktion cross-platform",
+          "description": "Enhetstest: öppna TCP-socket, bind + listen på loopback, connect, skicka och ta emot data, stäng. Kör på Windows och Linux i CI.",
+          "done": false,
+          "dependencies": [
+            "2.11",
+            "2.19"
+          ]
+        },
+        {
+          "id": "2.24",
+          "title": "Test: filsystem-abstraktion cross-platform",
+          "description": "Enhetstest: skapa/radera/läs/skriv filer och kataloger via std::filesystem. Testa sökvägar med svenska tecken (åäö i UTF-8). Kör på Windows och Linux i CI.",
+          "done": false,
+          "dependencies": [
+            "2.12",
+            "2.19"
+          ]
+        },
+        {
+          "id": "2.25",
+          "title": "Test: trådabstraktion cross-platform",
+          "description": "Enhetstest: starta/joina std::thread, lås/lås upp std::mutex, signalera std::condition_variable. Kör på Windows och Linux i CI.",
+          "done": false,
+          "dependencies": [
+            "2.13",
+            "2.19"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fas 3: JSON REST API",
+      "description": "Utöka den befintliga REST-servern med fullständiga CRUD-endpoints i JSON-format för alla domänobjekt.",
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Lägg till nlohmann/json som beroende",
+          "description": "Lägg till nlohmann-json i vcpkg.json. Uppdatera CMakeLists.txt med find_package(nlohmann_json). Verifiera att #include <nlohmann/json.hpp> kompilerar.",
+          "done": false,
+          "dependencies": [
+            "2.8"
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "JSON-serialisering: oRunner och oClub",
+          "description": "Skapa src/net/json_serializers.h/cpp. Implementera to_json/from_json för oRunner och oClub med NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE. Inkludera alla relevanta fält (id, namn, klubb, bricknummer, start/mål-tider etc.).",
+          "done": false,
+          "dependencies": [
+            "3.1"
+          ]
+        },
+        {
+          "id": "3.3",
+          "title": "JSON-serialisering: oTeam",
+          "description": "Implementera to_json/from_json för oTeam i json_serializers. Inkludera lagmedlemmar, sträcktilldelning, lagresultat.",
+          "done": false,
+          "dependencies": [
+            "3.1"
+          ]
+        },
+        {
+          "id": "3.4",
+          "title": "JSON-serialisering: oClass och oCourse",
+          "description": "Implementera to_json/from_json för oClass och oCourse i json_serializers. Inkludera lottningsinställningar, bansträckningar, kontrollsekvens, längd, stigning.",
+          "done": false,
+          "dependencies": [
+            "3.1"
+          ]
+        },
+        {
+          "id": "3.5",
+          "title": "JSON-serialisering: oControl, oCard, oPunch, oFreePunch, oEvent",
+          "description": "Implementera to_json/from_json för resterande domänobjekt i json_serializers. Inkludera kontrollkod, position, stämplingstider, tävlingsdata.",
+          "done": false,
+          "dependencies": [
+            "3.1"
+          ]
+        },
+        {
+          "id": "3.6",
+          "title": "Skapa API-router med URL-mönster-matchning",
+          "description": "Refaktorera restserver.cpp: skapa en API-router som mappar URL-mönster (t.ex. /api/runners/:id) till handler-funktioner. Stöd path-parametrar och query-parametrar.",
+          "done": false,
+          "dependencies": [
+            "3.2"
+          ]
+        },
+        {
+          "id": "3.7",
+          "title": "Lägg till stöd för content negotiation",
+          "description": "Implementera content negotiation i API-routern: Accept: application/json → JSON-response, Accept: text/xml → XML-response (befintlig). Default till JSON.",
+          "done": false,
+          "dependencies": [
+            "3.6"
+          ]
+        },
+        {
+          "id": "3.8",
+          "title": "Lägg till stöd för POST, PUT, DELETE",
+          "description": "Utöka API-routern med stöd för HTTP-metoderna POST, PUT, DELETE (utöver GET). Parsa JSON request body. Returnera korrekta statuskoder (201 Created, 204 No Content, 400 Bad Request).",
+          "done": false,
+          "dependencies": [
+            "3.6"
+          ]
+        },
+        {
+          "id": "3.9",
+          "title": "Competition API endpoints",
+          "description": "Implementera: GET /api/competitions (lista), GET /api/competitions/:id (detalj), POST /api/competitions (skapa), PUT /api/competitions/:id (uppdatera). JSON request/response.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.10",
+          "title": "Runner API endpoints",
+          "description": "Implementera: GET /api/runners (lista med filtrering ?class=X&club=X&card=X), GET /api/runners/:id, POST /api/runners, PUT /api/runners/:id, DELETE /api/runners/:id. Inkludera start/mål-tider, resultat, stämpeldata.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.2"
+          ]
+        },
+        {
+          "id": "3.11",
+          "title": "Team API endpoints",
+          "description": "Implementera: GET /api/teams, GET /api/teams/:id, POST /api/teams, PUT /api/teams/:id, DELETE /api/teams/:id. Inkludera lagmedlemmar och lagresultat.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.3"
+          ]
+        },
+        {
+          "id": "3.12",
+          "title": "Class API endpoints",
+          "description": "Implementera: GET /api/classes, GET /api/classes/:id, POST /api/classes, PUT /api/classes/:id, DELETE /api/classes/:id. Inkludera lottningsinställningar och startintervall.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.4"
+          ]
+        },
+        {
+          "id": "3.13",
+          "title": "Course API endpoints",
+          "description": "Implementera: GET /api/courses, GET /api/courses/:id, POST /api/courses, PUT /api/courses/:id, DELETE /api/courses/:id. Inkludera kontrollsekvens, längd, stigning.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.4"
+          ]
+        },
+        {
+          "id": "3.14",
+          "title": "Control API endpoints",
+          "description": "Implementera: GET /api/controls, GET /api/controls/:id, POST /api/controls, PUT /api/controls/:id, DELETE /api/controls/:id. Inkludera kontrollkod, position, kontrolltyp.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.15",
+          "title": "Club API endpoints",
+          "description": "Implementera: GET /api/clubs, GET /api/clubs/:id, POST /api/clubs, PUT /api/clubs/:id, DELETE /api/clubs/:id. Inkludera klubbnamn, nationalitet.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.2"
+          ]
+        },
+        {
+          "id": "3.16",
+          "title": "Card och SI-stämpling API endpoints",
+          "description": "Implementera: GET /api/cards (lista brickor), GET /api/cards/:id, POST /api/cards/read (simulera brickavläsning), GET /api/punches?runner=X (stämplingar för löpare).",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.17",
+          "title": "List och resultat API endpoints",
+          "description": "Implementera: GET /api/lists (tillgängliga listtyper), GET /api/lists/:type (generera lista i JSON), GET /api/results?class=X&type=Y (resultat med filtrering).",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.18",
+          "title": "Speaker API endpoints",
+          "description": "Implementera: GET /api/speaker/config (hämta konfiguration), PUT /api/speaker/config (uppdatera), GET /api/speaker/monitor (live speaker-data).",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.19",
+          "title": "Automation API endpoints",
+          "description": "Implementera: GET /api/automations (lista), POST /api/automations (skapa), DELETE /api/automations/:id (ta bort), GET /api/automations/:id/status. Mappa mot befintliga AutoMachine-typer.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.20",
+          "title": "Import/Export API endpoints",
+          "description": "Implementera: POST /api/import/iof (IOF XML-import via multipart upload), GET /api/export/iof (IOF XML-export), POST /api/import/csv, GET /api/export/csv.",
+          "done": false,
+          "dependencies": [
+            "3.8",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.21",
+          "title": "Serve statiska filer från React-build",
+          "description": "Konfigurera REST-servern att servera statiska filer (HTML, JS, CSS) från src/ui/web/dist/. GET / returnerar index.html. Okända routes fallbackar till index.html (SPA client-side routing).",
+          "done": false,
+          "dependencies": [
+            "3.6"
+          ]
+        },
+        {
+          "id": "3.22",
+          "title": "Test: JSON roundtrip för alla domänobjekt",
+          "description": "Enhetstest: för varje domänobjekt (oRunner, oTeam, oClass, oCourse, oControl, oClub, oCard, oPunch, oFreePunch, oEvent) — skapa objekt → to_json → from_json → jämför att alla fält bevarats identiskt.",
+          "done": false,
+          "dependencies": [
+            "3.2",
+            "3.3",
+            "3.4",
+            "3.5"
+          ]
+        },
+        {
+          "id": "3.23",
+          "title": "Test: JSON edge cases och felhantering",
+          "description": "Enhetstest: tomma/null-värden i JSON, unicode-tecken (åäö, emoji) i namn, extrema tidsvärden (negativa, overflow), ogiltig JSON-sträng → from_json ska ge tydligt fel.",
+          "done": false,
+          "dependencies": [
+            "3.22"
+          ]
+        },
+        {
+          "id": "3.24",
+          "title": "Test: API-router URL-matchning och parametrar",
+          "description": "Enhetstest: verifiera att routern matchar /api/runners/:id korrekt, extraherar path-parametrar, parsar query-parametrar, returnerar 404 för okända routes, 405 för fel HTTP-metod.",
+          "done": false,
+          "dependencies": [
+            "3.8"
+          ]
+        },
+        {
+          "id": "3.25",
+          "title": "Test: CRUD-flöde för Runner-endpoint",
+          "description": "Integrationstest: starta headless server, POST /api/runners (skapa), GET /api/runners/:id (hämta och verifiera), PUT (uppdatera), GET (verifiera uppdatering), DELETE (radera), GET (verifiera 404).",
+          "done": false,
+          "dependencies": [
+            "3.10"
+          ]
+        },
+        {
+          "id": "3.26",
+          "title": "Test: CRUD-flöde för övriga endpoints",
+          "description": "Integrationstest: upprepa CRUD-flödet (POST → GET → PUT → GET → DELETE → GET 404) för /api/teams, /api/classes, /api/courses, /api/controls, /api/clubs.",
+          "done": false,
+          "dependencies": [
+            "3.11",
+            "3.12",
+            "3.13",
+            "3.14",
+            "3.15"
+          ]
+        },
+        {
+          "id": "3.27",
+          "title": "Test: content negotiation och felkoder",
+          "description": "Integrationstest: Accept: application/json → JSON-svar, Accept: text/xml → XML-svar, ogiltig body → 400, saknad resurs → 404, duplicate → 409.",
+          "done": false,
+          "dependencies": [
+            "3.7",
+            "3.25"
+          ]
+        },
+        {
+          "id": "3.28",
+          "title": "Test: statisk filservering och SPA-fallback",
+          "description": "Integrationstest: GET / → index.html, GET /assets/main.js → JS-fil med korrekt Content-Type, GET /okand-route → fallback till index.html (SPA routing).",
+          "done": false,
+          "dependencies": [
+            "3.21"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fas 4: React Frontend (idiomatiskt TypeScript)",
+      "description": "Bygg ett komplett React + TypeScript webbgränssnitt med idiomatiska mönster: funktionella komponenter, hooks, strict typing, Tanstack Query för server state, React Router för navigation. Placeras i src/ui/web/.",
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Initiera Vite + React + TypeScript-projekt",
+          "description": "Skapa React-projekt i src/ui/web/ med Vite + React + TypeScript. Konfigurera tsconfig: strict, noImplicitAny, strictNullChecks, noUncheckedIndexedAccess. Proxy till C++-servern (port 2009) via vite.config.ts.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "4.2",
+          "title": "Installera och konfigurera beroenden",
+          "description": "Installera: react-router-dom, @tanstack/react-query, axios. Konfigurera ESLint med eslint-plugin-react-hooks och prettier. Verifiera att npm run build och npm run lint fungerar utan fel.",
+          "done": false,
+          "dependencies": [
+            "4.1"
+          ]
+        },
+        {
+          "id": "4.3",
+          "title": "Skapa TypeScript-interfaces för domänobjekt",
+          "description": "Skapa src/ui/web/src/types/ med interfaces: Competition, Runner, Team, Class, Course, Control, Club, Card, Punch. Matcha JSON-formatet från C++-serverns API. Exportera via barrel index.ts.",
+          "done": false,
+          "dependencies": [
+            "4.2"
+          ]
+        },
+        {
+          "id": "4.4",
+          "title": "Skapa typad API-klient (axios)",
+          "description": "Skapa src/ui/web/src/api/client.ts med konfigurerad axios-instans: base URL, timeout, JSON headers. Lägg till response-interceptor för felhantering (401/403/500 → typade felmeddelanden).",
+          "done": false,
+          "dependencies": [
+            "4.3"
+          ]
+        },
+        {
+          "id": "4.5",
+          "title": "Skapa API-funktioner per resurs",
+          "description": "Skapa typade funktioner i src/ui/web/src/api/: getRunners(): Promise<Runner[]>, getRunner(id): Promise<Runner>, createRunner(data): Promise<Runner>, updateRunner(id, data), deleteRunner(id). Motsvarande för alla resurser.",
+          "done": false,
+          "dependencies": [
+            "4.4"
+          ]
+        },
+        {
+          "id": "4.6",
+          "title": "Skapa Tanstack Query hooks per resurs",
+          "description": "Skapa custom hooks i src/ui/web/src/hooks/: useRunners(filters?), useRunner(id), useCreateRunner(), useUpdateRunner(), useDeleteRunner(). Motsvarande hooks för alla resurser. Konfigurera cache-invalidering vid mutationer.",
+          "done": false,
+          "dependencies": [
+            "4.5"
+          ]
+        },
+        {
+          "id": "4.7",
+          "title": "Skapa app-shell och huvudlayout",
+          "description": "Bygg responsiv huvudlayout (desktop 1024px+ och surfplatta) med navigeringsmeny som motsvarar MeOS tabbsystem. Wrappa med QueryClientProvider.",
+          "done": false,
+          "dependencies": [
+            "4.6"
+          ]
+        },
+        {
+          "id": "4.8",
+          "title": "Konfigurera React Router med lazy routes",
+          "description": "Konfigurera React Router v6 (createBrowserRouter) med lazy routes (React.lazy + Suspense) för varje sida. Implementera Outlet i layout-komponenten.",
+          "done": false,
+          "dependencies": [
+            "4.7"
+          ]
+        },
+        {
+          "id": "4.9",
+          "title": "Skapa global ErrorBoundary",
+          "description": "Skapa ErrorBoundary-komponent som fångar rendering-fel, visar användarvänligt felmeddelande och erbjuder 'Försök igen'-knapp. Wrappa app-routen.",
+          "done": false,
+          "dependencies": [
+            "4.7"
+          ]
+        },
+        {
+          "id": "4.10",
+          "title": "Competition-sida (TabCompetition)",
+          "description": "Implementera: skapa/öppna tävling, redigera tävlingsdata (namn, datum, arrangör). Controlled forms med validering. Mutation hooks för POST/PUT.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.9"
+          ]
+        },
+        {
+          "id": "4.11",
+          "title": "Runner-sida (TabRunner)",
+          "description": "Implementera: tabell med sortering/filtrering, sökfält, registrera/redigera löpare (modal eller inline), visa resultat och stämplingar.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.10"
+          ]
+        },
+        {
+          "id": "4.12",
+          "title": "Team-sida (TabTeam)",
+          "description": "Implementera: lista/sök lag, skapa lag, hantera lagmedlemmar (select eller drag-and-drop), sträcktilldelning, lagresultat.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.11"
+          ]
+        },
+        {
+          "id": "4.13",
+          "title": "Class-sida (TabClass)",
+          "description": "Implementera: skapa/redigera klasser, lottningsinställningar, bansträckningar, startintervall. Formulär med validering.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.12"
+          ]
+        },
+        {
+          "id": "4.14",
+          "title": "Course-sida (TabCourse)",
+          "description": "Implementera: skapa/redigera banor, kontrollsekvens (ordningsbar lista), längd och stigning.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.13"
+          ]
+        },
+        {
+          "id": "4.15",
+          "title": "Control-sida (TabControl)",
+          "description": "Implementera: hantera kontroller, kontrollkoder, positioner, kontrolltyper.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.14"
+          ]
+        },
+        {
+          "id": "4.16",
+          "title": "Club-sida (TabClub)",
+          "description": "Implementera: lista/sök klubbar, registrera/redigera klubb, nationalitet.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.15"
+          ]
+        },
+        {
+          "id": "4.17",
+          "title": "SI-sida (TabSI)",
+          "description": "Implementera: visa brickstatus, avlästa brickor via polling (useQuery med refetchInterval), stämplingsdata per löpare.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.16"
+          ]
+        },
+        {
+          "id": "4.18",
+          "title": "List-sida (TabList)",
+          "description": "Implementera: generera/visa resultatlistor, startlistor, sträcktider. Välj listtyp och klass med select-komponenter.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.17"
+          ]
+        },
+        {
+          "id": "4.19",
+          "title": "Speaker-sida (TabSpeaker)",
+          "description": "Implementera: konfigurera speaker-display, välj klasser, live-uppdateringar med polling (useQuery + refetchInterval).",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.18"
+          ]
+        },
+        {
+          "id": "4.20",
+          "title": "Auto-sida (TabAuto)",
+          "description": "Implementera: lista automationer, starta/stoppa, visa status med live-uppdateringar.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "3.19"
+          ]
+        },
+        {
+          "id": "4.21",
+          "title": "Import/Export-funktionalitet",
+          "description": "Implementera: IOF XML import/export-knappar, CSV-import, filuppladdning med drag-and-drop. Integrera i Competition-sidan.",
+          "done": false,
+          "dependencies": [
+            "4.10",
+            "3.20"
+          ]
+        },
+        {
+          "id": "4.22",
+          "title": "Responsiv layout och surfplatte-stöd",
+          "description": "Säkerställ att alla sidor fungerar på desktop (1024px+) och surfplatta. Testa och justera breakpoints, touch-targets, scrollbeteende.",
+          "done": false,
+          "dependencies": [
+            "4.10",
+            "4.11",
+            "4.12",
+            "4.13",
+            "4.14",
+            "4.15",
+            "4.16",
+            "4.17",
+            "4.18",
+            "4.19",
+            "4.20"
+          ]
+        },
+        {
+          "id": "4.23",
+          "title": "Toast-notifikationer",
+          "description": "Skapa custom useToast-hook och Toast-komponent för success/error/info-meddelanden vid API-mutationer (skapa, uppdatera, radera, import/export).",
+          "done": false,
+          "dependencies": [
+            "4.7"
+          ]
+        },
+        {
+          "id": "4.24",
+          "title": "Keyboard shortcuts",
+          "description": "Implementera tangentbordsgenvägar för vanliga operationer: Ctrl+S (spara), Ctrl+N (ny), Escape (stäng modal), Tab-navigering.",
+          "done": false,
+          "dependencies": [
+            "4.10"
+          ]
+        },
+        {
+          "id": "4.25",
+          "title": "Accessibility (a11y)",
+          "description": "Lägg till aria-labels, aria-live-regioner, korrekta roller, focus management vid modal-öppning/stängning. Testa med screen reader.",
+          "done": false,
+          "dependencies": [
+            "4.22"
+          ]
+        },
+        {
+          "id": "4.26",
+          "title": "Sätt upp Vitest + React Testing Library + MSW",
+          "description": "Konfigurera Vitest som testrunner (integreras med Vite). Installera @testing-library/react och @testing-library/user-event. Konfigurera MSW med handlers för alla API-endpoints. Skapa renderWithProviders()-hjälpare (QueryClientProvider + MemoryRouter).",
+          "done": false,
+          "dependencies": [
+            "4.2"
+          ]
+        },
+        {
+          "id": "4.27",
+          "title": "Test: API-klient och interceptors",
+          "description": "Testa axios-instansens interceptors: 401-svar ger felmeddelande, 500-svar ger generiskt fel, timeout hanteras korrekt, retry-logik fungerar.",
+          "done": false,
+          "dependencies": [
+            "4.4",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.28",
+          "title": "Test: Tanstack Query hooks",
+          "description": "Testa varje useX()-hook (useRunners, useRunner, useCreateRunner etc.): loading-state, success-state med korrekt data, error-state, cache-invalidering efter mutation.",
+          "done": false,
+          "dependencies": [
+            "4.6",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.29",
+          "title": "Test: Competition-sida",
+          "description": "Komponenttest: rendera sidan, fyll i formulär, spara, verifiera API-anrop via MSW. Testa felhantering vid API-fel.",
+          "done": false,
+          "dependencies": [
+            "4.10",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.30",
+          "title": "Test: Runner-sida",
+          "description": "Komponenttest: rendera lista, filtrera, sök, öppna redigera-modal, spara, verifiera API-anrop. Testa tom lista och laddningsindikator.",
+          "done": false,
+          "dependencies": [
+            "4.11",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.31",
+          "title": "Test: Team-sida",
+          "description": "Komponenttest: rendera laglista, skapa lag, lägg till medlem, spara, verifiera API-anrop.",
+          "done": false,
+          "dependencies": [
+            "4.12",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.32",
+          "title": "Test: Class-sida",
+          "description": "Komponenttest: rendera klasslista, skapa klass, ställ in bana, spara, verifiera API-anrop.",
+          "done": false,
+          "dependencies": [
+            "4.13",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.33",
+          "title": "Test: Course- och Control-sidor",
+          "description": "Komponenttest: rendera banor/kontroller, skapa, redigera kontrollsekvens, spara, verifiera API-anrop.",
+          "done": false,
+          "dependencies": [
+            "4.14",
+            "4.15",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.34",
+          "title": "Test: Club-, SI-, List-, Speaker-, Auto-sidor",
+          "description": "Komponenttest: rendera varje sida, grundläggande interaktion (lista, sök, skapa), verifiera API-anrop och felhantering.",
+          "done": false,
+          "dependencies": [
+            "4.16",
+            "4.17",
+            "4.18",
+            "4.19",
+            "4.20",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.35",
+          "title": "Test: routing och error boundary",
+          "description": "Testa att alla routes renderar rätt komponent, lazy loading fungerar med Suspense, okänd route → 404-sida, krasch i child → ErrorBoundary fångar.",
+          "done": false,
+          "dependencies": [
+            "4.8",
+            "4.9",
+            "4.26"
+          ]
+        },
+        {
+          "id": "4.36",
+          "title": "Test: accessibility (a11y-audit)",
+          "description": "Kör axe-core accessibility audit på varje sida via @axe-core/react eller jest-axe. Verifiera inga allvarliga a11y-fel.",
+          "done": false,
+          "dependencies": [
+            "4.25",
+            "4.26"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Fas 5: Integration och leverans",
+      "description": "Integrera alla delar, bygg pipeline, Docker och dokumentation.",
+      "tasks": [
+        {
+          "id": "5.1",
+          "title": "CMake custom command för React-build",
+          "description": "Konfigurera CMake custom command som kör npm run build i src/ui/web/ och producerar dist/. Trigga automatiskt vid build av MeOS-server.",
+          "done": false,
+          "dependencies": [
+            "3.21",
+            "4.22"
+          ]
+        },
+        {
+          "id": "5.2",
+          "title": "Koppla restserver till React dist/",
+          "description": "Uppdatera restserver.cpp att servera filer från den CMake-genererade dist/-sökvägen. Verifiera att GET / returnerar React-appens index.html.",
+          "done": false,
+          "dependencies": [
+            "5.1"
+          ]
+        },
+        {
+          "id": "5.3",
+          "title": "Skapa Dockerfile med multi-stage build",
+          "description": "Skapa Dockerfile: steg 1 Node.js — npm run build (React), steg 2 GCC/Clang — cmake build (C++-server), steg 3 minimal runtime-image med enbart binär + dist/.",
+          "done": false,
+          "dependencies": [
+            "5.2",
+            "2.19"
+          ]
+        },
+        {
+          "id": "5.4",
+          "title": "Skapa docker-compose.yml",
+          "description": "Skapa docker-compose.yml med MeOS-server-tjänst och MySQL-tjänst. Konfigurera nätverk, volymer för tävlingsdata, environment-variabler för DB-connection.",
+          "done": false,
+          "dependencies": [
+            "5.3"
+          ]
+        },
+        {
+          "id": "5.5",
+          "title": "Dokumentera ny arkitektur i README",
+          "description": "Uppdatera README.md: ny arkitektur (headless C++-server + React), bygginstruktioner för Windows/Linux/Mac, Docker-instruktioner, API-översikt, headless vs GUI-läge.",
+          "done": false,
+          "dependencies": [
+            "5.2"
+          ]
+        },
+        {
+          "id": "5.6",
+          "title": "E2E: setup och smoke-tester",
+          "description": "Konfigurera Playwright (TypeScript) i src/ui/web/e2e/. Starta C++-servern headless med testdatabas. Smoke-test: appen laddas, navigation fungerar, alla sidor renderar.",
+          "done": false,
+          "dependencies": [
+            "5.2"
+          ]
+        },
+        {
+          "id": "5.7",
+          "title": "E2E: komplett tävlingsflöde",
+          "description": "Playwright-test: skapa tävling → lägg till klasser → lägg till banor → registrera löpare → simulera stämplingar → generera resultatlista. Verifiera att hela flödet fungerar end-to-end.",
+          "done": false,
+          "dependencies": [
+            "5.6"
+          ]
+        },
+        {
+          "id": "5.8",
+          "title": "E2E: import och export",
+          "description": "Playwright-test: importera IOF XML-fil via Import-sidan, verifiera att data dyker upp i Runner-listan, exportera och verifiera filinnehåll.",
+          "done": false,
+          "dependencies": [
+            "5.6"
+          ]
+        },
+        {
+          "id": "5.9",
+          "title": "E2E: parallella klienter",
+          "description": "Playwright-test: öppna två webbläsar-kontexter, gör ändringar i en, verifiera att den andra ser uppdateringen (via polling/refetch).",
+          "done": false,
+          "dependencies": [
+            "5.6"
+          ]
+        },
+        {
+          "id": "5.10",
+          "title": "Test: Docker build lyckas",
+          "description": "CI-steg: bygg Docker-image från Dockerfile, verifiera att bygget lyckas utan fel. Starta containern och verifiera att health-endpoint svarar.",
+          "done": false,
+          "dependencies": [
+            "5.3"
+          ]
+        },
+        {
+          "id": "5.11",
+          "title": "Test: docker-compose full stack",
+          "description": "CI-steg: starta hela stacken (app + MySQL) med docker-compose up. Verifiera att appen ansluter till databasen och serverar React-frontend. Stoppa och verifiera graceful shutdown.",
+          "done": false,
+          "dependencies": [
+            "5.4"
+          ]
+        },
+        {
+          "id": "5.12",
+          "title": "Konfigurera CI quality gates",
+          "description": "Konfigurera CI-pipeline: aggregera testresultat (C++, Vitest, Playwright) till JUnit XML. Kräv minst 80% coverage för ny kod. Fail vid: testfel, TypeScript-kompileringsfel, ESLint-varningar. Spara Playwright-screenshots som CI-artifacts.",
+          "done": false,
+          "dependencies": [
+            "5.7",
+            "5.10",
+            "2.25",
+            "4.36"
+          ]
+        }
+      ]
+    }
+  ]
+}
