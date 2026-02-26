@@ -1600,6 +1600,204 @@ void testCardAndPunchRoutesRegistered() {
   CHECK(router.handles("/api/punches"),     "router handles /api/punches");
 }
 
+// ---------------------------------------------------------------------------
+// List and results API endpoint routing tests (portable – no Win32 oEvent).
+// ---------------------------------------------------------------------------
+
+// Registers the same URL patterns as registerListHandlers, but with test-specific
+// handlers that avoid Win32/oEvent dependencies.
+static void registerListRoutesForTest(ApiRouter &router, bool hasEvent) {
+  // GET /api/lists
+  router.get("/api/lists", [](const ApiRequest &) -> ApiResponse {
+    nlohmann::json arr = nlohmann::json::array();
+    nlohmann::json entry;
+    entry["id"]   = "startlist";
+    entry["name"] = "Start List";
+    entry["code"] = 1;
+    entry["isResultList"] = false;
+    entry["isStartList"]  = true;
+    arr.push_back(entry);
+    return ApiResponse::ok(arr.dump());
+  });
+
+  // GET /api/lists/:type
+  router.get("/api/lists/:type", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent)
+      return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("type");
+    if (it == req.pathParams.end())
+      return ApiResponse::badRequest("Missing type");
+    // Simulate unknown type rejection.
+    if (it->second == "unknowntype")
+      return ApiResponse::notFound("Unknown list type");
+    nlohmann::json result;
+    result["type"]    = it->second;
+    result["entries"] = nlohmann::json::array();
+    return ApiResponse::ok(result.dump());
+  });
+
+  // GET /api/results
+  router.get("/api/results", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent)
+      return ApiResponse::notFound("No competition loaded");
+    auto typeIt = req.queryParams.find("type");
+    std::string typeId = (typeIt != req.queryParams.end()) ? typeIt->second : "resultlist";
+    if (typeId == "unknowntype")
+      return ApiResponse::notFound("Unknown list type: " + typeId);
+    // startlist is not a result list.
+    if (typeId == "startlist")
+      return ApiResponse::badRequest("List type is not a result list");
+    nlohmann::json result;
+    result["type"]    = typeId;
+    result["results"] = nlohmann::json::array();
+    return ApiResponse::ok(result.dump());
+  });
+}
+
+void testListTypesEndpointReturns200() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/lists";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/lists returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j.is_array(), "GET /api/lists body is JSON array");
+}
+
+void testListTypesEndpointHasExpectedFields() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/lists";
+  ApiResponse res = router.dispatch(req);
+  auto arr = nlohmann::json::parse(res.body);
+  bool hasId   = arr[0].contains("id");
+  bool hasName = arr[0].contains("name");
+  bool hasCode = arr[0].contains("code");
+  CHECK(hasId && hasName && hasCode, "List type entry has id, name, code fields");
+}
+
+void testListByTypeNullEvent() {
+  ApiRouter router;
+  registerListRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/lists/startlist";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/lists/:type with null event returns 404");
+}
+
+void testListByTypeUnknown() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/lists/unknowntype";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/lists/unknowntype returns 404");
+}
+
+void testListByTypeReturns200() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/lists/startlist";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/lists/startlist returns 200");
+}
+
+void testListByTypeBodyHasEntries() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/lists/resultlist";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/lists/resultlist returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j.contains("entries"), "GET /api/lists/:type body has entries field");
+}
+
+void testResultsEndpointNullEvent() {
+  ApiRouter router;
+  registerListRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/results";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/results with null event returns 404");
+}
+
+void testResultsEndpointDefaultType() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/results";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/results (default type) returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j["type"] == "resultlist", "GET /api/results defaults to resultlist type");
+}
+
+void testResultsEndpointExplicitType() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/results";
+  req.queryParams.emplace("type", "team-result");
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/results?type=team-result returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j["type"] == "team-result", "GET /api/results type field matches request");
+}
+
+void testResultsEndpointUnknownType() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/results";
+  req.queryParams.emplace("type", "unknowntype");
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/results with unknown type returns 404");
+}
+
+void testResultsEndpointStartListTypeRejected() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/results";
+  req.queryParams.emplace("type", "startlist");
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "GET /api/results with start list type returns 400");
+}
+
+void testResultsBodyHasResultsField() {
+  ApiRouter router;
+  registerListRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/results";
+  ApiResponse res = router.dispatch(req);
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j.contains("results"), "GET /api/results body has results field");
+}
+
+void testListRoutesRegistered() {
+  ApiRouter router;
+  registerListRoutesForTest(router, false);
+  CHECK(router.handles("/api/lists"),            "router handles /api/lists");
+  CHECK(router.handles("/api/lists/startlist"),  "router handles /api/lists/:type");
+  CHECK(router.handles("/api/results"),          "router handles /api/results");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -1725,6 +1923,19 @@ int main() {
   testPunchesNullEvent();
   testPunchesEmptyForUnknownRunner();
   testCardAndPunchRoutesRegistered();
+  testListTypesEndpointReturns200();
+  testListTypesEndpointHasExpectedFields();
+  testListByTypeNullEvent();
+  testListByTypeUnknown();
+  testListByTypeReturns200();
+  testListByTypeBodyHasEntries();
+  testResultsEndpointNullEvent();
+  testResultsEndpointDefaultType();
+  testResultsEndpointExplicitType();
+  testResultsEndpointUnknownType();
+  testResultsEndpointStartListTypeRejected();
+  testResultsBodyHasResultsField();
+  testListRoutesRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

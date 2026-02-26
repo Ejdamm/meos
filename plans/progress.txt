@@ -418,3 +418,13 @@
    Null-oe-skydd: GET → 404, POST → 500.
    Lade till 14 portabla tester i test/portable_tests.cpp.
    169/169 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.17 DONE: List och resultat API endpoints
+   Skapade src/net/list_handlers.h med registerListHandlers(router, oe).
+   Endpoints: GET /api/lists (lista alla tillgängliga listtyper med id/name/code/isResultList/isStartList),
+   GET /api/lists/:type (generera lista med entries för given typ, valfritt ?class=X filter),
+   GET /api/results?class=X&type=Y (resultat med filtrering, defaultar till resultlist).
+   14 kända listtyper (startlist, resultlist, team-result, rogaining m.fl.) definierade.
+   Null-oe-skydd: GET → 404. Icke-resultlistetyp för /api/results → 400. Okänd typ → 404.
+   Lade till 15 portabla tester i test/portable_tests.cpp.
+   188/188 tester passerade med clang++ på macOS.

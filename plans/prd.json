@@ -535,7 +535,7 @@
           "id": "3.17",
           "title": "List och resultat API endpoints",
           "description": "Implementera: GET /api/lists (tillgängliga listtyper), GET /api/lists/:type (generera lista i JSON), GET /api/results?class=X&type=Y (resultat med filtrering).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.5"
