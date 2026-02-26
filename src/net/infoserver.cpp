@@ -29,10 +29,14 @@
 #include "download.h"
 #include "progress.h"
 #include "meosException.h"
+#ifndef MEOS_SERVER
 #include "gdioutput.h"
+extern gdioutput *gdi_main;
+#else
+#include "platform_string.h"
+#endif
 
 void base64_encode(const vector<BYTE> &input, string &output);
-extern gdioutput *gdi_main;
 
 // Encode a vector vector int {{1}, {1,2,3}, {}, {4,5}} as "1;1,2,3;;4,5"
 static void packIntInt(const vector< vector<int> > &v, wstring &def) {
@@ -880,9 +884,18 @@ void xmlbuffer::write(const char *tag,
                       const string &value) {
   blocks.push_back(block());
   blocks.back().tag = tag;
-  for (size_t k = 0; k < prop.size(); k++)
+  for (size_t k = 0; k < prop.size(); k++) {
+#ifndef MEOS_SERVER
     blocks.back().prop.push_back(make_pair(prop[k].first, gdi_main->widen(prop[k].second)));
+#else
+    blocks.back().prop.push_back(make_pair(prop[k].first, platform_widen(prop[k].second)));
+#endif
+  }
+#ifndef MEOS_SERVER
   blocks.back().value = gdi_main->widen(value);
+#else
+  blocks.back().value = platform_widen(value);
+#endif
 }
 
 void xmlbuffer::write(const char *tag,
@@ -916,7 +929,11 @@ bool xmlbuffer::commit(xmlparser &xml, int count) {
       if (block.prop.size() > 1) {
         p2.resize(block.prop.size() * 2);
         for (size_t k = 0; k < block.prop.size(); k++) {
+#ifndef MEOS_SERVER
           p2[k * 2] = gdi_main->widen(block.prop[k].first);
+#else
+          p2[k * 2] = platform_widen(block.prop[k].first);
+#endif
           p2[k * 2 + 1] = std::move(block.prop[k].second);
         }
         xml.startTag(block.tag.c_str(), p2);
@@ -951,7 +968,11 @@ void xmlbuffer::commitCopy(xmlparser &xml) {
       if (block.prop.size() > 1) {
         p2.resize(block.prop.size() * 2);
         for (size_t k = 0; k < block.prop.size(); k++) {
+#ifndef MEOS_SERVER
           p2[k * 2] = gdi_main->widen(block.prop[k].first);
+#else
+          p2[k * 2] = platform_widen(block.prop[k].first);
+#endif
           p2[k * 2 + 1] = block.prop[k].second;
         }
         xml.startTag(block.tag.c_str(), p2);

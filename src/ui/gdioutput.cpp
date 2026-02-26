@@ -6348,7 +6348,9 @@ wstring gdioutput::browseForSave(const vector< pair<wstring, wstring> > &filter,
     throw meosException("Browse for file");
   }
 
+#ifndef MEOS_SERVER
   InitCommonControls();
+#endif
 
   TCHAR FileName[260];
   FileName[0]=0;
@@ -6409,7 +6411,9 @@ wstring gdioutput::browseForOpen(const vector< pair<wstring, wstring> > &filter,
     throw meosException("Browse for file");
   }
 
+#ifndef MEOS_SERVER
   InitCommonControls();
+#endif
 
   wchar_t FileName[260];
   FileName[0]=0;
@@ -6528,7 +6532,9 @@ void gdioutput::init(HWND hWnd, HWND hMain, HWND hTab) {
   hWndAppMain=hMain;
   hWndTab=hTab;
 
+#ifndef MEOS_SERVER
   InitCommonControls();
+#endif
 
   hWndToolTip = CreateWindow(TOOLTIPS_CLASS, (LPWSTR) NULL, TTS_ALWAYSTIP,
       CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,

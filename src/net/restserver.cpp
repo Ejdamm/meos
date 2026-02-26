@@ -35,21 +35,28 @@ Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
 #include "infoserver.h"
 
 #include "oListInfo.h"
+#ifndef MEOS_SERVER
 #include "TabList.h"
+#endif
 #include "generalresult.h"
 #include "HTMLWriter.h"
 #include "RunnerDB.h"
+#ifndef MEOS_SERVER
 #include "image.h"
-#include "cardsystem.h"
-
 extern Image image;
+#endif
+#include "cardsystem.h"
+#include "platform_string.h"
+
 using namespace restbed;
 using namespace std;
 
 vector< shared_ptr<RestServer> > RestServer::startedServers;
 
 const wstring &wideParam(const string &param) {
-  return gdioutput::fromUTF8(param);
+  static wstring buf;
+  buf = platform_fromUTF8(param);
+  return buf;
 }
 
 shared_ptr<RestServer> RestServer::construct() {
@@ -201,7 +208,7 @@ void RestServer::compute(oEvent &ref) {
     computeInternal(ref, rq);
   }
   catch (meosException &ex) {
-    rq->answer = "Error (MeOS): Error: " + ref.gdiBase().toUTF8(lang.tl(ex.wwhat()));
+    rq->answer = "Error (MeOS): Error: " + platform_toUTF8(lang.tl(ex.wwhat()));
   }
   catch (std::exception &ex) {
     rq->answer = "Error (MeOS): General Error: " + string(ex.what());
@@ -229,10 +236,11 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
       "</head>"
       "<body>"
       "<img src=\"/meos?image=meos\" alt=\"MeOS\" style=\"width:16em; height:6.656em;\">"
-      "<p>" + ref.gdiBase().toUTF8(lang.tl(getMeosFullVersion())) + "<p>"
+      "<p>" + platform_toUTF8(lang.tl(getMeosFullVersion())) + "<p>"
       "<ul>\n";
 
-    rq->answer += "<h2>" + ref.gdiBase().toUTF8(lang.tl("Listor")) + "</h2>";
+    rq->answer += "<h2>" + platform_toUTF8(lang.tl("Listor")) + "</h2>";
+#ifndef MEOS_SERVER
     vector<oListParam> lists;
     TabList::getPublicLists(ref, lists);
     map<EStdListType, oListInfo> listMap;
@@ -264,15 +272,16 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
         listCache[keyCand].second.reset();
       }
 
-      rq->answer += "<li><a href=\"?html=1&type=" + itos(keyCand) + "\">" + ref.gdiBase().toUTF8(n) + "</a></li>\n";
+      rq->answer += "<li><a href=\"?html=1&type=" + itos(keyCand) + "\">" + platform_toUTF8(n) + "</a></li>\n";
     }
+#endif
     //  "<li><a href=\"?html=1&result=1\">Resultat</a></li>"
     //  "<li><a href=\"?html=1&startlist=1\">Startlista</a></li>"
     rq->answer += "</ul>\n";
 
 
-    string entryLinks = "<h2>" + ref.gdiBase().toUTF8(lang.tl(L"Direktanmälan", true)) + "</h2>";
-    entryLinks += "<a href=\"?enter\">"+ref.gdiBase().toUTF8(lang.tl("Anmäl")) + "</a><br>";
+    string entryLinks = "<h2>" + platform_toUTF8(lang.tl(L"Direktanmälan", true)) + "</h2>";
+    entryLinks += "<a href=\"?enter\">"+platform_toUTF8(lang.tl("Anmäl")) + "</a><br>";
     
     entryLinks += "<hr>";
 
@@ -286,17 +295,17 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
         sRunnerId = itos(r->getId());
 
       if (sRunnerClub.empty()) {
-        sRunnerName = gdioutput::toUTF8(r->getName());
-        sRunnerClub = gdioutput::toUTF8(r->getClub());
+        sRunnerName = platform_toUTF8(r->getName());
+        sRunnerClub = platform_toUTF8(r->getClub());
         if (r->getClubId())
-          sRunnerClubId = gdioutput::toUTF8(r->getClubRef()->getExtIdentifierString());
+          sRunnerClubId = platform_toUTF8(r->getClubRef()->getExtIdentifierString());
       }
 
       if (sRunnerCard.empty() && r->getCardNo() > 0)
         sRunnerCard = itos(r->getCardNo());
 
       if (sRunnerBib.empty() && !r->getBib().empty())
-        sRunnerBib = gdioutput::recodeToNarrow(r->getBib());
+        sRunnerBib = platform_narrow(r->getBib());
     }
     if (sRunnerId.empty())
       sRunnerId = "1";
@@ -422,6 +431,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
     if (imageCache.count(imageId)) {
       rq->image = imageCache[imageId];
     }
+#ifndef MEOS_SERVER
     else if (imageId == "meos") {      
       imageCache[imageId] = rq->image = Image::loadResourceToMemory(MAKEINTRESOURCE(513), _T("PNG"));
     }
@@ -451,6 +461,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
       }
 #endif // _WIN32
     }
+#endif // MEOS_SERVER
   }
   else if (rq->parameters.count("html") > 0) {
     string stype = rq->parameters.count("type") ? rq->parameters.find("type")->second : _EmptyString;
@@ -458,6 +469,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
     auto res = listCache.find(type);
       
     if (res != listCache.end()) {
+#ifndef MEOS_SERVER
       gdioutput gdiPrint("print", ref.gdiBase().getScale());
       gdiPrint.clearPage(false);
 
@@ -470,12 +482,9 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
       ostringstream fout;
       HTMLWriter::write(gdiPrint, fout, ref.getName(), 30, res->second.first, ref);
       rq->answer = fout.str();
-      //ifstream fin(exportFile.c_str());
-      /*string rbf;
-      while (std::getline(fin, rbf)) {
-        rq->answer += rbf;
-      }
-      removeTempFile(exportFile);*/
+#else
+      rq->answer = "Error (MeOS): HTML rendering not available in server mode";
+#endif
     }
     else {
       rq->answer = "Error (MeOS): Unknown list";

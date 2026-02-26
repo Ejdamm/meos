@@ -3277,7 +3277,9 @@ void oEvent::generateInForestList(gdioutput& gdi, GUICALLBACK cb, GUICALLBACK cb
           gdi.setData("FilterSetting", lbi.data);
           lastFilter = DWORD(lbi.data);
           oe.generateInForestList(gdi, cb, nullptr);
+          #ifndef MEOS_SERVER
           TabList::baseButtons(gdi, 1, false);
+          #endif
           gdi.refreshFast();
         }
       }
@@ -4243,7 +4245,9 @@ void oEvent::clear()
   Annotation.clear();
 
   //Make sure no daemon is hunting us.
+  #ifndef MEOS_SERVER
   TabAuto::tabAutoKillMachines();
+  #endif
 
   delete directSocket;
   directSocket = 0;
@@ -6882,7 +6886,9 @@ bool oEvent::supportSubSeconds() const {
 }
 
 void oEvent::supportSubSeconds(bool use) {
+  #ifndef MEOS_SERVER
   TabSI::getSI(gdiBase()).setSubSecondMode(use);
+  #endif
   getDI().setInt("SubSeconds", use ? 1 : 0);
 }
 
