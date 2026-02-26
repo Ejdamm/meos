@@ -325,3 +325,10 @@
    to_json(oEvent&): id, name, date, zeroTime, numRunners, numClasses, numCourses, numCards.
    ControlDTO + from_json och FreePunchDTO + from_json implementerade.
    Syntaxkontroll: Win32 SDK saknas på macOS men C++17-koden är korrekt (alla metoder verifierade i headers).
+
+[2026-02-26] Task 3.6 DONE: Skapa API-router med URL-mönster-matchning
+   Skapade src/net/api_router.h med ApiRouter, ApiRequest och ApiResponse.
+   ApiRouter stödjer path-parameter-matchning (:param segment) och query-parametrar.
+   Metoder: get/post/put/del för registrering, dispatch() för routing, handles() för path-check.
+   dispatch() returnerar 404 för okänd path, 405 om path matchar men metod inte.
+   Syntaxkontroll + 7 enhetstester med clang++ på macOS: PASS.

@@ -428,7 +428,7 @@
           "id": "3.6",
           "title": "Skapa API-router med URL-mönster-matchning",
           "description": "Refaktorera restserver.cpp: skapa en API-router som mappar URL-mönster (t.ex. /api/runners/:id) till handler-funktioner. Stöd path-parametrar och query-parametrar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.2"
           ]
