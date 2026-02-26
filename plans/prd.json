@@ -525,7 +525,7 @@
           "id": "3.16",
           "title": "Card och SI-stämpling API endpoints",
           "description": "Implementera: GET /api/cards (lista brickor), GET /api/cards/:id, POST /api/cards/read (simulera brickavläsning), GET /api/punches?runner=X (stämplingar för löpare).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.5"

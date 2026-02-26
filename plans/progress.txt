@@ -409,3 +409,12 @@
    Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
    Lade till 14 portabla tester i test/portable_tests.cpp.
    153/153 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.16 DONE: Card och SI-stämpling API endpoints
+   Skapade src/net/card_handlers.h med registerCardHandlers(router, oe).
+   Endpoints: GET /api/cards (lista brickor), GET /api/cards/:id (detalj),
+   POST /api/cards/read (simulera brickavläsning via addCard + addFreePunch per punch),
+   GET /api/punches?runner=X (stämplingar för löpare via getPunchesForRunner).
+   Null-oe-skydd: GET → 404, POST → 500.
+   Lade till 14 portabla tester i test/portable_tests.cpp.
+   169/169 tester passerade med clang++ på macOS.

@@ -1,7 +1,7 @@
 // Standalone portable unit tests - no Win32/gdioutput dependencies.
 // Covers IEventNotifier, NullNotifier, MockNotifier, platform_socket,
 // std::filesystem, std::thread, std::mutex, std::condition_variable,
-// and competition API endpoint routing patterns.
+// and competition/card API endpoint routing patterns.
 // Built as MeOS-test target; runs on Linux/macOS/Windows without GUI.
 
 #include <cassert>
@@ -1457,6 +1457,149 @@ void testClubRouteRegistered() {
   CHECK(router.handles("/api/clubs/42"), "router handles /api/clubs/:id");
 }
 
+// ---------------------------------------------------------------------------
+// Card and punch endpoint tests (portable – no Win32 dependencies)
+// ---------------------------------------------------------------------------
+
+static void registerCardRoutesForTest(ApiRouter &router, bool hasEvent) {
+  router.get("/api/cards", [hasEvent](const ApiRequest &) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("[{\"id\":1,\"cardNo\":501100,\"punches\":[]}]");
+  });
+  router.get("/api/cards/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Card not found");
+    return ApiResponse::ok("{\"id\":1,\"cardNo\":501100,\"punches\":[]}");
+  });
+  router.post("/api/cards/read", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("cardNo") || !body["cardNo"].is_number_integer())
+      return ApiResponse::badRequest("Field 'cardNo' is required");
+    return ApiResponse::created("{\"id\":2,\"cardNo\":501101,\"punches\":[]}");
+  });
+  router.get("/api/punches", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.queryParams.find("runner");
+    if (it != req.queryParams.end()) {
+      int rid = 0;
+      try { rid = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid runner id"); }
+      if (rid == 1)
+        return ApiResponse::ok("[{\"id\":10,\"cardNo\":501100,\"controlId\":31,\"type\":0,\"time\":3600}]");
+      return ApiResponse::ok("[]");
+    }
+    return ApiResponse::ok("[]");
+  });
+}
+
+void testCardListNullEvent() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/cards";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/cards with null event returns 404");
+}
+
+void testCardGetByIdNullEvent() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/cards/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/cards/:id with null event returns 404");
+}
+
+void testCardGetByIdFound() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/cards/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/cards/:id returns 200 when found");
+}
+
+void testCardGetByIdNotFound() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/cards/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/cards/:id returns 404 when not found");
+}
+
+void testCardListReturns200() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/cards";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/cards returns 200");
+}
+
+void testCardReadCreates() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/cards/read";
+  req.body = "{\"cardNo\":501101,\"punches\":[{\"type\":0,\"time\":3600,\"controlId\":31}]}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST /api/cards/read with valid body returns 201");
+}
+
+void testCardReadMissingCardNo() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/cards/read";
+  req.body = "{\"punches\":[]}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/cards/read without cardNo returns 400");
+}
+
+void testCardReadNullEvent() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, false);
+  ApiRequest req; req.method = "POST"; req.path = "/api/cards/read";
+  req.body = "{\"cardNo\":501101}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 500, "POST /api/cards/read with null event returns 500");
+}
+
+void testPunchesForRunnerFound() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/punches";
+  req.queryParams.insert({"runner", "1"});
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/punches?runner=1 returns 200");
+}
+
+void testPunchesNullEvent() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/punches";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/punches with null event returns 404");
+}
+
+void testPunchesEmptyForUnknownRunner() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/punches";
+  req.queryParams.insert({"runner", "999"});
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/punches?runner=999 returns 200 with empty array");
+  CHECK(res.body == "[]", "GET /api/punches?runner=999 returns empty array");
+}
+
+void testCardAndPunchRoutesRegistered() {
+  ApiRouter router;
+  registerCardRoutesForTest(router, false);
+  CHECK(router.handles("/api/cards"),       "router handles /api/cards");
+  CHECK(router.handles("/api/cards/42"),    "router handles /api/cards/:id");
+  CHECK(router.handles("/api/cards/read"),  "router handles /api/cards/read");
+  CHECK(router.handles("/api/punches"),     "router handles /api/punches");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -1570,6 +1713,18 @@ int main() {
   testClubDeleteNotFound();
   testClubPostNullEvent();
   testClubRouteRegistered();
+  testCardListNullEvent();
+  testCardGetByIdNullEvent();
+  testCardGetByIdFound();
+  testCardGetByIdNotFound();
+  testCardListReturns200();
+  testCardReadCreates();
+  testCardReadMissingCardNo();
+  testCardReadNullEvent();
+  testPunchesForRunnerFound();
+  testPunchesNullEvent();
+  testPunchesEmptyForUnknownRunner();
+  testCardAndPunchRoutesRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 
