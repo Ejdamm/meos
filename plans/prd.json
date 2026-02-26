@@ -614,7 +614,7 @@
           "id": "3.25",
           "title": "Test: CRUD-flöde för Runner-endpoint",
           "description": "Integrationstest: starta headless server, POST /api/runners (skapa), GET /api/runners/:id (hämta och verifiera), PUT (uppdatera), GET (verifiera uppdatering), DELETE (radera), GET (verifiera 404).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.10"
           ]

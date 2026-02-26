@@ -726,6 +726,126 @@ void testRunnerRouteRegistered() {
 }
 
 // ---------------------------------------------------------------------------
+// Task 3.25: Runner CRUD flow integration test
+// POST → GET → PUT → GET (verify update) → DELETE → GET (verify 404)
+// Uses a stateful in-memory store so the full lifecycle can be tested in one
+// router instance without touching the real oEvent.
+// ---------------------------------------------------------------------------
+
+void testRunnerCrudFlow() {
+  // Shared mutable state captured by reference via shared_ptr
+  auto store = std::make_shared<std::map<int, nlohmann::json>>();
+  auto nextId = std::make_shared<int>(10);
+
+  ApiRouter router;
+
+  // POST /api/runners – create
+  router.post("/api/runners", [store, nextId](const ApiRequest &req) -> ApiResponse {
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name") || !body["name"].is_string())
+      return ApiResponse::badRequest("Field 'name' is required");
+    int id = (*nextId)++;
+    nlohmann::json r;
+    r["id"]   = id;
+    r["name"] = body["name"].get<std::string>();
+    (*store)[id] = r;
+    return ApiResponse::created(r.dump());
+  });
+
+  // GET /api/runners/:id – fetch
+  router.get("/api/runners/:id", [store](const ApiRequest &req) -> ApiResponse {
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    auto sit = store->find(id);
+    if (sit == store->end()) return ApiResponse::notFound("Runner not found");
+    return ApiResponse::ok(sit->second.dump());
+  });
+
+  // PUT /api/runners/:id – update
+  router.put("/api/runners/:id", [store](const ApiRequest &req) -> ApiResponse {
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    auto sit = store->find(id);
+    if (sit == store->end()) return ApiResponse::notFound("Runner not found");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (body.contains("name") && body["name"].is_string())
+      sit->second["name"] = body["name"].get<std::string>();
+    return ApiResponse::ok(sit->second.dump());
+  });
+
+  // DELETE /api/runners/:id – remove
+  router.del("/api/runners/:id", [store](const ApiRequest &req) -> ApiResponse {
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    auto sit = store->find(id);
+    if (sit == store->end()) return ApiResponse::notFound("Runner not found");
+    store->erase(sit);
+    return ApiResponse::noContent();
+  });
+
+  // Step 1: POST – create runner
+  {
+    ApiRequest req; req.method = "POST"; req.path = "/api/runners";
+    req.body = "{\"name\":\"CrudAlice\"}";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 201, "CRUD POST returns 201");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudAlice", "CRUD POST body has correct name");
+    CHECK(j.contains("id") && j["id"].is_number_integer(), "CRUD POST body has integer id");
+  }
+
+  // Step 2: GET – verify creation (id=10 was the first assigned)
+  {
+    ApiRequest req; req.method = "GET"; req.path = "/api/runners/10";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 200, "CRUD GET after POST returns 200");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudAlice", "CRUD GET returns created name");
+  }
+
+  // Step 3: PUT – update runner
+  {
+    ApiRequest req; req.method = "PUT"; req.path = "/api/runners/10";
+    req.body = "{\"name\":\"CrudAliceUpdated\"}";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 200, "CRUD PUT returns 200");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudAliceUpdated", "CRUD PUT body has updated name");
+  }
+
+  // Step 4: GET – verify update
+  {
+    ApiRequest req; req.method = "GET"; req.path = "/api/runners/10";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 200, "CRUD GET after PUT returns 200");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudAliceUpdated", "CRUD GET reflects updated name");
+  }
+
+  // Step 5: DELETE – remove runner
+  {
+    ApiRequest req; req.method = "DELETE"; req.path = "/api/runners/10";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 204, "CRUD DELETE returns 204");
+  }
+
+  // Step 6: GET after DELETE – must return 404
+  {
+    ApiRequest req; req.method = "GET"; req.path = "/api/runners/10";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 404, "CRUD GET after DELETE returns 404");
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Team API endpoint routing tests (portable – mirrors team_handlers.h logic)
 // ---------------------------------------------------------------------------
 
@@ -2938,6 +3058,10 @@ int main() {
   testRunnerDeleteRemoves();
   testRunnerDeleteNotFound();
   testRunnerRouteRegistered();
+
+  // Task 3.25: Runner CRUD flow integration test
+  testRunnerCrudFlow();
+
   testTeamListNullEvent();
   testTeamGetByIdNullEvent();
   testTeamGetByIdFound();

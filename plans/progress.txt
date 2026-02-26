@@ -513,3 +513,14 @@
    - testRouterWrongMethod405: rätt path men fel HTTP-metod returnerar 405
    - testRouterMethodSpecificity: GET→200, POST→201, DELETE→405 för samma path
    361/361 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.25 DONE: Test: CRUD-flöde för Runner-endpoint
+   Lade till testRunnerCrudFlow() i test/portable_tests.cpp (11 CHECK-anrop):
+   - POST /api/runners → 201 + kontrollerade id och namn i response body
+   - GET /api/runners/10 → 200 + verifierade att skapad runner finns
+   - PUT /api/runners/10 → 200 + verifierade uppdaterat namn i response body
+   - GET /api/runners/10 → 200 + verifierade att uppdateringen persisterades
+   - DELETE /api/runners/10 → 204
+   - GET /api/runners/10 → 404 (runner borttagen)
+   Stateful in-memory mock (shared_ptr<map>) håller state over hela flödet.
+   372/372 tester passerade (11 nya).
