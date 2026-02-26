@@ -243,3 +243,10 @@
    - Bygger MeOS-server target och laddar upp artefakt.
    Uppdaterade vcpkg.json: libmysql flyttad till feature "mysql" (ej default).
    Windows CI sätter -DVCPKG_MANIFEST_FEATURES=mysql för att bevara MySQL-stöd.
+
+[2026-02-26] Task 2.20 DONE: Kör C++-tester i CI på Linux
+   Skapade test/portable_tests.cpp: 20 portabla enhetstester (NullNotifier, MockNotifier, IEventNotifier).
+   Lade till MeOS-test CMake-target i CMakeLists.txt (endast beroende på src/domain, src/app, test).
+   Aktiverade enable_testing() + add_test(NAME portable-unit-tests COMMAND MeOS-test).
+   Lade till CI-steg i build-linux job: bygger MeOS-test och kör ctest --output-on-failure.
+   Syntaxkontroll + körning med clang++ på macOS: 20/20 tester passerade.

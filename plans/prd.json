@@ -320,7 +320,7 @@
           "id": "2.20",
           "title": "Kör C++-tester i CI på Linux",
           "description": "Konfigurera CI att köra befintliga C++-enhetstester på Linux. Fixa eventuella plattformsspecifika testfel.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.19"
           ]

@@ -85,6 +85,11 @@ jobs:
       - name: Build MeOS-server
         run: cmake --build build --target MeOS-server
 
+      - name: Build and run C++ unit tests
+        run: |
+          cmake --build build --target MeOS-test
+          cd build && ctest --output-on-failure
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:

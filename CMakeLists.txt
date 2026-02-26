@@ -145,6 +145,7 @@ set(SRC_UTIL
     src/util/machinecontainer.cpp
     src/util/newcompetition.cpp
     src/util/zip.cpp
+    src/util/platform_socket.cpp
 )
 
 set(SRC_TEST
@@ -262,3 +263,129 @@ source_group("speaker" FILES ${SRC_SPEAKER})
 source_group("print"   FILES ${SRC_PRINT})
 source_group("util"    FILES ${SRC_UTIL})
 source_group("test"    FILES ${SRC_TEST})
+
+# -----------------------------------------------------------------------
+# MeOS-server: headless REST server target (no Win32 UI dependencies)
+# -----------------------------------------------------------------------
+
+# Server util excludes newcompetition.cpp (<commctrl.h> + Tab* deps)
+set(SRC_SERVER_UTIL
+    src/util/meos_util.cpp
+    src/util/TimeStamp.cpp
+    src/util/parser.cpp
+    src/util/localizer.cpp
+    src/util/random.cpp
+    src/util/utm.cpp
+    src/util/machinecontainer.cpp
+    src/util/zip.cpp
+    src/util/platform_socket.cpp
+)
+
+# Server net subset: only core REST/info/socket (no UI-oriented net files)
+set(SRC_SERVER_NET
+    src/net/restserver.cpp
+    src/net/infoserver.cpp
+    src/net/socket.cpp
+)
+
+set(SRC_SERVER
+    ${SRC_DOMAIN}
+    ${SRC_IO}
+    ${SRC_DB}
+    ${SRC_SERVER_UTIL}
+    ${SRC_SERVER_NET}
+    src/ui/gdioutput.cpp
+    src/ui/gdioutput_server_stubs.cpp
+    src/ui/image_server_stub.cpp
+    src/ui/progress.cpp
+    src/app/recorder.cpp
+    src/app/meosversion.cpp
+    src/app/MeOSFeatures.cpp
+    src/app/server_main.cpp
+)
+
+add_executable(MeOS-server ${SRC_SERVER})
+
+target_include_directories(MeOS-server PRIVATE
+    src
+    src/app
+    src/domain
+    src/ui
+    src/db
+    src/net
+    src/io
+    src/hw
+    src/speaker
+    src/print
+    src/util
+    third_party
+)
+
+target_compile_definitions(MeOS-server PRIVATE
+    MEOS_SERVER
+    UNICODE
+    _UNICODE
+    $<$<CONFIG:Debug>:_DEBUG>
+    $<$<CONFIG:Release>:NDEBUG>
+    $<$<BOOL:${MEOS_USE_MYSQL}>:MEOS_USE_MYSQL>
+)
+
+if(MSVC)
+    target_compile_options(MeOS-server PRIVATE
+        /W3
+        /wd4267 /wd4244 /wd4018
+        /MP
+        /std:c++17
+    )
+endif()
+
+target_link_libraries(MeOS-server PRIVATE
+    ZLIB::ZLIB
+    haru::haru
+    restbed::restbed
+    PNG::PNG
+)
+
+if(MEOS_USE_MYSQL)
+    target_link_libraries(MeOS-server PRIVATE unofficial::libmysql::libmysql)
+endif()
+
+if(WIN32)
+    target_link_libraries(MeOS-server PRIVATE
+        ws2_32
+        odbc32
+        odbccp32
+    )
+else()
+    target_link_libraries(MeOS-server PRIVATE pthread)
+endif()
+
+source_group("domain"  FILES ${SRC_DOMAIN})
+source_group("io"      FILES ${SRC_IO})
+source_group("db"      FILES ${SRC_DB})
+source_group("net"     FILES ${SRC_SERVER_NET})
+source_group("util"    FILES ${SRC_SERVER_UTIL})
+source_group("app"     FILES src/app/server_main.cpp src/app/recorder.cpp src/app/meosversion.cpp src/app/MeOSFeatures.cpp)
+source_group("ui"      FILES src/ui/gdioutput.cpp src/ui/gdioutput_server_stubs.cpp src/ui/image_server_stub.cpp src/ui/progress.cpp)
+
+# -----------------------------------------------------------------------
+# MeOS-test: portable unit tests (no Win32/gdioutput dependencies)
+# Covers IEventNotifier, NullNotifier, MockNotifier.
+# Run on any platform with: cmake --build build --target MeOS-test && ./build/MeOS-test
+# -----------------------------------------------------------------------
+add_executable(MeOS-test test/portable_tests.cpp)
+
+target_include_directories(MeOS-test PRIVATE
+    src/domain
+    src/app
+    test
+)
+
+if(MSVC)
+    target_compile_options(MeOS-test PRIVATE /std:c++17 /W3)
+else()
+    target_compile_options(MeOS-test PRIVATE -std=c++17 -Wall)
+endif()
+
+enable_testing()
+add_test(NAME portable-unit-tests COMMAND MeOS-test)
