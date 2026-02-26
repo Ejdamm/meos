@@ -10,6 +10,7 @@ find_package(unofficial-libmysql CONFIG REQUIRED)
 find_package(haru CONFIG REQUIRED)
 find_package(restbed CONFIG REQUIRED)
 find_package(PNG REQUIRED)
+find_package(ZLIB REQUIRED)
 
 # Source files grouped by module
 set(SRC_APP
@@ -193,11 +194,9 @@ endif()
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(MEOS_LIB_DIR_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win64")
     set(MEOS_LIB_DIR_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win64_debug")
-    set(MEOS_ZLIB zlibstat)
 else()
     set(MEOS_LIB_DIR_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win32")
     set(MEOS_LIB_DIR_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win32_debug")
-    set(MEOS_ZLIB zlibstat_vc15)
 endif()
 
 target_link_directories(MeOS PRIVATE
@@ -215,7 +214,7 @@ target_link_libraries(MeOS PRIVATE
     ws2_32
     wininet
     # Third-party libraries
-    ${MEOS_ZLIB}
+    ZLIB::ZLIB
     haru::haru
     restbed::restbed
     PNG::PNG

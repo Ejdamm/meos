@@ -124,3 +124,10 @@
    Ersatte libpng med PNG::PNG i target_link_libraries.
    Raderade third_party/png/ (headers) och third_party/lib/*/libpng.lib (alla 4 konfigurationer).
    #include "png.h" i print-källfiler fungerar via vcpkg-paketets include-sökvägar.
+
+[2026-02-26] Task 2.7 DONE: Ersätt vendored zlib med find_package
+   Lade till find_package(ZLIB REQUIRED) i CMakeLists.txt.
+   Ersatte ${MEOS_ZLIB} med ZLIB::ZLIB i target_link_libraries.
+   Raderade MEOS_ZLIB-variabel ur CMakeLists.txt.
+   Raderade third_party/lib/*/zlibstat*.lib (alla 4 konfigurationer).
+   third_party/minizip/zlib.h behålls (tillhör minizip, inte standalone zlib).

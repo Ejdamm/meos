@@ -193,7 +193,7 @@
           "id": "2.7",
           "title": "Ersätt vendored zlib med find_package",
           "description": "Ta bort third_party/minizip/ (zlib headers) och tillhörande zlibstat*.lib. Ersätt med find_package(ZLIB) i CMakeLists.txt. Verifiera build.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.2"
           ]
