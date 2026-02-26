@@ -184,7 +184,7 @@
           "id": "2.6",
           "title": "Ersätt vendored libpng med find_package",
           "description": "Ta bort third_party/png/ och tillhörande .lib. Ersätt med find_package(PNG) i CMakeLists.txt. Verifiera build.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.2"
           ]

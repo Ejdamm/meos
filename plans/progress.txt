@@ -118,3 +118,9 @@
    Ersatte RestBed med restbed::restbed i target_link_libraries.
    Raderade third_party/restbed/ (headers) och third_party/lib/*/RestBed.lib.
    #include "restbed/restbed" i net-källfiler fungerar via vcpkg-paketets include-sökvägar.
+
+[2026-02-26] Task 2.6 DONE: Ersätt vendored libpng med find_package
+   Lade till find_package(PNG REQUIRED) i CMakeLists.txt.
+   Ersatte libpng med PNG::PNG i target_link_libraries.
+   Raderade third_party/png/ (headers) och third_party/lib/*/libpng.lib (alla 4 konfigurationer).
+   #include "png.h" i print-källfiler fungerar via vcpkg-paketets include-sökvägar.
