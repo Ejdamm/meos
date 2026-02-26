@@ -535,3 +535,17 @@
    - testClubCrudFlow: samma flöde för /api/clubs
    Stateful in-memory store (shared_ptr<map>) håller state per flöde.
    427/427 tester passerade (55 nya) med clang++ på macOS.
+
+[2026-02-26] Task 4.3 DONE: Skapa TypeScript-interfaces för domänobjekt
+   Skapade src/ui/web/src/types/ med 8 filer + barrel index.ts:
+   - competition.ts: Competition (id, name, date, zeroTime, numRunners, numClasses, numCourses, numCards)
+   - runner.ts: Runner (id, name, clubId, club, classId, class, cardNo, bib, startTime, finishTime, runningTime, status, birthYear, nationality, sex)
+   - team.ts: Team + LegResult (runners[], legResults[])
+   - class.ts: Class (id, name, type, numStages, courseId)
+   - course.ts: Course (id, name, length, numControls, controls[], startId?, finishId?)
+   - control.ts: Control (id, name, status, codes[], rogainingPoints?)
+   - club.ts: Club (id, name, country?)
+   - card.ts: Card + Punch (punches[])
+   - index.ts: barrel re-export av alla interfaces
+   Interfaces matchar JSON-formatet i src/net/json_serializers.h.
+   npm run build: 32 moduler, inga TS-fel.

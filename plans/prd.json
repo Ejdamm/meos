@@ -677,7 +677,7 @@
           "id": "4.3",
           "title": "Skapa TypeScript-interfaces för domänobjekt",
           "description": "Skapa src/ui/web/src/types/ med interfaces: Competition, Runner, Team, Class, Course, Control, Club, Card, Punch. Matcha JSON-formatet från C++-serverns API. Exportera via barrel index.ts.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.2"
           ]
