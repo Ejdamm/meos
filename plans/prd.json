@@ -299,7 +299,7 @@
           "id": "2.18",
           "title": "Skapa CMake-target: MeOS-server (headless)",
           "description": "Skapa separat CMake-target MeOS-server som bygger headless-servern utan Win32 UI-beroenden. Villkora Win32-libraries (Msimg32, comctl32, gdiplus etc.) så de bara länkas för MeOS-target.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.14",
             "2.12",
@@ -311,7 +311,7 @@
           "id": "2.19",
           "title": "Lägg till Linux (Ubuntu) i CI-matris",
           "description": "Uppdatera .github/workflows/build.yml med Ubuntu i build-matrisen. Installera vcpkg-beroenden. Bygg MeOS-server target på Ubuntu.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.18"
           ]
