@@ -661,7 +661,7 @@
           "id": "4.1",
           "title": "Initiera Vite + React + TypeScript-projekt",
           "description": "Skapa React-projekt i src/ui/web/ med Vite + React + TypeScript. Konfigurera tsconfig: strict, noImplicitAny, strictNullChecks, noUncheckedIndexedAccess. Proxy till C++-servern (port 2009) via vite.config.ts.",
-          "done": false,
+          "done": true,
           "dependencies": []
         },
         {

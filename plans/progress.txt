@@ -478,3 +478,9 @@
    - testJsonSchemaFieldTypes: korrekt JSON-typ för varje fält (integer/string/array)
    Portabla DTOs med std::string (ingen gdioutput-beroende).
    Kompilering + körning: 317/317 tester passerade (61 nya).
+
+[2026-02-26] Task 4.1 DONE: Initiera Vite + React + TypeScript-projekt
+   Skapade src/ui/web/ med Vite 7 + React + TypeScript via `npm create vite@latest`.
+   Konfigurerade tsconfig.app.json: strict:true (noImplicitAny, strictNullChecks ingår) + noUncheckedIndexedAccess:true.
+   Konfigurerade vite.config.ts med server.proxy: /api → http://localhost:2009 (changeOrigin:true).
+   npm run build passerade: 32 moduler, inga TS-fel.
