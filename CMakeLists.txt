@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(unofficial-libmysql CONFIG REQUIRED)
+find_package(haru CONFIG REQUIRED)
 
 # Source files grouped by module
 set(SRC_APP
@@ -166,7 +167,6 @@ target_include_directories(MeOS PRIVATE
     test
     resources
     third_party
-    third_party/libharu
 )
 
 # Compiler settings
@@ -192,12 +192,10 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(MEOS_LIB_DIR_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win64")
     set(MEOS_LIB_DIR_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win64_debug")
     set(MEOS_ZLIB zlibstat)
-    set(MEOS_HARU libharu)
 else()
     set(MEOS_LIB_DIR_RELEASE "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win32")
     set(MEOS_LIB_DIR_DEBUG "${CMAKE_CURRENT_SOURCE_DIR}/third_party/lib/win32_debug")
     set(MEOS_ZLIB zlibstat_vc15)
-    set(MEOS_HARU libhpdf)
 endif()
 
 target_link_directories(MeOS PRIVATE
@@ -216,7 +214,7 @@ target_link_libraries(MeOS PRIVATE
     wininet
     # Third-party libraries
     ${MEOS_ZLIB}
-    ${MEOS_HARU}
+    haru::haru
     RestBed
     libpng
     unofficial::libmysql::libmysql

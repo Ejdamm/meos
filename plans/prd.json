@@ -166,7 +166,7 @@
           "id": "2.4",
           "title": "Ersätt vendored libharu med find_package",
           "description": "Ta bort third_party/libharu/ och tillhörande .lib/.dll i third_party/lib/ och third_party/bin/. Ersätt med find_package(unofficial-libharu) i CMakeLists.txt. Verifiera build.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.2"
           ]

@@ -105,3 +105,10 @@
    Ersatte libmysql med unofficial::libmysql::libmysql i target_link_libraries.
    Raderade third_party/mysql/ (headers) och third_party/lib/*/libmysql.lib.
    #include "mysql/mysql.h" i db-källfiler fungerar via vcpkg-paketets include-sökvägar.
+
+[2026-02-26] Task 2.4 DONE: Ersätt vendored libharu med find_package
+   Lade till find_package(haru CONFIG REQUIRED) i CMakeLists.txt.
+   Ersatte ${MEOS_HARU} med haru::haru i target_link_libraries.
+   Tog bort third_party/libharu/ (headers) och third_party/lib/*/libharu.lib + libhpdf.lib.
+   Tog bort MEOS_HARU-variabel-tilldelningen ur CMakeLists.txt.
+   #include "hpdf.h" i print-källfiler fungerar via vcpkg-paketets include-sökvägar.
