@@ -184,3 +184,15 @@
      CloseHandle → hThread.join(), initMySQLCriticalSection → no-op
    - src/ui/TabAuto.h: HANDLE hThread → std::thread hThread, lade till #include <thread>
    Syntaxkontroll med clang++ passerade utan fel.
+
+[2026-02-26] Task 2.14 DONE: Migrera src/net/ till portabla sockets
+   socket.cpp: ersatte SOCKET->platform_socket_t, closesocket->platform_socket_close,
+   socket()->platform_socket_create, bind()->platform_socket_bind, select()->platform_socket_select,
+   recvfrom()->platform_socket_recvfrom, sendto()->platform_socket_sendto,
+   setsockopt()->platform_socket_setsockopt, WSAStartup->platform_socket_init(),
+   Sleep()->std::this_thread::sleep_for, OutputDebugStringA/#PostMessage guarded med #ifdef _WIN32.
+   socket.h: SOCKET sendSocket -> platform_socket_t sendSocket.
+   download.h: wrappade hela klassen i #ifdef _WIN32, lade till non-Windows stub.
+   download.cpp: wrappade hela implementationen i #ifdef _WIN32 ... #endif.
+   onlineresults.cpp: guradade #include <shellapi.h> och ShellExecute med #ifdef _WIN32.
+   Syntaxkontroll: platform_socket integration verifierad med clang++ på macOS.

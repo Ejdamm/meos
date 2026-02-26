@@ -60,7 +60,7 @@ private:
   void addPunchInfo(const SocketPunchInfo &pi);
   bool startedUDPThread;
 
-  SOCKET sendSocket;
+  platform_socket_t sendSocket;
   bool clearQueue;
   int port;
 public:

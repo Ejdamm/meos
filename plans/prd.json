@@ -260,7 +260,7 @@
           "id": "2.14",
           "title": "Migrera src/net/ till portabla sockets",
           "description": "Ersätt WinSock-anrop i src/net/socket.cpp och src/net/download.cpp med plattformsabstraktionen från 2.11. Uppdatera src/net/onlineinput.cpp och src/net/onlineresults.cpp.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.11",
             "2.8"

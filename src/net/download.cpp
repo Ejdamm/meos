@@ -22,6 +22,9 @@
 
 #include "stdafx.h"
 #include "Download.h"
+
+#ifdef _WIN32
+
 #include <Wininet.h>
 #include "Localizer.h"
 #include "meos_util.h"
@@ -604,3 +607,5 @@ void ListIpAddresses(vector<string>& ipAddrs)
   free(adapter_addresses);
   adapter_addresses = NULL;
 }
+
+#endif // _WIN32

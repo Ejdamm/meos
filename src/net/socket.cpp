@@ -25,7 +25,9 @@
 #include <fstream>
 #include <mutex>
 #include <thread>
+#include <chrono>
 #include "socket.h"
+#include "platform_socket.h"
 #include "meosexception.h"
 #include <iostream>
 
@@ -36,7 +38,7 @@ DirectSocket::DirectSocket(int cmpId, int p) {
   competitionId = cmpId;
   port = p;
   shutDown = false;
-  sendSocket = -1;
+  sendSocket = PLATFORM_INVALID_SOCKET;
   hDestinationWindow = 0;
   clearQueue = false;
 }
@@ -47,12 +49,12 @@ DirectSocket::~DirectSocket() {
     shutDown = true;
   }
 
-  if (sendSocket != -1) {
-    closesocket(sendSocket);
-    sendSocket = -1;
+  if (sendSocket != PLATFORM_INVALID_SOCKET) {
+    platform_socket_close(sendSocket);
+    sendSocket = PLATFORM_INVALID_SOCKET;
   }
 
-  Sleep(1000);
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   shutDown = true;
 }
 
@@ -65,7 +67,9 @@ void DirectSocket::addPunchInfo(const SocketPunchInfo &pi) {
     clearQueue = false;
     messageQueue.push_back(pi);
   }
+#ifdef _WIN32
   PostMessage(hDestinationWindow, WM_USER + 3, 0,0);
+#endif
 }
 
 void DirectSocket::getPunchQueue(vector<SocketPunchInfo> &pq) {
@@ -81,19 +85,19 @@ void DirectSocket::getPunchQueue(vector<SocketPunchInfo> &pq) {
 
 void DirectSocket::listenDirectSocket() {
 
-  SOCKET clientSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  platform_socket_t clientSocket = platform_socket_create(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-  if (clientSocket == -1) {
+  if (clientSocket == PLATFORM_INVALID_SOCKET) {
     throw meosException("Socket error");
   }
 
-  SOCKADDR_IN UDPserveraddr;
+  struct sockaddr_in UDPserveraddr;
   memset(&UDPserveraddr,0, sizeof(UDPserveraddr));
   UDPserveraddr.sin_family = AF_INET;
   UDPserveraddr.sin_port = htons(port);
   UDPserveraddr.sin_addr.s_addr = INADDR_ANY;
 
-  if (bind(clientSocket, (SOCKADDR*)&UDPserveraddr,sizeof(SOCKADDR_IN)) < 0) {
+  if (platform_socket_bind(clientSocket, (struct sockaddr*)&UDPserveraddr, sizeof(struct sockaddr_in)) < 0) {
     throw meosException("Socket error");
   }
 
@@ -106,27 +110,29 @@ void DirectSocket::listenDirectSocket() {
     FD_ZERO(&fds);
     FD_SET(clientSocket, &fds);
 
-    int rc = select(0, &fds, NULL, NULL, &timeout);
+    int rc = platform_socket_select(clientSocket, &fds, NULL, NULL, &timeout);
 
     if (shutDown) {
-      closesocket(clientSocket);
+      platform_socket_close(clientSocket);
       return;
     }
 
     if (rc > 0) {
       ExtPunchInfo pi;
-      SOCKADDR_IN clientaddr;
+      struct sockaddr_in clientaddr;
       int len = sizeof(clientaddr);
-      if (recvfrom(clientSocket, (char*)&pi, sizeof(pi), 0, (sockaddr*)&clientaddr, &len) > 0) {
+      if (platform_socket_recvfrom(clientSocket, (char*)&pi, sizeof(pi), 0, (struct sockaddr*)&clientaddr, &len) > 0) {
         if (pi.cmpId == competitionId)
           addPunchInfo(pi.punch);
       }
     }
   }
-  closesocket(clientSocket);
+  platform_socket_close(clientSocket);
 }
 
+#ifdef _WIN32
 extern HWND hWndMain;
+#endif
 
 void startListeningDirectSocket(void *p) {
   wstring error;
@@ -144,9 +150,9 @@ void startListeningDirectSocket(void *p) {
     error = L"Unknown error";
   }
   if (!error.empty()) {
+#ifdef _WIN32
     PostMessage(hWndMain, WM_USER + 5, 0, 0);
-    //error = L"Setting up advance information service for punches failed. Punches will be recieved with some seconds delay. Is the network port blocked by an other MeOS session?\n\n" + error;
-    //MessageBox(NULL, error.c_str(), L"MeOS", MB_OK|MB_ICONSTOP);
+#endif
   }
 }
 
@@ -157,20 +163,18 @@ void DirectSocket::startUDPSocketThread(HWND targetWindow) {
 
 void DirectSocket::sendPunch(SocketPunchInfo &pi) {
 
-  if (sendSocket == -1) {
-    WORD w = MAKEWORD(1,1);
-    WSADATA wsadata;
-    WSAStartup(w, &wsadata);
+  if (sendSocket == PLATFORM_INVALID_SOCKET) {
+    platform_socket_init();
 
-    sendSocket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sendSocket == -1) {
+    sendSocket = platform_socket_create(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sendSocket == PLATFORM_INVALID_SOCKET) {
       throw meosException("Socket error");
     }
     char opt = 1;
-    setsockopt(sendSocket, SOL_SOCKET, SO_BROADCAST, (char*)&opt, sizeof(char));
+    platform_socket_setsockopt(sendSocket, SOL_SOCKET, SO_BROADCAST, &opt, sizeof(char));
   }
 
-  SOCKADDR_IN brdcastaddr;
+  struct sockaddr_in brdcastaddr;
   memset(&brdcastaddr,0, sizeof(brdcastaddr));
   brdcastaddr.sin_family = AF_INET;
   brdcastaddr.sin_port = htons(port);
@@ -182,9 +186,11 @@ void DirectSocket::sendPunch(SocketPunchInfo &pi) {
   epi.cmpId = competitionId;
   epi.punch = pi;
 
-  int ret = sendto(sendSocket, (char*)&epi, sizeof(epi), 0, (sockaddr*)&brdcastaddr, len);
+  int ret = platform_socket_sendto(sendSocket, (char*)&epi, sizeof(epi), 0, (struct sockaddr*)&brdcastaddr, len);
 
   if (ret < 0) {
+#ifdef _WIN32
     OutputDebugStringA("Error broadcasting to the clients");
+#endif
   }
 }

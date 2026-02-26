@@ -33,6 +33,7 @@
 #endif // _MSC_VER > 1000
 
 #include <vector>
+#ifdef _WIN32
 typedef HANDLE HINTERNET;
 
 class dwException : public std::exception {
@@ -87,5 +88,47 @@ protected:
   friend void SUThread(void *ptr);
 
 };
+
+#else // !_WIN32
+
+// Stub for non-Windows platforms. HTTP download via WinINet is not available;
+// methods throw std::runtime_error when called.
+
+#include <stdexcept>
+
+class dwException : public std::exception {
+public:
+  int code;
+  dwException(const char *msg, int id) : std::exception(msg), code(id) {}
+  virtual ~dwException() {}
+};
+
+class ProgressWindow;
+
+class Download {
+public:
+  void postFile(const wstring &, const wstring &, const wstring &,
+                const vector< pair<wstring, wstring> > &, ProgressWindow &) {
+    throw std::runtime_error("Download::postFile not supported on this platform");
+  }
+  int  processMessages() { return 0; }
+  bool successful()      { return false; }
+  bool isWorking()       { return false; }
+  void setBytesToDownload(unsigned long) {}
+  void endDownload()     {}
+  void downloadFile(const wstring &, const wstring &,
+                    const vector< pair<wstring, wstring> > &) {
+    throw std::runtime_error("Download::downloadFile not supported on this platform");
+  }
+  void initInternet() {}
+  void shutDown()     {}
+  bool createDownloadThread() { return false; }
+  void downLoadNoThread()     {}
+
+  Download()          {}
+  virtual ~Download() {}
+};
+
+#endif // _WIN32
 
 #endif // !defined(AFX_DOWNLOAD_H__DEBC6296_9CAE_4FF6_867B_DD896D0B6A7A__INCLUDED_)

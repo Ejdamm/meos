@@ -23,7 +23,9 @@
 #include "stdafx.h"
 
 #include <sys/stat.h>
+#ifdef _WIN32
 #include <shellapi.h>
+#endif
 
 #include "oEvent.h"
 #include "gdioutput.h"
@@ -476,7 +478,9 @@ void OnlineResults::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast) {
         }
 
         if (!exportScript.empty()) {
+#ifdef _WIN32
           ShellExecute(NULL, NULL, exportScript.c_str(), fn.c_str(), NULL, SW_HIDE);
+#endif
         }
       }
 
