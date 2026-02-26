@@ -28,6 +28,7 @@
 
 
 #include "oDataContainer.h"
+#include "IEventNotifier.h"
 
 #include "oControl.h"
 #include "oCourse.h"
@@ -244,6 +245,7 @@ protected:
   bool isMainEvent = false;
 
   gdioutput &gdibase;
+  IEventNotifier &notifier_;
   
   void generateFixedList(gdioutput &gdi, const oListInfo &li);
 
@@ -1586,7 +1588,7 @@ public:
   //Returns number of changed, non-saved elements.
   int checkChanged(vector<wstring> &out) const;
   void checkDB(); //Check database for consistancy...
-  oEvent(gdioutput &gdi);
+  oEvent(gdioutput &gdi, IEventNotifier &notifier);
   oEvent &operator=(const oEvent &oe) = delete;
   virtual ~oEvent();
 

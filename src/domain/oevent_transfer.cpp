@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Melin Software HB - software@melin.nu - www.melin.nu
-Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
+Eksoppsvï¿½gen 16, SE-75646 UPPSALA, Sweden
 
 ************************************************************************/
 
@@ -594,7 +594,7 @@ wstring oEvent::cloneCompetition(bool cloneRunners, bool cloneTimes,
   if (cloneTimes)
     cloneRunners = true;
 
-  oEvent ce(gdibase);
+  oEvent ce(gdibase, notifier_);
   ce.newCompetition(Name);
   ce.ZeroTime = ZeroTime;
   ce.Date = Date;

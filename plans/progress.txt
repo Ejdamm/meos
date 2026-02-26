@@ -13,3 +13,10 @@
 13.    Metoder: status(), alert(), ask(), askOkCancel(), setWindowTitle(), dataChanged().
 14.    AskAnswer-enum definierat som IEventNotifier::Answer i headern.
 15.    Baserat på kartläggningen i 1.1 (gdioutput_domain_mapping.md).
+
+17. [2026-02-26] Task 1.3 DONE: Refaktorera oEvent att ta IEventNotifier&
+18.    Ändrade oEvent(gdioutput&) till oEvent(gdioutput&, IEventNotifier&).
+19.    Lade till IEventNotifier& notifier_-member i oEvent.
+20.    Ersatte gdibase.alert/ask/setWindowTitle-anrop med notifier_-anrop i oEvent.cpp.
+21.    Skapade GdiNotifier.h (adapter som wrapper gdioutput som IEventNotifier).
+22.    Uppdaterade alla 4 konstruktionsställen: meos.cpp, TabSI.cpp, TabCompetition.cpp, oevent_transfer.cpp.

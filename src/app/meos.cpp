@@ -28,6 +28,7 @@
 #include <shlobj.h>
 
 #include "oEvent.h"
+#include "GdiNotifier.h"
 #include "xmlparser.h"
 #include "recorder.h"
 
@@ -64,6 +65,7 @@ int defaultCodePage = 1252;
 Image image;
 gdioutput *gdi_main = nullptr;
 oEvent *gEvent = nullptr;
+GdiNotifier *gNotifier = nullptr;
 SportIdent *gSI = nullptr;
 Localizer lang;
 AutoTask *autoTask = nullptr;
@@ -253,7 +255,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   gdi_extra.push_back(gdi_main);
 
   try {
-    gEvent = new oEvent(*gdi_main);
+    gNotifier = new GdiNotifier(*gdi_main);
+    gEvent = new oEvent(*gdi_main, *gNotifier);
     gEvent->setMainEvent();
   }
   catch (meosException &ex) {

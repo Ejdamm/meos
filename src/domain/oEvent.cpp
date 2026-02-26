@@ -73,7 +73,7 @@ extern Image image;
 //Version of database
 int oEvent::dbVersion = 100;
 
-oEvent::oEvent(gdioutput &gdi) : oBase(nullptr), gdibase(gdi) {
+oEvent::oEvent(gdioutput &gdi, IEventNotifier &notifier) : oBase(nullptr), gdibase(gdi), notifier_(notifier) {
   readOnly = false;
   tLongTimesCached = -1;
   directSocket = 0;
@@ -1181,7 +1181,7 @@ bool oEvent::open(const wstring &file, bool doImport, bool forMerge, bool forceN
     wstring vs = ver.getWStr();
     if (vs > getMajorVersion()) {
       // Tävlingen är skapad i MeOS X. Data kan gå förlorad om du öppnar tävlingen.\n\nVill du fortsätta?
-      bool cont = gdibase.ask(L"warn:opennewversion#" + vs);
+      bool cont = notifier_.ask(L"warn:opennewversion#" + vs);
       if (!cont)
         return false;
     }
@@ -1215,7 +1215,7 @@ bool oEvent::open(const wstring &file, bool doImport, bool forMerge, bool forceN
   else if (doImport && !oe->gdiBase().isTest()) {
     for (auto &cmp : cinfo) {
       if (cmp.NameId == currentNameId) {
-        if (!gdibase.ask(L"ask:importcopy#" + cmp.Name + L", " + cmp.Date)) {
+        if (!notifier_.ask(L"ask:importcopy#" + cmp.Name + L", " + cmp.Date)) {
           wstring fn;
           getNewFileName(fn, currentNameId);
         }
@@ -1661,10 +1661,10 @@ bool oEvent::openRunnerDatabase(const wchar_t* filename)
     }
   }
   catch (meosException &ex) {
-    gdibase.alert(ex.wwhat());
+    notifier_.alert(ex.wwhat());
   }
   catch(std::exception &ex) {
-    gdibase.alert(ex.what());
+    notifier_.alert(gdioutput::widen(ex.what()));
   }
   return true;
 }
@@ -4211,7 +4211,7 @@ void oEvent::checkDB()
 #endif
   }
   updateTabs();
-  gdibase.setWindowTitle(getTitleName());
+  notifier_.setWindowTitle(getTitleName());
 }
 
 void destroyExtraWindows();

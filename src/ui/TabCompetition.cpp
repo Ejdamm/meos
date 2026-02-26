@@ -28,6 +28,7 @@
 #include <commdlg.h>
 
 #include "oEvent.h"
+#include "GdiNotifier.h"
 #include "xmlparser.h"
 #include "gdioutput.h"
 #include "csvparser.h"
@@ -912,7 +913,8 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       wstring file = oe->getFileNameFromId(id);
 
       bool success = false;
-      oEvent nextStage(gdi);
+      GdiNotifier nextNotifier(gdi);
+      oEvent nextStage(gdi, nextNotifier);
 
       if (!file.empty())
         success = nextStage.open(file.c_str(), false, false, false);

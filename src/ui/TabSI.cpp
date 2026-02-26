@@ -31,6 +31,7 @@
 #include <algorithm>
 
 #include "oEvent.h"
+#include "GdiNotifier.h"
 #include "xmlparser.h"
 #include "gdioutput.h"
 #include "gdifonts.h"
@@ -6081,7 +6082,8 @@ public:
   void simulation(gdioutput& gdi) {
     wstring tmp = getTempFile();
     oe->save(tmp, false, false);
-    oEvent tmpOE(gdi);
+    GdiNotifier tmpNotifier(gdi);
+    oEvent tmpOE(gdi, tmpNotifier);
     tmpOE.open(tmp, true, false, true);
 
     vector<pRunner> rList;
