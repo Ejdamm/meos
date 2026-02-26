@@ -3116,6 +3116,116 @@ void testRouterMethodSpecificity() {
   CHECK(dr.status == 405, "DELETE /api/items → 405 (path known, method not registered)");
 }
 
+// ---------------------------------------------------------------------------
+// Task 3.27: Content negotiation och felkoder (integration tests)
+// Accept: application/json → JSON response, Accept: text/xml → XML response,
+// invalid body → 400, missing resource → 404, duplicate → 409.
+// ---------------------------------------------------------------------------
+
+// Helper: build a small router that respects Accept header and handles errors.
+static ApiRouter makeContentNegRouter() {
+  ApiRouter router;
+  // In-memory store keyed by name (to detect duplicates)
+  auto store = std::make_shared<std::map<std::string, nlohmann::json>>();
+
+  // GET /api/items/:name  – returns JSON or XML depending on Accept header
+  router.get("/api/items/:name", [store](const ApiRequest &req) -> ApiResponse {
+    auto it = req.pathParams.find("name");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest();
+    auto sit = store->find(it->second);
+    if (sit == store->end()) return ApiResponse::notFound("Item not found");
+    std::string ct = req.negotiateContentType();
+    if (ct == "text/xml") {
+      std::string xml = "<item><name>" + sit->second["name"].get<std::string>() + "</name></item>";
+      return {200, "text/xml", xml};
+    }
+    return ApiResponse::ok(sit->second.dump());
+  });
+
+  // POST /api/items – create; returns 400 on bad body, 409 on duplicate name
+  router.post("/api/items", [store](const ApiRequest &req) -> ApiResponse {
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name") || !body["name"].is_string())
+      return ApiResponse::badRequest("Field 'name' is required");
+    std::string name = body["name"].get<std::string>();
+    if (store->count(name)) return ApiResponse::conflict("Item already exists");
+    nlohmann::json item; item["name"] = name;
+    (*store)[name] = item;
+    return ApiResponse::created(item.dump());
+  });
+
+  return router;
+}
+
+void testContentNegReturnsJson() {
+  std::cout << "testContentNegReturnsJson\n";
+  auto router = makeContentNegRouter();
+  // Seed store via POST
+  { ApiRequest req; req.method = "POST"; req.path = "/api/items";
+    req.body = "{\"name\":\"alpha\"}"; router.dispatch(req); }
+  ApiRequest req; req.method = "GET"; req.path = "/api/items/alpha";
+  req.headers["accept"] = "application/json";
+  auto res = router.dispatch(req);
+  CHECK(res.status == 200, "Accept:application/json → 200");
+  CHECK(res.contentType == "application/json", "response Content-Type is application/json");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j["name"].get<std::string>() == "alpha", "JSON body has correct name");
+}
+
+void testContentNegReturnsXml() {
+  std::cout << "testContentNegReturnsXml\n";
+  auto router = makeContentNegRouter();
+  { ApiRequest req; req.method = "POST"; req.path = "/api/items";
+    req.body = "{\"name\":\"beta\"}"; router.dispatch(req); }
+  ApiRequest req; req.method = "GET"; req.path = "/api/items/beta";
+  req.headers["accept"] = "text/xml";
+  auto res = router.dispatch(req);
+  CHECK(res.status == 200, "Accept:text/xml → 200");
+  CHECK(res.contentType == "text/xml", "response Content-Type is text/xml");
+  CHECK(res.body.find("<item>") != std::string::npos, "XML body contains <item>");
+  CHECK(res.body.find("beta") != std::string::npos, "XML body contains item name");
+}
+
+void testContentNegInvalidBodyReturns400() {
+  std::cout << "testContentNegInvalidBodyReturns400\n";
+  auto router = makeContentNegRouter();
+  ApiRequest req; req.method = "POST"; req.path = "/api/items";
+  req.body = "not-json{{";
+  auto res = router.dispatch(req);
+  CHECK(res.status == 400, "invalid JSON body → 400");
+}
+
+void testContentNegMissingResourceReturns404() {
+  std::cout << "testContentNegMissingResourceReturns404\n";
+  auto router = makeContentNegRouter();
+  ApiRequest req; req.method = "GET"; req.path = "/api/items/nonexistent";
+  auto res = router.dispatch(req);
+  CHECK(res.status == 404, "missing resource → 404");
+}
+
+void testContentNegDuplicateReturns409() {
+  std::cout << "testContentNegDuplicateReturns409\n";
+  auto router = makeContentNegRouter();
+  // First POST – should succeed
+  { ApiRequest req; req.method = "POST"; req.path = "/api/items";
+    req.body = "{\"name\":\"gamma\"}";
+    auto res = router.dispatch(req);
+    CHECK(res.status == 201, "first POST returns 201"); }
+  // Second POST with same name – should conflict
+  { ApiRequest req; req.method = "POST"; req.path = "/api/items";
+    req.body = "{\"name\":\"gamma\"}";
+    auto res = router.dispatch(req);
+    CHECK(res.status == 409, "duplicate POST returns 409"); }
+}
+
+void testApiResponseConflictHelper() {
+  std::cout << "testApiResponseConflictHelper\n";
+  auto res = ApiResponse::conflict("already exists");
+  CHECK(res.status == 409, "ApiResponse::conflict returns status 409");
+  CHECK(res.body.find("already exists") != std::string::npos, "conflict body contains message");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -3326,6 +3436,14 @@ int main() {
   testRouterUnknownRoute404();
   testRouterWrongMethod405();
   testRouterMethodSpecificity();
+
+  // Task 3.27: Content negotiation och felkoder (integration tests)
+  testContentNegReturnsJson();
+  testContentNegReturnsXml();
+  testContentNegInvalidBodyReturns400();
+  testContentNegMissingResourceReturns404();
+  testContentNegDuplicateReturns409();
+  testApiResponseConflictHelper();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

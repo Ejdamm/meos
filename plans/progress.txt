@@ -549,3 +549,15 @@
    - index.ts: barrel re-export av alla interfaces
    Interfaces matchar JSON-formatet i src/net/json_serializers.h.
    npm run build: 32 moduler, inga TS-fel.
+
+[2026-02-26] Task 3.27 DONE: Test: content negotiation och felkoder
+   Lade till ApiResponse::conflict() (409) i src/net/api_router.h.
+   Lade till 6 testfunktioner (13 CHECK-anrop) i test/portable_tests.cpp:
+   - testContentNegReturnsJson: Accept:application/json → 200 + JSON body med korrekt Content-Type
+   - testContentNegReturnsXml: Accept:text/xml → 200 + XML body (<item>-tagg) med Content-Type text/xml
+   - testContentNegInvalidBodyReturns400: ogiltig JSON-body → 400
+   - testContentNegMissingResourceReturns404: saknad resurs → 404
+   - testContentNegDuplicateReturns409: duplicate POST → 409
+   - testApiResponseConflictHelper: ApiResponse::conflict() returnerar status 409
+   Handler använder req.negotiateContentType() för att välja JSON vs XML svar.
+   440/440 tester passerade med clang++ på macOS.

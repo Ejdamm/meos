@@ -636,7 +636,7 @@
           "id": "3.27",
           "title": "Test: content negotiation och felkoder",
           "description": "Integrationstest: Accept: application/json → JSON-svar, Accept: text/xml → XML-svar, ogiltig body → 400, saknad resurs → 404, duplicate → 409.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.7",
             "3.25"

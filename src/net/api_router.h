@@ -92,6 +92,9 @@ struct ApiResponse {
   static ApiResponse noContent() {
     return {204, "application/json", ""};
   }
+  static ApiResponse conflict(std::string msg = "Conflict") {
+    return {409, "application/json", "{\"error\":\"" + msg + "\"}"};
+  }
 };
 
 using ApiHandler = std::function<ApiResponse(const ApiRequest &)>;
