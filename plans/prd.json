@@ -87,7 +87,7 @@
           "id": "1.9",
           "title": "Skapa MockNotifier testhjälpare",
           "description": "Implementera MockNotifier i test/MockNotifier.h som implementerar IEventNotifier och registrerar alla anrop (metodnamn + argument) i en std::vector. Tillhandahåll verify-metoder för att kontrollera anropshistorik.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.2"
           ]

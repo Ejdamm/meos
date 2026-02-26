@@ -52,3 +52,10 @@
    I headless-läge: skippar splash-fönster, skapar NullNotifier istf GdiNotifier,
    skippar Win32 GUI-init (MyRegisterClass, initInstance, AutoTask, hooks),
    kör enkel GetMessage-pump för timers/async och avslutar rent.
+
+[2026-02-26] Task 1.9 DONE: Skapa MockNotifier testhjälpare
+   Skapade test/MockNotifier.h med MockNotifier : public IEventNotifier.
+   Registrerar alla anrop (metod + argument) i std::vector<Call>.
+   Verify-metoder: wasCalled(), callCount(), callArg().
+   Konfigurerbara returvärden: askResult och askOkCancelResult.
+   Syntaxkontroll med clang++ passerade utan fel.
