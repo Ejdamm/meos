@@ -224,7 +224,7 @@
           "id": "2.10",
           "title": "Kartlägg Win32-API-anrop utanför UI-lagret",
           "description": "Sök igenom src/net/, src/io/, src/util/, src/app/, src/db/ efter Win32-specifika anrop: WinSock (WSAStartup, socket, send, recv), wininet (InternetOpen etc.), winmm, registry (RegOpenKey etc.), WCHAR-operationer, Windows-specifika filoperationer. Dokumentera varje anropsplats.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.13"
           ]

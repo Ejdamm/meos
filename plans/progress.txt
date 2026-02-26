@@ -142,3 +142,13 @@
    - Två alternativ för vcpkg-installation (git submodule och systeminstallation)
    - cmake --preset=default / --preset=debug kommandon
    - Lista över beroenden som installeras automatiskt via vcpkg.json
+
+[2026-02-26] Task 2.10 DONE: Kartlägg Win32-API-anrop utanför UI-lagret
+   Genomsökte src/net/, src/io/, src/util/, src/app/, src/db/ efter Win32-specifika anrop.
+   Kategoriserat i 5 grupper:
+   - Sockets: winsock2.h, SOCKET, WSAStartup, closesocket, CRITICAL_SECTION (socket.h/cpp)
+   - HTTP/download: Wininet.h, iphlpapi.h, InternetOpen/Connect/HttpOpenRequest (download.h/cpp)
+   - Filsystem: GetFileAttributes, FindFirstFile/NextFile, CreateFile, CreateDirectory (meos_util.cpp, zip.cpp)
+   - Strängkodning: MultiByteToWideChar/WideCharToMultiByte i localizer.cpp, xmlparser.cpp, csvparser.cpp
+   - Trådar/synk: CRITICAL_SECTION, _beginthreadex, HANDLE i mysqldaemon.cpp och socket.cpp
+   Leverans: plans/win32_non_ui_mapping.md med komplett lista och migrationstasks.
