@@ -24,6 +24,7 @@
 #include "tabbase.h"
 #include "gdioutput.h"
 #include <string>
+#include <thread>
 #include "oListInfo.h"
 #include "importformats.h"
 
@@ -250,7 +251,7 @@ protected:
   wstring error;
   wstring timeError;
   wstring timeReconnect;
-  HANDLE hThread;
+  std::thread hThread;
   bool toRemove = false;
 
 public:

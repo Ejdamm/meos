@@ -251,7 +251,7 @@
           "id": "2.13",
           "title": "Plattformsabstraktion: trådar och synkronisering",
           "description": "Ersätt Windows-specifika trådanrop (CreateThread, WaitForSingleObject, CRITICAL_SECTION etc.) i src/util/ och src/app/ med std::thread, std::mutex, std::condition_variable.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.10"
           ]

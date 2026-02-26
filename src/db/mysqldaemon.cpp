@@ -27,16 +27,16 @@
 #include "meos_util.h"
 #include "gdiconstants.h"
 #include "MeosSQL.h"
-#include <process.h>
+#include <mutex>
+#include <thread>
 
 MySQLReconnect::MySQLReconnect(const wstring &errorIn) : AutoMachine("MySQL-service", Machines::mMySQLReconnect), error(errorIn) {
   timeError = getLocalTime();
-  hThread=0;
 }
 
 MySQLReconnect::~MySQLReconnect() {
-  CloseHandle(hThread);
-  hThread=0;
+  if (hThread.joinable())
+    hThread.detach();
 }
 
 bool MySQLReconnect::stop() {
@@ -47,43 +47,36 @@ bool MySQLReconnect::stop() {
     L"Warning", MB_YESNO|MB_ICONWARNING)==IDYES;
 }
 
-static CRITICAL_SECTION CS_MySQL;
-static volatile DWORD mysqlConnecting=0;
-static volatile DWORD mysqlStatus=0;
+static std::mutex CS_MySQL;
+static volatile int mysqlConnecting=0;
+static volatile int mysqlStatus=0;
 
-void initMySQLCriticalSection(bool init) {
-  if (init)
-    InitializeCriticalSection(&CS_MySQL);
-  else
-    DeleteCriticalSection(&CS_MySQL);
+void initMySQLCriticalSection(bool /*init*/) {
+  // No-op: std::mutex does not require explicit initialization or destruction
 }
 
 bool isThreadReconnecting()
 {
-  EnterCriticalSection(&CS_MySQL);
-  bool res = (mysqlConnecting != 0);
-  LeaveCriticalSection(&CS_MySQL);
-  return res;
+  std::lock_guard<std::mutex> lock(CS_MySQL);
+  return (mysqlConnecting != 0);
 }
 
-unsigned __stdcall reconnectThread(void *v) {
-  EnterCriticalSection(&CS_MySQL);
+void reconnectThread(oEvent *oe) {
+  {
+    std::lock_guard<std::mutex> lock(CS_MySQL);
     mysqlConnecting=1;
     mysqlStatus=0;
-  LeaveCriticalSection(&CS_MySQL);
-  oEvent *oe = (oEvent *)v;
+  }
   bool res = oe->reConnectRaw();
 
-  EnterCriticalSection(&CS_MySQL);
+  {
+    std::lock_guard<std::mutex> lock(CS_MySQL);
     if (res)
       mysqlStatus=1;
     else
       mysqlStatus=-1;
-
     mysqlConnecting=0;
-  LeaveCriticalSection(&CS_MySQL);
-
-  return 0;
+  }
 }
 
 void MySQLReconnect::settings(gdioutput &gdi, oEvent &oe, State state) {
@@ -95,10 +88,8 @@ void MySQLReconnect::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast)
     return;
 
   if (mysqlStatus==1) {
-    if (hThread){
-      CloseHandle(hThread);
-      hThread=0;
-    }
+    if (hThread.joinable())
+      hThread.join();
     mysqlStatus=0;
     string err;
     if (!oe->reConnect(err)) {
@@ -115,10 +106,8 @@ void MySQLReconnect::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast)
     }
   }
   else if (mysqlStatus==-1) {
-    if (hThread){
-      CloseHandle(hThread);
-      hThread=0;
-    }
+    if (hThread.joinable())
+      hThread.join();
     mysqlStatus=0;
     interval = 10;//Wait ten seconds for next attempt
 
@@ -131,7 +120,7 @@ void MySQLReconnect::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast)
   }
   else {
     mysqlConnecting = 1;
-    hThread = (HANDLE) _beginthreadex(0, 0, &reconnectThread, oe, 0, 0);
+    hThread = std::thread(reconnectThread, oe);
     interval = 1;
   }
 }

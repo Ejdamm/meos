@@ -23,7 +23,8 @@
 
 #include "stdafx.h"
 #include <fstream>
-#include <process.h>
+#include <mutex>
+#include <thread>
 #include "socket.h"
 #include "meosexception.h"
 #include <iostream>
@@ -34,7 +35,6 @@
 DirectSocket::DirectSocket(int cmpId, int p) {
   competitionId = cmpId;
   port = p;
-  InitializeCriticalSection(&syncObj);
   shutDown = false;
   sendSocket = -1;
   hDestinationWindow = 0;
@@ -42,9 +42,10 @@ DirectSocket::DirectSocket(int cmpId, int p) {
 }
 
 DirectSocket::~DirectSocket() {
-  EnterCriticalSection(&syncObj);
-  shutDown = true;
-  LeaveCriticalSection(&syncObj);
+  {
+    std::lock_guard<std::mutex> lock(syncObj);
+    shutDown = true;
+  }
 
   if (sendSocket != -1) {
     closesocket(sendSocket);
@@ -52,30 +53,29 @@ DirectSocket::~DirectSocket() {
   }
 
   Sleep(1000);
-  DeleteCriticalSection(&syncObj);
   shutDown = true;
 }
 
 void DirectSocket::addPunchInfo(const SocketPunchInfo &pi) {
   //OutputDebugString("Enter punch in queue\n");
-  EnterCriticalSection(&syncObj);
-  if (clearQueue)
-    messageQueue.clear();
-  clearQueue = false;
-  messageQueue.push_back(pi);
-  LeaveCriticalSection(&syncObj);
+  {
+    std::lock_guard<std::mutex> lock(syncObj);
+    if (clearQueue)
+      messageQueue.clear();
+    clearQueue = false;
+    messageQueue.push_back(pi);
+  }
   PostMessage(hDestinationWindow, WM_USER + 3, 0,0);
 }
 
 void DirectSocket::getPunchQueue(vector<SocketPunchInfo> &pq) {
   pq.clear();
 
-  EnterCriticalSection(&syncObj);
+  std::lock_guard<std::mutex> lock(syncObj);
   if (!clearQueue)
     pq.insert(pq.begin(), messageQueue.begin(), messageQueue.end());
 
   clearQueue = true;
-  LeaveCriticalSection(&syncObj);
   return;
 }
 
@@ -152,7 +152,7 @@ void startListeningDirectSocket(void *p) {
 
 void DirectSocket::startUDPSocketThread(HWND targetWindow) {
   hDestinationWindow = targetWindow;
-  _beginthread(startListeningDirectSocket, 0, this);
+  std::thread(startListeningDirectSocket, this).detach();
 }
 
 void DirectSocket::sendPunch(SocketPunchInfo &pi) {

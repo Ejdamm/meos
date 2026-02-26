@@ -174,3 +174,13 @@
    - zip.cpp: mymkdir: _wmkdir -> #ifdef _WIN32 / mkdir() (POSIX)
    - zip.cpp: isLargeFile: fseeko64/ftello64 -> #ifdef _WIN32 / fseeko/ftello
    - Syntaxkontroll med clang++ på macOS: inga fel.
+
+[2026-02-26] Task 2.13 DONE: Plattformsabstraktion: trådar och synkronisering
+   Ersatte CRITICAL_SECTION med std::mutex och _beginthread/_beginthreadex med std::thread i:
+   - src/net/socket.h: CRITICAL_SECTION syncObj → std::mutex syncObj, lade till #include <mutex>
+   - src/net/socket.cpp: Init/Enter/Leave/DeleteCriticalSection → lock_guard, _beginthread → std::thread(..).detach(), tog bort #include <process.h>
+   - src/db/mysqldaemon.cpp: static CRITICAL_SECTION → static std::mutex, volatile DWORD → volatile int,
+     unsigned __stdcall reconnectThread(void*) → void reconnectThread(oEvent*), _beginthreadex → std::thread,
+     CloseHandle → hThread.join(), initMySQLCriticalSection → no-op
+   - src/ui/TabAuto.h: HANDLE hThread → std::thread hThread, lade till #include <thread>
+   Syntaxkontroll med clang++ passerade utan fel.

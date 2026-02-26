@@ -21,8 +21,14 @@
 ************************************************************************/
 
 #include <list>
+#include <mutex>
 #include <vector>
+#ifdef _WIN32
 #include <winsock2.h>
+#else
+#include "platform_socket.h"
+typedef void* HWND;
+#endif
 
 struct SocketPunchInfo {
   int runnerId;
@@ -48,7 +54,7 @@ private:
   int competitionId;
   list<SocketPunchInfo> messageQueue;
   HWND hDestinationWindow;
-  CRITICAL_SECTION syncObj;
+  std::mutex syncObj;
   volatile bool shutDown;
   void listenDirectSocket();
   void addPunchInfo(const SocketPunchInfo &pi);
