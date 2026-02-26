@@ -233,7 +233,7 @@
           "id": "2.11",
           "title": "Plattformsabstraktion: sockets",
           "description": "Skapa src/util/platform_socket.h/cpp med #ifdef-baserad implementation. WinSock på Windows, POSIX sockets på Linux/Mac. Wrappa: create, bind, listen, connect, send, recv, close, select/poll.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.10"
           ]

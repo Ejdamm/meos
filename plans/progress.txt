@@ -152,3 +152,11 @@
    - Strängkodning: MultiByteToWideChar/WideCharToMultiByte i localizer.cpp, xmlparser.cpp, csvparser.cpp
    - Trådar/synk: CRITICAL_SECTION, _beginthreadex, HANDLE i mysqldaemon.cpp och socket.cpp
    Leverans: plans/win32_non_ui_mapping.md med komplett lista och migrationstasks.
+
+[2026-02-26] Task 2.11 DONE: Plattformsabstraktion: sockets
+   Skapade src/util/platform_socket.h och src/util/platform_socket.cpp.
+   #ifdef-baserad: WinSock2 på Windows, POSIX sockets på Linux/macOS.
+   Wrappade: create, bind, listen, accept, connect, send, recv, sendto, recvfrom,
+   close (closesocket på Win), setsockopt, select (nfds-hantering per plattform).
+   platform_socket_init()/cleanup() hanterar WSAStartup/WSACleanup på Windows (no-op på POSIX).
+   Syntaxkontroll med clang++ passerade utan fel.
