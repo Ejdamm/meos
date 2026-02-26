@@ -77,7 +77,7 @@
           "id": "1.8",
           "title": "Lägg till --headless CLI-parameter",
           "description": "Lägg till kommandoradsargument --headless i meos.cpp. När flaggan är satt, instansiera NullNotifier istället för GdiNotifier och hoppa över Win32 GUI-initialisering (fönster, meddelandeloop).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.6",
             "1.7"

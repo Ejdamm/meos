@@ -44,3 +44,11 @@
    Skapade src/app/NullNotifier.h med NullNotifier : public IEventNotifier.
    Alla metoder är no-ops; ask() returnerar false, askOkCancel() returnerar Cancel.
    Placerad i src/app/ (bredvid meos.cpp som ska använda den för --headless).
+
+[2026-02-26] Task 1.8 DONE: Lägg till --headless CLI-parameter
+   Lade till #include "NullNotifier.h" i meos.cpp.
+   Lade till global bool gHeadless = false och NullNotifier* gNullNotifier = nullptr.
+   Detekterar "--headless" i lpCmdLine (WinMain), sätter gHeadless=true.
+   I headless-läge: skippar splash-fönster, skapar NullNotifier istf GdiNotifier,
+   skippar Win32 GUI-init (MyRegisterClass, initInstance, AutoTask, hooks),
+   kör enkel GetMessage-pump för timers/async och avslutar rent.

@@ -29,6 +29,7 @@
 
 #include "oEvent.h"
 #include "GdiNotifier.h"
+#include "NullNotifier.h"
 #include "xmlparser.h"
 #include "recorder.h"
 
@@ -66,6 +67,8 @@ Image image;
 gdioutput *gdi_main = nullptr;
 oEvent *gEvent = nullptr;
 GdiNotifier *gNotifier = nullptr;
+NullNotifier *gNullNotifier = nullptr;
+bool gHeadless = false;
 SportIdent *gSI = nullptr;
 Localizer lang;
 AutoTask *autoTask = nullptr;
@@ -191,8 +194,12 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     enableTests = true;
   }
 
+  if (strstr(lpCmdLine, "--headless") != 0) {
+    gHeadless = true;
+  }
+
   HWND hSplash = nullptr;
-  if (strstr(lpCmdLine, "-nosplash") == 0) {
+  if (!gHeadless && strstr(lpCmdLine, "-nosplash") == 0) {
     hSplash = CreateDialog(hInstance, MAKEINTRESOURCE(IDD_SPLASH), nullptr, splashDialogProc);
     ShowWindow(hSplash, SW_SHOW);
     UpdateWindow(hSplash);
@@ -255,8 +262,14 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   gdi_extra.push_back(gdi_main);
 
   try {
-    gNotifier = new GdiNotifier(*gdi_main);
-    gEvent = new oEvent(*gdi_main, *gNotifier);
+    if (gHeadless) {
+      gNullNotifier = new NullNotifier();
+      gEvent = new oEvent(*gdi_main, *gNullNotifier);
+    }
+    else {
+      gNotifier = new GdiNotifier(*gdi_main);
+      gEvent = new oEvent(*gdi_main, *gNotifier);
+    }
     gEvent->setMainEvent();
   }
   catch (meosException &ex) {
@@ -386,6 +399,31 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   }
 
   gEvent->openRunnerDatabase(L"database");
+
+  if (gHeadless) {
+    // Headless mode: skip all Win32 window/GUI initialization.
+    initMySQLCriticalSection(true);
+    // Run a simple message pump so Windows timers/async I/O still work.
+    MSG msg;
+    while (GetMessage(&msg, nullptr, 0, 0)) {
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
+    initMySQLCriticalSection(false);
+
+    if (gEvent)
+      gEvent->saveProperties(settings);
+
+    delete gEvent;
+    gEvent = nullptr;
+    delete gNullNotifier;
+    gNullNotifier = nullptr;
+
+    StringCache::getInstance().clear();
+    lang.unload();
+    return 0;
+  }
+
   wcscpy_s(szTitle, L"MeOS");
   wcscpy_s(szWindowClass, L"MeosMainClass");
   wcscpy_s(szWorkSpaceClass, L"MeosWorkSpace");
@@ -474,6 +512,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
   delete gEvent;
   gEvent = nullptr;
+  delete gNotifier;
+  gNotifier = nullptr;
 
   initMySQLCriticalSection(false);
 
