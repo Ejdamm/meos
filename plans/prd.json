@@ -139,7 +139,7 @@
           "id": "2.1",
           "title": "Skapa vcpkg.json manifest",
           "description": "Skapa vcpkg.json i projektets rot med alla beroenden: libmysql, libharu, restbed, libpng, zlib. Ange versioner som matchar nuvarande vendored bibliotek.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.13"
           ]

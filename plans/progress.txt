@@ -84,3 +84,12 @@
    Alla existerande tester (TestOEventDelegatesNotifier, TestOEventGetNotifier, TestNullNotifierNoCrash)
    kvarstår oförändrade i tests.cpp. Ny test 1.12 lades till utan att modifiera befintliga klasser.
    Fas 1 komplett (alla 13 tasks done).
+
+[2026-02-26] Task 2.1 DONE: Skapa vcpkg.json manifest
+   Skapade vcpkg.json i projektets rot med alla beroenden:
+   - libmysql 5.7.31 (matchar vendored MySQL Connector/C)
+   - libharu 2.2.0 (matchar vendored libharu)
+   - restbed 4.7 (Corvusoft restbed)
+   - libpng 1.6.5 (matchar vendored libpng)
+   - zlib 1.2.5 (matchar vendored zlib)
+   Versioner baserade på headers i third_party/.
