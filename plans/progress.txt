@@ -205,3 +205,14 @@
    - restserver.cpp: #ifdef _WIN32 runt getUserFile()/wchar_t fn[]-block för PNG-filläsning.
    CMakeLists.txt: Separerade Windows-systembibliotek (Msimg32, ws2_32 etc.) i if(WIN32)/else(pthread)-block.
    restbed via vcpkg är cross-platform; nu kompilerar net-lagret på Linux utan Win32 SDK.
+
+[2026-02-26] Task 2.16 DONE: Gör MySQL-koppling plattformsoberoende
+   Skapade src/util/platform_time.h med getTickMs()/getTickMs64() (chrono på POSIX, GetTickCount på Win32).
+   MeosSQL.h: DWORD → uint32_t i readTimes map, lade till #include <cstdint>.
+   MeosSQL.cpp: sprintf_s → snprintf, GetTickCount → getTickMs(), DWORD t → uint32_t t,
+     OutputDebugStringA-anrop guardade med #ifdef _WIN32.
+   oEventSQL.cpp: GetTickCount → getTickMs(), swprintf_s → swprintf(buf, N, fmt),
+     sprintf_s → snprintf, wcscpy_s → wcsncpy.
+   mysqldaemon.cpp: GetTickCount64 → getTickMs64().
+   mysql/mysql.h-inkluderingen fungerar redan via vcpkg (samma sökväg cross-platform).
+   Syntaxkontroll av platform_time.h passerade utan fel.

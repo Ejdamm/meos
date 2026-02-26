@@ -280,7 +280,7 @@
           "id": "2.16",
           "title": "Gör MySQL-koppling plattformsoberoende",
           "description": "Verifiera att vcpkg-installerad MySQL-klient fungerar på Linux/Mac. Uppdatera src/db/ att undvika Windows-specifika MySQL-anrop.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.3",
             "2.12"

@@ -27,6 +27,7 @@
 #include <typeinfo>
 
 #include "MeosSQL.h"
+#include "platform_time.h"
 
 #include "oRunner.h"
 #include "oEvent.h"
@@ -103,7 +104,7 @@ string C_UINT64(string name)
 string C_STRING(string name, int len=64)
 {
   char bf[16];
-  sprintf_s(bf, "%d", len);
+  snprintf(bf, sizeof(bf), "%d", len);
   return " "+name+" VARCHAR("+ bf +") NOT NULL DEFAULT '', ";
 }
 
@@ -3241,7 +3242,11 @@ OpFailStatus MeosSQL::syncUpdate(QueryWrapper &updateqry,
 {
   nUpdate++;
   if (nUpdate % 100 == 99)
+#ifdef _WIN32
     OutputDebugStringA((itos(nUpdate) +" updates\n").c_str());
+#else
+    (void)0;
+#endif
 
   assert(ob->getEvent());
   if (!ob->getEvent())
@@ -4261,18 +4266,22 @@ void MeosSQL::synchronized(oBase &entity) {
   entity.Modified.setStamp(entity.sqlUpdated);
   
   int id = getTypeId(entity);
-  readTimes[make_pair(id, entity.getId())] = GetTickCount();
+  readTimes[make_pair(id, entity.getId())] = getTickMs();
   readent++;
   if (readent % 100 == 99)
+#ifdef _WIN32
     OutputDebugStringA("Read 100 entities\n");
+#else
+    (void)0;
+#endif
 }
 
 bool MeosSQL::skipSynchronize(const oBase &entity) const {
   int id = getTypeId(entity);
-  map<pair<int, int>, DWORD>::const_iterator res = readTimes.find(make_pair(id, entity.getId()));
+  map<pair<int, int>, uint32_t>::const_iterator res = readTimes.find(make_pair(id, entity.getId()));
 
   if (res != readTimes.end()) {
-    DWORD t = GetTickCount();
+    uint32_t t = getTickMs();
     if (t > res->second && (t - res->second) < 1000) {
       skipped++;
       return true;
@@ -4891,7 +4900,9 @@ OpFailStatus MeosSQL::storeImage(uint64_t id, const wstring& fileName, const vec
     }
   }
   catch (Exception &ex) {
+#ifdef _WIN32
     OutputDebugStringA(ex.what());
+#endif
     return OpFailStatus::opStatusFail;
   }
 

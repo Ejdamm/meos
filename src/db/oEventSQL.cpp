@@ -39,6 +39,7 @@
 #include "metalist.h"
 #include "image.h"
 #include "maprenderer.h"
+#include "platform_time.h"
 #include <cassert>
 
 extern Image image;
@@ -104,7 +105,7 @@ bool oEvent::synchronizeList(initializer_list<oListId> types) {
   if (!hasDBConnection())
     return true;
 
-  unsigned int ct = GetTickCount();
+  unsigned int ct = getTickMs();
   if (ct < lastTimeConsistencyCheck || (ct - lastTimeConsistencyCheck) > 1000 * 60) {
     // Make autoSynch instead
     autoSynchronizeLists(true);
@@ -151,7 +152,7 @@ bool oEvent::synchronizeList(oListId id, bool preSyncEvent, bool postSyncEvent) 
     return true;
 
   if (postSyncEvent) {
-    unsigned int ct = GetTickCount();
+    unsigned int ct = getTickMs();
     if (ct < lastTimeConsistencyCheck || (ct - lastTimeConsistencyCheck) > 1000 * 60) {
       // Make autoSynch instead
       autoSynchronizeLists(true);
@@ -192,7 +193,7 @@ bool oEvent::checkDatabaseConsistency(bool force) {
     return false;
 
   if (!force) {
-    unsigned int ct = GetTickCount();
+    unsigned int ct = getTickMs();
     if (ct < lastTimeConsistencyCheck || (ct - lastTimeConsistencyCheck) > 1000 * 60) {
       lastTimeConsistencyCheck = ct;
     }
@@ -379,14 +380,15 @@ bool oEvent::uploadSynchronize()
       else if (ans == gdioutput::AskAnswer::AnswerNo) {
         int len = currentNameId.length();
         wchar_t ex[10];
-        swprintf_s(ex, L"_%05XZ", (GetTickCount()/97) & 0xFFFFF);
+        swprintf(ex, 10, L"_%05XZ", (getTickMs()/97) & 0xFFFFF);
         if (len > 0) {
           if (len< 7 || currentNameId[len-1] != 'Z')
             currentNameId += ex;
           else {
             wchar_t CurrentNameId[64];
-            wcscpy_s(CurrentNameId, currentNameId.c_str());
-            wcscpy_s(CurrentNameId + len - 7, 64 - len + 7, ex);
+            wcsncpy(CurrentNameId, currentNameId.c_str(), 63);
+            CurrentNameId[63] = 0;
+            wcsncpy(CurrentNameId + len - 7, ex, 64 - (len - 7));
             CurrentNameId[63] = 0;
             currentNameId = CurrentNameId;
           }
@@ -494,7 +496,7 @@ bool oEvent::readSynchronize(const CompetitionInfo &ci) {
   currentNameId = ci.FullPath;
 
   wchar_t file[260];
-  swprintf_s(file, L"%s.dbmeos", currentNameId.c_str());
+  swprintf(file, 260, L"%s.dbmeos", currentNameId.c_str());
   getUserFile(CurrentFile, file);
 
   auto status = sqlConnection->openDB(this, false);
@@ -758,7 +760,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
     it!=oe->Cards.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Card %d", it->cardNo);
+      swprintf(bf, 256, L"Card %d", it->cardNo);
       out.push_back(bf);
       it->synchronize();
     }
@@ -767,7 +769,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
     it!=oe->Clubs.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Club %ws", it->name.c_str());
+      swprintf(bf, 256, L"Club %ws", it->name.c_str());
       out.push_back(bf);
       it->synchronize();
     }
@@ -776,7 +778,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
     it!=oe->Controls.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Control %d", it->Numbers[0]);
+      swprintf(bf, 256, L"Control %d", it->Numbers[0]);
       out.push_back(bf);
       it->synchronize();
     }
@@ -785,7 +787,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
         it!=oe->Courses.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Course %s", it->name.c_str());
+      swprintf(bf, 256, L"Course %s", it->name.c_str());
       out.push_back(bf);
       it->synchronize();
     }
@@ -794,7 +796,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
       it!=oe->Classes.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Class %s", it->Name.c_str());
+      swprintf(bf, 256, L"Class %s", it->Name.c_str());
       out.push_back(bf);
       it->synchronize();
     }
@@ -803,7 +805,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
       it!=oe->Runners.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Runner %s", it->getName().c_str());
+      swprintf(bf, 256, L"Runner %s", it->getName().c_str());
       out.push_back(bf);
       it->synchronize();
     }
@@ -811,7 +813,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
       it!=oe->Teams.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Team %s", it->getName().c_str());
+      swprintf(bf, 256, L"Team %s", it->getName().c_str());
       out.push_back(bf);
       it->synchronize();
     }
@@ -819,7 +821,7 @@ int oEvent::checkChanged(vector<wstring> &out) const
       it!=oe->punches.end(); ++it)
     if (it->isChanged()) {
       changed++;
-      swprintf_s(bf, L"Punch SI=%d, %d", it->CardNo, it->type);
+      swprintf(bf, 256, L"Punch SI=%d, %d", it->CardNo, it->type);
       out.push_back(bf);
       it->synchronize();
     }
@@ -886,7 +888,7 @@ void oEvent::listConnectedClients(gdioutput &gdi)
   gdi.pushX();
   int x=gdi.getCX();
   for (int k=0;k<connectedClients.size();k++) {
-    sprintf_s(bf, "%d.", k+1);
+    snprintf(bf, sizeof(bf), "%d.", k+1);
     gdi.addStringUT(0, bf);
     gdi.addStringUT(gdi.getCY(), x+30, 0, connectedClients[k]);
     gdi.popX();
