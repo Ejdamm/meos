@@ -270,7 +270,7 @@
           "id": "2.15",
           "title": "Verifiera restbed cross-platform",
           "description": "Verifiera att restbed via vcpkg bygger och fungerar på Linux. Starta en minimal REST-endpoint och gör ett HTTP-anrop.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.5",
             "2.11"

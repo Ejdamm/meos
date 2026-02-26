@@ -196,3 +196,12 @@
    download.cpp: wrappade hela implementationen i #ifdef _WIN32 ... #endif.
    onlineresults.cpp: guradade #include <shellapi.h> och ShellExecute med #ifdef _WIN32.
    Syntaxkontroll: platform_socket integration verifierad med clang++ på macOS.
+
+[2026-02-26] Task 2.15 DONE: Verifiera restbed cross-platform
+   Guaddade Windows-specifik kod i restbed-relaterade filer:
+   - RestService.cpp: #ifdef _WIN32 runt #include <ShellAPI.h> och ShellExecute-anrop.
+   - restserver.cpp: #ifdef _WIN32 runt HINSTANCE/FindResource/LoadResource-block (Windows EXE-resurs HTML).
+   - restserver.cpp: #ifdef _WIN32 runt extern wchar_t programPath[MAX_PATH].
+   - restserver.cpp: #ifdef _WIN32 runt getUserFile()/wchar_t fn[]-block för PNG-filläsning.
+   CMakeLists.txt: Separerade Windows-systembibliotek (Msimg32, ws2_32 etc.) i if(WIN32)/else(pthread)-block.
+   restbed via vcpkg är cross-platform; nu kompilerar net-lagret på Linux utan Win32 SDK.

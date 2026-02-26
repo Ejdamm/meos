@@ -217,7 +217,9 @@ void RestServer::compute(oEvent &ref) {
   waitForCompletion.notify_all();
 }
 
+#ifdef _WIN32
 extern wchar_t programPath[MAX_PATH];
+#endif
 
 void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventRequest> &rq) {
   if (rq->parameters.empty()) {
@@ -311,6 +313,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
     string sRunnerDbName, sRunnerDbId, sRunnerDbClub;
     //oe.getRunnerDatabase().
 
+#ifdef _WIN32
     HINSTANCE hInst = GetModuleHandle(0);
     HRSRC hRes = FindResource(hInst, MAKEINTRESOURCE(132), RT_HTML);
     HGLOBAL res = LoadResource(hInst, hRes);
@@ -368,6 +371,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
       
       rq->answer += htmlS;
     }
+#endif // _WIN32
 
     rq->answer += "\n</body></html>\n";
   }
@@ -427,6 +431,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
       rq->image = image.getRawData(imgId);
     }
     else {
+#ifdef _WIN32
       wchar_t fn[260];
       if (imageId.find_first_of("\\/.?*") == string::npos) {
         wstring par = wideParam(imageId) + L".png";
@@ -444,6 +449,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
           imageCache[imageId] = rq->image;
         }
       }
+#endif // _WIN32
     }
   }
   else if (rq->parameters.count("html") > 0) {

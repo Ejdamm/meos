@@ -205,14 +205,6 @@ target_link_directories(MeOS PRIVATE
 )
 
 target_link_libraries(MeOS PRIVATE
-    # Windows system libraries
-    Msimg32
-    comctl32
-    odbc32
-    odbccp32
-    winmm
-    ws2_32
-    wininet
     # Third-party libraries
     ZLIB::ZLIB
     haru::haru
@@ -220,6 +212,20 @@ target_link_libraries(MeOS PRIVATE
     PNG::PNG
     unofficial::libmysql::libmysql
 )
+
+if(WIN32)
+    target_link_libraries(MeOS PRIVATE
+        Msimg32
+        comctl32
+        odbc32
+        odbccp32
+        winmm
+        ws2_32
+        wininet
+    )
+else()
+    target_link_libraries(MeOS PRIVATE pthread)
+endif()
 
 # DPI awareness manifest
 set_target_properties(MeOS PROPERTIES

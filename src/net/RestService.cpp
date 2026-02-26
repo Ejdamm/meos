@@ -26,7 +26,9 @@
 #include "restserver.h"
 #include "meosexception.h"
 
+#ifdef _WIN32
 #include <ShellAPI.h>
+#endif
 
 int AutomaticCB(gdioutput *gdi, GuiEventType type, BaseInfo* data);
 
@@ -201,6 +203,8 @@ void RestService::handle(gdioutput &gdi, BaseInfo &info, GuiEventType type) {
   }
   else if (type == GUI_LINK) {
     wstring url = ((TextInfo &)info).text;
+#ifdef _WIN32
     ShellExecute(NULL, L"open", url.c_str(), NULL, NULL, SW_SHOWNORMAL);
+#endif
   }
 }
