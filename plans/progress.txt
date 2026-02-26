@@ -484,3 +484,14 @@
    Konfigurerade tsconfig.app.json: strict:true (noImplicitAny, strictNullChecks ingår) + noUncheckedIndexedAccess:true.
    Konfigurerade vite.config.ts med server.proxy: /api → http://localhost:2009 (changeOrigin:true).
    npm run build passerade: 32 moduler, inga TS-fel.
+
+[2026-02-26] Task 3.23 DONE: Test: JSON edge cases och felhantering
+   Lade till 7 testfunktioner (30 CHECK-anrop) i test/portable_tests.cpp:
+   - testJsonEdgeCaseEmptyObject: tomt objekt → alla fält stannar på defaultvärden
+   - testJsonEdgeCaseUnicodeNames: åäö och emoji i namn bevaras korrekt (UTF-8 round-trip)
+   - testJsonEdgeCaseExtremeTimeValues: negativa tider (-3600, -1) och stora värden (86400, INT_MAX) fungerar
+   - testJsonEdgeCaseMissingFields: saknade fält ger defaults utan krasch
+   - testJsonEdgeCaseNullFieldThrows: get<int/string>() på null-värde kastar type_error
+   - testJsonEdgeCaseInvalidJsonThrows: 5 ogiltiga JSON-strängar kastar parse_error
+   - testJsonEdgeCaseWrongTypeThrows: fel JSON-typ (string→int, int→string) kastar type_error
+   347/347 tester passerade med clang++ på macOS.

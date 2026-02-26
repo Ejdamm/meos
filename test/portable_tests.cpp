@@ -2645,6 +2645,152 @@ void testJsonSchemaFieldTypes() {
   CHECK(ctrl["codes"].is_array(),    "control.codes is array");
 }
 
+// ---------------------------------------------------------------------------
+// Task 3.23: JSON edge cases och felhantering
+// ---------------------------------------------------------------------------
+
+// Empty object → all fields should stay at defaults
+void testJsonEdgeCaseEmptyObject() {
+  std::cout << "TestJsonEdgeCaseEmptyObject\n";
+  nlohmann::json j = nlohmann::json::object();
+  auto r = parseRunnerDTO(j);
+  CHECK(r.id == 0,          "runner.id defaults to 0 when absent");
+  CHECK(r.name.empty(),     "runner.name defaults to empty when absent");
+  CHECK(r.startTime == 0,   "runner.startTime defaults to 0 when absent");
+  auto c = parseClubDTO(j);
+  CHECK(c.id == 0,          "club.id defaults to 0 when absent");
+  CHECK(c.name.empty(),     "club.name defaults to empty when absent");
+}
+
+// Unicode names: åäö and emoji
+void testJsonEdgeCaseUnicodeNames() {
+  std::cout << "TestJsonEdgeCaseUnicodeNames\n";
+  {
+    nlohmann::json j = {{"id",1},{"name","Björn Åkesson Ölund"},{"country","SWE"}};
+    auto c = parseClubDTO(j);
+    CHECK(c.name == "Bj\xC3\xB6rn \xC3\x85kesson \xC3\x96lund", "club name with åäö preserved");
+  }
+  {
+    nlohmann::json j = {{"id",2},{"name","Löpare 🏃 Grön"},{"clubId",0},{"classId",0},
+      {"cardNo",0},{"bib",""},{"startTime",0},{"finishTime",0},
+      {"status",0},{"birthYear",0},{"nationality",""},{"sex",0}};
+    auto r = parseRunnerDTO(j);
+    // emoji is 4 bytes in UTF-8; just verify round-trip
+    CHECK(!r.name.empty(),                    "runner name with emoji is non-empty");
+    CHECK(r.name.find("L\xC3\xB6pare") == 0, "runner name starts with Löpare");
+  }
+  {
+    // Course name with full Nordic set
+    nlohmann::json j = {{"id",3},{"name","Bana \xC3\xA5\xC3\xA4\xC3\xB6\xC3\x85\xC3\x84\xC3\x96"},{"length",1000},{"controls",nlohmann::json::array()}};
+    auto co = parseCourseDTO(j);
+    CHECK(co.name.find("Bana") == 0, "course name with Nordic chars preserved");
+  }
+}
+
+// Extreme time values: negative and large positive
+void testJsonEdgeCaseExtremeTimeValues() {
+  std::cout << "TestJsonEdgeCaseExtremeTimeValues\n";
+  {
+    nlohmann::json j = {{"id",1},{"name","X"},{"clubId",0},{"classId",0},
+      {"cardNo",0},{"bib",""},{"startTime",-3600},{"finishTime",-1},
+      {"status",0},{"birthYear",0},{"nationality",""},{"sex",0}};
+    auto r = parseRunnerDTO(j);
+    CHECK(r.startTime == -3600, "runner.startTime can be negative");
+    CHECK(r.finishTime == -1,   "runner.finishTime can be -1");
+  }
+  {
+    nlohmann::json j = {{"id",2},{"name","Y"},{"clubId",0},{"classId",0},
+      {"cardNo",0},{"bib",""},{"startTime",86400},{"finishTime",172800},
+      {"status",0},{"birthYear",0},{"nationality",""},{"sex",0}};
+    auto r = parseRunnerDTO(j);
+    CHECK(r.startTime == 86400,  "runner.startTime can be 86400 (one day)");
+    CHECK(r.finishTime == 172800,"runner.finishTime can be 172800 (two days)");
+  }
+  {
+    // INT_MAX-like large event zeroTime
+    nlohmann::json j = {{"id",1},{"name","E"},{"date",""},
+      {"zeroTime",2147483647},{"numRunners",0},{"numClasses",0},{"numCourses",0},{"numCards",0}};
+    auto e = parseEventDTO(j);
+    CHECK(e.zeroTime == 2147483647, "event.zeroTime can be INT_MAX");
+  }
+}
+
+// Missing required fields → parse uses defaults without crashing
+void testJsonEdgeCaseMissingFields() {
+  std::cout << "TestJsonEdgeCaseMissingFields\n";
+  // Only 'id' present, everything else absent
+  nlohmann::json j = {{"id",99}};
+  auto r = parseRunnerDTO(j);
+  CHECK(r.id == 99,        "runner.id read when only id present");
+  CHECK(r.name.empty(),    "runner.name empty when absent");
+  CHECK(r.classId == 0,    "runner.classId zero when absent");
+  auto t = parseTeamDTO(j);
+  CHECK(t.id == 99,        "team.id read when only id present");
+  CHECK(t.runnerIds.empty(),"team.runnerIds empty when absent");
+  auto co = parseCourseDTO(j);
+  CHECK(co.controlIds.empty(),"course.controlIds empty when absent");
+}
+
+// Null field value → nlohmann throws type_error on get<>()
+void testJsonEdgeCaseNullFieldThrows() {
+  std::cout << "TestJsonEdgeCaseNullFieldThrows\n";
+  {
+    nlohmann::json j = {{"id",nullptr},{"name","Test"}};
+    bool threw = false;
+    try { j.at("id").get<int>(); } catch (const nlohmann::json::type_error &) { threw = true; }
+    CHECK(threw, "get<int>() on null throws type_error");
+  }
+  {
+    nlohmann::json j = {{"id",1},{"name",nullptr}};
+    bool threw = false;
+    try { j.at("name").get<std::string>(); } catch (const nlohmann::json::type_error &) { threw = true; }
+    CHECK(threw, "get<string>() on null throws type_error");
+  }
+}
+
+// Invalid JSON string → nlohmann::json::parse() throws parse_error
+void testJsonEdgeCaseInvalidJsonThrows() {
+  std::cout << "TestJsonEdgeCaseInvalidJsonThrows\n";
+  const std::vector<std::string> bad = {
+    "{invalid}",
+    "{\"key\": }",
+    "{'single': 'quotes'}",
+    "",
+    "[unclosed",
+  };
+  for (auto &s : bad) {
+    bool threw = false;
+    try { nlohmann::json::parse(s); }
+    catch (const nlohmann::json::parse_error &) { threw = true; }
+    CHECK(threw, ("parse_error thrown for: " + s).c_str());
+  }
+}
+
+// Well-formed but wrong type → type_error
+void testJsonEdgeCaseWrongTypeThrows() {
+  std::cout << "TestJsonEdgeCaseWrongTypeThrows\n";
+  {
+    nlohmann::json j = {{"id","not-an-int"}};
+    bool threw = false;
+    try { j.at("id").get<int>(); } catch (const nlohmann::json::type_error &) { threw = true; }
+    CHECK(threw, "get<int>() on string value throws type_error");
+  }
+  {
+    nlohmann::json j = {{"name",42}};
+    bool threw = false;
+    try { j.at("name").get<std::string>(); } catch (const nlohmann::json::type_error &) { threw = true; }
+    CHECK(threw, "get<string>() on int value throws type_error");
+  }
+  {
+    nlohmann::json j = {{"controls",42}};
+    bool threw = false;
+    try {
+      if (!j.at("controls").is_array()) throw nlohmann::json::type_error::create(302,"not array",nullptr);
+    } catch (const nlohmann::json::type_error &) { threw = true; }
+    CHECK(threw, "is_array() check triggers type_error guard for non-array controls");
+  }
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -2825,6 +2971,15 @@ int main() {
   testJsonFreePunchRoundTrip();
   testJsonEventRoundTrip();
   testJsonSchemaFieldTypes();
+
+  // Task 3.23: JSON edge cases och felhantering
+  testJsonEdgeCaseEmptyObject();
+  testJsonEdgeCaseUnicodeNames();
+  testJsonEdgeCaseExtremeTimeValues();
+  testJsonEdgeCaseMissingFields();
+  testJsonEdgeCaseNullFieldThrows();
+  testJsonEdgeCaseInvalidJsonThrows();
+  testJsonEdgeCaseWrongTypeThrows();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

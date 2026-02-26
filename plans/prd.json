@@ -596,7 +596,7 @@
           "id": "3.23",
           "title": "Test: JSON edge cases och felhantering",
           "description": "Enhetstest: tomma/null-värden i JSON, unicode-tecken (åäö, emoji) i namn, extrema tidsvärden (negativa, overflow), ogiltig JSON-sträng → from_json ska ge tydligt fel.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.22"
           ]
