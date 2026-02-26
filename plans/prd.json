@@ -668,7 +668,7 @@
           "id": "4.2",
           "title": "Installera och konfigurera beroenden",
           "description": "Installera: react-router-dom, @tanstack/react-query, axios. Konfigurera ESLint med eslint-plugin-react-hooks och prettier. Verifiera att npm run build och npm run lint fungerar utan fel.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.1"
           ]

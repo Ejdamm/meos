@@ -495,3 +495,10 @@
    - testJsonEdgeCaseInvalidJsonThrows: 5 ogiltiga JSON-strängar kastar parse_error
    - testJsonEdgeCaseWrongTypeThrows: fel JSON-typ (string→int, int→string) kastar type_error
    347/347 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 4.2 DONE: Installera och konfigurera beroenden
+   Installerade: react-router-dom, @tanstack/react-query, axios (dependencies).
+   Installerade: prettier, eslint-config-prettier (devDependencies).
+   Skapade .prettierrc med semi:true, singleQuote:true, trailingComma:es5, printWidth:100.
+   Uppdaterade eslint.config.js med eslint-config-prettier för att undvika formateringskonflikter.
+   npm run build: 32 moduler, inga TS-fel. npm run lint: 0 fel.
