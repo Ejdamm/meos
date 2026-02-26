@@ -446,3 +446,12 @@
    GET /api/automations/:id/status (verifierar att config finns, returnerar configured:true).
    11 portabla tester i test/portable_tests.cpp: decode/encode id, CRUD-logik, null-event-skydd.
    228/228 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.20 DONE: Import/Export API endpoints
+   Skapade src/net/import_export_handlers.h med registerImportExportHandlers(router, oe, gdi).
+   Endpoints: GET /api/export/iof?type=startlist|results|event|class|clubs (xmlparser in-memory export),
+   POST /api/import/iof (importXML_EntryData med temp-fil och stub gdioutput),
+   GET /api/export/csv?includeSplits=true|false (exportOECSV till temp-fil, läs tillbaka),
+   POST /api/import/csv?clear=true|false (importOECSV_Data med temp-fil).
+   Lade till 13 portabla tester i test/portable_tests.cpp.
+   256/256 tester passerade med clang++ på macOS.

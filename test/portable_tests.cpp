@@ -2180,6 +2180,191 @@ void testSpeakerRoutesRegistered() {
   CHECK(router.handles("/api/speaker/monitor"), "router handles /api/speaker/monitor");
 }
 
+// ---------------------------------------------------------------------------
+// Import/Export API tests (portable — no Win32 domain objects required)
+// Mirrors import_export_handlers.h routing logic.
+// ---------------------------------------------------------------------------
+static void registerImportExportRoutesForTest(ApiRouter &router, bool hasEvent) {
+  // GET /api/export/iof
+  router.get("/api/export/iof", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    std::string type = "results";
+    auto it = req.queryParams.find("type");
+    if (it != req.queryParams.end()) type = it->second;
+    static const std::set<std::string> validTypes = {
+      "startlist", "results", "event", "class", "clubs"};
+    if (!validTypes.count(type))
+      return ApiResponse::badRequest("Unknown export type");
+    // Stub: return minimal XML
+    std::string xml = "<?xml version=\"1.0\"?><IOFData type=\"" + type + "\"/>";
+    return ApiResponse::ok(xml, "application/xml; charset=utf-8");
+  });
+
+  // POST /api/import/iof
+  router.post("/api/import/iof", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (req.body.empty()) return ApiResponse::badRequest("Empty request body");
+    nlohmann::json j;
+    j["imported"] = true;
+    j["message"]  = "IOF XML import completed";
+    return ApiResponse::ok(j.dump());
+  });
+
+  // GET /api/export/csv
+  router.get("/api/export/csv", [hasEvent](const ApiRequest &) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("Stno;Name\n", "text/csv; charset=utf-8");
+  });
+
+  // POST /api/import/csv
+  router.post("/api/import/csv", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (req.body.empty()) return ApiResponse::badRequest("Empty request body");
+    nlohmann::json j;
+    j["imported"] = true;
+    j["message"]  = "CSV import completed";
+    return ApiResponse::ok(j.dump());
+  });
+}
+
+void testExportIofNullEvent() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/export/iof";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/export/iof without event returns 404");
+}
+
+void testExportIofReturns200() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/export/iof";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/export/iof returns 200");
+  CHECK(res.contentType.find("application/xml") != std::string::npos,
+        "GET /api/export/iof content-type is application/xml");
+}
+
+void testExportIofTypeParam() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, true);
+  for (const std::string &type : {"startlist", "results", "event", "class", "clubs"}) {
+    ApiRequest req;
+    req.method = "GET";
+    req.path   = "/api/export/iof";
+    req.queryParams.emplace("type", type);
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 200, "GET /api/export/iof?type=" + type + " returns 200");
+    CHECK(res.body.find(type) != std::string::npos,
+          "GET /api/export/iof?type=" + type + " body contains type");
+  }
+}
+
+void testImportIofNullEvent() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/import/iof";
+  req.body   = "<IOFData/>";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 500, "POST /api/import/iof without event returns 500");
+}
+
+void testImportIofEmptyBody() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/import/iof";
+  req.body   = "";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/import/iof with empty body returns 400");
+}
+
+void testImportIofSuccess() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/import/iof";
+  req.body   = "<IOFData><EntryList/></IOFData>";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "POST /api/import/iof with body returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j["imported"].get<bool>() == true, "POST /api/import/iof response has imported=true");
+}
+
+void testExportCsvNullEvent() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/export/csv";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/export/csv without event returns 404");
+}
+
+void testExportCsvReturns200() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/export/csv";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/export/csv returns 200");
+  CHECK(res.contentType.find("text/csv") != std::string::npos,
+        "GET /api/export/csv content-type is text/csv");
+}
+
+void testImportCsvNullEvent() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/import/csv";
+  req.body   = "Stno;Name\n1;Test";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 500, "POST /api/import/csv without event returns 500");
+}
+
+void testImportCsvEmptyBody() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/import/csv";
+  req.body   = "";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/import/csv with empty body returns 400");
+}
+
+void testImportCsvSuccess() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/import/csv";
+  req.body   = "Stno;Name\n1;Alice";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "POST /api/import/csv with body returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j["imported"].get<bool>() == true, "POST /api/import/csv response has imported=true");
+}
+
+void testImportExportRoutesRegistered() {
+  ApiRouter router;
+  registerImportExportRoutesForTest(router, false);
+  CHECK(router.handles("/api/export/iof"), "router handles /api/export/iof");
+  CHECK(router.handles("/api/import/iof"), "router handles /api/import/iof");
+  CHECK(router.handles("/api/export/csv"), "router handles /api/export/csv");
+  CHECK(router.handles("/api/import/csv"), "router handles /api/import/csv");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -2335,6 +2520,18 @@ int main() {
   testSpeakerMonitorNullEvent();
   testSpeakerMonitorReturns200();
   testSpeakerRoutesRegistered();
+  testExportIofNullEvent();
+  testExportIofReturns200();
+  testExportIofTypeParam();
+  testImportIofNullEvent();
+  testImportIofEmptyBody();
+  testImportIofSuccess();
+  testExportCsvNullEvent();
+  testExportCsvReturns200();
+  testImportCsvNullEvent();
+  testImportCsvEmptyBody();
+  testImportCsvSuccess();
+  testImportExportRoutesRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

@@ -565,7 +565,7 @@
           "id": "3.20",
           "title": "Import/Export API endpoints",
           "description": "Implementera: POST /api/import/iof (IOF XML-import via multipart upload), GET /api/export/iof (IOF XML-export), POST /api/import/csv, GET /api/export/csv.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.5"
