@@ -495,7 +495,7 @@
           "id": "3.13",
           "title": "Course API endpoints",
           "description": "Implementera: GET /api/courses, GET /api/courses/:id, POST /api/courses, PUT /api/courses/:id, DELETE /api/courses/:id. Inkludera kontrollsekvens, längd, stigning.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.4"

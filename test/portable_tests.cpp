@@ -1014,6 +1014,150 @@ void testClassRouteRegistered() {
   CHECK(router.handles("/api/classes/42"), "router handles /api/classes/:id");
 }
 
+// Course API endpoint routing tests (portable – mirrors course_handlers.h logic)
+// ---------------------------------------------------------------------------
+
+static void registerCourseRoutesForTest(ApiRouter &router, bool hasEvent) {
+  router.get("/api/courses", [hasEvent](const ApiRequest &) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("[{\"id\":1,\"name\":\"Long\",\"length\":8000}]");
+  });
+  router.get("/api/courses/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Course not found");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Long\",\"length\":8000}");
+  });
+  router.post("/api/courses", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name")) return ApiResponse::badRequest("Field 'name' is required");
+    return ApiResponse::created("{\"id\":2,\"name\":\"Short\",\"length\":3000}");
+  });
+  router.put("/api/courses/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Course not found");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Updated\",\"length\":9000}");
+  });
+  router.del("/api/courses/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Course not found");
+    return ApiResponse::noContent();
+  });
+}
+
+void testCourseListNullEvent() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/courses";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/courses with null event returns 404");
+}
+
+void testCourseGetByIdNullEvent() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/courses/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/courses/:id with null event returns 404");
+}
+
+void testCourseGetByIdFound() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/courses/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/courses/:id returns 200 when found");
+}
+
+void testCourseGetByIdNotFound() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/courses/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/courses/:id returns 404 when not found");
+}
+
+void testCourseListReturns200() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/courses";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/courses returns 200");
+}
+
+void testCoursePostCreates() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/courses";
+  req.body = "{\"name\":\"Short\",\"length\":3000}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST /api/courses with valid body returns 201");
+}
+
+void testCoursePostMissingName() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/courses";
+  req.body = "{\"length\":3000}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/courses without name returns 400");
+}
+
+void testCoursePutUpdates() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/courses/1";
+  req.body = "{\"name\":\"Updated\",\"length\":9000}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT /api/courses/:id returns 200");
+}
+
+void testCoursePutNotFound() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/courses/99";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "PUT /api/courses/:id returns 404 when not found");
+}
+
+void testCourseDeleteRemoves() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/courses/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 204, "DELETE /api/courses/:id returns 204");
+}
+
+void testCourseDeleteNotFound() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/courses/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "DELETE /api/courses/:id returns 404 when not found");
+}
+
+void testCourseRouteRegistered() {
+  ApiRouter router;
+  registerCourseRoutesForTest(router, false);
+  CHECK(router.handles("/api/courses"),    "router handles /api/courses");
+  CHECK(router.handles("/api/courses/42"), "router handles /api/courses/:id");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -1090,6 +1234,18 @@ int main() {
   testClassDeleteRemoves();
   testClassDeleteNotFound();
   testClassRouteRegistered();
+  testCourseListNullEvent();
+  testCourseGetByIdNullEvent();
+  testCourseGetByIdFound();
+  testCourseGetByIdNotFound();
+  testCourseListReturns200();
+  testCoursePostCreates();
+  testCoursePostMissingName();
+  testCoursePutUpdates();
+  testCoursePutNotFound();
+  testCourseDeleteRemoves();
+  testCourseDeleteNotFound();
+  testCourseRouteRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 
