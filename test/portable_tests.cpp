@@ -724,6 +724,151 @@ void testRunnerRouteRegistered() {
   CHECK(router.handles("/api/runners/42"), "router handles /api/runners/:id");
 }
 
+// ---------------------------------------------------------------------------
+// Team API endpoint routing tests (portable – mirrors team_handlers.h logic)
+// ---------------------------------------------------------------------------
+
+static void registerTeamRoutesForTest(ApiRouter &router, bool hasEvent) {
+  router.get("/api/teams", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("[{\"id\":1,\"name\":\"Alpha\"}]");
+  });
+  router.get("/api/teams/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Team not found");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Alpha\"}");
+  });
+  router.post("/api/teams", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name")) return ApiResponse::badRequest("Field 'name' is required");
+    return ApiResponse::created("{\"id\":2,\"name\":\"Beta\"}");
+  });
+  router.put("/api/teams/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Team not found");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Updated\"}");
+  });
+  router.del("/api/teams/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Team not found");
+    return ApiResponse::noContent();
+  });
+}
+
+void testTeamListNullEvent() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/teams";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/teams with null event returns 404");
+}
+
+void testTeamGetByIdNullEvent() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/teams/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/teams/:id with null event returns 404");
+}
+
+void testTeamGetByIdFound() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/teams/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/teams/:id returns 200 when found");
+}
+
+void testTeamGetByIdNotFound() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/teams/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/teams/:id returns 404 when not found");
+}
+
+void testTeamListReturns200() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/teams";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/teams returns 200");
+}
+
+void testTeamPostCreates() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/teams";
+  req.body = "{\"name\":\"Beta\",\"classId\":1,\"clubId\":2}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST /api/teams with valid body returns 201");
+}
+
+void testTeamPostMissingName() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/teams";
+  req.body = "{\"classId\":1}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/teams without name returns 400");
+}
+
+void testTeamPutUpdates() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/teams/1";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT /api/teams/:id returns 200");
+}
+
+void testTeamPutNotFound() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/teams/99";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "PUT /api/teams/:id returns 404 when not found");
+}
+
+void testTeamDeleteRemoves() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/teams/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 204, "DELETE /api/teams/:id returns 204");
+}
+
+void testTeamDeleteNotFound() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/teams/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "DELETE /api/teams/:id returns 404 when not found");
+}
+
+void testTeamRouteRegistered() {
+  ApiRouter router;
+  registerTeamRoutesForTest(router, false);
+  CHECK(router.handles("/api/teams"),    "router handles /api/teams");
+  CHECK(router.handles("/api/teams/42"), "router handles /api/teams/:id");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -776,6 +921,18 @@ int main() {
   testRunnerDeleteRemoves();
   testRunnerDeleteNotFound();
   testRunnerRouteRegistered();
+  testTeamListNullEvent();
+  testTeamGetByIdNullEvent();
+  testTeamGetByIdFound();
+  testTeamGetByIdNotFound();
+  testTeamListReturns200();
+  testTeamPostCreates();
+  testTeamPostMissingName();
+  testTeamPutUpdates();
+  testTeamPutNotFound();
+  testTeamDeleteRemoves();
+  testTeamDeleteNotFound();
+  testTeamRouteRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

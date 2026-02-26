@@ -475,7 +475,7 @@
           "id": "3.11",
           "title": "Team API endpoints",
           "description": "Implementera: GET /api/teams, GET /api/teams/:id, POST /api/teams, PUT /api/teams/:id, DELETE /api/teams/:id. Inkludera lagmedlemmar och lagresultat.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.3"

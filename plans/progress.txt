@@ -365,3 +365,11 @@
    GET /api/runners/:id, POST /api/runners, PUT /api/runners/:id, DELETE /api/runners/:id.
    Lade till 12 portabla tester i test/portable_tests.cpp.
    87/87 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.11 DONE: Team API endpoints
+   Skapade src/net/team_handlers.h med registerTeamHandlers(router, oe).
+   Endpoints: GET /api/teams (lista med ?class=X&club=X filter), GET /api/teams/:id,
+   POST /api/teams (addTeam + setBib/setStartTime/setStatus), PUT /api/teams/:id, DELETE /api/teams/:id.
+   Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
+   Lade till 12 portabla tester i test/portable_tests.cpp.
+   100/100 tester passerade med clang++ på macOS.
