@@ -7,3 +7,9 @@
    Leverans: plans/gdioutput_domain_mapping.md med komplett lista.
    Rekommendation: IEventNotifier ska wrappa alert/ask/askOkCancel/status/dataChanged.
    Rendering-metoder bör flyttas ut ur domänen helt, ej wrappas.
+
+11. [2026-02-26] Task 1.2 DONE: Definiera IEventNotifier-interface
+12.    Skapade src/domain/IEventNotifier.h med pure virtual interface.
+13.    Metoder: status(), alert(), ask(), askOkCancel(), setWindowTitle(), dataChanged().
+14.    AskAnswer-enum definierat som IEventNotifier::Answer i headern.
+15.    Baserat på kartläggningen i 1.1 (gdioutput_domain_mapping.md).

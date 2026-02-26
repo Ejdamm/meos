@@ -23,7 +23,7 @@
           "id": "1.2",
           "title": "Definiera IEventNotifier-interface",
           "description": "Skapa src/domain/IEventNotifier.h med ett pure virtual interface. Basera metoderna på kartläggningen i 1.1: statusmeddelanden, progress-uppdateringar, felrapportering. Inga implementationer, bara deklarationer.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.1"
           ]
