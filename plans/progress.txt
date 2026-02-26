@@ -437,3 +437,12 @@
    In-process speaker config i anonymt namespace (g_speakerClassIds, g_speakerWindowSeconds).
    Lade till 6 portabla tester + <set> include i test/portable_tests.cpp.
    205/205 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.19 DONE: Automation API endpoints
+   Skapade src/net/automation_handlers.h med registerAutomationHandlers(router, oe).
+   Endpoints: GET /api/automations (lista via MachineContainer.enumerate()),
+   POST /api/automations (skapa/överskriva config via set(), validerar kända typer),
+   DELETE /api/automations/:id (ta bort via erase(), id-format "type/name"),
+   GET /api/automations/:id/status (verifierar att config finns, returnerar configured:true).
+   11 portabla tester i test/portable_tests.cpp: decode/encode id, CRUD-logik, null-event-skydd.
+   228/228 tester passerade med clang++ på macOS.

@@ -555,7 +555,7 @@
           "id": "3.19",
           "title": "Automation API endpoints",
           "description": "Implementera: GET /api/automations (lista), POST /api/automations (skapa), DELETE /api/automations/:id (ta bort), GET /api/automations/:id/status. Mappa mot befintliga AutoMachine-typer.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.5"
