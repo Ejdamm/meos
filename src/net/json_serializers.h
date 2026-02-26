@@ -5,6 +5,10 @@
 #include "oTeam.h"
 #include "oClass.h"
 #include "oCourse.h"
+#include "oControl.h"
+#include "oCard.h"
+#include "oFreePunch.h"
+#include "oEvent.h"
 
 // ---------------------------------------------------------------------------
 // oClub
@@ -227,4 +231,115 @@ inline void from_json(const nlohmann::json &j, ClassDTO &c) {
   if (j.contains("id"))       c.id       = j.at("id").get<int>();
   if (j.contains("name"))     c.name     = gdioutput::fromUTF8(j.at("name").get<std::string>());
   if (j.contains("courseId")) c.courseId = j.at("courseId").get<int>();
+}
+
+// ---------------------------------------------------------------------------
+// oControl
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oControl &c) {
+  j = nlohmann::json{
+    {"id",     c.getId()},
+    {"name",   gdioutput::toUTF8(c.getName())},
+    {"status", static_cast<int>(c.getStatus())}
+  };
+  std::vector<int> numbers;
+  c.getNumbers(numbers);
+  j["codes"] = numbers;
+  int pts = c.getRogainingPoints();
+  if (pts)
+    j["rogainingPoints"] = pts;
+}
+
+struct ControlDTO {
+  int              id     = 0;
+  std::wstring     name;
+  std::vector<int> codes;
+};
+
+inline void from_json(const nlohmann::json &j, ControlDTO &c) {
+  if (j.contains("id"))    c.id   = j.at("id").get<int>();
+  if (j.contains("name"))  c.name = gdioutput::fromUTF8(j.at("name").get<std::string>());
+  if (j.contains("codes")) {
+    for (auto &code : j.at("codes"))
+      c.codes.push_back(code.get<int>());
+  }
+}
+
+// ---------------------------------------------------------------------------
+// oPunch
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oPunch &p) {
+  j = nlohmann::json{
+    {"type",      p.getTypeCode()},
+    {"time",      p.getTimeInt()},
+    {"controlId", p.getControlId()}
+  };
+}
+
+// ---------------------------------------------------------------------------
+// oCard
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oCard &card) {
+  j = nlohmann::json{
+    {"id",     card.getId()},
+    {"cardNo", card.getCardNo()}
+  };
+  nlohmann::json punches = nlohmann::json::array();
+  int n = card.getNumPunches();
+  for (int i = 0; i < n; ++i) {
+    oPunch *p = card.getPunchByIndex(i);
+    if (p)
+      punches.push_back(*p);
+  }
+  j["punches"] = punches;
+}
+
+// ---------------------------------------------------------------------------
+// oFreePunch
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oFreePunch &p) {
+  j = nlohmann::json{
+    {"id",        p.getId()},
+    {"cardNo",    p.getCardNo()},
+    {"controlId", p.getControlId()},
+    {"type",      p.getTypeCode()},
+    {"time",      p.getTimeInt()}
+  };
+}
+
+struct FreePunchDTO {
+  int id        = 0;
+  int cardNo    = 0;
+  int controlId = 0;
+  int type      = 0;
+  int time      = 0;
+};
+
+inline void from_json(const nlohmann::json &j, FreePunchDTO &p) {
+  if (j.contains("id"))        p.id        = j.at("id").get<int>();
+  if (j.contains("cardNo"))    p.cardNo    = j.at("cardNo").get<int>();
+  if (j.contains("controlId")) p.controlId = j.at("controlId").get<int>();
+  if (j.contains("type"))      p.type      = j.at("type").get<int>();
+  if (j.contains("time"))      p.time      = j.at("time").get<int>();
+}
+
+// ---------------------------------------------------------------------------
+// oEvent (summary/metadata)
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oEvent &e) {
+  j = nlohmann::json{
+    {"id",          e.getId()},
+    {"name",        gdioutput::toUTF8(e.getName())},
+    {"date",        gdioutput::toUTF8(e.getDate())},
+    {"zeroTime",    gdioutput::toUTF8(e.getZeroTime())},
+    {"numRunners",  e.getNumRunners()},
+    {"numClasses",  e.getNumClasses()},
+    {"numCourses",  e.getNumCourses()},
+    {"numCards",    e.getNumCards()}
+  };
 }

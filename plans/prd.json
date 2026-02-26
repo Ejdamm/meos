@@ -419,7 +419,7 @@
           "id": "3.5",
           "title": "JSON-serialisering: oControl, oCard, oPunch, oFreePunch, oEvent",
           "description": "Implementera to_json/from_json för resterande domänobjekt i json_serializers. Inkludera kontrollkod, position, stämplingstider, tävlingsdata.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.1"
           ]
