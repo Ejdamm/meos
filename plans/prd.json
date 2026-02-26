@@ -202,7 +202,7 @@
           "id": "2.8",
           "title": "Rensa third_party-katalogen",
           "description": "Ta bort tomma kataloger i third_party/. Om katalogen är helt tom, ta bort den. Uppdatera .gitignore om det behövs.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.3",
             "2.4",

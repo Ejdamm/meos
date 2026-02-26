@@ -131,3 +131,8 @@
    Raderade MEOS_ZLIB-variabel ur CMakeLists.txt.
    Raderade third_party/lib/*/zlibstat*.lib (alla 4 konfigurationer).
    third_party/minizip/zlib.h behålls (tillhör minizip, inte standalone zlib).
+
+[2026-02-26] Task 2.8 DONE: Rensa third_party-katalogen
+   Raderade tomma kataloger: third_party/lib/win32, win32_debug, win64, win64_debug, lib.
+   third_party/minizip/ behålls (ingår ej i vcpkg, används direkt av källkoden).
+   third_party/ innehåller nu bara minizip/.
