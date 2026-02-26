@@ -50,7 +50,7 @@
           "id": "1.5",
           "title": "Skapa GdiNotifier-adapter",
           "description": "Skapa GdiNotifier-klass i src/ui/GdiNotifier.h/cpp som implementerar IEventNotifier och delegerar varje metod till motsvarande gdioutput-anrop. Kompilera och länka klassen.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.4"
           ]

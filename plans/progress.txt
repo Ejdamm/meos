@@ -28,3 +28,9 @@
 28.    Ersatte oe.gdiBase().recodeToWide(name) med gdioutput::recodeToWide(name) (static) i oControl.cpp.
 29.    Ersatte oe->gdiBase().addInfoBox med gdi.addInfoBox (existerande param) i oRunner.cpp.
 30.    Migrerade gdibase.alert -> notifier_.alert i oEventSpeaker.cpp.
+
+[2026-02-26] Task 1.5 DONE: Flytta GdiNotifier-adapter till src/ui/
+   Flyttade src/domain/GdiNotifier.h -> src/ui/GdiNotifier.h.
+   GdiNotifier är en UI-adapter (beroende på gdioutput.h i src/ui/), placeras korrekt i src/ui/.
+   Alla #include "GdiNotifier.h" fungerar fortfarande via include-paths (src/ui är listat i CMakeLists.txt).
+   Inga andra filer behövde ändras.
