@@ -136,3 +136,9 @@
    Raderade tomma kataloger: third_party/lib/win32, win32_debug, win64, win64_debug, lib.
    third_party/minizip/ behålls (ingår ej i vcpkg, används direkt av källkoden).
    third_party/ innehåller nu bara minizip/.
+
+[2026-02-26] Task 2.9 DONE: Dokumentera vcpkg-setup i README
+   Uppdaterade README.md med fullständiga bygginstruktioner:
+   - Två alternativ för vcpkg-installation (git submodule och systeminstallation)
+   - cmake --preset=default / --preset=debug kommandon
+   - Lista över beroenden som installeras automatiskt via vcpkg.json

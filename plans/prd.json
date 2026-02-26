@@ -215,7 +215,7 @@
           "id": "2.9",
           "title": "Dokumentera vcpkg-setup i README",
           "description": "Uppdatera README.md med instruktioner för att bootstrappa vcpkg: installationsalternativ (git submodule eller systeminstallation), hur man kör cmake med vcpkg preset, vilka beroenden som installeras automatiskt.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.8"
           ]
