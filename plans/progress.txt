@@ -455,3 +455,11 @@
    POST /api/import/csv?clear=true|false (importOECSV_Data med temp-fil).
    Lade till 13 portabla tester i test/portable_tests.cpp.
    256/256 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.21 DONE: Serve statiska filer från React-build
+   Skapade src/net/static_file_handler.h med dispatchWithStatic(router, req, webRoot).
+   guessMimeType() hanterar html/js/css/json/png/svg/ico/woff/woff2/ttf/txt/xml/webmanifest.
+   readFileContents() läser fil binärt till std::string.
+   dispatchWithStatic(): API-router har prioritet; statisk fil serveras från webRoot om 404;
+   SPA-fallback till index.html om filen saknas; directory-traversal-skydd på ../-prefix.
+   Syntaxkontroll med clang++ + nlohmann-json passerade (1 warning i api_router.h, ej i ny fil).

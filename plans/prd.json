@@ -575,7 +575,7 @@
           "id": "3.21",
           "title": "Serve statiska filer från React-build",
           "description": "Konfigurera REST-servern att servera statiska filer (HTML, JS, CSS) från src/ui/web/dist/. GET / returnerar index.html. Okända routes fallbackar till index.html (SPA client-side routing).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.6"
           ]
