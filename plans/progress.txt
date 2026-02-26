@@ -34,3 +34,13 @@
    GdiNotifier är en UI-adapter (beroende på gdioutput.h i src/ui/), placeras korrekt i src/ui/.
    Alla #include "GdiNotifier.h" fungerar fortfarande via include-paths (src/ui är listat i CMakeLists.txt).
    Inga andra filer behövde ändras.
+
+[2026-02-26] Task 1.6 DONE: Koppla GdiNotifier i applikationsstart
+   Verifierat att meos.cpp redan hade GdiNotifier kopplat (från task 1.3).
+   gNotifier = new GdiNotifier(*gdi_main) och gEvent = new oEvent(*gdi_main, *gNotifier) på plats.
+   Markerat done i PRD.
+
+[2026-02-26] Task 1.7 DONE: Skapa NullNotifier
+   Skapade src/app/NullNotifier.h med NullNotifier : public IEventNotifier.
+   Alla metoder är no-ops; ask() returnerar false, askOkCancel() returnerar Cancel.
+   Placerad i src/app/ (bredvid meos.cpp som ska använda den för --headless).

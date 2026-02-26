@@ -59,7 +59,7 @@
           "id": "1.6",
           "title": "Koppla GdiNotifier i applikationsstart",
           "description": "Uppdatera meos.cpp att instansiera GdiNotifier och skicka den till oEvent istället för gdioutput direkt. Starta applikationen och verifiera att Win32-GUI fungerar som innan.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.5"
           ]
@@ -68,7 +68,7 @@
           "id": "1.7",
           "title": "Skapa NullNotifier",
           "description": "Skapa NullNotifier-klass i src/app/NullNotifier.h/cpp som implementerar IEventNotifier med tomma funktionskroppar (no-op). Inga sidoeffekter, inga loggningar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.2"
           ]
