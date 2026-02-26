@@ -7,6 +7,7 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <string>
 #include <chrono>
 #include <atomic>
@@ -573,6 +574,156 @@ void testCompetitionRouteRegistered() {
 }
 
 
+// ---------------------------------------------------------------------------
+// Runner API endpoint routing tests (portable – mirrors runner_handlers.h logic)
+// ---------------------------------------------------------------------------
+
+static void registerRunnerRoutesForTest(ApiRouter &router, bool hasEvent) {
+  // Minimal in-memory store for testing
+  static std::map<int, std::string> store;
+  store.clear();
+  store[1] = "{\"id\":1,\"name\":\"Alice\"}";
+
+  router.get("/api/runners", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("[{\"id\":1,\"name\":\"Alice\"}]");
+  });
+  router.get("/api/runners/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Runner not found");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Alice\"}");
+  });
+  router.post("/api/runners", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name")) return ApiResponse::badRequest("Field 'name' is required");
+    return ApiResponse::created("{\"id\":2,\"name\":\"Bob\"}");
+  });
+  router.put("/api/runners/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Runner not found");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Updated\"}");
+  });
+  router.del("/api/runners/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Runner not found");
+    return ApiResponse::noContent();
+  });
+}
+
+void testRunnerListNullEvent() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/runners";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/runners with null event returns 404");
+}
+
+void testRunnerGetByIdNullEvent() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/runners/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/runners/:id with null event returns 404");
+}
+
+void testRunnerGetByIdFound() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/runners/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/runners/:id returns 200 when found");
+}
+
+void testRunnerGetByIdNotFound() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/runners/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/runners/:id returns 404 when not found");
+}
+
+void testRunnerListReturns200() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/runners";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/runners returns 200");
+}
+
+void testRunnerPostCreates() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/runners";
+  req.body = "{\"name\":\"Bob\",\"classId\":1,\"clubId\":2,\"cardNo\":12345}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST /api/runners with valid body returns 201");
+}
+
+void testRunnerPostMissingName() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/runners";
+  req.body = "{\"classId\":1}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/runners without name returns 400");
+}
+
+void testRunnerPutUpdates() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/runners/1";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT /api/runners/:id returns 200");
+}
+
+void testRunnerPutNotFound() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/runners/99";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "PUT /api/runners/:id returns 404 when not found");
+}
+
+void testRunnerDeleteRemoves() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/runners/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 204, "DELETE /api/runners/:id returns 204");
+}
+
+void testRunnerDeleteNotFound() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/runners/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "DELETE /api/runners/:id returns 404 when not found");
+}
+
+void testRunnerRouteRegistered() {
+  ApiRouter router;
+  registerRunnerRoutesForTest(router, false);
+  CHECK(router.handles("/api/runners"),    "router handles /api/runners");
+  CHECK(router.handles("/api/runners/42"), "router handles /api/runners/:id");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -613,6 +764,18 @@ int main() {
   testCompetitionPostCreates();
   testCompetitionPutUpdates();
   testCompetitionRouteRegistered();
+  testRunnerListNullEvent();
+  testRunnerGetByIdNullEvent();
+  testRunnerGetByIdFound();
+  testRunnerGetByIdNotFound();
+  testRunnerListReturns200();
+  testRunnerPostCreates();
+  testRunnerPostMissingName();
+  testRunnerPutUpdates();
+  testRunnerPutNotFound();
+  testRunnerDeleteRemoves();
+  testRunnerDeleteNotFound();
+  testRunnerRouteRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

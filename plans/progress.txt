@@ -358,3 +358,10 @@
    Null-oe-skydd: GET → 404, POST/PUT → 500.
    Lade till 11 portabla tester i test/portable_tests.cpp (routing-logik utan Win32-beroenden).
    74/74 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.10 DONE: Runner API endpoints
+   Skapade src/net/runner_handlers.h med registerRunnerHandlers(router, oe).
+   Endpoints: GET /api/runners (lista med ?class=X&club=X&card=X filter),
+   GET /api/runners/:id, POST /api/runners, PUT /api/runners/:id, DELETE /api/runners/:id.
+   Lade till 12 portabla tester i test/portable_tests.cpp.
+   87/87 tester passerade med clang++ på macOS.

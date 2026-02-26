@@ -465,7 +465,7 @@
           "id": "3.10",
           "title": "Runner API endpoints",
           "description": "Implementera: GET /api/runners (lista med filtrering ?class=X&club=X&card=X), GET /api/runners/:id, POST /api/runners, PUT /api/runners/:id, DELETE /api/runners/:id. Inkludera start/mål-tider, resultat, stämpeldata.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.2"
