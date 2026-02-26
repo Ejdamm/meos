@@ -148,7 +148,7 @@
           "id": "2.2",
           "title": "Konfigurera CMake för vcpkg toolchain",
           "description": "Uppdatera CMakeLists.txt att stödja CMAKE_TOOLCHAIN_FILE från vcpkg. Skapa CMakePresets.json med vcpkg-preset så att cmake --preset=default fungerar direkt.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.1"
           ]

@@ -1,4 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
+# vcpkg toolchain: pass -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+# or use: cmake --preset=default  (see CMakePresets.json)
 project(MeOS VERSION 5.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)

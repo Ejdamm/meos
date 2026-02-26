@@ -93,3 +93,9 @@
    - libpng 1.6.5 (matchar vendored libpng)
    - zlib 1.2.5 (matchar vendored zlib)
    Versioner baserade på headers i third_party/.
+
+[2026-02-26] Task 2.2 DONE: Konfigurera CMake för vcpkg toolchain
+   Skapade CMakePresets.json med "default" (Release) och "debug" preset.
+   Båda preseten sätter CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake.
+   Lade till kommentar i CMakeLists.txt om vcpkg-integration och cmake --preset=default.
+   cmake --preset=default fungerar nu direkt när VCPKG_ROOT är satt.
