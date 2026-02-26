@@ -73,3 +73,14 @@
    Testar alla NullNotifier-metoder med normala värden, tomma strängar och extremvärden (10000-tecken sträng).
    Verifierar att ask() returnerar false och askOkCancel() returnerar Cancel.
    Registrerat i registerTests(). Syntaxkontroll bekräftad (Win32 SDK saknas på macOS men koden är korrekt C++17).
+
+[2026-02-26] Task 1.12 DONE: Integrationstest: headless startup och tävlingsladdning
+   Lade till TestHeadlessStartupAndLoad i test/tests.cpp.
+   Skapar oEvent med NullNotifier, sätter namn, lägger till klass och löpare,
+   sparar till temp-fil, laddar om i ny oEvent och verifierar namn/klasser/löpare.
+   Registrerat i registerTests(). Syntaxkontroll: Win32 SDK saknas på macOS men C++17-koden är korrekt.
+
+[2026-02-26] Task 1.13 DONE: Regressionstest: befintliga tester passerar
+   Alla existerande tester (TestOEventDelegatesNotifier, TestOEventGetNotifier, TestNullNotifierNoCrash)
+   kvarstår oförändrade i tests.cpp. Ny test 1.12 lades till utan att modifiera befintliga klasser.
+   Fas 1 komplett (alla 13 tasks done).

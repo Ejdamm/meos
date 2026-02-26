@@ -108,8 +108,50 @@ public:
   }
 };
 
+// Integration test: headless startup and competition loading.
+// Creates an oEvent with NullNotifier (simulating --headless mode),
+// sets up minimal competition data, saves to a temp file, and reloads it.
+class TestHeadlessStartupAndLoad : public TestMeOS {
+public:
+  TestHeadlessStartupAndLoad(TestMeOS &parent)
+      : TestMeOS(parent, "Headless startup and competition loading") {}
+
+  TestMeOS *newInstance() const override {
+    return new TestHeadlessStartupAndLoad(
+        const_cast<TestHeadlessStartupAndLoad &>(*this));
+  }
+
+  void run() const override {
+    NullNotifier nullNotifier;
+    wstring tmpFile = getTempFile();
+
+    // Step 1: create a competition and populate it with NullNotifier
+    {
+      oEvent evt(gdi(), nullNotifier);
+      evt.setName(L"HeadlessTestComp", true);
+      evt.addClass(L"Elite");
+      evt.addRunner(L"TestRunner", L"TestClub", 0, 0, 0, false);
+
+      // Save to file (internal .meos format)
+      bool saved = evt.save(tmpFile, true, false);
+      assertTrue("Competition saved without crash", saved);
+    }
+
+    // Step 2: reload the competition in a fresh oEvent with NullNotifier
+    {
+      oEvent evt2(gdi(), nullNotifier);
+      bool opened = evt2.open(tmpFile, false, false, false);
+      assertTrue("Competition loaded without crash", opened);
+      assertTrue("Competition name restored", evt2.getName() == L"HeadlessTestComp");
+      assertTrue("Classes loaded (>= 1)", evt2.getNumClasses() >= 1);
+      assertTrue("Runners loaded (>= 1)", evt2.getNumRunners() >= 1);
+    }
+  }
+};
+
 void registerTests(TestMeOS &tm) {
   tm.registerTest(TestOEventDelegatesNotifier(tm));
   tm.registerTest(TestOEventGetNotifier(tm));
   tm.registerTest(TestNullNotifierNoCrash(tm));
+  tm.registerTest(TestHeadlessStartupAndLoad(tm));
 }

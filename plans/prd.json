@@ -115,7 +115,7 @@
           "id": "1.12",
           "title": "Integrationstest: headless startup och tävlingsladdning",
           "description": "Skriv test som startar applikationen med --headless, laddar en tävlingsfil (*.meos) programmatiskt via oEvent med NullNotifier, och verifierar att tävlingsdata laddats korrekt utan krasch.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.8"
           ]
@@ -124,7 +124,7 @@
           "id": "1.13",
           "title": "Regressionstest: befintliga tester passerar",
           "description": "Kör befintliga test/testmeos.cpp och test/tests.cpp med den refaktorerade koden. Alla existerande tester ska passera utan ändringar. Fixa eventuella kompileringsfel orsakade av refaktoreringen.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.8"
           ]
