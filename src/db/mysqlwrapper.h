@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Melin Software HB - software@melin.nu - www.melin.nu
-    Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
+    Eksoppsvï¿½gen 16, SE-75646 UPPSALA, Sweden
 
 ************************************************************************/
 
@@ -25,12 +25,41 @@
 #include <string>
 #include <map>
 #include <vector>
-#include "mysql/mysql.h"
 
 using std::string;
 using std::map;
 
+#ifdef MEOS_USE_MYSQL
+#include "mysql/mysql.h"
+#endif
+
 namespace sqlwrapper {
+
+#ifndef MEOS_USE_MYSQL
+// Stub types used when MySQL support is disabled
+class ResNSel {
+public:
+  ResNSel(int insert_id, int rows) : insert_id(insert_id), rows(rows) {}
+  const int insert_id = 0;
+  const int rows = 0;
+  operator bool() const { return false; }
+};
+class RowWrapper {
+public:
+  RowWrapper() {}
+  operator bool() const { return false; }
+};
+class QueryWrapper {
+public:
+};
+class ConnectionWrapper {
+public:
+  bool connected() const { return false; }
+  QueryWrapper query() { return QueryWrapper(); }
+};
+#endif // !MEOS_USE_MYSQL
+
+#ifdef MEOS_USE_MYSQL
 
   class ConnectionWrapper;
   class QueryWrapper;
@@ -214,5 +243,7 @@ namespace sqlwrapper {
                  const string &pwd, int port);
     QueryWrapper query();
   };
+
+#endif // MEOS_USE_MYSQL
   
 }

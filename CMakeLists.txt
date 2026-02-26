@@ -6,7 +6,11 @@ project(MeOS VERSION 5.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(unofficial-libmysql CONFIG REQUIRED)
+option(MEOS_USE_MYSQL "Build with MySQL database support" ON)
+
+if(MEOS_USE_MYSQL)
+  find_package(unofficial-libmysql CONFIG REQUIRED)
+endif()
 find_package(haru CONFIG REQUIRED)
 find_package(restbed CONFIG REQUIRED)
 find_package(PNG REQUIRED)
@@ -78,12 +82,22 @@ set(SRC_UI
     src/ui/maprenderer.cpp
 )
 
-set(SRC_DB
+set(SRC_DB_NO_MYSQL
+    src/db/no_mysql_stub.cpp
+)
+
+set(SRC_DB_MYSQL
     src/db/MeosSQL.cpp
     src/db/oEventSQL.cpp
     src/db/mysqlwrapper.cpp
     src/db/mysqldaemon.cpp
 )
+
+if(MEOS_USE_MYSQL)
+  set(SRC_DB ${SRC_DB_MYSQL})
+else()
+  set(SRC_DB ${SRC_DB_NO_MYSQL})
+endif()
 
 set(SRC_NET
     src/net/restserver.cpp
@@ -179,6 +193,7 @@ target_compile_definitions(MeOS PRIVATE
     _UNICODE
     $<$<CONFIG:Debug>:WIN32;_DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
+    $<$<BOOL:${MEOS_USE_MYSQL}>:MEOS_USE_MYSQL>
 )
 
 if(MSVC)
@@ -210,8 +225,11 @@ target_link_libraries(MeOS PRIVATE
     haru::haru
     restbed::restbed
     PNG::PNG
-    unofficial::libmysql::libmysql
 )
+
+if(MEOS_USE_MYSQL)
+    target_link_libraries(MeOS PRIVATE unofficial::libmysql::libmysql)
+endif()
 
 if(WIN32)
     target_link_libraries(MeOS PRIVATE
@@ -236,7 +254,7 @@ set_target_properties(MeOS PROPERTIES
 source_group("app"     FILES ${SRC_APP})
 source_group("domain"  FILES ${SRC_DOMAIN})
 source_group("ui"      FILES ${SRC_UI})
-source_group("db"      FILES ${SRC_DB})
+source_group("db"      FILES ${SRC_DB} ${SRC_DB_MYSQL} ${SRC_DB_NO_MYSQL})
 source_group("net"     FILES ${SRC_NET})
 source_group("io"      FILES ${SRC_IO})
 source_group("hw"      FILES ${SRC_HW})

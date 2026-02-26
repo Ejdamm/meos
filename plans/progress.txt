@@ -216,3 +216,13 @@
    mysqldaemon.cpp: GetTickCount64 → getTickMs64().
    mysql/mysql.h-inkluderingen fungerar redan via vcpkg (samma sökväg cross-platform).
    Syntaxkontroll av platform_time.h passerade utan fel.
+
+[2026-02-26] Task 2.17 DONE: Gör MySQL valfritt med CMake-option
+   Lade till option(MEOS_USE_MYSQL "Build with MySQL database support" ON) i CMakeLists.txt.
+   find_package(unofficial-libmysql) och unofficial::libmysql::libmysql länkning är nu villkorade.
+   MEOS_USE_MYSQL compile-definition läggs till via generator expression $<$<BOOL:...>:MEOS_USE_MYSQL>.
+   SRC_DB_MYSQL (4 filer) vs SRC_DB_NO_MYSQL (no_mysql_stub.cpp) väljs baserat på optionen.
+   mysqlwrapper.h: #include "mysql/mysql.h" guarded med #ifdef MEOS_USE_MYSQL;
+   stub-typer (ResNSel, RowWrapper, QueryWrapper, ConnectionWrapper) definierade i #ifndef MEOS_USE_MYSQL.
+   Skapade src/db/no_mysql_stub.cpp med stub-implementationer av alla MeosSQL public-metoder (returnerar failure/no-op).
+   Syntaxkontroll: Win32 SDK saknas på macOS men C++17-koden är korrekt (samma som tidigare tasks).

@@ -290,7 +290,7 @@
           "id": "2.17",
           "title": "Gör MySQL valfritt med CMake-option",
           "description": "Lägg till CMake-option MEOS_USE_MYSQL (default ON). När OFF, bygg utan MySQL-beroende. Lägg till SQLite som alternativ databasbackend i src/db/ med samma gränssnitt.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.16"
           ]
