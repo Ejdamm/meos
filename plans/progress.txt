@@ -400,3 +400,12 @@
    Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
    Lade till 13 portabla tester i test/portable_tests.cpp.
    139/139 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.15 DONE: Club API endpoints
+   Skapade src/net/club_handlers.h med registerClubHandlers(router, oe).
+   Endpoints: GET /api/clubs (lista), GET /api/clubs/:id (detalj),
+   POST /api/clubs (skapa via addClub + setName/setCountry),
+   PUT /api/clubs/:id (uppdatera namn/country), DELETE /api/clubs/:id (removeClub).
+   Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
+   Lade till 14 portabla tester i test/portable_tests.cpp.
+   153/153 tester passerade med clang++ på macOS.

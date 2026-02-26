@@ -515,7 +515,7 @@
           "id": "3.15",
           "title": "Club API endpoints",
           "description": "Implementera: GET /api/clubs, GET /api/clubs/:id, POST /api/clubs, PUT /api/clubs/:id, DELETE /api/clubs/:id. Inkludera klubbnamn, nationalitet.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.2"

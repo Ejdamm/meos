@@ -1303,6 +1303,160 @@ void testControlRouteRegistered() {
   CHECK(router.handles("/api/controls/42"), "router handles /api/controls/:id");
 }
 
+// ---------------------------------------------------------------------------
+// Club endpoint tests (portable – no Win32 dependencies)
+// ---------------------------------------------------------------------------
+
+static void registerClubRoutesForTest(ApiRouter &router, bool hasEvent) {
+  router.get("/api/clubs", [hasEvent](const ApiRequest &) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("[{\"id\":1,\"name\":\"IFK Mora\"}]");
+  });
+  router.get("/api/clubs/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Club not found");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"IFK Mora\"}");
+  });
+  router.post("/api/clubs", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name")) return ApiResponse::badRequest("Field 'name' is required");
+    return ApiResponse::created("{\"id\":2,\"name\":\"OK Pan\",\"country\":\"SWE\"}");
+  });
+  router.put("/api/clubs/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Club not found");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Updated\"}");
+  });
+  router.del("/api/clubs/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Club not found");
+    return ApiResponse::noContent();
+  });
+}
+
+void testClubListNullEvent() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/clubs";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/clubs with null event returns 404");
+}
+
+void testClubGetByIdNullEvent() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/clubs/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/clubs/:id with null event returns 404");
+}
+
+void testClubGetByIdFound() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/clubs/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/clubs/:id returns 200 when found");
+}
+
+void testClubGetByIdNotFound() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/clubs/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/clubs/:id returns 404 when not found");
+}
+
+void testClubListReturns200() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/clubs";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/clubs returns 200");
+}
+
+void testClubPostCreates() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/clubs";
+  req.body = "{\"name\":\"OK Pan\",\"country\":\"SWE\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST /api/clubs with valid body returns 201");
+}
+
+void testClubPostMissingName() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/clubs";
+  req.body = "{\"country\":\"SWE\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/clubs without name returns 400");
+}
+
+void testClubPutUpdates() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/clubs/1";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT /api/clubs/:id returns 200");
+}
+
+void testClubPutNotFound() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/clubs/99";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "PUT /api/clubs/:id returns 404 when not found");
+}
+
+void testClubDeleteRemoves() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/clubs/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 204, "DELETE /api/clubs/:id returns 204");
+}
+
+void testClubDeleteNotFound() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/clubs/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "DELETE /api/clubs/:id returns 404 when not found");
+}
+
+void testClubPostNullEvent() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, false);
+  ApiRequest req; req.method = "POST"; req.path = "/api/clubs";
+  req.body = "{\"name\":\"Test\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 500, "POST /api/clubs with null event returns 500");
+}
+
+void testClubRouteRegistered() {
+  ApiRouter router;
+  registerClubRoutesForTest(router, false);
+  CHECK(router.handles("/api/clubs"),    "router handles /api/clubs");
+  CHECK(router.handles("/api/clubs/42"), "router handles /api/clubs/:id");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -1403,6 +1557,19 @@ int main() {
   testControlDeleteRemoves();
   testControlDeleteNotFound();
   testControlRouteRegistered();
+  testClubListNullEvent();
+  testClubGetByIdNullEvent();
+  testClubGetByIdFound();
+  testClubGetByIdNotFound();
+  testClubListReturns200();
+  testClubPostCreates();
+  testClubPostMissingName();
+  testClubPutUpdates();
+  testClubPutNotFound();
+  testClubDeleteRemoves();
+  testClubDeleteNotFound();
+  testClubPostNullEvent();
+  testClubRouteRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 
