@@ -392,7 +392,7 @@
           "id": "3.2",
           "title": "JSON-serialisering: oRunner och oClub",
           "description": "Skapa src/net/json_serializers.h/cpp. Implementera to_json/from_json för oRunner och oClub med NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE. Inkludera alla relevanta fält (id, namn, klubb, bricknummer, start/mål-tider etc.).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.1"
           ]

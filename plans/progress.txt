@@ -288,3 +288,12 @@
    Lade till find_package(nlohmann_json CONFIG REQUIRED) i CMakeLists.txt.
    Lade till nlohmann_json::nlohmann_json i target_link_libraries för MeOS och MeOS-server.
    Syntaxkontroll med clang++ + nlohmann-json 3.12.0 (homebrew): PASS.
+
+[2026-02-26] Task 3.2 DONE: JSON-serialisering: oRunner och oClub
+   Skapade src/net/json_serializers.h med free to_json/from_json-funktioner.
+   to_json(oClub&): id, name (UTF-8), country (om satt via getDCI).
+   to_json(oRunner&): id, name, clubId, club, classId, class, cardNo, bib,
+     startTime, finishTime, runningTime, status, birthYear, nationality, sex.
+   RunnerDTO och ClubDTO structs med from_json för deserialisering.
+   Syntaxkontroll + körtid: DTO-koden PASS med clang++ + nlohmann-json 3.12.0.
+   (to_json för domänobjekten kräver Win32 SDK; ej körbar på macOS men C++17-korrekt.)
