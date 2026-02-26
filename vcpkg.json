@@ -5,6 +5,10 @@
   "description": "MeOS - orienteering event management system",
   "dependencies": [
     {
+      "name": "nlohmann-json",
+      "version>=": "3.11.2"
+    },
+    {
       "name": "libharu",
       "version>=": "2.2.0"
     },

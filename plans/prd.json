@@ -383,7 +383,7 @@
           "id": "3.1",
           "title": "Lägg till nlohmann/json som beroende",
           "description": "Lägg till nlohmann-json i vcpkg.json. Uppdatera CMakeLists.txt med find_package(nlohmann_json). Verifiera att #include <nlohmann/json.hpp> kompilerar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.8"
           ]

@@ -15,6 +15,7 @@ find_package(haru CONFIG REQUIRED)
 find_package(restbed CONFIG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 # Source files grouped by module
 set(SRC_APP
@@ -226,6 +227,7 @@ target_link_libraries(MeOS PRIVATE
     haru::haru
     restbed::restbed
     PNG::PNG
+    nlohmann_json::nlohmann_json
 )
 
 if(MEOS_USE_MYSQL)
@@ -344,6 +346,7 @@ target_link_libraries(MeOS-server PRIVATE
     haru::haru
     restbed::restbed
     PNG::PNG
+    nlohmann_json::nlohmann_json
 )
 
 if(MEOS_USE_MYSQL)

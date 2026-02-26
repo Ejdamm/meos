@@ -282,3 +282,9 @@
    - TestMutexLockUnlock: std::mutex + lock_guard, 2 trådar, delade räknare == 2000
    - TestConditionVariable: std::condition_variable, notify_one/wait, signalering bekräftad
    48/48 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.1 DONE: Lägg till nlohmann/json som beroende
+   Lade till nlohmann-json (version>=3.11.2) i vcpkg.json dependencies.
+   Lade till find_package(nlohmann_json CONFIG REQUIRED) i CMakeLists.txt.
+   Lade till nlohmann_json::nlohmann_json i target_link_libraries för MeOS och MeOS-server.
+   Syntaxkontroll med clang++ + nlohmann-json 3.12.0 (homebrew): PASS.
