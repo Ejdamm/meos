@@ -157,7 +157,7 @@
           "id": "2.3",
           "title": "Ersätt vendored MySQL med find_package",
           "description": "Ta bort third_party/mysql/ (headers), third_party/lib/*/libmysql.lib och third_party/bin/*/libmySQL.dll. Ersätt hardkodade sökvägar i CMakeLists.txt med find_package(unofficial-libmysql) eller motsvarande vcpkg-paketnamn. Verifiera att projektet bygger.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.2"
           ]

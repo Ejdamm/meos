@@ -99,3 +99,9 @@
    Båda preseten sätter CMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake.
    Lade till kommentar i CMakeLists.txt om vcpkg-integration och cmake --preset=default.
    cmake --preset=default fungerar nu direkt när VCPKG_ROOT är satt.
+
+[2026-02-26] Task 2.3 DONE: Ersätt vendored MySQL med find_package
+   Lade till find_package(unofficial-libmysql CONFIG REQUIRED) i CMakeLists.txt.
+   Ersatte libmysql med unofficial::libmysql::libmysql i target_link_libraries.
+   Raderade third_party/mysql/ (headers) och third_party/lib/*/libmysql.lib.
+   #include "mysql/mysql.h" i db-källfiler fungerar via vcpkg-paketets include-sökvägar.

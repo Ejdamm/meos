@@ -6,6 +6,8 @@ project(MeOS VERSION 5.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+find_package(unofficial-libmysql CONFIG REQUIRED)
+
 # Source files grouped by module
 set(SRC_APP
     src/app/meos.cpp
@@ -217,7 +219,7 @@ target_link_libraries(MeOS PRIVATE
     ${MEOS_HARU}
     RestBed
     libpng
-    libmysql
+    unofficial::libmysql::libmysql
 )
 
 # DPI awareness manifest
