@@ -605,7 +605,7 @@
           "id": "3.24",
           "title": "Test: API-router URL-matchning och parametrar",
           "description": "Enhetstest: verifiera att routern matchar /api/runners/:id korrekt, extraherar path-parametrar, parsar query-parametrar, returnerar 404 för okända routes, 405 för fel HTTP-metod.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8"
           ]

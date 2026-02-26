@@ -2791,6 +2791,101 @@ void testJsonEdgeCaseWrongTypeThrows() {
   }
 }
 
+// --- Task 3.24: API-router URL-matchning och parametrar ---
+
+void testRouterExactPathMatch() {
+  std::cout << "testRouterExactPathMatch\n";
+  ApiRouter router;
+  bool called = false;
+  router.get("/api/runners", [&](const ApiRequest &) {
+    called = true;
+    return ApiResponse::ok("[]");
+  });
+  ApiRequest req; req.method = "GET"; req.path = "/api/runners";
+  auto resp = router.dispatch(req);
+  CHECK(resp.status == 200, "exact path /api/runners matches GET");
+  CHECK(called, "handler was invoked");
+}
+
+void testRouterPathParamExtraction() {
+  std::cout << "testRouterPathParamExtraction\n";
+  ApiRouter router;
+  std::string capturedId;
+  router.get("/api/runners/:id", [&](const ApiRequest &req) {
+    capturedId = req.pathParams.count("id") ? req.pathParams.at("id") : "";
+    return ApiResponse::ok("{}");
+  });
+  ApiRequest req; req.method = "GET"; req.path = "/api/runners/42";
+  auto resp = router.dispatch(req);
+  CHECK(resp.status == 200, "/api/runners/42 matches /api/runners/:id");
+  CHECK(capturedId == "42", "path param id extracted as '42'");
+}
+
+void testRouterMultiplePathParams() {
+  std::cout << "testRouterMultiplePathParams\n";
+  ApiRouter router;
+  std::string capturedA, capturedB;
+  router.get("/api/:type/:id", [&](const ApiRequest &req) {
+    capturedA = req.pathParams.count("type") ? req.pathParams.at("type") : "";
+    capturedB = req.pathParams.count("id") ? req.pathParams.at("id") : "";
+    return ApiResponse::ok("{}");
+  });
+  ApiRequest req; req.method = "GET"; req.path = "/api/clubs/7";
+  auto resp = router.dispatch(req);
+  CHECK(resp.status == 200, "/api/clubs/7 matches /api/:type/:id");
+  CHECK(capturedA == "clubs", "first param type='clubs'");
+  CHECK(capturedB == "7", "second param id='7'");
+}
+
+void testRouterQueryParamParsing() {
+  std::cout << "testRouterQueryParamParsing\n";
+  ApiRouter router;
+  router.get("/api/results", [](const ApiRequest &req) {
+    auto it = req.queryParams.find("type");
+    std::string t = (it != req.queryParams.end()) ? it->second : "";
+    return ApiResponse::ok("{\"type\":\"" + t + "\"}");
+  });
+  ApiRequest req; req.method = "GET"; req.path = "/api/results";
+  req.queryParams.emplace("type", "resultlist");
+  auto resp = router.dispatch(req);
+  CHECK(resp.status == 200, "route with query param matches");
+  CHECK(resp.body.find("resultlist") != std::string::npos, "handler receives query param 'type'");
+}
+
+void testRouterUnknownRoute404() {
+  std::cout << "testRouterUnknownRoute404\n";
+  ApiRouter router;
+  router.get("/api/runners", [](const ApiRequest &) { return ApiResponse::ok("[]"); });
+  ApiRequest req; req.method = "GET"; req.path = "/api/nonexistent";
+  auto resp = router.dispatch(req);
+  CHECK(resp.status == 404, "unknown route returns 404");
+}
+
+void testRouterWrongMethod405() {
+  std::cout << "testRouterWrongMethod405\n";
+  ApiRouter router;
+  router.get("/api/runners", [](const ApiRequest &) { return ApiResponse::ok("[]"); });
+  ApiRequest req; req.method = "POST"; req.path = "/api/runners";
+  auto resp = router.dispatch(req);
+  CHECK(resp.status == 405, "wrong HTTP method returns 405");
+}
+
+void testRouterMethodSpecificity() {
+  std::cout << "testRouterMethodSpecificity\n";
+  ApiRouter router;
+  router.get("/api/items", [](const ApiRequest &) { return ApiResponse::ok("[\"get\"]"); });
+  router.post("/api/items", [](const ApiRequest &) { return ApiResponse::created("{\"id\":1}"); });
+  ApiRequest getReq; getReq.method = "GET"; getReq.path = "/api/items";
+  ApiRequest postReq; postReq.method = "POST"; postReq.path = "/api/items";
+  ApiRequest delReq; delReq.method = "DELETE"; delReq.path = "/api/items";
+  auto gr = router.dispatch(getReq);
+  auto pr = router.dispatch(postReq);
+  auto dr = router.dispatch(delReq);
+  CHECK(gr.status == 200, "GET /api/items → 200");
+  CHECK(pr.status == 201, "POST /api/items → 201");
+  CHECK(dr.status == 405, "DELETE /api/items → 405 (path known, method not registered)");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -2980,6 +3075,15 @@ int main() {
   testJsonEdgeCaseNullFieldThrows();
   testJsonEdgeCaseInvalidJsonThrows();
   testJsonEdgeCaseWrongTypeThrows();
+
+  // Task 3.24: API-router URL-matchning och parametrar
+  testRouterExactPathMatch();
+  testRouterPathParamExtraction();
+  testRouterMultiplePathParams();
+  testRouterQueryParamParsing();
+  testRouterUnknownRoute404();
+  testRouterWrongMethod405();
+  testRouterMethodSpecificity();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

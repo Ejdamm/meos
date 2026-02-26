@@ -502,3 +502,14 @@
    Skapade .prettierrc med semi:true, singleQuote:true, trailingComma:es5, printWidth:100.
    Uppdaterade eslint.config.js med eslint-config-prettier för att undvika formateringskonflikter.
    npm run build: 32 moduler, inga TS-fel. npm run lint: 0 fel.
+
+[2026-02-26] Task 3.24 DONE: Test: API-router URL-matchning och parametrar
+   Lade till 7 testfunktioner (14 CHECK-anrop) i test/portable_tests.cpp:
+   - testRouterExactPathMatch: exakt path /api/runners matchar GET
+   - testRouterPathParamExtraction: /api/runners/42 extraherar pathParam id="42"
+   - testRouterMultiplePathParams: /api/:type/:id extraherar två parametrar korrekt
+   - testRouterQueryParamParsing: handler tar emot queryParams korrekt
+   - testRouterUnknownRoute404: okänd route returnerar 404
+   - testRouterWrongMethod405: rätt path men fel HTTP-metod returnerar 405
+   - testRouterMethodSpecificity: GET→200, POST→201, DELETE→405 för samma path
+   361/361 tester passerade med clang++ på macOS.
