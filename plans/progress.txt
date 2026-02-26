@@ -20,3 +20,11 @@
 20.    Ersatte gdibase.alert/ask/setWindowTitle-anrop med notifier_-anrop i oEvent.cpp.
 21.    Skapade GdiNotifier.h (adapter som wrapper gdioutput som IEventNotifier).
 22.    Uppdaterade alla 4 konstruktionsställen: meos.cpp, TabSI.cpp, TabCompetition.cpp, oevent_transfer.cpp.
+
+24. [2026-02-26] Task 1.4 DONE: Migrera övriga domänobjekt till IEventNotifier
+25.    Lade till getNotifier() accessor i oEvent.h.
+26.    Migrerade gdiBase().askOkCancel -> getNotifier().askOkCancel i oDataContainer.cpp och RunnerDB.cpp.
+27.    Migrerade gdi.ask -> oe->getNotifier().ask i oTeam::removeRunner.
+28.    Ersatte oe.gdiBase().recodeToWide(name) med gdioutput::recodeToWide(name) (static) i oControl.cpp.
+29.    Ersatte oe->gdiBase().addInfoBox med gdi.addInfoBox (existerande param) i oRunner.cpp.
+30.    Migrerade gdibase.alert -> notifier_.alert i oEventSpeaker.cpp.

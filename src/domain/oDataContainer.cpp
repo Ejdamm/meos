@@ -1743,7 +1743,7 @@ pair<int, bool>  oDataContainer::inputData(oBase *ob, int id,
           }
 
           if (no64 != k64 && !oe->hasWarnedModifiedId()) {
-            if (oe->gdiBase().askOkCancel(L"warn:changeid") == gdioutput::AskAnswer::AnswerCancel)
+            if (oe->getNotifier().askOkCancel(L"warn:changeid") == IEventNotifier::Answer::Cancel)
               throw meosCancel();
             oe->hasWarnedModifiedId(true);
           }

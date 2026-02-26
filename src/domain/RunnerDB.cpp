@@ -1479,7 +1479,7 @@ pair<int, bool>  oDBRunnerEntry::inputData(int id, const wstring &input,
       }
 
       if (key != r.getExtId() && !hasWarnedId) {
-        if (oe->gdiBase().askOkCancel(L"warn:changeid") == gdioutput::AskAnswer::AnswerCancel)
+        if (oe->getNotifier().askOkCancel(L"warn:changeid") == IEventNotifier::Answer::Cancel)
           throw meosCancel();
         hasWarnedId = true;
       }

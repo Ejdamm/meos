@@ -2336,7 +2336,7 @@ void oTeam::removeRunner(gdioutput &gdi, bool askRemoveRunner, int i) {
 
   //No need to delete multi runners. Disappears when parent is gone.
   if (p_old && !oe->isRunnerUsed(p_old->getId())){
-    if (!askRemoveRunner || gdi.ask(L"Ska X raderas från tävlingen?#" + p_old->getName())){
+    if (!askRemoveRunner || oe->getNotifier().ask(L"Ska X raderas från tävlingen?#" + p_old->getName())){
       vector<int> oldR;
       oldR.push_back(p_old->getId());
       oe->removeRunner(oldR);

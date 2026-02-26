@@ -1419,7 +1419,7 @@ void oEvent::tryPrewarningSounds(const wstring &basedir, int number)
   wstring file=basedir+L"\\"+wave;
 
   if (_waccess(file.c_str(), 0)==-1)
-    gdibase.alert(L"Fel: hittar inte filen X.#" + file);
+    notifier_.alert(L"Fel: hittar inte filen X.#" + file);
 
   PlaySound(file.c_str(), 0, SND_SYNC|SND_FILENAME );
 }

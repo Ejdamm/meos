@@ -1086,7 +1086,7 @@ int oControl::getControlIdByName(const oEvent &oe, const string &name) {
 
   vector<pControl> ac;
   oe.getControls(ac, true);
-  wstring wname = oe.gdiBase().recodeToWide(name);
+  wstring wname = gdioutput::recodeToWide(name);
   for (pControl c : ac) {
     if (_wcsicmp(c->getName().c_str(), wname.c_str()) == 0)
       return c->getId();

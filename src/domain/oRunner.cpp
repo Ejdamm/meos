@@ -5036,7 +5036,7 @@ void oRunner::printSplits(gdioutput& gdi) const {
       oe->generateListInfo(gdi, par, currentList);
     }
     catch (const meosException&) {
-      oe->gdiBase().addInfoBox("load_id_list", L"info:nosplitprint", L"", BoxStyle::Header, 10000);
+      gdi.addInfoBox("load_id_list", L"info:nosplitprint", L"", BoxStyle::Header, 10000);
       printSplits(gdi, nullptr);
       return;
     }

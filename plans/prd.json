@@ -41,7 +41,7 @@
           "id": "1.4",
           "title": "Migrera övriga domänobjekt till IEventNotifier",
           "description": "Uppdatera alla ställen i oRunner, oTeam, oClass, oCourse, oControl, oClub och andra domänobjekt som anropar gdioutput att istället använda IEventNotifier via oEvent. Verifiera att src/domain/ kompilerar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.3"
           ]

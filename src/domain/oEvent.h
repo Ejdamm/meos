@@ -1613,6 +1613,7 @@ public:
   friend class TestMeOS;
 
   gdioutput &gdiBase() const {return gdibase;}
+  IEventNotifier &getNotifier() const {return notifier_;}
 };
 
 template<typename T>
