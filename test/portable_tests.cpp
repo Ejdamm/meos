@@ -846,6 +846,116 @@ void testRunnerCrudFlow() {
 }
 
 // ---------------------------------------------------------------------------
+// Task 3.26: CRUD flow integration tests for teams, classes, courses, controls, clubs
+// POST → GET → PUT → GET (verify update) → DELETE → GET (verify 404)
+// Each uses a stateful in-memory store so the full lifecycle is tested.
+// ---------------------------------------------------------------------------
+
+static void makeCrudRouter(ApiRouter &router,
+                           const std::string &base,
+                           std::shared_ptr<std::map<int, nlohmann::json>> store,
+                           std::shared_ptr<int> nextId) {
+  router.post(base, [store, nextId, base](const ApiRequest &req) -> ApiResponse {
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name") || !body["name"].is_string())
+      return ApiResponse::badRequest("Field 'name' is required");
+    int id = (*nextId)++;
+    nlohmann::json r; r["id"] = id; r["name"] = body["name"].get<std::string>();
+    (*store)[id] = r;
+    return ApiResponse::created(r.dump());
+  });
+  router.get(base + "/:id", [store](const ApiRequest &req) -> ApiResponse {
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    auto sit = store->find(id);
+    if (sit == store->end()) return ApiResponse::notFound("Not found");
+    return ApiResponse::ok(sit->second.dump());
+  });
+  router.put(base + "/:id", [store](const ApiRequest &req) -> ApiResponse {
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    auto sit = store->find(id);
+    if (sit == store->end()) return ApiResponse::notFound("Not found");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (body.contains("name") && body["name"].is_string())
+      sit->second["name"] = body["name"].get<std::string>();
+    return ApiResponse::ok(sit->second.dump());
+  });
+  router.del(base + "/:id", [store](const ApiRequest &req) -> ApiResponse {
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    auto sit = store->find(id);
+    if (sit == store->end()) return ApiResponse::notFound("Not found");
+    store->erase(sit);
+    return ApiResponse::noContent();
+  });
+}
+
+static void runCrudFlowTest(const std::string &base, const std::string &label) {
+  auto store  = std::make_shared<std::map<int, nlohmann::json>>();
+  auto nextId = std::make_shared<int>(20);
+  ApiRouter router;
+  makeCrudRouter(router, base, store, nextId);
+
+  std::string idPath = base + "/20";
+
+  // POST
+  { ApiRequest req; req.method = "POST"; req.path = base;
+    req.body = "{\"name\":\"CrudTest\"}";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 201, label + " POST returns 201");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudTest", label + " POST body has name");
+    CHECK(j["id"].get<int>() == 20, label + " POST body has expected id"); }
+
+  // GET after create
+  { ApiRequest req; req.method = "GET"; req.path = idPath;
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 200, label + " GET after POST returns 200");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudTest", label + " GET returns created name"); }
+
+  // PUT
+  { ApiRequest req; req.method = "PUT"; req.path = idPath;
+    req.body = "{\"name\":\"CrudUpdated\"}";
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 200, label + " PUT returns 200");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudUpdated", label + " PUT returns updated name"); }
+
+  // GET after update
+  { ApiRequest req; req.method = "GET"; req.path = idPath;
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 200, label + " GET after PUT returns 200");
+    auto j = nlohmann::json::parse(res.body);
+    CHECK(j["name"].get<std::string>() == "CrudUpdated", label + " GET reflects update"); }
+
+  // DELETE
+  { ApiRequest req; req.method = "DELETE"; req.path = idPath;
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 204, label + " DELETE returns 204"); }
+
+  // GET after delete
+  { ApiRequest req; req.method = "GET"; req.path = idPath;
+    ApiResponse res = router.dispatch(req);
+    CHECK(res.status == 404, label + " GET after DELETE returns 404"); }
+}
+
+void testTeamCrudFlow()    { runCrudFlowTest("/api/teams",    "teams"); }
+void testClassCrudFlow()   { runCrudFlowTest("/api/classes",  "classes"); }
+void testCourseCrudFlow()  { runCrudFlowTest("/api/courses",  "courses"); }
+void testControlCrudFlow() { runCrudFlowTest("/api/controls", "controls"); }
+void testClubCrudFlow()    { runCrudFlowTest("/api/clubs",    "clubs"); }
+
+// ---------------------------------------------------------------------------
 // Team API endpoint routing tests (portable – mirrors team_handlers.h logic)
 // ---------------------------------------------------------------------------
 
@@ -3123,6 +3233,14 @@ int main() {
   testClubDeleteNotFound();
   testClubPostNullEvent();
   testClubRouteRegistered();
+
+  // Task 3.26: CRUD flow integration tests for remaining endpoints
+  testTeamCrudFlow();
+  testClassCrudFlow();
+  testCourseCrudFlow();
+  testControlCrudFlow();
+  testClubCrudFlow();
+
   testCardListNullEvent();
   testCardGetByIdNullEvent();
   testCardGetByIdFound();

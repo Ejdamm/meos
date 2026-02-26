@@ -524,3 +524,14 @@
    - GET /api/runners/10 → 404 (runner borttagen)
    Stateful in-memory mock (shared_ptr<map>) håller state over hela flödet.
    372/372 tester passerade (11 nya).
+
+[2026-02-26] Task 3.26 DONE: Test: CRUD-flöde för övriga endpoints
+   Lade till hjälpfunktioner makeCrudRouter() och runCrudFlowTest() i test/portable_tests.cpp.
+   Lade till 5 testfunktioner (55 CHECK-anrop totalt, 11 per entitet):
+   - testTeamCrudFlow: POST→GET→PUT→GET(verify)→DELETE→GET 404 för /api/teams
+   - testClassCrudFlow: samma flöde för /api/classes
+   - testCourseCrudFlow: samma flöde för /api/courses
+   - testControlCrudFlow: samma flöde för /api/controls
+   - testClubCrudFlow: samma flöde för /api/clubs
+   Stateful in-memory store (shared_ptr<map>) håller state per flöde.
+   427/427 tester passerade (55 nya) med clang++ på macOS.

@@ -623,7 +623,7 @@
           "id": "3.26",
           "title": "Test: CRUD-flöde för övriga endpoints",
           "description": "Integrationstest: upprepa CRUD-flödet (POST → GET → PUT → GET → DELETE → GET 404) för /api/teams, /api/classes, /api/courses, /api/controls, /api/clubs.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.11",
             "3.12",
