@@ -297,3 +297,12 @@
    RunnerDTO och ClubDTO structs med from_json för deserialisering.
    Syntaxkontroll + körtid: DTO-koden PASS med clang++ + nlohmann-json 3.12.0.
    (to_json för domänobjekten kräver Win32 SDK; ej körbar på macOS men C++17-korrekt.)
+
+[2026-02-26] Task 3.3 DONE: JSON-serialisering: oTeam
+   Lade till #include "oTeam.h" i json_serializers.h.
+   Implementerade to_json(oTeam&): id, name, clubId, club, classId, class, bib,
+     startTime, finishTime, runningTime, status, runners (id-lista per leg),
+     legResults (leg, runningTime, status) via getLegRunningTime/getLegStatus (publika).
+   Implementerade TeamDTO struct + from_json: deserialiserar id, name, clubId, classId,
+     bib, startTime, finishTime, status, runnerIds.
+   Syntaxkontroll + körtest med clang++ + nlohmann-json på macOS: PASS.

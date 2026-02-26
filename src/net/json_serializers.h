@@ -2,6 +2,7 @@
 #include <nlohmann/json.hpp>
 #include "oRunner.h"
 #include "oClub.h"
+#include "oTeam.h"
 
 // ---------------------------------------------------------------------------
 // oClub
@@ -87,4 +88,72 @@ inline void from_json(const nlohmann::json &j, ClubDTO &c) {
   if (j.contains("id"))      c.id      = j.at("id").get<int>();
   if (j.contains("name"))    c.name    = gdioutput::fromUTF8(j.at("name").get<std::string>());
   if (j.contains("country")) c.country = gdioutput::fromUTF8(j.at("country").get<std::string>());
+}
+
+// ---------------------------------------------------------------------------
+// oTeam
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oTeam &t) {
+  // Basic identity (inherited from oAbstractRunner / oBase)
+  j = nlohmann::json{
+    {"id",          t.getId()},
+    {"name",        gdioutput::toUTF8(t.getName())},
+    {"clubId",      t.getClubId()},
+    {"club",        gdioutput::toUTF8(t.getClub())},
+    {"classId",     t.getClassId(false)},
+    {"class",       gdioutput::toUTF8(t.getClass(false))},
+    {"bib",         gdioutput::toUTF8(t.getBib())},
+    {"startTime",   t.getStartTime()},
+    {"finishTime",  t.getFinishTime()},
+    {"runningTime", t.getRunningTime(false)},
+    {"status",      static_cast<int>(t.getStatusComputed(false))}
+  };
+
+  // Runner id list (one entry per leg, 0 if unassigned)
+  nlohmann::json runners = nlohmann::json::array();
+  int n = t.getNumRunners();
+  for (int leg = 0; leg < n; ++leg) {
+    pRunner r = t.getRunner(leg);
+    runners.push_back(r ? r->getId() : 0);
+  }
+  j["runners"] = runners;
+
+  // Per-leg results
+  nlohmann::json legResults = nlohmann::json::array();
+  for (int leg = 0; leg < n; ++leg) {
+    legResults.push_back({
+      {"leg",         leg},
+      {"runningTime", t.getLegRunningTime(leg, false, false)},
+      {"status",      static_cast<int>(t.getLegStatus(leg, false, false))}
+    });
+  }
+  j["legResults"] = legResults;
+}
+
+struct TeamDTO {
+  int          id          = 0;
+  std::wstring name;
+  int          clubId      = 0;
+  int          classId     = 0;
+  std::wstring bib;
+  int          startTime   = 0;
+  int          finishTime  = 0;
+  int          status      = 0;
+  std::vector<int> runnerIds;
+};
+
+inline void from_json(const nlohmann::json &j, TeamDTO &t) {
+  if (j.contains("id"))         t.id         = j.at("id").get<int>();
+  if (j.contains("name"))       t.name       = gdioutput::fromUTF8(j.at("name").get<std::string>());
+  if (j.contains("clubId"))     t.clubId     = j.at("clubId").get<int>();
+  if (j.contains("classId"))    t.classId    = j.at("classId").get<int>();
+  if (j.contains("bib"))        t.bib        = gdioutput::fromUTF8(j.at("bib").get<std::string>());
+  if (j.contains("startTime"))  t.startTime  = j.at("startTime").get<int>();
+  if (j.contains("finishTime")) t.finishTime = j.at("finishTime").get<int>();
+  if (j.contains("status"))     t.status     = j.at("status").get<int>();
+  if (j.contains("runners")) {
+    for (auto &rid : j.at("runners"))
+      t.runnerIds.push_back(rid.get<int>());
+  }
 }

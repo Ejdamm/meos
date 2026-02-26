@@ -401,7 +401,7 @@
           "id": "3.3",
           "title": "JSON-serialisering: oTeam",
           "description": "Implementera to_json/from_json för oTeam i json_serializers. Inkludera lagmedlemmar, sträcktilldelning, lagresultat.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.1"
           ]
