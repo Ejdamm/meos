@@ -391,3 +391,12 @@
    Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
    Lade till 13 portabla tester i test/portable_tests.cpp.
    126/126 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.14 DONE: Control API endpoints
+   Skapade src/net/control_handlers.h med registerControlHandlers(router, oe).
+   Endpoints: GET /api/controls (lista), GET /api/controls/:id (detalj),
+   POST /api/controls (skapa via addControl + codes/name),
+   PUT /api/controls/:id (uppdatera namn/status/codes), DELETE /api/controls/:id (remove).
+   Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
+   Lade till 13 portabla tester i test/portable_tests.cpp.
+   139/139 tester passerade med clang++ på macOS.

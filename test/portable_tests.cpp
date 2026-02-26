@@ -1158,6 +1158,151 @@ void testCourseRouteRegistered() {
   CHECK(router.handles("/api/courses/42"), "router handles /api/courses/:id");
 }
 
+// ---------------------------------------------------------------------------
+// Control endpoint tests (stub-based, no Win32)
+// ---------------------------------------------------------------------------
+
+static void registerControlRoutesForTest(ApiRouter &router, bool hasEvent) {
+  router.get("/api/controls", [hasEvent](const ApiRequest &) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("[{\"id\":1,\"name\":\"Start\",\"codes\":[31],\"status\":0}]");
+  });
+  router.get("/api/controls/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Control not found");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Start\",\"codes\":[31],\"status\":0}");
+  });
+  router.post("/api/controls", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name")) return ApiResponse::badRequest("Field 'name' is required");
+    return ApiResponse::created("{\"id\":2,\"name\":\"Control1\",\"codes\":[100],\"status\":0}");
+  });
+  router.put("/api/controls/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Control not found");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    return ApiResponse::ok("{\"id\":1,\"name\":\"Updated\",\"codes\":[200],\"status\":0}");
+  });
+  router.del("/api/controls/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    int id = 0;
+    try { id = std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (id != 1) return ApiResponse::notFound("Control not found");
+    return ApiResponse::noContent();
+  });
+}
+
+void testControlListNullEvent() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/controls";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/controls with null event returns 404");
+}
+
+void testControlGetByIdNullEvent() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, false);
+  ApiRequest req; req.method = "GET"; req.path = "/api/controls/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/controls/:id with null event returns 404");
+}
+
+void testControlGetByIdFound() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/controls/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/controls/:id returns 200 when found");
+}
+
+void testControlGetByIdNotFound() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/controls/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/controls/:id returns 404 when not found");
+}
+
+void testControlListReturns200() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "GET"; req.path = "/api/controls";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/controls returns 200");
+}
+
+void testControlPostCreates() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/controls";
+  req.body = "{\"name\":\"Control1\",\"codes\":[100]}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST /api/controls with valid body returns 201");
+}
+
+void testControlPostMissingName() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "POST"; req.path = "/api/controls";
+  req.body = "{\"codes\":[100]}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/controls without name returns 400");
+}
+
+void testControlPutUpdates() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/controls/1";
+  req.body = "{\"name\":\"Updated\",\"codes\":[200]}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT /api/controls/:id returns 200");
+}
+
+void testControlPutNotFound() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "PUT"; req.path = "/api/controls/99";
+  req.body = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "PUT /api/controls/:id returns 404 when not found");
+}
+
+void testControlDeleteRemoves() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/controls/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 204, "DELETE /api/controls/:id returns 204");
+}
+
+void testControlDeleteNotFound() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, true);
+  ApiRequest req; req.method = "DELETE"; req.path = "/api/controls/99";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "DELETE /api/controls/:id returns 404 when not found");
+}
+
+void testControlRouteRegistered() {
+  ApiRouter router;
+  registerControlRoutesForTest(router, false);
+  CHECK(router.handles("/api/controls"),    "router handles /api/controls");
+  CHECK(router.handles("/api/controls/42"), "router handles /api/controls/:id");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -1246,6 +1391,18 @@ int main() {
   testCourseDeleteRemoves();
   testCourseDeleteNotFound();
   testCourseRouteRegistered();
+  testControlListNullEvent();
+  testControlGetByIdNullEvent();
+  testControlGetByIdFound();
+  testControlGetByIdNotFound();
+  testControlListReturns200();
+  testControlPostCreates();
+  testControlPostMissingName();
+  testControlPutUpdates();
+  testControlPutNotFound();
+  testControlDeleteRemoves();
+  testControlDeleteNotFound();
+  testControlRouteRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 
