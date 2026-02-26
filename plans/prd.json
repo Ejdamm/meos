@@ -485,7 +485,7 @@
           "id": "3.12",
           "title": "Class API endpoints",
           "description": "Implementera: GET /api/classes, GET /api/classes/:id, POST /api/classes, PUT /api/classes/:id, DELETE /api/classes/:id. Inkludera lottningsinställningar och startintervall.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.4"

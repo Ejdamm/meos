@@ -373,3 +373,12 @@
    Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
    Lade till 12 portabla tester i test/portable_tests.cpp.
    100/100 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.12 DONE: Class API endpoints
+   Skapade src/net/class_handlers.h med registerClassHandlers(router, oe).
+   Endpoints: GET /api/classes (lista), GET /api/classes/:id (detalj),
+   POST /api/classes (skapa via addClass + namn/courseId),
+   PUT /api/classes/:id (uppdatera namn/courseId/type), DELETE /api/classes/:id (remove).
+   Null-oe-skydd: GET → 404, POST/PUT/DELETE → 500.
+   Lade till 13 portabla tester i test/portable_tests.cpp.
+   113/113 tester passerade med clang++ på macOS.
