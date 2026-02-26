@@ -339,3 +339,13 @@
    stödjer application/json och text/xml, defaultar till JSON.
    Preferensordning: om båda förekommer väljs den som listas först.
    Lade till 6 enhetstester i test/portable_tests.cpp: 54/54 passerade.
+
+[2026-02-26] Task 3.8 DONE: Lägg till stöd för POST, PUT, DELETE
+   ApiResponse: lade till created() (201) och noContent() (204) statiska helpers.
+   ApiRequest: lade till bodyJson() (parsar request body som nlohmann::json, returnerar null vid fel)
+     och hasValidJsonBody() för att kontrollera att body är giltig JSON.
+   api_router.h: lade till #include <nlohmann/json.hpp>.
+   CMakeLists.txt: lade till src/net i MeOS-test include-dirs, nlohmann_json::nlohmann_json i länkning.
+   Lade till 9 nya tester i portable_tests.cpp: POST 201, DELETE 204, PUT 200+pathParam,
+     bodyJson parse, bodyJson invalid, bodyJson empty, badRequest 400, methodNotAllowed 405.
+   Syntaxkontroll + körtest: 64/64 tester passerade.

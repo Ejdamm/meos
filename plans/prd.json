@@ -446,7 +446,7 @@
           "id": "3.8",
           "title": "Lägg till stöd för POST, PUT, DELETE",
           "description": "Utöka API-routern med stöd för HTTP-metoderna POST, PUT, DELETE (utöver GET). Parsa JSON request body. Returnera korrekta statuskoder (201 Created, 204 No Content, 400 Bad Request).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.6"
           ]

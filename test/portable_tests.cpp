@@ -17,6 +17,7 @@
 #include "NullNotifier.h"
 #include "MockNotifier.h"
 #include "platform_socket.h"
+#include "api_router.h"
 
 namespace fs = std::filesystem;
 
@@ -363,6 +364,84 @@ void testContentNegotiationUnknownType() {
         "content negotiation: unknown Accept type → application/json");
 }
 
+void testPostRouteReturns201() {
+  ApiRouter router;
+  router.post("/api/items", [](const ApiRequest &req) {
+    return ApiResponse::created("{\"id\":1}");
+  });
+  ApiRequest req;
+  req.method = "POST";
+  req.path = "/api/items";
+  req.body = "{\"name\":\"test\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST route returns 201 Created");
+}
+
+void testDeleteRouteReturns204() {
+  ApiRouter router;
+  router.del("/api/items/:id", [](const ApiRequest &req) {
+    return ApiResponse::noContent();
+  });
+  ApiRequest req;
+  req.method = "DELETE";
+  req.path = "/api/items/42";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 204, "DELETE route returns 204 No Content");
+}
+
+void testPutRouteReturns200() {
+  ApiRouter router;
+  router.put("/api/items/:id", [](const ApiRequest &req) {
+    return ApiResponse::ok("{\"id\":" + req.pathParams.at("id") + "}");
+  });
+  ApiRequest req;
+  req.method = "PUT";
+  req.path = "/api/items/7";
+  req.body = "{\"name\":\"updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT route returns 200");
+  CHECK(res.body.find("7") != std::string::npos, "PUT returns correct id");
+}
+
+void testBodyJsonParsing() {
+  ApiRequest req;
+  req.body = "{\"name\":\"Alice\",\"age\":30}";
+  auto j = req.bodyJson();
+  CHECK(j["name"] == "Alice", "bodyJson parses string field");
+  CHECK(j["age"] == 30, "bodyJson parses int field");
+}
+
+void testBodyJsonInvalidReturnsNull() {
+  ApiRequest req;
+  req.body = "not json{{{";
+  auto j = req.bodyJson();
+  // Invalid JSON → returned json object is null/empty (no exception)
+  CHECK(j.is_null() || j.empty(), "bodyJson returns empty on invalid JSON");
+}
+
+void testBodyJsonEmpty() {
+  ApiRequest req;
+  // empty body
+  auto j = req.bodyJson();
+  CHECK(!req.hasValidJsonBody(), "empty body → hasValidJsonBody false");
+}
+
+void testBadRequestStatus() {
+  ApiResponse res = ApiResponse::badRequest("missing field");
+  CHECK(res.status == 400, "badRequest returns 400");
+}
+
+void testMethodNotAllowed() {
+  ApiRouter router;
+  router.get("/api/items", [](const ApiRequest &) { return ApiResponse::ok("[]"); });
+  ApiRequest req;
+  req.method = "DELETE";
+  req.path = "/api/items";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 405, "wrong method returns 405");
+}
+
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -386,6 +465,14 @@ int main() {
   testContentNegotiationXmlBeforeJson();
   testContentNegotiationJsonBeforeXml();
   testContentNegotiationUnknownType();
+  testPostRouteReturns201();
+  testDeleteRouteReturns204();
+  testPutRouteReturns200();
+  testBodyJsonParsing();
+  testBodyJsonInvalidReturnsNull();
+  testBodyJsonEmpty();
+  testBadRequestStatus();
+  testMethodNotAllowed();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

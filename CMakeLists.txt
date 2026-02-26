@@ -385,14 +385,16 @@ target_include_directories(MeOS-test PRIVATE
     src/domain
     src/app
     src/util
+    src/net
     test
 )
 
 if(MSVC)
     target_compile_options(MeOS-test PRIVATE /std:c++17 /W3)
-    target_link_libraries(MeOS-test PRIVATE ws2_32)
+    target_link_libraries(MeOS-test PRIVATE ws2_32 nlohmann_json::nlohmann_json)
 else()
     target_compile_options(MeOS-test PRIVATE -std=c++17 -Wall)
+    target_link_libraries(MeOS-test PRIVATE nlohmann_json::nlohmann_json)
 endif()
 
 enable_testing()

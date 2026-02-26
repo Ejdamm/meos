@@ -8,6 +8,7 @@
 #include <functional>
 #include <map>
 #include <stdexcept>
+#include <nlohmann/json.hpp>
 
 struct ApiRequest {
   std::string method;                              // "GET", "POST", etc.
@@ -16,6 +17,28 @@ struct ApiRequest {
   std::multimap<std::string, std::string> queryParams; // from ?key=val&...
   std::map<std::string, std::string> headers;      // request headers (lowercase keys)
   std::string body;                                // request body (for POST/PUT)
+
+  // Parses the request body as JSON. Returns a null JSON value on parse error.
+  nlohmann::json bodyJson() const {
+    if (body.empty())
+      return nlohmann::json{};
+    try {
+      return nlohmann::json::parse(body);
+    } catch (...) {
+      return nlohmann::json{};
+    }
+  }
+
+  // Returns true if the body is valid JSON (non-empty).
+  bool hasValidJsonBody() const {
+    if (body.empty()) return false;
+    try {
+      nlohmann::json::parse(body);
+      return true;
+    } catch (...) {
+      return false;
+    }
+  }
 
   // Returns the preferred response content type based on the Accept header.
   // Supports "application/json" and "text/xml". Defaults to "application/json".
@@ -62,6 +85,12 @@ struct ApiResponse {
   }
   static ApiResponse methodNotAllowed() {
     return {405, "application/json", "{\"error\":\"Method not allowed\"}"};
+  }
+  static ApiResponse created(std::string body, std::string ct = "application/json") {
+    return {201, std::move(ct), std::move(body)};
+  }
+  static ApiResponse noContent() {
+    return {204, "application/json", ""};
   }
 };
 
