@@ -268,3 +268,17 @@
    Lade till src/util/platform_socket.cpp i MeOS-test target.
    Lade till src/util i include-sökvägar och ws2_32 i MSVC-länkning.
    Kompilering och körning med clang++ på macOS: 34/34 tester passerade.
+
+[2026-02-26] Task 2.24 DONE: Test: filsystem-abstraktion cross-platform
+   Lade till 3 nya tester i test/portable_tests.cpp:
+   - TestFilesystemCreateWriteReadRemove: create/write/read/remove fil via std::filesystem
+   - TestFilesystemDirectories: create_directories, file inside dir, remove_all
+   - TestFilesystemSwedishPaths: paths med åäö (UTF-8 u8"..." literals), create/read/remove
+   48/48 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 2.25 DONE: Test: trådabstraktion cross-platform
+   Lade till 3 nya tester i test/portable_tests.cpp:
+   - TestThreadStartJoin: std::thread lambda, join, atomic counter
+   - TestMutexLockUnlock: std::mutex + lock_guard, 2 trådar, delade räknare == 2000
+   - TestConditionVariable: std::condition_variable, notify_one/wait, signalering bekräftad
+   48/48 tester passerade med clang++ på macOS.

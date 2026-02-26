@@ -1,14 +1,24 @@
 // Standalone portable unit tests - no Win32/gdioutput dependencies.
-// Covers IEventNotifier, NullNotifier, MockNotifier, and platform_socket.
+// Covers IEventNotifier, NullNotifier, MockNotifier, platform_socket,
+// std::filesystem, std::thread, std::mutex, and std::condition_variable.
 // Built as MeOS-test target; runs on Linux/macOS/Windows without GUI.
 
 #include <cassert>
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <chrono>
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <filesystem>
 #include "IEventNotifier.h"
 #include "NullNotifier.h"
 #include "MockNotifier.h"
 #include "platform_socket.h"
+
+namespace fs = std::filesystem;
 
 static int gPassed = 0;
 static int gFailed = 0;
@@ -200,6 +210,112 @@ void testSocketTCPLoopback() {
   platform_socket_cleanup();
 }
 
+// --- std::filesystem tests (Task 2.24) ---
+
+void testFilesystemCreateWriteReadRemove() {
+  std::cout << "TestFilesystemCreateWriteReadRemove\n";
+  fs::path tmp = fs::temp_directory_path() / "meos_test_file.txt";
+  // Write
+  {
+    std::ofstream ofs(tmp);
+    ofs << "MeOS test content";
+  }
+  CHECK(fs::exists(tmp), "file exists after write");
+  // Read back
+  {
+    std::ifstream ifs(tmp);
+    std::string content((std::istreambuf_iterator<char>(ifs)),
+                         std::istreambuf_iterator<char>());
+    CHECK(content == "MeOS test content", "file content matches");
+  }
+  CHECK(fs::file_size(tmp) > 0, "file_size > 0");
+  // Remove
+  fs::remove(tmp);
+  CHECK(!fs::exists(tmp), "file removed");
+}
+
+void testFilesystemDirectories() {
+  std::cout << "TestFilesystemDirectories\n";
+  fs::path dir = fs::temp_directory_path() / "meos_test_dir" / "sub";
+  fs::create_directories(dir);
+  CHECK(fs::is_directory(dir), "create_directories creates nested dir");
+  // Create a file inside
+  fs::path f = dir / "x.txt";
+  { std::ofstream ofs(f); ofs << "x"; }
+  CHECK(fs::exists(f), "file inside nested dir exists");
+  // Remove all
+  fs::remove_all(fs::temp_directory_path() / "meos_test_dir");
+  CHECK(!fs::exists(dir), "remove_all cleans up");
+}
+
+void testFilesystemSwedishPaths() {
+  std::cout << "TestFilesystemSwedishPaths\n";
+  // Path with Swedish characters (UTF-8 on POSIX, UTF-16 on Windows via std::filesystem)
+  fs::path dir = fs::temp_directory_path() / u8"meos_\u00e5\u00e4\u00f6_test";
+  fs::create_directory(dir);
+  CHECK(fs::is_directory(dir), "directory with åäö created");
+  fs::path f = dir / u8"fil_\u00e5\u00e4\u00f6.txt";
+  { std::ofstream ofs(f); ofs << "swedish"; }
+  CHECK(fs::exists(f), "file with åäö exists");
+  std::string content;
+  {
+    std::ifstream ifs(f);
+    std::getline(ifs, content);
+  }
+  CHECK(content == "swedish", "file with åäö readable");
+  fs::remove_all(dir);
+  CHECK(!fs::exists(dir), "cleaned up åäö dir");
+}
+
+// --- std::thread / std::mutex / std::condition_variable tests (Task 2.25) ---
+
+void testThreadStartJoin() {
+  std::cout << "TestThreadStartJoin\n";
+  std::atomic<int> counter{0};
+  std::thread t([&]() { ++counter; });
+  t.join();
+  CHECK(counter == 1, "thread incremented counter");
+}
+
+void testMutexLockUnlock() {
+  std::cout << "TestMutexLockUnlock\n";
+  std::mutex m;
+  int shared = 0;
+  auto work = [&]() {
+    for (int i = 0; i < 1000; ++i) {
+      std::lock_guard<std::mutex> lk(m);
+      ++shared;
+    }
+  };
+  std::thread t1(work);
+  std::thread t2(work);
+  t1.join();
+  t2.join();
+  CHECK(shared == 2000, "mutex protects counter: value == 2000");
+}
+
+void testConditionVariable() {
+  std::cout << "TestConditionVariable\n";
+  std::mutex m;
+  std::condition_variable cv;
+  bool ready = false;
+  std::atomic<bool> received{false};
+
+  std::thread waiter([&]() {
+    std::unique_lock<std::mutex> lk(m);
+    cv.wait(lk, [&]{ return ready; });
+    received = true;
+  });
+
+  {
+    std::lock_guard<std::mutex> lk(m);
+    ready = true;
+  }
+  cv.notify_one();
+  waiter.join();
+  CHECK(received.load(), "condition_variable: waiter received signal");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -211,6 +327,12 @@ int main() {
   testSocketInit();
   testSocketCreateClose();
   testSocketTCPLoopback();
+  testFilesystemCreateWriteReadRemove();
+  testFilesystemDirectories();
+  testFilesystemSwedishPaths();
+  testThreadStartJoin();
+  testMutexLockUnlock();
+  testConditionVariable();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

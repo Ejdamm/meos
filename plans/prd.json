@@ -357,7 +357,7 @@
           "id": "2.24",
           "title": "Test: filsystem-abstraktion cross-platform",
           "description": "Enhetstest: skapa/radera/läs/skriv filer och kataloger via std::filesystem. Testa sökvägar med svenska tecken (åäö i UTF-8). Kör på Windows och Linux i CI.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.12",
             "2.19"
@@ -367,7 +367,7 @@
           "id": "2.25",
           "title": "Test: trådabstraktion cross-platform",
           "description": "Enhetstest: starta/joina std::thread, lås/lås upp std::mutex, signalera std::condition_variable. Kör på Windows och Linux i CI.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.13",
             "2.19"
