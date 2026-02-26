@@ -3,6 +3,8 @@
 #include "oRunner.h"
 #include "oClub.h"
 #include "oTeam.h"
+#include "oClass.h"
+#include "oCourse.h"
 
 // ---------------------------------------------------------------------------
 // oClub
@@ -156,4 +158,73 @@ inline void from_json(const nlohmann::json &j, TeamDTO &t) {
     for (auto &rid : j.at("runners"))
       t.runnerIds.push_back(rid.get<int>());
   }
+}
+
+// ---------------------------------------------------------------------------
+// oCourse
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oCourse &c) {
+  j = nlohmann::json{
+    {"id",          c.getId()},
+    {"name",        gdioutput::toUTF8(c.getName())},
+    {"length",      c.getLength()},
+    {"numControls", c.getNumControls()}
+  };
+  // Control id list
+  nlohmann::json controls = nlohmann::json::array();
+  for (int i = 0; i < c.getNumControls(); ++i) {
+    oControl *ctrl = c.getControl(i);
+    controls.push_back(ctrl ? ctrl->getId() : 0);
+  }
+  j["controls"] = controls;
+  int startId = c.getStartId();
+  if (startId)
+    j["startId"] = startId;
+  int finishId = c.getFinishId();
+  if (finishId)
+    j["finishId"] = finishId;
+}
+
+struct CourseDTO {
+  int          id         = 0;
+  std::wstring name;
+  int          length     = 0;
+  std::vector<int> controlIds;
+};
+
+inline void from_json(const nlohmann::json &j, CourseDTO &c) {
+  if (j.contains("id"))     c.id     = j.at("id").get<int>();
+  if (j.contains("name"))   c.name   = gdioutput::fromUTF8(j.at("name").get<std::string>());
+  if (j.contains("length")) c.length = j.at("length").get<int>();
+  if (j.contains("controls")) {
+    for (auto &cid : j.at("controls"))
+      c.controlIds.push_back(cid.get<int>());
+  }
+}
+
+// ---------------------------------------------------------------------------
+// oClass
+// ---------------------------------------------------------------------------
+
+inline void to_json(nlohmann::json &j, const oClass &c) {
+  j = nlohmann::json{
+    {"id",         c.getId()},
+    {"name",       gdioutput::toUTF8(c.getName())},
+    {"type",       gdioutput::toUTF8(c.getType())},
+    {"numStages",  static_cast<int>(c.getNumStages())},
+    {"courseId",   c.getCourseId()}
+  };
+}
+
+struct ClassDTO {
+  int          id        = 0;
+  std::wstring name;
+  int          courseId  = 0;
+};
+
+inline void from_json(const nlohmann::json &j, ClassDTO &c) {
+  if (j.contains("id"))       c.id       = j.at("id").get<int>();
+  if (j.contains("name"))     c.name     = gdioutput::fromUTF8(j.at("name").get<std::string>());
+  if (j.contains("courseId")) c.courseId = j.at("courseId").get<int>();
 }

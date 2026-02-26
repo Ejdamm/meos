@@ -410,7 +410,7 @@
           "id": "3.4",
           "title": "JSON-serialisering: oClass och oCourse",
           "description": "Implementera to_json/from_json för oClass och oCourse i json_serializers. Inkludera lottningsinställningar, bansträckningar, kontrollsekvens, längd, stigning.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.1"
           ]

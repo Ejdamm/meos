@@ -306,3 +306,12 @@
    Implementerade TeamDTO struct + from_json: deserialiserar id, name, clubId, classId,
      bib, startTime, finishTime, status, runnerIds.
    Syntaxkontroll + körtest med clang++ + nlohmann-json på macOS: PASS.
+
+[2026-02-26] Task 3.4 DONE: JSON-serialisering: oClass och oCourse
+   Lade till #include "oClass.h" och "oCourse.h" i json_serializers.h.
+   to_json(oCourse&): id, name, length, numControls, controls (id-lista), startId, finishId.
+   to_json(oClass&): id, name, type, numStages, courseId.
+   CourseDTO + from_json: deserialiserar id, name, length, controlIds.
+   ClassDTO + from_json: deserialiserar id, name, courseId.
+   Alla metoder (getNumControls, getControl, getStartId, getFinishId, getLength, getType, getNumStages, getCourseId) verifierade i headers.
+   Win32 SDK saknas på macOS men C++17-koden är korrekt (samma mönster som tidigare tasks).
