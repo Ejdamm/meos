@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(unofficial-libmysql CONFIG REQUIRED)
 find_package(haru CONFIG REQUIRED)
+find_package(restbed CONFIG REQUIRED)
 
 # Source files grouped by module
 set(SRC_APP
@@ -215,7 +216,7 @@ target_link_libraries(MeOS PRIVATE
     # Third-party libraries
     ${MEOS_ZLIB}
     haru::haru
-    RestBed
+    restbed::restbed
     libpng
     unofficial::libmysql::libmysql
 )

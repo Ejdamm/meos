@@ -112,3 +112,9 @@
    Tog bort third_party/libharu/ (headers) och third_party/lib/*/libharu.lib + libhpdf.lib.
    Tog bort MEOS_HARU-variabel-tilldelningen ur CMakeLists.txt.
    #include "hpdf.h" i print-källfiler fungerar via vcpkg-paketets include-sökvägar.
+
+[2026-02-26] Task 2.5 DONE: Ersätt vendored restbed med find_package
+   Lade till find_package(restbed CONFIG REQUIRED) i CMakeLists.txt.
+   Ersatte RestBed med restbed::restbed i target_link_libraries.
+   Raderade third_party/restbed/ (headers) och third_party/lib/*/RestBed.lib.
+   #include "restbed/restbed" i net-källfiler fungerar via vcpkg-paketets include-sökvägar.

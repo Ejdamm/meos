@@ -175,7 +175,7 @@
           "id": "2.5",
           "title": "Ersätt vendored restbed med find_package",
           "description": "Ta bort third_party/restbed/ och tillhörande .lib. Ersätt med find_package(restbed) i CMakeLists.txt. Verifiera build.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.2"
           ]
