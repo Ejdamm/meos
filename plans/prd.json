@@ -437,7 +437,7 @@
           "id": "3.7",
           "title": "Lägg till stöd för content negotiation",
           "description": "Implementera content negotiation i API-routern: Accept: application/json → JSON-response, Accept: text/xml → XML-response (befintlig). Default till JSON.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.6"
           ]

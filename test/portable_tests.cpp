@@ -316,6 +316,53 @@ void testConditionVariable() {
   CHECK(received.load(), "condition_variable: waiter received signal");
 }
 
+// --- Content negotiation tests ---
+#include "../src/net/api_router.h"
+
+void testContentNegotiationDefaultJson() {
+  ApiRequest req;
+  // No Accept header → default JSON
+  CHECK(req.negotiateContentType() == "application/json",
+        "content negotiation: no Accept header → application/json");
+}
+
+void testContentNegotiationExplicitJson() {
+  ApiRequest req;
+  req.headers["accept"] = "application/json";
+  CHECK(req.negotiateContentType() == "application/json",
+        "content negotiation: Accept: application/json");
+}
+
+void testContentNegotiationExplicitXml() {
+  ApiRequest req;
+  req.headers["accept"] = "text/xml";
+  CHECK(req.negotiateContentType() == "text/xml",
+        "content negotiation: Accept: text/xml");
+}
+
+void testContentNegotiationXmlBeforeJson() {
+  ApiRequest req;
+  req.headers["accept"] = "text/xml, application/json";
+  // xml listed first → prefer xml
+  CHECK(req.negotiateContentType() == "text/xml",
+        "content negotiation: xml before json → text/xml");
+}
+
+void testContentNegotiationJsonBeforeXml() {
+  ApiRequest req;
+  req.headers["accept"] = "application/json, text/xml";
+  CHECK(req.negotiateContentType() == "application/json",
+        "content negotiation: json before xml → application/json");
+}
+
+void testContentNegotiationUnknownType() {
+  ApiRequest req;
+  req.headers["accept"] = "text/html";
+  // Unknown type → default JSON
+  CHECK(req.negotiateContentType() == "application/json",
+        "content negotiation: unknown Accept type → application/json");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -333,6 +380,12 @@ int main() {
   testThreadStartJoin();
   testMutexLockUnlock();
   testConditionVariable();
+  testContentNegotiationDefaultJson();
+  testContentNegotiationExplicitJson();
+  testContentNegotiationExplicitXml();
+  testContentNegotiationXmlBeforeJson();
+  testContentNegotiationJsonBeforeXml();
+  testContentNegotiationUnknownType();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

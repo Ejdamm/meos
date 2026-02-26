@@ -14,7 +14,33 @@ struct ApiRequest {
   std::string path;                                // e.g. "/api/runners/42"
   std::map<std::string, std::string> pathParams;   // e.g. {"id": "42"}
   std::multimap<std::string, std::string> queryParams; // from ?key=val&...
+  std::map<std::string, std::string> headers;      // request headers (lowercase keys)
   std::string body;                                // request body (for POST/PUT)
+
+  // Returns the preferred response content type based on the Accept header.
+  // Supports "application/json" and "text/xml". Defaults to "application/json".
+  std::string negotiateContentType() const {
+    auto it = headers.find("accept");
+    if (it == headers.end())
+      return "application/json";
+    const std::string &accept = it->second;
+    // Check if text/xml is explicitly preferred (appears before application/json or json absent)
+    auto jsonPos = accept.find("application/json");
+    auto xmlPos  = accept.find("text/xml");
+    bool hasJson = (jsonPos != std::string::npos);
+    bool hasXml  = (xmlPos  != std::string::npos);
+    bool hasAny  = (accept.find("*/*") != std::string::npos);
+    if (!hasJson && !hasXml) {
+      // No recognised type; default to JSON unless */* is present
+      return "application/json";
+    }
+    if (hasXml && !hasJson)
+      return "text/xml";
+    if (hasJson && !hasXml)
+      return "application/json";
+    // Both present: prefer the one listed first
+    return (xmlPos < jsonPos) ? "text/xml" : "application/json";
+  }
 };
 
 struct ApiResponse {

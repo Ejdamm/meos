@@ -332,3 +332,10 @@
    Metoder: get/post/put/del för registrering, dispatch() för routing, handles() för path-check.
    dispatch() returnerar 404 för okänd path, 405 om path matchar men metod inte.
    Syntaxkontroll + 7 enhetstester med clang++ på macOS: PASS.
+
+[2026-02-26] Task 3.7 DONE: Lägg till stöd för content negotiation
+   Lade till headers-map (lowercase keys) i ApiRequest.
+   Implementerade negotiateContentType()-metod: parsar Accept-header,
+   stödjer application/json och text/xml, defaultar till JSON.
+   Preferensordning: om båda förekommer väljs den som listas först.
+   Lade till 6 enhetstester i test/portable_tests.cpp: 54/54 passerade.
