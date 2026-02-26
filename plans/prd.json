@@ -96,7 +96,7 @@
           "id": "1.10",
           "title": "Enhetstest: oEvent delegerar till IEventNotifier",
           "description": "Skriv test som instansierar oEvent med MockNotifier, utför operationer som triggar notifieringar (statusändring, progress, fel) och verifierar att MockNotifier registrerat rätt anrop med rätt argument.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.4",
             "1.9"

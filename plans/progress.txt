@@ -59,3 +59,11 @@
    Verify-metoder: wasCalled(), callCount(), callArg().
    Konfigurerbara returvärden: askResult och askOkCancelResult.
    Syntaxkontroll med clang++ passerade utan fel.
+
+[2026-02-26] Task 1.10 DONE: Enhetstest: oEvent delegerar till IEventNotifier
+   Lade till två testklasser i test/tests.cpp:
+   - TestOEventDelegatesNotifier: skapar oEvent med MockNotifier, anropar checkDB(),
+     verifierar att setWindowTitle registrerats (samt minst 2 ggr inkl. destruktorn).
+   - TestOEventGetNotifier: verifierar att getNotifier() returnerar samma instans som
+     gavs till konstruktorn, via alert("probe")-anrop.
+   Registrerade båda tester i registerTests(). Syntaxkontroll med clang++ passerade.
