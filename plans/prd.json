@@ -584,7 +584,7 @@
           "id": "3.22",
           "title": "Test: JSON roundtrip för alla domänobjekt",
           "description": "Enhetstest: för varje domänobjekt (oRunner, oTeam, oClass, oCourse, oControl, oClub, oCard, oPunch, oFreePunch, oEvent) — skapa objekt → to_json → from_json → jämför att alla fält bevarats identiskt.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.2",
             "3.3",

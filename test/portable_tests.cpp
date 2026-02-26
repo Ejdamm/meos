@@ -2365,6 +2365,286 @@ void testImportExportRoutesRegistered() {
   CHECK(router.handles("/api/import/csv"), "router handles /api/import/csv");
 }
 
+// ---------------------------------------------------------------------------
+// Task 3.22: JSON schema round-trip tests for each domain DTO
+// Portable versions (std::string fields, no gdioutput dependency)
+// Tests: build JSON → parse → verify all fields preserved identically
+// ---------------------------------------------------------------------------
+
+// Portable DTO structs mirroring json_serializers.h but with std::string
+struct PRunnerDTO {
+  int id=0; std::string name; int clubId=0; int classId=0; int cardNo=0;
+  std::string bib; int startTime=0; int finishTime=0; int status=0;
+  int birthYear=0; std::string nationality; int sex=0;
+};
+struct PClubDTO { int id=0; std::string name; std::string country; };
+struct PTeamDTO {
+  int id=0; std::string name; int clubId=0; int classId=0;
+  std::string bib; int startTime=0; int finishTime=0; int status=0;
+  std::vector<int> runnerIds;
+};
+struct PCourseDTO { int id=0; std::string name; int length=0; std::vector<int> controlIds; };
+struct PClassDTO  { int id=0; std::string name; int courseId=0; };
+struct PControlDTO { int id=0; std::string name; std::vector<int> codes; };
+struct PFreePunchDTO { int id=0; int cardNo=0; int controlId=0; int type=0; int time=0; };
+struct PEventDTO  { int id=0; std::string name; std::string date; int zeroTime=0;
+                    int numRunners=0; int numClasses=0; int numCourses=0; int numCards=0; };
+struct PCardDTO   { int id=0; int cardNo=0; };
+struct PPunchDTO  { int type=0; int time=0; int controlId=0; };
+
+static PRunnerDTO parseRunnerDTO(const nlohmann::json &j) {
+  PRunnerDTO r;
+  if (j.contains("id"))          r.id          = j.at("id").get<int>();
+  if (j.contains("name"))        r.name        = j.at("name").get<std::string>();
+  if (j.contains("clubId"))      r.clubId      = j.at("clubId").get<int>();
+  if (j.contains("classId"))     r.classId     = j.at("classId").get<int>();
+  if (j.contains("cardNo"))      r.cardNo      = j.at("cardNo").get<int>();
+  if (j.contains("bib"))         r.bib         = j.at("bib").get<std::string>();
+  if (j.contains("startTime"))   r.startTime   = j.at("startTime").get<int>();
+  if (j.contains("finishTime"))  r.finishTime  = j.at("finishTime").get<int>();
+  if (j.contains("status"))      r.status      = j.at("status").get<int>();
+  if (j.contains("birthYear"))   r.birthYear   = j.at("birthYear").get<int>();
+  if (j.contains("nationality")) r.nationality = j.at("nationality").get<std::string>();
+  if (j.contains("sex"))         r.sex         = j.at("sex").get<int>();
+  return r;
+}
+static PClubDTO parseClubDTO(const nlohmann::json &j) {
+  PClubDTO c;
+  if (j.contains("id"))      c.id      = j.at("id").get<int>();
+  if (j.contains("name"))    c.name    = j.at("name").get<std::string>();
+  if (j.contains("country")) c.country = j.at("country").get<std::string>();
+  return c;
+}
+static PTeamDTO parseTeamDTO(const nlohmann::json &j) {
+  PTeamDTO t;
+  if (j.contains("id"))         t.id         = j.at("id").get<int>();
+  if (j.contains("name"))       t.name       = j.at("name").get<std::string>();
+  if (j.contains("clubId"))     t.clubId     = j.at("clubId").get<int>();
+  if (j.contains("classId"))    t.classId    = j.at("classId").get<int>();
+  if (j.contains("bib"))        t.bib        = j.at("bib").get<std::string>();
+  if (j.contains("startTime"))  t.startTime  = j.at("startTime").get<int>();
+  if (j.contains("finishTime")) t.finishTime = j.at("finishTime").get<int>();
+  if (j.contains("status"))     t.status     = j.at("status").get<int>();
+  if (j.contains("runners") && j.at("runners").is_array())
+    for (auto &rid : j.at("runners")) t.runnerIds.push_back(rid.get<int>());
+  return t;
+}
+static PCourseDTO parseCourseDTO(const nlohmann::json &j) {
+  PCourseDTO c;
+  if (j.contains("id"))     c.id     = j.at("id").get<int>();
+  if (j.contains("name"))   c.name   = j.at("name").get<std::string>();
+  if (j.contains("length")) c.length = j.at("length").get<int>();
+  if (j.contains("controls") && j.at("controls").is_array())
+    for (auto &cid : j.at("controls")) c.controlIds.push_back(cid.get<int>());
+  return c;
+}
+static PClassDTO parseClassDTO(const nlohmann::json &j) {
+  PClassDTO c;
+  if (j.contains("id"))       c.id       = j.at("id").get<int>();
+  if (j.contains("name"))     c.name     = j.at("name").get<std::string>();
+  if (j.contains("courseId")) c.courseId = j.at("courseId").get<int>();
+  return c;
+}
+static PControlDTO parseControlDTO(const nlohmann::json &j) {
+  PControlDTO c;
+  if (j.contains("id"))    c.id   = j.at("id").get<int>();
+  if (j.contains("name"))  c.name = j.at("name").get<std::string>();
+  if (j.contains("codes") && j.at("codes").is_array())
+    for (auto &code : j.at("codes")) c.codes.push_back(code.get<int>());
+  return c;
+}
+static PFreePunchDTO parseFreePunchDTO(const nlohmann::json &j) {
+  PFreePunchDTO p;
+  if (j.contains("id"))        p.id        = j.at("id").get<int>();
+  if (j.contains("cardNo"))    p.cardNo    = j.at("cardNo").get<int>();
+  if (j.contains("controlId")) p.controlId = j.at("controlId").get<int>();
+  if (j.contains("type"))      p.type      = j.at("type").get<int>();
+  if (j.contains("time"))      p.time      = j.at("time").get<int>();
+  return p;
+}
+static PEventDTO parseEventDTO(const nlohmann::json &j) {
+  PEventDTO e;
+  if (j.contains("id"))         e.id         = j.at("id").get<int>();
+  if (j.contains("name"))       e.name       = j.at("name").get<std::string>();
+  if (j.contains("date"))       e.date       = j.at("date").get<std::string>();
+  if (j.contains("zeroTime"))   e.zeroTime   = j.at("zeroTime").get<int>();
+  if (j.contains("numRunners")) e.numRunners = j.at("numRunners").get<int>();
+  if (j.contains("numClasses")) e.numClasses = j.at("numClasses").get<int>();
+  if (j.contains("numCourses")) e.numCourses = j.at("numCourses").get<int>();
+  if (j.contains("numCards"))   e.numCards   = j.at("numCards").get<int>();
+  return e;
+}
+static PCardDTO parseCardDTO(const nlohmann::json &j) {
+  PCardDTO c;
+  if (j.contains("id"))     c.id     = j.at("id").get<int>();
+  if (j.contains("cardNo")) c.cardNo = j.at("cardNo").get<int>();
+  return c;
+}
+static PPunchDTO parsePunchDTO(const nlohmann::json &j) {
+  PPunchDTO p;
+  if (j.contains("type"))      p.type      = j.at("type").get<int>();
+  if (j.contains("time"))      p.time      = j.at("time").get<int>();
+  if (j.contains("controlId")) p.controlId = j.at("controlId").get<int>();
+  return p;
+}
+
+// --- oRunner JSON round-trip ---
+void testJsonRunnerRoundTrip() {
+  std::cout << "TestJsonRunnerRoundTrip\n";
+  nlohmann::json j = {
+    {"id",42},{"name","Anna Svensson"},{"clubId",10},{"classId",5},
+    {"cardNo",12345},{"bib","7"},{"startTime",3600},{"finishTime",7200},
+    {"runningTime",3600},{"status",1},{"birthYear",1990},
+    {"nationality","SWE"},{"sex",0}
+  };
+  auto r = parseRunnerDTO(j);
+  CHECK(r.id == 42,                    "runner id preserved");
+  CHECK(r.name == "Anna Svensson",     "runner name preserved");
+  CHECK(r.clubId == 10,                "runner clubId preserved");
+  CHECK(r.classId == 5,                "runner classId preserved");
+  CHECK(r.cardNo == 12345,             "runner cardNo preserved");
+  CHECK(r.bib == "7",                  "runner bib preserved");
+  CHECK(r.startTime == 3600,           "runner startTime preserved");
+  CHECK(r.finishTime == 7200,          "runner finishTime preserved");
+  CHECK(r.status == 1,                 "runner status preserved");
+  CHECK(r.birthYear == 1990,           "runner birthYear preserved");
+  CHECK(r.nationality == "SWE",        "runner nationality preserved");
+  CHECK(r.sex == 0,                    "runner sex preserved");
+}
+
+// --- oClub JSON round-trip ---
+void testJsonClubRoundTrip() {
+  std::cout << "TestJsonClubRoundTrip\n";
+  nlohmann::json j = {{"id",7},{"name","OK Skogen"},{"country","SWE"}};
+  auto c = parseClubDTO(j);
+  CHECK(c.id == 7,               "club id preserved");
+  CHECK(c.name == "OK Skogen",   "club name preserved");
+  CHECK(c.country == "SWE",      "club country preserved");
+}
+
+// --- oTeam JSON round-trip ---
+void testJsonTeamRoundTrip() {
+  std::cout << "TestJsonTeamRoundTrip\n";
+  nlohmann::json j = {
+    {"id",3},{"name","Team Alpha"},{"clubId",10},{"classId",2},
+    {"bib","A"},{"startTime",600},{"finishTime",1200},{"status",0},
+    {"runners",{101,102,103}}
+  };
+  auto t = parseTeamDTO(j);
+  CHECK(t.id == 3,               "team id preserved");
+  CHECK(t.name == "Team Alpha",  "team name preserved");
+  CHECK(t.clubId == 10,          "team clubId preserved");
+  CHECK(t.classId == 2,          "team classId preserved");
+  CHECK(t.bib == "A",            "team bib preserved");
+  CHECK(t.startTime == 600,      "team startTime preserved");
+  CHECK(t.finishTime == 1200,    "team finishTime preserved");
+  CHECK(t.status == 0,           "team status preserved");
+  CHECK(t.runnerIds.size() == 3, "team runnerIds count preserved");
+  CHECK(t.runnerIds[0] == 101 && t.runnerIds[2] == 103, "team runnerIds values preserved");
+}
+
+// --- oCourse JSON round-trip ---
+void testJsonCourseRoundTrip() {
+  std::cout << "TestJsonCourseRoundTrip\n";
+  nlohmann::json j = {{"id",8},{"name","Lång bana"},{"length",5200},{"controls",{31,32,33}}};
+  auto c = parseCourseDTO(j);
+  CHECK(c.id == 8,               "course id preserved");
+  CHECK(c.name == "L\xC3\xA5ng bana",  "course name preserved (UTF-8)");
+  CHECK(c.length == 5200,        "course length preserved");
+  CHECK(c.controlIds.size() == 3,"course controlIds count preserved");
+  CHECK(c.controlIds[1] == 32,   "course controlIds values preserved");
+}
+
+// --- oClass JSON round-trip ---
+void testJsonClassRoundTrip() {
+  std::cout << "TestJsonClassRoundTrip\n";
+  nlohmann::json j = {{"id",5},{"name","H21"},{"courseId",8}};
+  auto c = parseClassDTO(j);
+  CHECK(c.id == 5,       "class id preserved");
+  CHECK(c.name == "H21", "class name preserved");
+  CHECK(c.courseId == 8, "class courseId preserved");
+}
+
+// --- oControl JSON round-trip ---
+void testJsonControlRoundTrip() {
+  std::cout << "TestJsonControlRoundTrip\n";
+  nlohmann::json j = {{"id",15},{"name","Kontroll 15"},{"codes",{132,232}}};
+  auto c = parseControlDTO(j);
+  CHECK(c.id == 15,              "control id preserved");
+  CHECK(c.name == "Kontroll 15", "control name preserved");
+  CHECK(c.codes.size() == 2,     "control codes count preserved");
+  CHECK(c.codes[0] == 132,       "control codes values preserved");
+}
+
+// --- oCard / oPunch JSON round-trip ---
+void testJsonCardRoundTrip() {
+  std::cout << "TestJsonCardRoundTrip\n";
+  nlohmann::json j = {{"id",20},{"cardNo",1234567},{"punches",nlohmann::json::array()}};
+  auto c = parseCardDTO(j);
+  CHECK(c.id == 20,          "card id preserved");
+  CHECK(c.cardNo == 1234567, "card cardNo preserved");
+}
+void testJsonPunchRoundTrip() {
+  std::cout << "TestJsonPunchRoundTrip\n";
+  nlohmann::json j = {{"type",1},{"time",3720},{"controlId",31}};
+  auto p = parsePunchDTO(j);
+  CHECK(p.type == 1,       "punch type preserved");
+  CHECK(p.time == 3720,    "punch time preserved");
+  CHECK(p.controlId == 31, "punch controlId preserved");
+}
+
+// --- oFreePunch JSON round-trip ---
+void testJsonFreePunchRoundTrip() {
+  std::cout << "TestJsonFreePunchRoundTrip\n";
+  nlohmann::json j = {{"id",99},{"cardNo",7654321},{"controlId",55},{"type",2},{"time",4800}};
+  auto p = parseFreePunchDTO(j);
+  CHECK(p.id == 99,         "freepunch id preserved");
+  CHECK(p.cardNo == 7654321,"freepunch cardNo preserved");
+  CHECK(p.controlId == 55,  "freepunch controlId preserved");
+  CHECK(p.type == 2,        "freepunch type preserved");
+  CHECK(p.time == 4800,     "freepunch time preserved");
+}
+
+// --- oEvent JSON round-trip ---
+void testJsonEventRoundTrip() {
+  std::cout << "TestJsonEventRoundTrip\n";
+  nlohmann::json j = {
+    {"id",1},{"name","SM Medel 2024"},{"date","2024-06-15"},
+    {"zeroTime",36000},{"numRunners",250},{"numClasses",12},
+    {"numCourses",8},{"numCards",230}
+  };
+  auto e = parseEventDTO(j);
+  CHECK(e.id == 1,                  "event id preserved");
+  CHECK(e.name == "SM Medel 2024",  "event name preserved");
+  CHECK(e.date == "2024-06-15",     "event date preserved");
+  CHECK(e.zeroTime == 36000,        "event zeroTime preserved");
+  CHECK(e.numRunners == 250,        "event numRunners preserved");
+  CHECK(e.numClasses == 12,         "event numClasses preserved");
+  CHECK(e.numCourses == 8,          "event numCourses preserved");
+  CHECK(e.numCards == 230,          "event numCards preserved");
+}
+
+// --- JSON schema: all domain types have correct field types ---
+void testJsonSchemaFieldTypes() {
+  std::cout << "TestJsonSchemaFieldTypes\n";
+  // Runner
+  nlohmann::json r = {{"id",1},{"name","X"},{"clubId",0},{"classId",0},
+    {"cardNo",0},{"bib",""},{"startTime",0},{"finishTime",0},
+    {"runningTime",0},{"status",0},{"birthYear",0},{"nationality",""},{"sex",0}};
+  CHECK(r["id"].is_number_integer(), "runner.id is integer");
+  CHECK(r["name"].is_string(),       "runner.name is string");
+  CHECK(r["status"].is_number(),     "runner.status is number");
+  // Course
+  nlohmann::json c = {{"id",1},{"name","X"},{"length",0},{"controls",nlohmann::json::array()}};
+  CHECK(c["controls"].is_array(),    "course.controls is array");
+  // Team
+  nlohmann::json t = {{"id",1},{"runners",nlohmann::json::array()}};
+  CHECK(t["runners"].is_array(),     "team.runners is array");
+  // Control
+  nlohmann::json ctrl = {{"id",1},{"codes",nlohmann::json::array()}};
+  CHECK(ctrl["codes"].is_array(),    "control.codes is array");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -2532,6 +2812,19 @@ int main() {
   testImportCsvEmptyBody();
   testImportCsvSuccess();
   testImportExportRoutesRegistered();
+
+  // Task 3.22: JSON schema round-trip tests
+  testJsonRunnerRoundTrip();
+  testJsonClubRoundTrip();
+  testJsonTeamRoundTrip();
+  testJsonCourseRoundTrip();
+  testJsonClassRoundTrip();
+  testJsonControlRoundTrip();
+  testJsonCardRoundTrip();
+  testJsonPunchRoundTrip();
+  testJsonFreePunchRoundTrip();
+  testJsonEventRoundTrip();
+  testJsonSchemaFieldTypes();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

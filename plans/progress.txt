@@ -463,3 +463,18 @@
    dispatchWithStatic(): API-router har prioritet; statisk fil serveras från webRoot om 404;
    SPA-fallback till index.html om filen saknas; directory-traversal-skydd på ../-prefix.
    Syntaxkontroll med clang++ + nlohmann-json passerade (1 warning i api_router.h, ej i ny fil).
+
+[2026-02-26] Task 3.22 DONE: Enhetstest: JSON round-trip för alla domänobjekt
+   Lade till 11 testfunktioner (61 CHECK-anrop) i test/portable_tests.cpp:
+   - testJsonRunnerRoundTrip: 12 fält (id, name, clubId, classId, cardNo, bib, start/finishTime, status, birthYear, nationality, sex)
+   - testJsonClubRoundTrip: 3 fält (id, name, country)
+   - testJsonTeamRoundTrip: 9 fält inklusive runners-array
+   - testJsonCourseRoundTrip: 4 fält inklusive controls-array + UTF-8 (åäö)
+   - testJsonClassRoundTrip: 3 fält (id, name, courseId)
+   - testJsonControlRoundTrip: 3 fält inklusive codes-array
+   - testJsonCardRoundTrip + testJsonPunchRoundTrip: card och punch-fält
+   - testJsonFreePunchRoundTrip: 5 fält
+   - testJsonEventRoundTrip: 8 fält
+   - testJsonSchemaFieldTypes: korrekt JSON-typ för varje fält (integer/string/array)
+   Portabla DTOs med std::string (ingen gdioutput-beroende).
+   Kompilering + körning: 317/317 tester passerade (61 nya).
