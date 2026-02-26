@@ -160,3 +160,17 @@
    close (closesocket på Win), setsockopt, select (nfds-hantering per plattform).
    platform_socket_init()/cleanup() hanterar WSAStartup/WSACleanup på Windows (no-op på POSIX).
    Syntaxkontroll med clang++ passerade utan fel.
+
+[2026-02-26] Task 2.12 DONE: Plattformsabstraktion: filsystem och sökvägar
+   Ersatte Windows-specifika fil-operationer med std::filesystem (C++17):
+   - fileExists: GetFileAttributes -> std::filesystem::exists
+   - expandDirectory: FindFirstFile/FindNextFile/GetCurrentDirectory -> fs::directory_iterator
+   - checkWriteAccess: CreateFile -> std::ofstream portabel open
+   - moveFile: DeleteFile/CopyFile -> fs::copy_file + fs::remove
+   - MeOSFileLock: HANDLE+CreateFile -> #ifdef _WIN32 / POSIX flock (lockedFd)
+   - zip.cpp: CreateDirectory -> fs::create_directories, _waccess -> fs::exists
+   - zip.cpp: change_file_date, filetime -> #ifdef _WIN32-skyddade
+   - zip.cpp: fopen64(wchar_t*,L"rb") -> openFileW() helper (cross-platform)
+   - zip.cpp: mymkdir: _wmkdir -> #ifdef _WIN32 / mkdir() (POSIX)
+   - zip.cpp: isLargeFile: fseeko64/ftello64 -> #ifdef _WIN32 / fseeko/ftello
+   - Syntaxkontroll med clang++ på macOS: inga fel.

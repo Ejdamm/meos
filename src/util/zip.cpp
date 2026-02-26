@@ -14,9 +14,17 @@ Ported to C++ and modified to suite MeOS.
 #include <errno.h>
 #include <fcntl.h>
 #include <vector>
+#include <filesystem>
+#include <cstdint>
 
+#ifdef _WIN32
 #include <direct.h>
 #include <io.h>
+#else
+#include <sys/stat.h>
+typedef unsigned char BYTE;
+#define swprintf_s(buf, fmt, ...) swprintf(buf, sizeof(buf)/sizeof(buf[0]), fmt, ##__VA_ARGS__)
+#endif
 
 #include "meosexception.h"
 #include "meos_util.h"
@@ -27,15 +35,31 @@ Ported to C++ and modified to suite MeOS.
 #define WRITEBUFFERSIZE (1024 * 256)
 #define MAXFILENAME (260)
 
+#ifdef _WIN32
 #define USEWIN32IOAPI
 #include "minizip/iowin32.h"
+#endif
 
 const char *zipError = "Error processing zip-file";
+
+#ifndef _WIN32
+// Helper to open a wide-string path portably
+static FILE* openFileW(const wstring& path, const char* mode) {
+  string narrow(path.begin(), path.end()); // ASCII-safe path conversion
+  return fopen(narrow.c_str(), mode);
+}
+#else
+static FILE* openFileW(const wstring& path, const char* mode) {
+  wstring wmode(mode, mode + strlen(mode));
+  return _wfopen(path.c_str(), wmode.c_str());
+}
+#endif
 
 /* change_file_date : change the date/time of a file
 filename : the filename of the file where date/time must be modified
 dosdate : the new date at the MSDos format (4 bytes)
 tmu_date : the SAME new date at the tm_unz format */
+#ifdef _WIN32
 void change_file_date(const wchar_t *filename, uLong dosdate, tm_unz tmu_date) {
   HANDLE hFile;
   FILETIME ftm,ftLocal,ftCreate,ftLastAcc,ftLastWrite;
@@ -48,6 +72,11 @@ void change_file_date(const wchar_t *filename, uLong dosdate, tm_unz tmu_date) {
   SetFileTime(hFile,&ftm,&ftLastAcc,&ftm);
   CloseHandle(hFile);
 }
+#else
+void change_file_date(const wchar_t* /*filename*/, uLong /*dosdate*/, tm_unz /*tmu_date*/) {
+  // No-op on non-Windows: zip timestamps not applied
+}
+#endif
 
 
 /* mymkdir and change_file_date are not 100 % portable
@@ -56,7 +85,12 @@ As I don't know well Unix, I wait feedback for the unix portion */
 int mymkdir(const wchar_t *dirname)
 {
   int ret=0;
+#ifdef _WIN32
   ret = _wmkdir(dirname);
+#else
+  string narrow(dirname, dirname + wcslen(dirname)); // ASCII-safe
+  ret = mkdir(narrow.c_str(), 0755);
+#endif
   return ret;
 }
 
@@ -147,7 +181,7 @@ wstring do_extract_currentfile(unzFile uf, const wstring &baseDir, const char* p
     if (err!=UNZ_OK)
       throw std::exception(zipError);
 
-    fout = fopen64(write_filename.c_str(),L"wb");
+    fout = openFileW(write_filename, "wb");
 
     // some zipfile doesn't contain directory alone before file
     if ((fout==NULL) && createSubdir &&
@@ -156,7 +190,7 @@ wstring do_extract_currentfile(unzFile uf, const wstring &baseDir, const char* p
       *(filename_withoutpath-1)='\0';
       makedir(write_filename.c_str());
       *(filename_withoutpath-1)=c;
-      fout=fopen64(write_filename.c_str(),L"wb");
+      fout=openFileW(write_filename, "wb");
     }
 
     if (fout==NULL) {
@@ -222,8 +256,13 @@ void unzip(const wchar_t *wzipfilename, const char *password, vector<wstring> &e
   string zfn(wzfn.begin(), wzfn.end());
   extractedFiles.clear();
   zlib_filefunc64_def ffunc;
+#ifdef _WIN32
   fill_win32_filefunc64W(&ffunc);
   unzFile uf = unzOpen2_64(wzfn.c_str(),&ffunc);
+#else
+  fill_fopen64_filefunc(&ffunc);
+  unzFile uf = unzOpen2_64(zfn.c_str(),&ffunc);
+#endif
 
   if (uf==NULL)
     throw std::exception("Cannot open zip file");
@@ -239,9 +278,10 @@ void unzip(const wchar_t *wzipfilename, const char *password, vector<wstring> &e
     target = base + L"zip" + itow(id) + L"\\";
     id++;
   }
-  while ( _waccess( target.c_str(), 0 ) == 0 );
+  while ( std::filesystem::exists(std::filesystem::path(target)) );
 
-  if (CreateDirectory(target.c_str(), NULL) == 0)
+  std::error_code fsec;
+  if (!std::filesystem::create_directories(std::filesystem::path(target), fsec))
     throw std::exception("Failed to create temporary folder");
 
   registerTempFile(target);
@@ -252,6 +292,7 @@ void unzip(const wchar_t *wzipfilename, const char *password, vector<wstring> &e
 
 
 
+#ifdef _WIN32
 uLong filetime(const wchar_t *f, uLong *dt) {
   int ret = 0;
   FILETIME ftLocal;
@@ -268,12 +309,18 @@ uLong filetime(const wchar_t *f, uLong *dt) {
   }
   return ret;
 }
+#else
+uLong filetime(const wchar_t* /*f*/, uLong *dt) {
+  *dt = 0; // No-op on non-Windows
+  return 0;
+}
+#endif
 
 int check_exist_file(const wchar_t* filename)
 {
   FILE* ftestexist;
   int ret = 1;
-  ftestexist = fopen64(filename,L"rb");
+  ftestexist = openFileW(wstring(filename), "rb");
   if (ftestexist==NULL)
       ret = 0;
   else
@@ -324,11 +371,16 @@ int isLargeFile(const wchar_t* filename)
 {
   int largeFile = 0;
   ZPOS64_T pos = 0;
-  FILE* pFile = fopen64(filename, L"rb");
+  FILE* pFile = openFileW(wstring(filename), "rb");
 
   if (pFile != NULL) {
+#ifdef _WIN32
     fseeko64(pFile, 0, SEEK_END);
     pos = ftello64(pFile);
+#else
+    fseeko(pFile, 0, SEEK_END);
+    pos = (ZPOS64_T)ftello(pFile);
+#endif
     if (pos >= 0xffffffff)
       largeFile = 1;
     fclose(pFile);
@@ -352,11 +404,18 @@ int zip(const wchar_t *zipfilename, const char *password, const vector<wstring> 
   zipFile zf;
   int errclose;
   zlib_filefunc64_def ffunc;
+#ifdef _WIN32
   fill_win32_filefunc64W(&ffunc);
-  //wstring wzipfn(zipfilename);
-  //string zipfn(wzipfn.begin(), wzipfn.end());
   wcscpy_s(filename_try, zipfilename);
   zf = zipOpen2_64(filename_try, 0,NULL, &ffunc);
+#else
+  fill_fopen64_filefunc(&ffunc);
+  wstring wzipfn(zipfilename);
+  string zipfn(wzipfn.begin(), wzipfn.end());
+  zf = zipOpen2_64(zipfn.c_str(), 0,NULL, &ffunc);
+  wcsncpy(filename_try, zipfilename, MAXFILENAME+15);
+  filename_try[MAXFILENAME+15] = L'\0';
+#endif
 
   if (zf == NULL) {
     swprintf_s(eb, L"Error opening %s.",filename_try);
@@ -423,7 +482,7 @@ int zip(const wchar_t *zipfilename, const char *password, const vector<wstring> 
       throw meosException(eb);
     }
     else {
-      fin = fopen64(wfn.c_str(),L"rb");
+      fin = openFileW(wfn, "rb");
       if (fin==NULL)  {
         swprintf_s(eb, L"Error opening %s for reading",filenameinzip);
         throw meosException(eb);

@@ -287,13 +287,21 @@ wstring getFamilyName(const wstring &name);
 
 /** Simple file locking class to prevent opening in different MeOS session. */
 class MeOSFileLock {
+#ifdef _WIN32
   HANDLE lockedFile;
+#else
+  int lockedFd;
+#endif
   // Not supported
   MeOSFileLock(const MeOSFileLock &);
   const MeOSFileLock &operator=(const MeOSFileLock &);
 
 public:
+#ifdef _WIN32
   MeOSFileLock() {lockedFile = INVALID_HANDLE_VALUE;}
+#else
+  MeOSFileLock() : lockedFd(-1) {}
+#endif
   ~MeOSFileLock() {unlockFile();}
 
   void unlockFile();

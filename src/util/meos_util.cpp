@@ -27,7 +27,14 @@
 #include "oFreeImport.h"
 #include "meosexception.h"
 #include <sstream>
+#include <filesystem>
+#include <fstream>
 #include <WinInet.h>
+#ifndef _WIN32
+#include <fcntl.h>
+#include <sys/file.h>
+#include <unistd.h>
+#endif
 
 using namespace std;
 
@@ -1064,7 +1071,8 @@ wstring trim(const wstring &s) {
 
 bool fileExists(const wstring &file)
 {
-  return GetFileAttributes(file.c_str()) != INVALID_FILE_ATTRIBUTES;
+  std::error_code ec;
+  return std::filesystem::exists(std::filesystem::path(file), ec);
 }
 
 bool stringMatch(const wstring &a, const wstring &b) {
@@ -1893,43 +1901,42 @@ void convertDynamicBase(long long val, int base, wchar_t out[16]) {
 
 bool expandDirectory(const wchar_t *file, const wchar_t *filetype, vector<wstring> &res)
 {
-  WIN32_FIND_DATA fd;
+  namespace fs = std::filesystem;
 
-  wchar_t dir[MAX_PATH];
-  wchar_t fullPath[MAX_PATH];
-
-  if (file[0] == '.') {
-    GetCurrentDirectory(MAX_PATH, dir);
-    wcscat_s(dir, file+1);
+  wstring dirStr = file;
+  if (!dirStr.empty() && dirStr[0] == L'.') {
+    std::error_code ec;
+    wstring cwd = fs::current_path(ec).wstring();
+    dirStr = cwd + dirStr.substr(1);
   }
-  else
-    wcscpy_s(dir, MAX_PATH, file);
 
-  if (dir[wcslen(dir)-1]!='\\')
-    wcscat_s(dir, MAX_PATH, L"\\");
+  if (!dirStr.empty() && dirStr.back() != L'\\' && dirStr.back() != L'/')
+    dirStr += L'\\';
 
-  wcscpy_s(fullPath, MAX_PATH, dir);
-  wcscat_s(dir, MAX_PATH, filetype);
+  // Extract suffix from glob pattern (e.g. "*.lxml" -> ".lxml")
+  wstring pattern(filetype);
+  wstring suffix;
+  auto star = pattern.find(L'*');
+  if (star != wstring::npos)
+    suffix = pattern.substr(star + 1);
 
-  HANDLE h=FindFirstFile(dir, &fd);
-
-  if (h == INVALID_HANDLE_VALUE)
+  fs::path dir(dirStr);
+  std::error_code ec;
+  if (!fs::is_directory(dir, ec))
     return false;
 
-  bool more = true;
-
-  while (more) {
-    if (fd.cFileName[0] != '.') {
-      //Avoid .. and .
-      wchar_t fullPathFile[MAX_PATH];
-      wcscpy_s(fullPathFile, MAX_PATH, fullPath);
-      wcscat_s(fullPathFile, MAX_PATH, fd.cFileName);
-      res.push_back(fullPathFile);
+  for (auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied, ec)) {
+    if (ec) break;
+    if (!entry.is_regular_file())
+      continue;
+    wstring fname = entry.path().filename().wstring();
+    if (!fname.empty() && fname[0] != L'.') {
+      if (suffix.empty() || (fname.size() >= suffix.size() &&
+          fname.compare(fname.size() - suffix.size(), suffix.size(), suffix) == 0)) {
+        res.push_back(entry.path().wstring());
+      }
     }
-    more=FindNextFile(h, &fd)!=0;
   }
-
-  FindClose(h);
   return true;
 }
 
@@ -2292,17 +2299,24 @@ void capitalizeWords(wstring &str) {
 }
 
 void MeOSFileLock::unlockFile() {
+#ifdef _WIN32
   if (lockedFile != INVALID_HANDLE_VALUE)
     CloseHandle(lockedFile);
-
   lockedFile = INVALID_HANDLE_VALUE;
+#else
+  if (lockedFd >= 0) {
+    ::flock(lockedFd, LOCK_UN);
+    ::close(lockedFd);
+    lockedFd = -1;
+  }
+#endif
 }
 
 void MeOSFileLock::lockFile(const wstring &file) {
   unlockFile();
+#ifdef _WIN32
   lockedFile = CreateFile(file.c_str(), GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, 
                           NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  //lockedFile = _open(file.c_str(), _O_RDWR);
   if (lockedFile == INVALID_HANDLE_VALUE) {
     int err = GetLastError();
     if (err == ERROR_SHARING_VIOLATION)
@@ -2313,6 +2327,21 @@ void MeOSFileLock::lockFile(const wstring &file) {
       throw meosException(L"open_error#" + file + L"#" + buff);
     }
   }
+#else
+  std::string path8(file.begin(), file.end()); // ASCII-safe conversion
+  lockedFd = ::open(path8.c_str(), O_RDWR);
+  if (lockedFd < 0) {
+    if (errno == EACCES || errno == EAGAIN)
+      throw meosException("open_error_locked");
+    else
+      throw meosException(wstring(L"open_error#") + file);
+  }
+  if (::flock(lockedFd, LOCK_EX | LOCK_NB) != 0) {
+    ::close(lockedFd);
+    lockedFd = -1;
+    throw meosException("open_error_locked");
+  }
+#endif
 }
 
 void processGeneralTime(const wstring &generalTime, wstring &meosTime, wstring &meosDate) {
@@ -2462,33 +2491,31 @@ void wide2String(const wstring &in, string &out) {
 }
 
 void checkWriteAccess(const wstring &file) {
-  int flag = CREATE_NEW;
-  if (_waccess(file.c_str(), 4) == 0) {
-    flag = OPEN_EXISTING;
+  namespace fs = std::filesystem;
+  fs::path path(file);
+  std::error_code ec;
+  bool exists = fs::exists(path, ec);
+
+  std::ofstream f;
+  if (exists)
+    f.open(path, std::ios::binary | std::ios::app);
+  else
+    f.open(path, std::ios::binary | std::ios::out);
+
+  if (!f.is_open()) {
+    wstring absStr = fs::absolute(path, ec).wstring();
+    throw meosException(wstring(L"Behörighet saknas för att skriva till 'X'.#") + absStr);
   }
-
-  auto h = CreateFile(file.c_str(), GENERIC_WRITE, FILE_SHARE_WRITE | FILE_SHARE_READ, 0, flag, FILE_ATTRIBUTE_NORMAL, 0);
-  if (h == INVALID_HANDLE_VALUE) {
-    wchar_t absPath[260];
-    _wfullpath(absPath, file.c_str(), 260);
-
-    DWORD err = GetLastError();
-    
-    if (err == ERROR_ACCESS_DENIED)
-      throw meosException(wstring(L"Behörighet saknas för att skriva till 'X'.#") + absPath);
-    else
-      throw meosException(wstring(L"Kunde inte skriva till 'X'.#") + absPath);
-
-  }
-  CloseHandle(h);
+  f.close();
 }
 
 void moveFile(const wstring& src, const wstring& dst) {
-  DeleteFile(dst.c_str());
-  if (!CopyFile(src.c_str(), dst.c_str(), false)) {
+  namespace fs = std::filesystem;
+  std::error_code ec;
+  fs::copy_file(fs::path(src), fs::path(dst), fs::copy_options::overwrite_existing, ec);
+  if (ec)
     throw meosException(L"Kunde inte skriva till 'X'.#" + dst);
-  }
-  DeleteFile(src.c_str());
+  fs::remove(fs::path(src), ec);
 }
 
 int compareStringIgnoreCase(const wstring &a, const wstring &b) {

@@ -242,7 +242,7 @@
           "id": "2.12",
           "title": "Plattformsabstraktion: filsystem och sökvägar",
           "description": "Ersätt Windows-specifika fil- och path-operationer i src/io/ och src/util/ med std::filesystem (C++17). Hantera teckenkodning: Windows WCHAR ↔ UTF-8 konvertering.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.10"
           ]
