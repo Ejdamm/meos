@@ -106,7 +106,7 @@
           "id": "1.11",
           "title": "Enhetstest: NullNotifier kraschar inte",
           "description": "Skriv test som anropar alla NullNotifier-metoder med normala värden, tomma strängar, nollvärden och extremvärden. Verifiera att inget anrop kastar undantag eller kraschar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "1.7"
           ]

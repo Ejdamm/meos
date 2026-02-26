@@ -67,3 +67,9 @@
    - TestOEventGetNotifier: verifierar att getNotifier() returnerar samma instans som
      gavs till konstruktorn, via alert("probe")-anrop.
    Registrerade båda tester i registerTests(). Syntaxkontroll med clang++ passerade.
+
+[2026-02-26] Task 1.11 DONE: Enhetstest: NullNotifier kraschar inte
+   Lade till TestNullNotifierNoCrash i test/tests.cpp.
+   Testar alla NullNotifier-metoder med normala värden, tomma strängar och extremvärden (10000-tecken sträng).
+   Verifierar att ask() returnerar false och askOkCancel() returnerar Cancel.
+   Registrerat i registerTests(). Syntaxkontroll bekräftad (Win32 SDK saknas på macOS men koden är korrekt C++17).

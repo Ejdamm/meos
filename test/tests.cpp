@@ -11,6 +11,7 @@
 #include "testmeos.h"
 #include "oEvent.h"
 #include "MockNotifier.h"
+#include "NullNotifier.h"
 
 // Test: oEvent::getNotifier() returns the notifier wired in the constructor,
 // and checkDB() delegates to notifier_.setWindowTitle().
@@ -61,7 +62,54 @@ public:
   }
 };
 
+// Test: NullNotifier does not crash or throw on any method call.
+class TestNullNotifierNoCrash : public TestMeOS {
+public:
+  TestNullNotifierNoCrash(TestMeOS &parent)
+      : TestMeOS(parent, "NullNotifier does not crash") {}
+
+  TestMeOS *newInstance() const override {
+    return new TestNullNotifierNoCrash(const_cast<TestNullNotifierNoCrash &>(*this));
+  }
+
+  void run() const override {
+    NullNotifier n;
+
+    // Normal values
+    n.status(L"Running");
+    n.alert(L"Hello");
+    bool askResult = n.ask(L"Continue?");
+    IEventNotifier::Answer ans = n.askOkCancel(L"OK or Cancel?");
+    n.setWindowTitle(L"MeOS Test");
+    n.dataChanged();
+
+    // Empty strings
+    n.status(L"");
+    n.alert(L"");
+    n.ask(L"");
+    n.askOkCancel(L"");
+    n.setWindowTitle(L"");
+
+    // Extreme: very long string
+    std::wstring longStr(10000, L'x');
+    n.status(longStr);
+    n.alert(longStr);
+    n.ask(longStr);
+    n.askOkCancel(longStr);
+    n.setWindowTitle(longStr);
+
+    // Verify safe return values
+    assertTrue("NullNotifier::ask returns false", !askResult);
+    assertTrue("NullNotifier::askOkCancel returns Cancel",
+               ans == IEventNotifier::Answer::Cancel);
+    assertTrue("NullNotifier::ask(empty) returns false", !n.ask(L""));
+    assertTrue("NullNotifier::askOkCancel(empty) returns Cancel",
+               n.askOkCancel(L"") == IEventNotifier::Answer::Cancel);
+  }
+};
+
 void registerTests(TestMeOS &tm) {
   tm.registerTest(TestOEventDelegatesNotifier(tm));
   tm.registerTest(TestOEventGetNotifier(tm));
+  tm.registerTest(TestNullNotifierNoCrash(tm));
 }
