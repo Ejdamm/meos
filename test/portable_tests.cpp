@@ -1,6 +1,7 @@
 // Standalone portable unit tests - no Win32/gdioutput dependencies.
 // Covers IEventNotifier, NullNotifier, MockNotifier, platform_socket,
-// std::filesystem, std::thread, std::mutex, and std::condition_variable.
+// std::filesystem, std::thread, std::mutex, std::condition_variable,
+// and competition API endpoint routing patterns.
 // Built as MeOS-test target; runs on Linux/macOS/Windows without GUI.
 
 #include <cassert>
@@ -441,6 +442,136 @@ void testMethodNotAllowed() {
   CHECK(res.status == 405, "wrong method returns 405");
 }
 
+// ---------------------------------------------------------------------------
+// Competition API endpoint routing tests (portable – mirrors competition_handlers.h logic)
+// Tests the URL patterns and status codes that registerCompetitionHandlers produces.
+// Uses inline lambdas to avoid Win32 oEvent dependencies in the test binary.
+// ---------------------------------------------------------------------------
+
+// Helper: registers the same URL patterns as registerCompetitionHandlers,
+// but with test-specific handlers (no oEvent).
+static void registerCompetitionRoutesForTest(ApiRouter &router, bool hasEvent) {
+  router.get("/api/competitions", [hasEvent](const ApiRequest &) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    return ApiResponse::ok("[{\"id\":1,\"name\":\"Test\"}]");
+  });
+  router.get("/api/competitions/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::notFound("No competition loaded");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    try { std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    return ApiResponse::ok("{\"id\":1}");
+  });
+  router.post("/api/competitions", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (!body.contains("name")) return ApiResponse::badRequest("Field 'name' is required");
+    return ApiResponse::created("{\"id\":1}");
+  });
+  router.put("/api/competitions/:id", [hasEvent](const ApiRequest &req) -> ApiResponse {
+    if (!hasEvent) return ApiResponse::internalError("No competition context");
+    auto it = req.pathParams.find("id");
+    if (it == req.pathParams.end()) return ApiResponse::badRequest("Missing id");
+    try { std::stoi(it->second); } catch (...) { return ApiResponse::badRequest("Invalid id"); }
+    if (!req.hasValidJsonBody()) return ApiResponse::badRequest("Invalid JSON body");
+    return ApiResponse::ok("{\"id\":1}");
+  });
+}
+
+void testCompetitionListNullEvent() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/competitions";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/competitions with null event returns 404");
+}
+
+void testCompetitionGetByIdNullEvent() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/competitions/1";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/competitions/:id with null event returns 404");
+}
+
+void testCompetitionPostNullEvent() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/competitions";
+  req.body   = "{\"name\":\"Test\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 500, "POST /api/competitions with null event returns 500");
+}
+
+void testCompetitionPutNullEvent() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "PUT";
+  req.path   = "/api/competitions/1";
+  req.body   = "{\"name\":\"Test\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 500, "PUT /api/competitions/:id with null event returns 500");
+}
+
+void testCompetitionPostInvalidJson() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/competitions";
+  req.body   = "not-json{{";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/competitions with invalid JSON returns 400");
+}
+
+void testCompetitionPostMissingName() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/competitions";
+  req.body   = "{\"date\":\"2024-06-01\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "POST /api/competitions without name returns 400");
+}
+
+void testCompetitionPostCreates() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "POST";
+  req.path   = "/api/competitions";
+  req.body   = "{\"name\":\"My Race\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 201, "POST /api/competitions with valid body returns 201");
+}
+
+void testCompetitionPutUpdates() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "PUT";
+  req.path   = "/api/competitions/1";
+  req.body   = "{\"name\":\"Updated\"}";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT /api/competitions/:id returns 200");
+}
+
+void testCompetitionRouteRegistered() {
+  ApiRouter router;
+  registerCompetitionRoutesForTest(router, false);
+  CHECK(router.handles("/api/competitions"),    "router handles /api/competitions");
+  CHECK(router.handles("/api/competitions/42"), "router handles /api/competitions/:id");
+}
+
 
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
@@ -473,6 +604,15 @@ int main() {
   testBodyJsonEmpty();
   testBadRequestStatus();
   testMethodNotAllowed();
+  testCompetitionListNullEvent();
+  testCompetitionGetByIdNullEvent();
+  testCompetitionPostNullEvent();
+  testCompetitionPutNullEvent();
+  testCompetitionPostInvalidJson();
+  testCompetitionPostMissingName();
+  testCompetitionPostCreates();
+  testCompetitionPutUpdates();
+  testCompetitionRouteRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

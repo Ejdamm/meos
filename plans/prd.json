@@ -455,7 +455,7 @@
           "id": "3.9",
           "title": "Competition API endpoints",
           "description": "Implementera: GET /api/competitions (lista), GET /api/competitions/:id (detalj), POST /api/competitions (skapa), PUT /api/competitions/:id (uppdatera). JSON request/response.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.5"

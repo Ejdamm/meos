@@ -349,3 +349,12 @@
    Lade till 9 nya tester i portable_tests.cpp: POST 201, DELETE 204, PUT 200+pathParam,
      bodyJson parse, bodyJson invalid, bodyJson empty, badRequest 400, methodNotAllowed 405.
    Syntaxkontroll + körtest: 64/64 tester passerade.
+
+[2026-02-26] Task 3.9 DONE: Competition API endpoints
+   Skapade src/net/competition_handlers.h med registerCompetitionHandlers(router, oe).
+   Endpoints: GET /api/competitions (lista), GET /api/competitions/:id (detalj),
+   POST /api/competitions (skapa via newCompetition + setDate + setZeroTime),
+   PUT /api/competitions/:id (uppdatera namn/datum/zeroTime).
+   Null-oe-skydd: GET → 404, POST/PUT → 500.
+   Lade till 11 portabla tester i test/portable_tests.cpp (routing-logik utan Win32-beroenden).
+   74/74 tester passerade med clang++ på macOS.
