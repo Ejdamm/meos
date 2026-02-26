@@ -428,3 +428,12 @@
    Null-oe-skydd: GET → 404. Icke-resultlistetyp för /api/results → 400. Okänd typ → 404.
    Lade till 15 portabla tester i test/portable_tests.cpp.
    188/188 tester passerade med clang++ på macOS.
+
+[2026-02-26] Task 3.18 DONE: Speaker API endpoints
+   Skapade src/net/speaker_handlers.h med registerSpeakerHandlers(router, oe).
+   Endpoints: GET /api/speaker/config (hämtar classIds + windowSeconds + klassnamn om oe finns),
+   PUT /api/speaker/config (uppdaterar classIds och windowSeconds),
+   GET /api/speaker/monitor (returnerar timeline-events via oe->getTimeLineEvents, ?class= query override).
+   In-process speaker config i anonymt namespace (g_speakerClassIds, g_speakerWindowSeconds).
+   Lade till 6 portabla tester + <set> include i test/portable_tests.cpp.
+   205/205 tester passerade med clang++ på macOS.

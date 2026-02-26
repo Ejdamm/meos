@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <set>
 #include <string>
 #include <chrono>
 #include <atomic>
@@ -1798,6 +1799,140 @@ void testListRoutesRegistered() {
   CHECK(router.handles("/api/results"),          "router handles /api/results");
 }
 
+// ---------------------------------------------------------------------------
+// Speaker API endpoint routing tests (portable – no Win32/oEvent).
+// ---------------------------------------------------------------------------
+
+// Minimal in-process speaker config for portable tests (mirrors speaker_handlers.h logic).
+namespace test_speaker {
+  std::set<int>  classIds;
+  int            windowSeconds = 600;
+}
+
+static void registerSpeakerRoutesForTest(ApiRouter &router, bool hasEvent) {
+  // GET /api/speaker/config
+  router.get("/api/speaker/config", [](const ApiRequest &) -> ApiResponse {
+    nlohmann::json j;
+    j["classIds"]      = nlohmann::json::array();
+    for (int id : test_speaker::classIds)
+      j["classIds"].push_back(id);
+    j["windowSeconds"] = test_speaker::windowSeconds;
+    return ApiResponse::ok(j.dump());
+  });
+
+  // PUT /api/speaker/config
+  router.put("/api/speaker/config", [](const ApiRequest &req) -> ApiResponse {
+    if (!req.hasValidJsonBody())
+      return ApiResponse::badRequest("Invalid JSON body");
+    auto body = req.bodyJson();
+    if (body.contains("classIds") && body["classIds"].is_array()) {
+      test_speaker::classIds.clear();
+      for (const auto &v : body["classIds"])
+        if (v.is_number_integer())
+          test_speaker::classIds.insert(v.get<int>());
+    }
+    if (body.contains("windowSeconds") && body["windowSeconds"].is_number_integer()) {
+      int ws = body["windowSeconds"].get<int>();
+      if (ws > 0)
+        test_speaker::windowSeconds = ws;
+    }
+    nlohmann::json j;
+    j["classIds"]      = nlohmann::json::array();
+    for (int id : test_speaker::classIds)
+      j["classIds"].push_back(id);
+    j["windowSeconds"] = test_speaker::windowSeconds;
+    return ApiResponse::ok(j.dump());
+  });
+
+  // GET /api/speaker/monitor
+  router.get("/api/speaker/monitor", [hasEvent](const ApiRequest &) -> ApiResponse {
+    if (!hasEvent)
+      return ApiResponse::notFound("No competition loaded");
+    nlohmann::json j;
+    j["currentTime"]   = 3600;
+    j["nextEventTime"] = 3660;
+    j["events"]        = nlohmann::json::array();
+    return ApiResponse::ok(j.dump());
+  });
+}
+
+void testSpeakerConfigGetDefault() {
+  test_speaker::classIds.clear();
+  test_speaker::windowSeconds = 600;
+  ApiRouter router;
+  registerSpeakerRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/speaker/config";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/speaker/config returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j.contains("classIds"),      "speaker config has classIds");
+  CHECK(j.contains("windowSeconds"), "speaker config has windowSeconds");
+  CHECK(j["classIds"].is_array(),    "classIds is array");
+  CHECK(j["windowSeconds"].get<int>() == 600, "default windowSeconds is 600");
+}
+
+void testSpeakerConfigPutUpdatesClassIds() {
+  test_speaker::classIds.clear();
+  test_speaker::windowSeconds = 600;
+  ApiRouter router;
+  registerSpeakerRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "PUT";
+  req.path   = "/api/speaker/config";
+  req.body   = R"({"classIds":[1,2,3],"windowSeconds":300})";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "PUT /api/speaker/config returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j["classIds"].size() == 3u,               "3 classIds after PUT");
+  CHECK(j["windowSeconds"].get<int>() == 300, "windowSeconds updated to 300");
+}
+
+void testSpeakerConfigPutInvalidJson() {
+  ApiRouter router;
+  registerSpeakerRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "PUT";
+  req.path   = "/api/speaker/config";
+  req.body   = "not-json";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 400, "PUT /api/speaker/config with invalid JSON returns 400");
+}
+
+void testSpeakerMonitorNullEvent() {
+  ApiRouter router;
+  registerSpeakerRoutesForTest(router, false);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/speaker/monitor";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 404, "GET /api/speaker/monitor without event returns 404");
+}
+
+void testSpeakerMonitorReturns200() {
+  ApiRouter router;
+  registerSpeakerRoutesForTest(router, true);
+  ApiRequest req;
+  req.method = "GET";
+  req.path   = "/api/speaker/monitor";
+  ApiResponse res = router.dispatch(req);
+  CHECK(res.status == 200, "GET /api/speaker/monitor returns 200");
+  auto j = nlohmann::json::parse(res.body);
+  CHECK(j.contains("currentTime"),   "monitor response has currentTime");
+  CHECK(j.contains("nextEventTime"), "monitor response has nextEventTime");
+  CHECK(j.contains("events"),        "monitor response has events");
+  CHECK(j["events"].is_array(),      "events is array");
+}
+
+void testSpeakerRoutesRegistered() {
+  test_speaker::classIds.clear();
+  ApiRouter router;
+  registerSpeakerRoutesForTest(router, false);
+  CHECK(router.handles("/api/speaker/config"),  "router handles /api/speaker/config");
+  CHECK(router.handles("/api/speaker/monitor"), "router handles /api/speaker/monitor");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -1936,6 +2071,12 @@ int main() {
   testResultsEndpointStartListTypeRejected();
   testResultsBodyHasResultsField();
   testListRoutesRegistered();
+  testSpeakerConfigGetDefault();
+  testSpeakerConfigPutUpdatesClassIds();
+  testSpeakerConfigPutInvalidJson();
+  testSpeakerMonitorNullEvent();
+  testSpeakerMonitorReturns200();
+  testSpeakerRoutesRegistered();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

@@ -545,7 +545,7 @@
           "id": "3.18",
           "title": "Speaker API endpoints",
           "description": "Implementera: GET /api/speaker/config (hämta konfiguration), PUT /api/speaker/config (uppdatera), GET /api/speaker/monitor (live speaker-data).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.8",
             "3.5"
