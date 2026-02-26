@@ -370,19 +370,24 @@ source_group("ui"      FILES src/ui/gdioutput.cpp src/ui/gdioutput_server_stubs.
 
 # -----------------------------------------------------------------------
 # MeOS-test: portable unit tests (no Win32/gdioutput dependencies)
-# Covers IEventNotifier, NullNotifier, MockNotifier.
+# Covers IEventNotifier, NullNotifier, MockNotifier, platform_socket.
 # Run on any platform with: cmake --build build --target MeOS-test && ./build/MeOS-test
 # -----------------------------------------------------------------------
-add_executable(MeOS-test test/portable_tests.cpp)
+add_executable(MeOS-test
+    test/portable_tests.cpp
+    src/util/platform_socket.cpp
+)
 
 target_include_directories(MeOS-test PRIVATE
     src/domain
     src/app
+    src/util
     test
 )
 
 if(MSVC)
     target_compile_options(MeOS-test PRIVATE /std:c++17 /W3)
+    target_link_libraries(MeOS-test PRIVATE ws2_32)
 else()
     target_compile_options(MeOS-test PRIVATE -std=c++17 -Wall)
 endif()

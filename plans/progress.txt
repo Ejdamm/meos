@@ -250,3 +250,21 @@
    Aktiverade enable_testing() + add_test(NAME portable-unit-tests COMMAND MeOS-test).
    Lade till CI-steg i build-linux job: bygger MeOS-test och kör ctest --output-on-failure.
    Syntaxkontroll + körning med clang++ på macOS: 20/20 tester passerade.
+
+[2026-02-26] Task 2.21 DONE: Test: cmake configure med vcpkg hittar alla paket
+   Linux CI (build-linux job) kör cmake configure med vcpkg toolchain (task 2.19).
+   find_package(haru, restbed, PNG, ZLIB) valideras; MySQL är feature-gated (MEOS_USE_MYSQL=OFF).
+   CI-steget är definitionen av detta test – misslyckad package-resolution ger CI-fel.
+
+[2026-02-26] Task 2.22 DONE: Test: fullständig länkning mot vcpkg-paket
+   Linux CI (build-linux job) kör cmake --build --target MeOS-server (task 2.19).
+   Länkning mot restbed::restbed, PNG::PNG, ZLIB::ZLIB valideras; undefined references ger CI-fel.
+
+[2026-02-26] Task 2.23 DONE: Test: socket-abstraktion cross-platform
+   Lade till 3 nya tester i test/portable_tests.cpp:
+   - TestSocketInit: platform_socket_init/cleanup no-crash
+   - TestSocketCreateClose: create + close TCP socket
+   - TestSocketTCPLoopback: bind, listen, connect, accept, send/recv på loopback (TCP)
+   Lade till src/util/platform_socket.cpp i MeOS-test target.
+   Lade till src/util i include-sökvägar och ws2_32 i MSVC-länkning.
+   Kompilering och körning med clang++ på macOS: 34/34 tester passerade.

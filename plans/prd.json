@@ -329,7 +329,7 @@
           "id": "2.21",
           "title": "Test: cmake configure med vcpkg hittar alla paket",
           "description": "Skriv CI-steg eller testskript som kör cmake configure med vcpkg toolchain och verifierar att alla find_package()-anrop lyckas (MySQL, libharu, restbed, PNG, ZLIB). Inga vendored filer ska behövas.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.8"
           ]
@@ -338,7 +338,7 @@
           "id": "2.22",
           "title": "Test: fullständig länkning mot vcpkg-paket",
           "description": "Bygg MeOS-server target från scratch med vcpkg-paket. Verifiera att alla symboler resolvas utan undefined references.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.21"
           ]
@@ -347,7 +347,7 @@
           "id": "2.23",
           "title": "Test: socket-abstraktion cross-platform",
           "description": "Enhetstest: öppna TCP-socket, bind + listen på loopback, connect, skicka och ta emot data, stäng. Kör på Windows och Linux i CI.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "2.11",
             "2.19"
