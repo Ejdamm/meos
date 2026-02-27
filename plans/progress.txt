@@ -1150,3 +1150,36 @@
    Filer skapade:
    - src/ui/web/src/__tests__/class-page.test.tsx
    Resultat: 24/24 tester PASSED.
+
+[2026-02-27] Task 4.33 DONE: Test: Course- och Control-sidor
+   Skapade course-control-page.test.tsx med 47 tester som verifierar:
+   CoursesPage (24 tester):
+   - Loading state: visar "Laddar banor…"
+   - Rendering: banlista med namn, längd, antal kontroller
+   - Räknartext: "2 av 2 banor"
+   - Felhantering: API-fel visar felmeddelande, tom lista visar empty state
+   - Sök: namn-sök, no-match-meddelande med uppdaterad räknare
+   - Sortering: standard namn asc, klick byter riktning
+   - Create form: öppnas via Ny bana-knapp, skickar via API,
+     validerar tomt namn, avbryt stänger, visar kontrollsekvenseditor
+     med tillgängliga kontroller, visar API-felmeddelande
+   - Edit form: visas vid markerad rad, populeras med befintlig data (namn,
+     längd), visar kontrollsekvens från bandata, skickar uppdatering via API,
+     validerar tomt namn, avbryt stänger, visar API-felmeddelande
+   - Delete: tar bort bana via API, rensar markering
+   ControlsPage (23 tester):
+   - Loading state: visar "Laddar kontroller…"
+   - Rendering: kontrolllista med namn, typ (status), koder, rogaining-poäng
+   - Räknartext: "4 av 4 kontroller"
+   - Felhantering: API-fel visar felmeddelande, tom lista visar empty state
+   - Sök: namn-sök, kod-sök, no-match-meddelande med uppdaterad räknare
+   - Sortering: standard namn asc, klick byter riktning
+   - Create form: öppnas via Ny kontroll-knapp, skickar via API,
+     validerar tomt namn, avbryt stänger, visar API-felmeddelande
+   - Edit form: visas vid markerad rad, populeras med befintlig data (namn,
+     koder), skickar uppdatering via API, validerar tomt namn,
+     avbryt stänger, visar API-felmeddelande vid uppdateringsfel
+   - Delete: tar bort kontroll via API, rensar markering
+   Filer skapade:
+   - src/ui/web/src/__tests__/course-control-page.test.tsx
+   Resultat: 47/47 tester PASSED.
