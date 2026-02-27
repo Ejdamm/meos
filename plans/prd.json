@@ -935,7 +935,7 @@
           "id": "4.29",
           "title": "Test: Competition-sida",
           "description": "Komponenttest: rendera sidan, fyll i formulär, spara, verifiera API-anrop via MSW. Testa felhantering vid API-fel.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.10",
             "4.26"

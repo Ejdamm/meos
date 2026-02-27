@@ -1019,3 +1019,19 @@
    Filer skapade:
    - src/ui/web/src/__tests__/query-hooks.test.tsx
    Resultat: 27/27 tester PASSED.
+
+[2026-02-27] Task 4.29 DONE: Test: Competition-sida
+   Skapade competition-page.test.tsx med 18 tester som verifierar:
+   - Loading state: visar "Laddar tävlingsdata…"
+   - Rendering: tävlingsdetaljer (namn, datum, nolltid) och statistik (deltagare, klasser, banor, brickor)
+   - Felhantering: API-fel visar felmeddelande, tom lista visar empty state
+   - Edit form: öppnas via Redigera-knapp, populeras med befintlig data,
+     skickar uppdatering via API, validerar tomt namn, avbryt stänger formulär,
+     visar API-felmeddelande vid uppdateringsfel
+   - Create form: öppnas via Ny tävling-knapp, skickar ny tävling via API,
+     validerar tomt namn, Avbryt stänger formulär
+   - Import/Export: renderas när tävling finns, döljs utan tävling,
+     byter importformat mellan IOF och CSV
+   Filer skapade:
+   - src/ui/web/src/__tests__/competition-page.test.tsx
+   Resultat: 18/18 tester PASSED.
