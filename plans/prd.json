@@ -965,7 +965,7 @@
           "id": "4.32",
           "title": "Test: Class-sida",
           "description": "Komponenttest: rendera klasslista, skapa klass, ställ in bana, spara, verifiera API-anrop.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.13",
             "4.26"

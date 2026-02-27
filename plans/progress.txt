@@ -1130,3 +1130,23 @@
    Filer skapade:
    - src/ui/web/src/__tests__/team-page.test.tsx
    Resultat: 29/29 tester PASSED.
+
+[2026-02-27] Task 4.32 DONE: Test: Class-sida
+   Skapade class-page.test.tsx med 24 tester som verifierar:
+   - Loading state: visar "Laddar klasser…"
+   - Rendering: klasslista med namn, typ, sträckor, bana (resolved via courseMap)
+   - Räknartext: "3 av 3 klasser"
+   - Felhantering: API-fel visar felmeddelande, tom lista visar empty state
+   - Sök och filter: namn-sök, typ-filter via dropdown,
+     no-match-meddelande med uppdaterad räknare
+   - Sortering: standard namn asc, klick byter riktning
+   - Create form: öppnas via Ny klass-knapp, skickar via API,
+     validerar tomt namn, avbryt stänger, visar banalternativ (Ingen bana + banor),
+     visar API-felmeddelande
+   - Edit form: visas vid markerad rad, populeras med befintlig data (namn, typ,
+     sträckor, bana), skickar uppdatering via API, validerar tomt namn,
+     avbryt stänger, visar API-felmeddelande vid uppdateringsfel
+   - Delete: tar bort klass via API, rensar markering
+   Filer skapade:
+   - src/ui/web/src/__tests__/class-page.test.tsx
+   Resultat: 24/24 tester PASSED.
