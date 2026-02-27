@@ -561,3 +561,14 @@
    - testApiResponseConflictHelper: ApiResponse::conflict() returnerar status 409
    Handler använder req.negotiateContentType() för att välja JSON vs XML svar.
    440/440 tester passerade med clang++ på macOS.
+
+[2026-02-27] Task 4.4 DONE: Skapa typad API-klient (axios)
+   Skapade src/ui/web/src/api/client.ts med konfigurerad axios-instans:
+   - Base URL: /api, timeout: 15s, JSON headers (Content-Type + Accept).
+   - Exporterade ApiError-interface och ApiRequestError-klass med status, message, detail.
+   - Response-interceptor mappar HTTP-fel till typade ApiRequestError:
+     - 401→"Ej autentiserad", 403→"Åtkomst nekad", 404→"Resursen hittades inte",
+       409→"Konflikt", 500→"Internt serverfel", 400→"Ogiltig förfrågan".
+     - Nätverksfel (inget response) → "Kunde inte nå servern".
+     - Serverns message/detail-fält används om tillgängliga.
+   TypeScript strict-check, build (32 moduler) och lint passerade utan fel.

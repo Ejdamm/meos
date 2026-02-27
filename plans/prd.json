@@ -686,7 +686,7 @@
           "id": "4.4",
           "title": "Skapa typad API-klient (axios)",
           "description": "Skapa src/ui/web/src/api/client.ts med konfigurerad axios-instans: base URL, timeout, JSON headers. Lägg till response-interceptor för felhantering (401/403/500 → typade felmeddelanden).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.3"
           ]
