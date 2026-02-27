@@ -945,7 +945,7 @@
           "id": "4.30",
           "title": "Test: Runner-sida",
           "description": "Komponenttest: rendera lista, filtrera, sök, öppna redigera-modal, spara, verifiera API-anrop. Testa tom lista och laddningsindikator.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.11",
             "4.26"

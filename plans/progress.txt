@@ -1076,3 +1076,22 @@
    - src/net/restserver.cpp (static file serving + setWebRoot)
    - src/app/server_main.cpp (--web-root flag + construct())
    Build: g++ kompilering OK. Tester: 470/470 passed.
+
+[2026-02-27] Task 4.30 DONE: Test: Runner-sida
+   Skapade runner-page.test.tsx med 25 tester som verifierar:
+   - Loading state: visar "Laddar deltagare…"
+   - Rendering: deltagarlista med namn, nummerlapp, bricka, status, tid
+   - Räknartext: "2 av 2 deltagare"
+   - Felhantering: API-fel visar felmeddelande, tom lista visar empty state
+   - Sök och filter: namn-sök, nummerlapp-sök, klass-filter, klubb-filter,
+     no-match-meddelande med uppdaterad räknare
+   - Sortering: standard namn asc, klick byter riktning
+   - Create form: öppnas via Ny deltagare-knapp, skickar via API,
+     validerar tomt namn, avbryt stänger, visar API-felmeddelande
+   - Edit form: visas vid markerad rad, populeras med befintlig data,
+     skickar uppdatering via API, validerar tomt namn, avbryt stänger,
+     visar API-felmeddelande vid uppdateringsfel
+   - Delete: tar bort deltagare via API, rensar markering
+   Filer skapade:
+   - src/ui/web/src/__tests__/runner-page.test.tsx
+   Resultat: 25/25 tester PASSED.
