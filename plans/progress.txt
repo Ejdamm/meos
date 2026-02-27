@@ -588,3 +588,22 @@
    - testGuessMimeTypes: 8 MIME-typer verifierade (.html, .js, .css, .json, .png, .svg, .woff2, okänd)
    Använde TempWebRoot-hjälpstruktur som skapar/rensar temp-katalog med testfiler.
    470/470 tester passerade (30 nya) med g++ på Linux.
+
+[2026-02-27] Task 4.5 DONE: Skapa API-funktioner per resurs
+   Skapade typade API-funktioner i src/ui/web/src/api/ för alla resurser:
+   - runners.ts: getRunners, getRunner, createRunner, updateRunner, deleteRunner
+   - teams.ts: getTeams, getTeam, createTeam, updateTeam, deleteTeam
+   - classes.ts: getClasses, getClass, createClass, updateClass, deleteClass
+   - courses.ts: getCourses, getCourse, createCourse, updateCourse, deleteCourse
+   - controls.ts: getControls, getControl, createControl, updateControl, deleteControl
+   - clubs.ts: getClubs, getClub, createClub, updateClub, deleteClub
+   - cards.ts: getCards, getCard, readCard
+   - competitions.ts: getCompetitions, getCompetition, updateCompetition
+   - lists.ts: getLists, getList, getResults
+   - speaker.ts: getSpeakerConfig, updateSpeakerConfig, getSpeakerMonitor
+   - automations.ts: getAutomations, getAutomation, createAutomation, updateAutomation, deleteAutomation, getAutomationStatus
+   - importExport.ts: importCsv, importIof, exportCsv, exportIof
+   - punches.ts: getPunches
+   - index.ts: barrel re-export av alla funktioner och typer
+   Alla funktioner använder apiClient med typade generics och returnerar Promise.
+   npm run build: 32 moduler, inga TS-fel. npm run lint: 0 fel.

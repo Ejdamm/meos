@@ -695,7 +695,7 @@
           "id": "4.5",
           "title": "Skapa API-funktioner per resurs",
           "description": "Skapa typade funktioner i src/ui/web/src/api/: getRunners(): Promise<Runner[]>, getRunner(id): Promise<Runner>, createRunner(data): Promise<Runner>, updateRunner(id, data), deleteRunner(id). Motsvarande för alla resurser.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.4"
           ]
