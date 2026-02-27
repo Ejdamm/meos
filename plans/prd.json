@@ -840,7 +840,7 @@
           "id": "4.20",
           "title": "Auto-sida (TabAuto)",
           "description": "Implementera: lista automationer, starta/stoppa, visa status med live-uppdateringar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.19"

@@ -840,3 +840,19 @@
    - src/ui/web/src/pages/SpeakerPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/SpeakerPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (SpeakerPage som separat chunk).
+
+[2026-02-27] Task 4.20 DONE: Auto-sida (TabAuto)
+   Implementerade fullständig AutomationsPage med:
+   - Tabell med sortering (typ, namn) och riktningsindikator
+   - Sökfält som filtrerar på automationsnamn, typ och typ-etikett
+   - Radval med visuell markering (klick för att välja/avmarkera)
+   - Modal för att skapa ny automation med typ-dropdown (9 kända typer) och namn
+   - Typ-badges med färgkodning per automationstyp
+   - Ta bort-knapp för vald automation med mutation-hook
+   - Polling-indikator med animerad prick
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och sparfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/AutomationsPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/AutomationsPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (AutomationsPage som separat chunk).
