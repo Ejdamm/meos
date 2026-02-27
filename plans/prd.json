@@ -1119,7 +1119,7 @@
           "id": "5.11",
           "title": "Test: docker-compose full stack",
           "description": "CI-steg: starta hela stacken (app + MySQL) med docker-compose up. Verifiera att appen ansluter till databasen och serverar React-frontend. Stoppa och verifiera graceful shutdown.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.4"
           ]
@@ -1128,7 +1128,7 @@
           "id": "5.12",
           "title": "Konfigurera CI quality gates",
           "description": "Konfigurera CI-pipeline: aggregera testresultat (C++, Vitest, Playwright) till JUnit XML. Kräv minst 80% coverage för ny kod. Fail vid: testfel, TypeScript-kompileringsfel, ESLint-varningar. Spara Playwright-screenshots som CI-artifacts.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.7",
             "5.10",

@@ -1367,3 +1367,36 @@
    Filer skapade:
    - src/ui/web/e2e/parallel-clients.spec.ts
    Resultat: 4/4 tester PASSED.
+
+[2026-02-27] Task 5.11 DONE: Test: docker-compose full stack
+   Lade till docker-compose-test job i .github/workflows/build.yml:
+   - docker compose up -d --build --wait (med 180s timeout)
+   - Polling: väntar på MeOS /meos endpoint (max 45 iterationer × 4s)
+   - Verifierar app serverar frontend (HTTP 2xx/3xx)
+   - Verifierar MySQL hälsa via mysqladmin ping
+   - Graceful shutdown: docker compose down --timeout 30, verifierar inga containers kvar
+   Filer ändrade:
+   - .github/workflows/build.yml (ny docker-compose-test job)
+
+[2026-02-27] Task 5.12 DONE: Konfigurera CI quality gates
+   Skapade web-quality job i .github/workflows/build.yml med komplett kvalitetspipeline:
+   - TypeScript type check (tsc --noEmit)
+   - ESLint linting
+   - Vitest enhetstester med coverage (v8 provider)
+     - JUnit XML-rapport (reports/vitest-junit.xml) i CI
+     - Coverage: lcov + json-summary + text
+     - Tröskelvärden: 70% lines/functions/statements, 65% branches (baseline)
+   - Playwright E2E-tester med JUnit-rapport i CI
+   - Upload test reports som CI-artifacts (14 dagars retention)
+   - Upload Playwright screenshots vid failure (7 dagars retention)
+   C++ tester: lade till --output-junit för CTest JUnit XML i build-linux job
+   Tillagda npm-scripts: test:coverage, typecheck
+   Installerade: @vitest/coverage-v8
+   Filer ändrade:
+   - .github/workflows/build.yml (web-quality job, build-linux JUnit output)
+   - src/ui/web/vitest.config.ts (coverage + JUnit reporters)
+   - src/ui/web/playwright.config.ts (JUnit reporter i CI)
+   - src/ui/web/package.json (test:coverage, typecheck scripts, devDep)
+   - src/ui/web/.gitignore (/reports/)
+   Validering: 313/313 Vitest-tester PASSED, coverage thresholds PASSED,
+   TypeScript typecheck PASSED.
