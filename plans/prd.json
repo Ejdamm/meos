@@ -925,7 +925,7 @@
           "id": "4.28",
           "title": "Test: Tanstack Query hooks",
           "description": "Testa varje useX()-hook (useRunners, useRunner, useCreateRunner etc.): loading-state, success-state med korrekt data, error-state, cache-invalidering efter mutation.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.6",
             "4.26"

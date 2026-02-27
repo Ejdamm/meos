@@ -1000,3 +1000,22 @@
    - Alla 7 sidmodaler (Modal, aria-*, role)
    - 4 ovriga sidor (aria-live pa laddningsmeddelanden)
    Build: inga TS-fel. Lint: 0 nya fel. Tester: 49/49 passed. Vite build OK.
+
+[2026-02-27] Task 4.28 DONE: Test: Tanstack Query hooks
+   Skapade query-hooks.test.tsx med 27 tester som verifierar:
+   - Queries: loading-state, success-state med korrekt data, error-state
+   - useRunner/useCard: disabled-state när id <= 0 (fetchStatus idle)
+   - Alla list-queries: useRunners, useCompetitions, useClasses, useTeams,
+     useCourses, useControls, useClubs, useCards returnerar korrekt fixture-data
+   - Detail-queries: useRunner, useCompetition, useCard hämtar enskild resurs
+   - Create-mutations: useCreateRunner, useCreateCompetition, useCreateClass,
+     useCreateTeam, useCreateClub anropar invalidateQueries med rätt queryKey
+   - Update-mutations: useUpdateRunner, useUpdateCompetition, useUpdateControl
+     invaliderar både list- och detail-cache
+   - Delete-mutations: useDeleteRunner, useDeleteClass, useDeleteCourse
+     invaliderar list-cache och tar bort detail-cache via removeQueries
+   - useReadCard: mutation lyckas, returnerar korrekt cardNo, invaliderar cache
+   - Error-state: useRunners och useCompetitions med 500-svar ger isError
+   Filer skapade:
+   - src/ui/web/src/__tests__/query-hooks.test.tsx
+   Resultat: 27/27 tester PASSED.
