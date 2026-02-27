@@ -1046,7 +1046,7 @@
           "id": "5.3",
           "title": "Skapa Dockerfile med multi-stage build",
           "description": "Skapa Dockerfile: steg 1 Node.js — npm run build (React), steg 2 GCC/Clang — cmake build (C++-server), steg 3 minimal runtime-image med enbart binär + dist/.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.2",
             "2.19"

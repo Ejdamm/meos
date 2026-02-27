@@ -1095,3 +1095,17 @@
    Filer skapade:
    - src/ui/web/src/__tests__/runner-page.test.tsx
    Resultat: 25/25 tester PASSED.
+
+[2026-02-27] Task 5.3 DONE: Skapa Dockerfile med multi-stage build
+   Skapade Dockerfile med tre steg:
+   - Stage 1 (web-builder): Node.js 20 Alpine, npm ci + npm run build (React)
+   - Stage 2 (server-builder): Ubuntu 24.04, vcpkg + cmake/ninja, bygger
+     MeOS-server med -DMEOS_USE_MYSQL=OFF -DMEOS_BUILD_WEB=OFF
+   - Stage 3 (runtime): Minimal Ubuntu 24.04, bara libssl + ca-certificates,
+     kopierar binär + dist/ + lang/, kör som non-root user "meos"
+   - EXPOSE 2009 (default server port)
+   - ENTRYPOINT ["./MeOS-server"] CMD ["--web-root", "./dist"]
+   Skapade .dockerignore (exkluderar .git, build, node_modules, dist, etc.)
+   Filer skapade:
+   - Dockerfile
+   - .dockerignore

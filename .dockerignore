@@ -1,0 +1,10 @@
+.git
+build
+build_test
+a.out
+src/ui/web/node_modules
+src/ui/web/dist
+plans
+*.exe
+*.obj
+*.o
