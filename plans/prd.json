@@ -760,7 +760,7 @@
           "id": "4.12",
           "title": "Team-sida (TabTeam)",
           "description": "Implementera: lista/sök lag, skapa lag, hantera lagmedlemmar (select eller drag-and-drop), sträcktilldelning, lagresultat.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.11"
