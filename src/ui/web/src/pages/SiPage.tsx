@@ -151,7 +151,7 @@ function SiPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="si-page"><p>Laddar brickor…</p></div>;
+    return <div className="si-page"><p aria-live="polite">Laddar brickor…</p></div>;
   }
 
   if (isError) {

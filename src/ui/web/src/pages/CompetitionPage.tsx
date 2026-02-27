@@ -370,7 +370,7 @@ function CompetitionPage(): React.JSX.Element {
   const canEdit = isEditing && competition;
 
   if (isLoading) {
-    return <div className="comp-page"><p>Laddar tävlingsdata…</p></div>;
+    return <div className="comp-page"><p aria-live="polite">Laddar tävlingsdata…</p></div>;
   }
 
   if (isError) {

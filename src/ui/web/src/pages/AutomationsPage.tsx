@@ -4,6 +4,7 @@ import {
   useCreateAutomation,
   useDeleteAutomation,
 } from '../hooks';
+import { Modal } from '../components/Modal';
 import type { Automation } from '../api';
 import './AutomationsPage.css';
 
@@ -76,13 +77,12 @@ function CreateModal({
   }
 
   return (
-    <div className="auto-modal-overlay" onClick={onClose}>
-      <div className="auto-modal" onClick={(e) => e.stopPropagation()}>
-        <h3>Skapa automation</h3>
+    <Modal title="Skapa automation" onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="auto-modal__field">
-            <label className="auto-modal__label">Typ</label>
+            <label className="auto-modal__label" htmlFor="auto-type">Typ</label>
             <select
+              id="auto-type"
               className="auto-modal__select"
               value={form.type}
               onChange={(e) => setForm({ ...form, type: e.target.value })}
@@ -95,14 +95,14 @@ function CreateModal({
             </select>
           </div>
           <div className="auto-modal__field">
-            <label className="auto-modal__label">Namn</label>
+            <label className="auto-modal__label" htmlFor="auto-name">Namn</label>
             <input
+              id="auto-name"
               className="auto-modal__input"
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder="default"
-              aria-label="Automationsnamn"
             />
           </div>
           <div className="auto-modal__actions">
@@ -122,8 +122,7 @@ function CreateModal({
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -216,7 +215,7 @@ function AutomationsPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="auto-page"><p>Laddar automationer…</p></div>;
+    return <div className="auto-page"><p aria-live="polite">Laddar automationer…</p></div>;
   }
 
   if (isError) {
@@ -324,7 +323,7 @@ function AutomationsPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="auto-count">
+      <p className="auto-count" role="status">
         {sorted.length} av {items.length} automationer
       </p>
 

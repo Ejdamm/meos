@@ -1,3 +1,20 @@
+.skip-nav {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: #1a73e8;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-nav:focus {
+  left: 0;
+}
+
 .app-shell {
   display: flex;
   flex-direction: column;

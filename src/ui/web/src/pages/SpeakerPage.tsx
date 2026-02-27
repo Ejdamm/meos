@@ -163,7 +163,7 @@ function SpeakerPage(): React.JSX.Element {
   }
 
   if (configLoading) {
-    return <div className="speaker-page"><p>Laddar speaker-konfiguration…</p></div>;
+    return <div className="speaker-page"><p aria-live="polite">Laddar speaker-konfiguration…</p></div>;
   }
 
   if (configError) {

@@ -6,6 +6,7 @@ import {
   useDeleteClass,
   useCourses,
 } from '../hooks';
+import { Modal } from '../components/Modal';
 import type { Class } from '../types';
 import './ClassesPage.css';
 
@@ -63,9 +64,7 @@ function ClassFormModal({
   }
 
   return (
-    <div className="classes-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="classes-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="classes-modal__title">{title}</h3>
+    <Modal title={title} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="classes-form__field">
             <label className="classes-form__label" htmlFor="class-name">Namn</label>
@@ -75,9 +74,10 @@ function ClassFormModal({
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              autoFocus
+              aria-invalid={nameError ? true : undefined}
+              aria-describedby={nameError ? 'class-name-error' : undefined}
             />
-            {nameError && <span className="classes-form__error">{nameError}</span>}
+            {nameError && <span id="class-name-error" className="classes-form__error" role="alert">{nameError}</span>}
           </div>
           <div className="classes-form__field">
             <label className="classes-form__label" htmlFor="class-type">Typ</label>
@@ -123,10 +123,9 @@ function ClassFormModal({
               Avbryt
             </button>
           </div>
-          {error && <p className="classes-form__error">{error}</p>}
+          {error && <p className="classes-form__error" role="alert">{error}</p>}
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -240,7 +239,7 @@ function ClassesPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="classes-page"><p>Laddar klasser…</p></div>;
+    return <div className="classes-page"><p aria-live="polite">Laddar klasser…</p></div>;
   }
 
   if (isError) {
@@ -348,7 +347,7 @@ function ClassesPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="classes-count">
+      <p className="classes-count" role="status">
         {sorted.length} av {classes?.length ?? 0} klasser
       </p>
 

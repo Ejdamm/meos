@@ -970,3 +970,33 @@
    Filer ändrade:
    - src/ui/web/src/hooks/index.ts (export av useKeyboardShortcuts, useEscapeKey, KeyboardShortcut)
    Build: inga TS-fel. Tester: 16/16 passed.
+
+[2026-02-27] Task 4.25 DONE: Accessibility (a11y)
+   Implementerade fullstandig tillganglighet:
+   - Skapade useFocusTrap hook: fangar Tab/Shift+Tab inom container, fokuserar
+     forsta fokuserbara elementet vid mount, aterstaller fokus vid unmount
+   - Skapade ateranvandbar Modal-komponent med:
+     * role="dialog", aria-modal="true", aria-labelledby (refererar rubrik)
+     * Focus trap via useFocusTrap
+     * ESC-tangent stanger via useEscapeKey
+     * Backdrop-klick stanger
+     * Fokusaterstallning till triggerknapp vid stangning
+   - Refaktorerat alla 7 sidmodaler (Runners, Classes, Clubs, Controls,
+     Courses, Teams, Automations) till att anvanda Modal-komponenten
+   - AutomationsPage: lade till saknade role="dialog", aria-modal, htmlFor/id
+   - Lade till aria-invalid och aria-describedby pa alla valideringsfel
+   - Lade till role="alert" pa alla felmeddelanden i modaler
+   - Lade till aria-live="polite" pa alla laddningsindikationer (11 sidor)
+   - Lade till role="status" pa alla raknartexter (7 sidor)
+   - Lade till skip-navigation-lank i AppShell
+   - Lade till id="main-content" pa main for skip-nav-mal
+   Filer skapade:
+   - src/ui/web/src/hooks/useFocusTrap.ts
+   - src/ui/web/src/components/Modal.tsx + Modal.css
+   - src/ui/web/src/__tests__/modal.test.tsx (8 tester)
+   Filer andrade:
+   - src/ui/web/src/hooks/index.ts (export useFocusTrap)
+   - src/ui/web/src/components/layout/AppShell.tsx + AppShell.css (skip-nav)
+   - Alla 7 sidmodaler (Modal, aria-*, role)
+   - 4 ovriga sidor (aria-live pa laddningsmeddelanden)
+   Build: inga TS-fel. Lint: 0 nya fel. Tester: 49/49 passed. Vite build OK.

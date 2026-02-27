@@ -5,6 +5,7 @@ import {
   useUpdateClub,
   useDeleteClub,
 } from '../hooks';
+import { Modal } from '../components/Modal';
 import type { Club } from '../types';
 import './ClubsPage.css';
 
@@ -53,9 +54,7 @@ function ClubFormModal({
   }
 
   return (
-    <div className="clubs-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="clubs-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="clubs-modal__title">{title}</h3>
+    <Modal title={title} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="clubs-form__field">
             <label className="clubs-form__label" htmlFor="club-name">Namn</label>
@@ -65,9 +64,10 @@ function ClubFormModal({
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              autoFocus
+              aria-invalid={nameError ? true : undefined}
+              aria-describedby={nameError ? 'club-name-error' : undefined}
             />
-            {nameError && <span className="clubs-form__error">{nameError}</span>}
+            {nameError && <span id="club-name-error" className="clubs-form__error" role="alert">{nameError}</span>}
           </div>
           <div className="clubs-form__field">
             <label className="clubs-form__label" htmlFor="club-country">Nationalitet</label>
@@ -88,10 +88,9 @@ function ClubFormModal({
               Avbryt
             </button>
           </div>
-          {error && <p className="clubs-form__error">{error}</p>}
+          {error && <p className="clubs-form__error" role="alert">{error}</p>}
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -171,7 +170,7 @@ function ClubsPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="clubs-page"><p>Laddar klubbar…</p></div>;
+    return <div className="clubs-page"><p aria-live="polite">Laddar klubbar…</p></div>;
   }
 
   if (isError) {
@@ -260,7 +259,7 @@ function ClubsPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="clubs-count">
+      <p className="clubs-count" role="status">
         {sorted.length} av {clubs?.length ?? 0} klubbar
       </p>
 

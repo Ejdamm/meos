@@ -8,6 +8,7 @@ import {
   useClubs,
   useRunners,
 } from '../hooks';
+import { Modal } from '../components/Modal';
 import type { Team, LegResult } from '../types';
 import './TeamsPage.css';
 
@@ -109,9 +110,7 @@ function TeamFormModal({
   }
 
   return (
-    <div className="teams-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="teams-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="teams-modal__title">{title}</h3>
+    <Modal title={title} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="teams-form__field">
             <label className="teams-form__label" htmlFor="team-name">Namn</label>
@@ -121,9 +120,10 @@ function TeamFormModal({
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              autoFocus
+              aria-invalid={nameError ? true : undefined}
+              aria-describedby={nameError ? 'team-name-error' : undefined}
             />
-            {nameError && <span className="teams-form__error">{nameError}</span>}
+            {nameError && <span id="team-name-error" className="teams-form__error" role="alert">{nameError}</span>}
           </div>
           <div className="teams-form__field">
             <label className="teams-form__label" htmlFor="team-class">Klass</label>
@@ -210,10 +210,9 @@ function TeamFormModal({
               Avbryt
             </button>
           </div>
-          {error && <p className="teams-form__error">{error}</p>}
+          {error && <p className="teams-form__error" role="alert">{error}</p>}
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -374,7 +373,7 @@ function TeamsPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="teams-page"><p>Laddar lag…</p></div>;
+    return <div className="teams-page"><p aria-live="polite">Laddar lag…</p></div>;
   }
 
   if (isError) {
@@ -501,7 +500,7 @@ function TeamsPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="teams-count">
+      <p className="teams-count" role="status">
         {sorted.length} av {teams?.length ?? 0} lag
       </p>
 

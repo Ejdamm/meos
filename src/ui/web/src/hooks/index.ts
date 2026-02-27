@@ -21,3 +21,4 @@ export { usePunches } from './usePunches';
 export { useToast } from '../components/Toast';
 export { useKeyboardShortcuts, useEscapeKey } from './useKeyboardShortcuts';
 export type { KeyboardShortcut } from './useKeyboardShortcuts';
+export { useFocusTrap } from './useFocusTrap';

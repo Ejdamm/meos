@@ -7,6 +7,7 @@ import {
   useClasses,
   useClubs,
 } from '../hooks';
+import { Modal } from '../components/Modal';
 import type { Runner } from '../types';
 import './RunnersPage.css';
 
@@ -95,9 +96,7 @@ function RunnerFormModal({
   }
 
   return (
-    <div className="runners-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="runners-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="runners-modal__title">{title}</h3>
+    <Modal title={title} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="runners-form__field">
             <label className="runners-form__label" htmlFor="runner-name">Namn</label>
@@ -107,9 +106,10 @@ function RunnerFormModal({
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              autoFocus
+              aria-invalid={nameError ? true : undefined}
+              aria-describedby={nameError ? 'runner-name-error' : undefined}
             />
-            {nameError && <span className="runners-form__error">{nameError}</span>}
+            {nameError && <span id="runner-name-error" className="runners-form__error" role="alert">{nameError}</span>}
           </div>
           <div className="runners-form__field">
             <label className="runners-form__label" htmlFor="runner-class">Klass</label>
@@ -189,10 +189,9 @@ function RunnerFormModal({
               Avbryt
             </button>
           </div>
-          {error && <p className="runners-form__error">{error}</p>}
+          {error && <p className="runners-form__error" role="alert">{error}</p>}
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -314,7 +313,7 @@ function RunnersPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="runners-page"><p>Laddar deltagare…</p></div>;
+    return <div className="runners-page"><p aria-live="polite">Laddar deltagare…</p></div>;
   }
 
   if (isError) {
@@ -443,7 +442,7 @@ function RunnersPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="runners-count">
+      <p className="runners-count" role="status">
         {sorted.length} av {runners?.length ?? 0} deltagare
       </p>
 

@@ -6,6 +6,7 @@ import {
   useDeleteCourse,
   useControls,
 } from '../hooks';
+import { Modal } from '../components/Modal';
 import type { Course, Control } from '../types';
 import './CoursesPage.css';
 
@@ -166,9 +167,7 @@ function CourseFormModal({
   }
 
   return (
-    <div className="courses-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="courses-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="courses-modal__title">{title}</h3>
+    <Modal title={title} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="courses-form__field">
             <label className="courses-form__label" htmlFor="course-name">Namn</label>
@@ -178,9 +177,10 @@ function CourseFormModal({
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              autoFocus
+              aria-invalid={nameError ? true : undefined}
+              aria-describedby={nameError ? 'course-name-error' : undefined}
             />
-            {nameError && <span className="courses-form__error">{nameError}</span>}
+            {nameError && <span id="course-name-error" className="courses-form__error" role="alert">{nameError}</span>}
           </div>
           <div className="courses-form__field">
             <label className="courses-form__label" htmlFor="course-length">Längd (m)</label>
@@ -206,10 +206,9 @@ function CourseFormModal({
               Avbryt
             </button>
           </div>
-          {error && <p className="courses-form__error">{error}</p>}
+          {error && <p className="courses-form__error" role="alert">{error}</p>}
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -296,7 +295,7 @@ function CoursesPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="courses-page"><p>Laddar banor…</p></div>;
+    return <div className="courses-page"><p aria-live="polite">Laddar banor…</p></div>;
   }
 
   if (isError) {
@@ -389,7 +388,7 @@ function CoursesPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="courses-count">
+      <p className="courses-count" role="status">
         {sorted.length} av {courses?.length ?? 0} banor
       </p>
 

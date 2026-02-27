@@ -72,7 +72,7 @@ function ListsPage(): React.JSX.Element {
   }
 
   if (listsLoading) {
-    return <div className="lists-page"><p>Laddar listor…</p></div>;
+    return <div className="lists-page"><p aria-live="polite">Laddar listor…</p></div>;
   }
 
   if (listsError) {
@@ -155,7 +155,7 @@ function ListsPage(): React.JSX.Element {
           />
         </div>
         {resultsLoading ? (
-          <p>Laddar resultat…</p>
+          <p aria-live="polite">Laddar resultat…</p>
         ) : (
           <>
             <div className="lists-table-wrap">

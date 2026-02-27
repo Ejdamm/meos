@@ -23,6 +23,9 @@ const navItems: NavItem[] = [
 function AppShell(): React.JSX.Element {
   return (
     <div className="app-shell">
+      <a href="#main-content" className="skip-nav">
+        Hoppa till huvudinnehåll
+      </a>
       <header className="app-header">
         <h1 className="app-header__title">MeOS</h1>
       </header>
@@ -41,7 +44,7 @@ function AppShell(): React.JSX.Element {
         ))}
       </nav>
 
-      <main className="app-main">
+      <main id="main-content" className="app-main">
         <Outlet />
       </main>
     </div>

@@ -897,7 +897,7 @@
           "id": "4.25",
           "title": "Accessibility (a11y)",
           "description": "Lägg till aria-labels, aria-live-regioner, korrekta roller, focus management vid modal-öppning/stängning. Testa med screen reader.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.22"
           ]

@@ -5,6 +5,7 @@ import {
   useUpdateControl,
   useDeleteControl,
 } from '../hooks';
+import { Modal } from '../components/Modal';
 import type { Control } from '../types';
 import './ControlsPage.css';
 
@@ -76,9 +77,7 @@ function ControlFormModal({
   }
 
   return (
-    <div className="controls-modal-overlay" onClick={onClose} role="dialog" aria-modal="true" aria-label={title}>
-      <div className="controls-modal" onClick={(e) => e.stopPropagation()}>
-        <h3 className="controls-modal__title">{title}</h3>
+    <Modal title={title} onClose={onClose}>
         <form onSubmit={handleSubmit}>
           <div className="controls-form__field">
             <label className="controls-form__label" htmlFor="control-name">Namn</label>
@@ -88,9 +87,10 @@ function ControlFormModal({
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              autoFocus
+              aria-invalid={nameError ? true : undefined}
+              aria-describedby={nameError ? 'control-name-error' : undefined}
             />
-            {nameError && <span className="controls-form__error">{nameError}</span>}
+            {nameError && <span id="control-name-error" className="controls-form__error" role="alert">{nameError}</span>}
           </div>
           <div className="controls-form__field">
             <label className="controls-form__label" htmlFor="control-codes">Kontrollkoder (kommaseparerade)</label>
@@ -122,10 +122,9 @@ function ControlFormModal({
               Avbryt
             </button>
           </div>
-          {error && <p className="controls-form__error">{error}</p>}
+          {error && <p className="controls-form__error" role="alert">{error}</p>}
         </form>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -211,7 +210,7 @@ function ControlsPage(): React.JSX.Element {
   }
 
   if (isLoading) {
-    return <div className="controls-page"><p>Laddar kontroller…</p></div>;
+    return <div className="controls-page"><p aria-live="polite">Laddar kontroller…</p></div>;
   }
 
   if (isError) {
@@ -308,7 +307,7 @@ function ControlsPage(): React.JSX.Element {
         </table>
       </div>
 
-      <p className="controls-count">
+      <p className="controls-count" role="status">
         {sorted.length} av {controls?.length ?? 0} kontroller
       </p>
 
