@@ -1243,3 +1243,17 @@
    Filer skapade:
    - src/ui/web/src/__tests__/routing-error-boundary.test.tsx
    Resultat: 21/21 tester PASSED.
+
+[2026-02-27] Task 4.36 DONE: Test: accessibility (a11y-audit)
+   Skapade a11y-audit.test.tsx med 11 tester som verifierar:
+   - Installerade vitest-axe (axe-core wrapper för Vitest)
+   - Konfigurerade expect.extend med toHaveNoViolations-matcher
+   - Inaktiverade color-contrast-regel (ej tillförlitlig i jsdom)
+   - Varje sida renderas med MSW-mockade API-svar, väntar på loaded state
+   - axe-core körs på renderat DOM för varje sida
+   Sidor testade (11):
+   CompetitionPage, RunnersPage, TeamsPage, ClassesPage, CoursesPage,
+   ControlsPage, ClubsPage, SiPage, ListsPage, SpeakerPage, AutomationsPage
+   Filer skapade:
+   - src/ui/web/src/__tests__/a11y-audit.test.tsx
+   Resultat: 11/11 tester PASSED.

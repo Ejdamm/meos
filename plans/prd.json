@@ -1011,7 +1011,7 @@
           "id": "4.36",
           "title": "Test: accessibility (a11y-audit)",
           "description": "Kör axe-core accessibility audit på varje sida via @axe-core/react eller jest-axe. Verifiera inga allvarliga a11y-fel.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.25",
             "4.26"
