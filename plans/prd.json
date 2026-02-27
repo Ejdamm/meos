@@ -1000,7 +1000,7 @@
           "id": "4.35",
           "title": "Test: routing och error boundary",
           "description": "Testa att alla routes renderar rätt komponent, lazy loading fungerar med Suspense, okänd route → 404-sida, krasch i child → ErrorBoundary fångar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "4.9",

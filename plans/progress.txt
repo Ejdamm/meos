@@ -1221,3 +1221,25 @@
    Filer skapade:
    - src/ui/web/src/__tests__/club-si-list-speaker-auto-page.test.tsx
    Resultat: 62/62 tester PASSED.
+
+[2026-02-27] Task 4.35 DONE: Test: routing och error boundary
+   Skapade routing-error-boundary.test.tsx med 21 tester som verifierar:
+   Routing (14 tester):
+   - Alla 11 routes renderar rätt komponent (/competition, /runners, /teams,
+     /classes, /courses, /controls, /clubs, /si, /lists, /speaker, /automations)
+   - Root (/) omdirigerar till /competition
+   - Okänd route omdirigerar till /competition
+   - AppShell layout renderas runt sidinnehåll
+   Lazy loading med Suspense (1 test):
+   - Visar "Laddar…" fallback medan lazy-komponent laddas, ersätts med innehåll
+   RouteErrorFallback (1 test):
+   - Route-komponent som kraschar visar felfallback med "Något gick fel" och retry-knapp
+   ErrorBoundary (5 tester):
+   - Renderar barn korrekt utan fel
+   - Fångar renderfel och visar fallback med felmeddelande
+   - Visar generiskt meddelande vid tomt Error
+   - Återhämtar sig vid klick på "Försök igen"
+   - Loggar fel till konsolen
+   Filer skapade:
+   - src/ui/web/src/__tests__/routing-error-boundary.test.tsx
+   Resultat: 21/21 tester PASSED.
