@@ -658,3 +658,14 @@
    Vite-build genererar separata chunk-filer per sida (code-splitting bekräftat).
    Barrel export i pages/index.ts. Outlet finns redan i AppShell.
    Build: 102 moduler, inga TS-fel. Lint: 0 fel.
+
+[2026-02-27] Task 4.9 DONE: Skapa global ErrorBoundary
+   Skapade ErrorBoundary-komponent och RouteErrorFallback:
+   - src/ui/web/src/components/ErrorBoundary.tsx: Class component med getDerivedStateFromError
+     och componentDidCatch. Visar "Något gick fel" med felmeddelande och "Försök igen"-knapp
+     som resettar state. Inline styles, role="alert" för a11y.
+   - src/ui/web/src/main.tsx: ErrorBoundary wrappat runt QueryClientProvider och App
+     för att fånga alla rendering-fel på toppnivå.
+   - src/ui/web/src/App.tsx: RouteErrorFallback med useRouteError() som errorElement
+     på root-routen, fångar react-router-specifika fel.
+   TypeScript strict-check, build (103 moduler) och lint passerade utan fel.

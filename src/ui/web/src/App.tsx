@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider, useRouteError } from 'react-router-dom';
 import { AppShell } from './components/layout';
 
 const CompetitionPage = lazy(() => import('./pages/CompetitionPage'));
@@ -18,9 +18,24 @@ function LazyPage({ children }: { children: React.ReactNode }): React.JSX.Elemen
   return <Suspense fallback={<div className="app-loading">Laddar…</div>}>{children}</Suspense>;
 }
 
+function RouteErrorFallback(): React.JSX.Element {
+  const error = useRouteError();
+  const message = error instanceof Error ? error.message : 'Ett oväntat fel inträffade.';
+  return (
+    <div role="alert" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', minHeight: '50vh', textAlign: 'center' }}>
+      <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Något gick fel</h2>
+      <p style={{ color: '#666', marginBottom: '1.5rem', maxWidth: '480px' }}>{message}</p>
+      <button onClick={() => window.location.reload()} style={{ padding: '0.5rem 1.5rem', fontSize: '1rem', cursor: 'pointer', border: '1px solid #ccc', borderRadius: '4px', background: '#fff' }}>
+        Försök igen
+      </button>
+    </div>
+  );
+}
+
 const router = createBrowserRouter([
   {
     element: <AppShell />,
+    errorElement: <RouteErrorFallback />,
     children: [
       { index: true, element: <Navigate to="/competition" replace /> },
       { path: 'competition', element: <LazyPage><CompetitionPage /></LazyPage> },

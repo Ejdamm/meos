@@ -731,7 +731,7 @@
           "id": "4.9",
           "title": "Skapa global ErrorBoundary",
           "description": "Skapa ErrorBoundary-komponent som fångar rendering-fel, visar användarvänligt felmeddelande och erbjuder 'Försök igen'-knapp. Wrappa app-routen.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.7"
           ]
