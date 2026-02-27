@@ -1,35 +1,30 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AppShell } from './components/layout';
 
-function App() {
-  const [count, setCount] = useState(0)
+function Placeholder({ title }: { title: string }): React.JSX.Element {
+  return <h2>{title}</h2>;
+}
 
+function App(): React.JSX.Element {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route index element={<Navigate to="/competition" replace />} />
+        <Route path="competition" element={<Placeholder title="Tävling" />} />
+        <Route path="runners" element={<Placeholder title="Deltagare" />} />
+        <Route path="teams" element={<Placeholder title="Lag" />} />
+        <Route path="classes" element={<Placeholder title="Klasser" />} />
+        <Route path="courses" element={<Placeholder title="Banor" />} />
+        <Route path="controls" element={<Placeholder title="Kontroller" />} />
+        <Route path="clubs" element={<Placeholder title="Klubbar" />} />
+        <Route path="si" element={<Placeholder title="SI" />} />
+        <Route path="lists" element={<Placeholder title="Listor" />} />
+        <Route path="speaker" element={<Placeholder title="Speaker" />} />
+        <Route path="automations" element={<Placeholder title="Automatik" />} />
+        <Route path="*" element={<Navigate to="/competition" replace />} />
+      </Route>
+    </Routes>
+  );
 }
 
 export default App

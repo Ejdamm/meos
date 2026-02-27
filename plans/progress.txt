@@ -627,3 +627,23 @@
    Varje hook har query keys-factory. Mutationer invaliderar list-cache och detail-cache.
    Live-polling hooks (speaker monitor, automation status, punches) accepterar refetchInterval.
    TypeScript strict-check, build (32 moduler) och lint passerade utan fel.
+
+[2026-02-27] Task 4.7 DONE: Skapa app-shell och huvudlayout
+   Skapade responsiv app-shell med header, tab-navigering och main-content area:
+   - src/ui/web/src/components/layout/AppShell.tsx: Huvudlayout med NavLink-baserad navigering
+     som matchar MeOS tabbsystem (Tävling, Deltagare, Lag, Klasser, Banor, Kontroller,
+     Klubbar, SI, Listor, Speaker, Automatik). Använder react-router-dom NavLink med
+     aktiv-klass för visuell feedback. <Outlet /> renderar route-content.
+   - src/ui/web/src/components/layout/AppShell.css: Responsiv layout med:
+     - Desktop (1024px+): full-size nav med 1rem padding
+     - Tablet (768-1023px): kompaktare nav-text och padding
+     - Mobil (<768px): scrollbar-nav med mindre typsnitt
+     - Light/dark mode stöd via prefers-color-scheme
+   - src/ui/web/src/components/layout/index.ts: barrel export
+   - src/ui/web/src/main.tsx: Wrappat med QueryClientProvider (staleTime: 30s, retry: 1)
+     och BrowserRouter.
+   - src/ui/web/src/App.tsx: Routes med AppShell-layout, placeholder-sidor för alla tabs,
+     redirect / → /competition, catch-all redirect.
+   - src/ui/web/src/index.css: Uppdaterad med box-sizing reset, 100vh root, app-anpassade
+     färger. Borttagna Vite-demo-stilar.
+   Build: 90 moduler, inga TS-fel. Lint: 0 fel.

@@ -713,7 +713,7 @@
           "id": "4.7",
           "title": "Skapa app-shell och huvudlayout",
           "description": "Bygg responsiv huvudlayout (desktop 1024px+ och surfplatta) med navigeringsmeny som motsvarar MeOS tabbsystem. Wrappa med QueryClientProvider.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.6"
           ]
