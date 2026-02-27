@@ -930,3 +930,26 @@
    Filer skapade:
    - src/ui/web/src/__tests__/api-client.test.ts
    Resultat: 16/16 tester PASSED.
+
+[2026-02-27] Task 4.23 DONE: Toast-notifikationer
+   Implementerade custom useToast-hook och ToastProvider med:
+   - ToastContext med addToast(type, message) API
+   - Tre toast-typer: success, error, info med färgkodning
+   - Auto-dismiss efter 4 sekunder (setTimeout)
+   - Manuell dismiss via stäng-knapp
+   - Animerad slide-in (CSS keyframes)
+   - aria-live="polite" och role="alert" för tillgänglighet
+   - Dark mode-stöd med @media (prefers-color-scheme: dark)
+   - Mobilanpassning: bottom-positionerad på små skärmar
+   - Integrerad i main.tsx (ToastProvider wrapping App)
+   - Exporterad via hooks/index.ts för enkel import
+   - Test-provider uppdaterad (renderWithProviders inkluderar ToastProvider)
+   Filer skapade:
+   - src/ui/web/src/components/Toast.tsx (komponent + hook + context)
+   - src/ui/web/src/components/Toast.css (stilar)
+   - src/ui/web/src/__tests__/toast.test.tsx (7 tester)
+   Filer ändrade:
+   - src/ui/web/src/main.tsx (ToastProvider)
+   - src/ui/web/src/hooks/index.ts (re-export useToast)
+   - src/ui/web/src/test/renderWithProviders.tsx (ToastProvider i testWrapper)
+   Build: inga TS-fel. Lint: 0 fel. Tester: 7/7 passed. Vite build OK.

@@ -879,7 +879,7 @@
           "id": "4.23",
           "title": "Toast-notifikationer",
           "description": "Skapa custom useToast-hook och Toast-komponent för success/error/info-meddelanden vid API-mutationer (skapa, uppdatera, radera, import/export).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.7"
           ]
