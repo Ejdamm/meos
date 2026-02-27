@@ -1092,7 +1092,7 @@
           "id": "5.8",
           "title": "E2E: import och export",
           "description": "Playwright-test: importera IOF XML-fil via Import-sidan, verifiera att data dyker upp i Runner-listan, exportera och verifiera filinnehåll.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.6"
           ]

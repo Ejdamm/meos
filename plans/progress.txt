@@ -1342,3 +1342,17 @@
    - Docker: single container och docker-compose full stack
    Filer ändrade:
    - README.md
+
+[2026-02-27] Task 5.8 DONE: E2E: import och export
+   Skapade import-export.spec.ts med 5 Playwright E2E-tester som verifierar:
+   - Import IOF XML-fil → löpare dyker upp på Deltagare-sidan
+   - Import CSV-fil → löpare dyker upp på Deltagare-sidan
+   - Export IOF XML → korrekt filnamn (export.xml) och statusmeddelande
+   - Export CSV → korrekt filnamn (export.csv) och statusmeddelande
+   - Round-trip: importera IOF XML → exportera → verifiera att exporterad fil
+     innehåller importerade löpare (Anna Svensson, Erik Johansson, Maria Karlsson)
+   Alla tester använder Playwright route-mocking för API-endpoints.
+   Import-mock uppdaterar runner-state så att efterföljande navigation visar data.
+   Filer skapade:
+   - src/ui/web/e2e/import-export.spec.ts
+   Resultat: 5/5 tester PASSED.
