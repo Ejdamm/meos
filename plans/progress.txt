@@ -775,3 +775,18 @@
    - src/ui/web/src/pages/ControlsPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/ControlsPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ControlsPage som separat chunk).
+
+[2026-02-27] Task 4.16 DONE: Club-sida (TabClub)
+   Implementerade fullständig ClubsPage med:
+   - Tabell med sortering (namn, nationalitet) och riktningsindikator
+   - Sökfält som filtrerar på klubbnamn och nationalitet
+   - Radval med visuell markering (klick för att välja/avmarkera)
+   - Modal för att skapa ny klubb med validering (namn krävs)
+   - Modal för att redigera vald klubb (namn, nationalitet)
+   - Ta bort-knapp för vald klubb med mutation-hook
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och sparfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/ClubsPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/ClubsPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ClubsPage som separat chunk).

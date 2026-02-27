@@ -800,7 +800,7 @@
           "id": "4.16",
           "title": "Club-sida (TabClub)",
           "description": "Implementera: lista/sök klubbar, registrera/redigera klubb, nationalitet.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.15"
