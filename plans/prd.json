@@ -1083,7 +1083,7 @@
           "id": "5.7",
           "title": "E2E: komplett tävlingsflöde",
           "description": "Playwright-test: skapa tävling → lägg till klasser → lägg till banor → registrera löpare → simulera stämplingar → generera resultatlista. Verifiera att hela flödet fungerar end-to-end.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.6"
           ]

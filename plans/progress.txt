@@ -1297,3 +1297,21 @@
    - src/ui/web/package.json (scripts + devDependencies)
    - src/ui/web/.gitignore (Playwright-artefakter)
    Resultat: 18/18 tester PASSED.
+
+[2026-02-27] Task 5.7 DONE: E2E: komplett tävlingsflöde
+   Skapade competition-flow.spec.ts med 5 Playwright E2E-tester som verifierar:
+   Komplett flöde (1 test):
+   - Skapa tävling → se klass → registrera löpare → läs SI-bricka → visa resultat
+   - Använder Playwright route-mocking för alla API-endpoints
+   - Verifierar att data flödar mellan sidor (runner syns i resultat efter brickavläsning)
+   Redigera tävling (1 test):
+   - Öppnar redigering, byter namn, sparar → verifierar uppdaterat namn
+   Skapa bana (1 test):
+   - Tom banlista → ny bana → verifierar att banan visas
+   Tävlingsstatistik (1 test):
+   - Verifierar att antal deltagare/klasser/banor/brickor visas korrekt
+   Flöde med flera löpare (1 test):
+   - Registrerar 2 löpare → läser 2 SI-brickor → verifierar båda i resultatlistan
+   Filer skapade:
+   - src/ui/web/e2e/competition-flow.spec.ts
+   Resultat: 5/5 tester PASSED.
