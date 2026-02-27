@@ -750,7 +750,7 @@
           "id": "4.11",
           "title": "Runner-sida (TabRunner)",
           "description": "Implementera: tabell med sortering/filtrering, sökfält, registrera/redigera löpare (modal eller inline), visa resultat och stämplingar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.10"

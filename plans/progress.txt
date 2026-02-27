@@ -688,3 +688,20 @@
    - src/ui/web/src/hooks/useCompetitions.ts (lade till useCreateCompetition)
    - src/ui/web/src/hooks/index.ts (exporterar useCreateCompetition)
    Build: 183 moduler, inga TS-fel. Lint: 0 fel.
+
+[2026-02-27] Task 4.11 DONE: Runner-sida (TabRunner)
+   Implementerade fullständig RunnersPage med:
+   - Tabell med sortering (namn, klass, klubb, nummerlapp, bricka, status) och riktningsindikator
+   - Sökfält som filtrerar på namn och nummerlapp
+   - Dropdown-filter för klass och klubb (populerade från data)
+   - Radval med visuell markering (klick för att välja/avmarkera)
+   - Modal för att skapa ny deltagare med validering (namn krävs)
+   - Modal för att redigera vald deltagare (namn, klass, klubb, bricka, nummerlapp, födelseår, nationalitet)
+   - Ta bort-knapp för vald deltagare med bekräftelseflöde
+   - Visar resultat (tid) och status med svenska etiketter (Ej start, OK, DNS, DNF, DSQ, etc.)
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och sparfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/RunnersPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/RunnersPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (RunnersPage som separat chunk).

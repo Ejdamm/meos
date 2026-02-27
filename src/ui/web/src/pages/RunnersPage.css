@@ -1,0 +1,330 @@
+.runners-page {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.runners-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.runners-page__header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.runners-page__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Toolbar: search + filters */
+.runners-toolbar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.runners-toolbar__search {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #cbd5e0);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--color-input-bg, #ffffff);
+  color: inherit;
+}
+
+.runners-toolbar__search:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+.runners-toolbar__select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #cbd5e0);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  background: var(--color-input-bg, #ffffff);
+  color: inherit;
+  min-width: 140px;
+}
+
+.runners-toolbar__select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+/* Table */
+.runners-table-wrap {
+  overflow-x: auto;
+  background: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+}
+
+.runners-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.runners-table th,
+.runners-table td {
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.runners-table th {
+  background: var(--color-th-bg, #f7fafc);
+  font-weight: 600;
+  color: #4a5568;
+  border-bottom: 2px solid var(--color-border, #e2e8f0);
+  cursor: pointer;
+  user-select: none;
+}
+
+.runners-table th:hover {
+  background: var(--color-th-hover, #edf2f7);
+}
+
+.runners-table th .sort-indicator {
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.runners-table tbody tr {
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+  cursor: pointer;
+}
+
+.runners-table tbody tr:hover {
+  background: var(--color-row-hover, #ebf8ff);
+}
+
+.runners-table tbody tr.runners-table__row--selected {
+  background: var(--color-row-selected, #bee3f8);
+}
+
+.runners-table__empty {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+  font-style: italic;
+}
+
+.runners-count {
+  font-size: 0.8125rem;
+  color: #718096;
+  margin-top: 0.5rem;
+}
+
+/* Edit/create form (modal overlay) */
+.runners-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.runners-modal {
+  background: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.runners-modal__title {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+}
+
+.runners-form__field {
+  margin-bottom: 0.75rem;
+}
+
+.runners-form__label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.runners-form__input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #cbd5e0);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--color-input-bg, #ffffff);
+  color: inherit;
+  box-sizing: border-box;
+}
+
+.runners-form__input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+.runners-form__input--error {
+  border-color: #e53e3e;
+}
+
+.runners-form__error {
+  color: #e53e3e;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+}
+
+.runners-form__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* Buttons (reusable pattern) */
+.runners-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+.runners-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.runners-btn--primary {
+  background-color: #3182ce;
+  color: #ffffff;
+}
+
+.runners-btn--primary:hover:not(:disabled) {
+  background-color: #2b6cb0;
+}
+
+.runners-btn--secondary {
+  background-color: transparent;
+  color: #4a5568;
+  border-color: #cbd5e0;
+}
+
+.runners-btn--secondary:hover:not(:disabled) {
+  background-color: #edf2f7;
+}
+
+.runners-btn--danger {
+  background-color: #e53e3e;
+  color: #ffffff;
+}
+
+.runners-btn--danger:hover:not(:disabled) {
+  background-color: #c53030;
+}
+
+.runners-btn--sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8125rem;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .runners-table-wrap {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .runners-table th {
+    background: #1a202c;
+    color: #a0aec0;
+    border-bottom-color: #4a5568;
+  }
+
+  .runners-table th:hover {
+    background: #2d3748;
+  }
+
+  .runners-table tbody tr {
+    border-bottom-color: #4a5568;
+  }
+
+  .runners-table tbody tr:hover {
+    background: #2a4365;
+  }
+
+  .runners-table tbody tr.runners-table__row--selected {
+    background: #2c5282;
+  }
+
+  .runners-modal {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .runners-form__label {
+    color: #a0aec0;
+  }
+
+  .runners-form__input {
+    background: #1a202c;
+    border-color: #4a5568;
+  }
+
+  .runners-toolbar__search,
+  .runners-toolbar__select {
+    background: #1a202c;
+    border-color: #4a5568;
+  }
+
+  .runners-btn--secondary {
+    color: #a0aec0;
+    border-color: #4a5568;
+  }
+
+  .runners-btn--secondary:hover:not(:disabled) {
+    background-color: #4a5568;
+  }
+
+  .runners-count {
+    color: #a0aec0;
+  }
+}
+
+@media (max-width: 767px) {
+  .runners-page__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .runners-toolbar {
+    flex-direction: column;
+  }
+
+  .runners-toolbar__select {
+    min-width: unset;
+  }
+}
