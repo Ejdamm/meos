@@ -986,7 +986,7 @@
           "id": "4.34",
           "title": "Test: Club-, SI-, List-, Speaker-, Auto-sidor",
           "description": "Komponenttest: rendera varje sida, grundläggande interaktion (lista, sök, skapa), verifiera API-anrop och felhantering.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.16",
             "4.17",

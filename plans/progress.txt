@@ -1183,3 +1183,41 @@
    Filer skapade:
    - src/ui/web/src/__tests__/course-control-page.test.tsx
    Resultat: 47/47 tester PASSED.
+
+[2026-02-27] Task 4.34 DONE: Test: Club-, SI-, List-, Speaker-, Auto-sidor
+   Skapade club-si-list-speaker-auto-page.test.tsx med 62 tester som verifierar:
+   ClubsPage (20 tester):
+   - Loading state, rendering, räknartext, felhantering, tom lista
+   - Sök: namn-sök, no-match-meddelande med uppdaterad räknare
+   - Sortering: standard namn asc, klick byter riktning
+   - Create form: öppnas via Ny klubb-knapp, skickar via API,
+     validerar tomt namn, avbryt stänger, visar API-felmeddelande
+   - Edit form: öppnas med klubbdata, skickar uppdatering via API,
+     validerar tomt namn, avbryt stänger, visar API-felmeddelande
+   - Delete: tar bort klubb via API, rensar markering
+   SiPage (11 tester):
+   - Loading state, rendering, räknartext, felhantering, tom lista
+   - Sök: bricknummer-sök, no-match-meddelande
+   - Sortering: klick byter riktning
+   - Stämplingsdetaljer: visas vid vald bricka
+   - Läs bricka: formulär skickar via API, felmeddelande vid misslyckande
+   ListsPage (8 tester):
+   - Loading state, rendering av listtyp-dropdown, felhantering
+   - Genererad lista vid val av listtyp
+   - Resultatfiltrering: namn-sök, no-match, sortering
+   SpeakerPage (9 tester):
+   - Loading state, rendering av konfiguration och live-händelser
+   - Felhantering, klassväljare med checkboxar, toggle
+   - Tidsfönster-input, tom händelsevy, sökfält
+   - Felmeddelande vid uppdateringsfel
+   AutomationsPage (14 tester):
+   - Loading state, rendering, räknartext, felhantering, tom lista
+   - Sök: namn-sök, no-match-meddelande
+   - Sortering: klick byter riktning
+   - Create form: öppnas via Ny automation, skickar via API,
+     avbryt stänger, visar API-felmeddelande
+   - Delete: tar bort automation via API
+   - Retry-knapp vid fel
+   Filer skapade:
+   - src/ui/web/src/__tests__/club-si-list-speaker-auto-page.test.tsx
+   Resultat: 62/62 tester PASSED.
