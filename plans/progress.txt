@@ -1109,3 +1109,24 @@
    Filer skapade:
    - Dockerfile
    - .dockerignore
+
+[2026-02-27] Task 4.31 DONE: Test: Team-sida
+   Skapade team-page.test.tsx med 29 tester som verifierar:
+   - Loading state: visar "Laddar lag…"
+   - Rendering: laglista med namn, klass, klubb, nummerlapp, status, tid, medlemmar
+   - Räknartext: "1 av 1 lag"
+   - Felhantering: API-fel visar felmeddelande, tom lista visar empty state
+   - Sök och filter: namn-sök, nummerlapp-sök, klass-filter, klubb-filter,
+     no-match-meddelande med uppdaterad räknare
+   - Sortering: standard namn asc, klick byter riktning
+   - Create form: öppnas via Nytt lag-knapp, skickar via API,
+     validerar tomt namn, avbryt stänger, visar API-felmeddelande,
+     lägg till/ta bort lagmedlemssträcka
+   - Edit form: visas vid markerad rad, populeras med befintlig data inkl.
+     sträckor, skickar uppdatering via API, validerar tomt namn,
+     avbryt stänger, visar API-felmeddelande vid uppdateringsfel
+   - Delete: tar bort lag via API, rensar markering
+   - Sträckresultat: visar panel med sträcktider och löparnamn
+   Filer skapade:
+   - src/ui/web/src/__tests__/team-page.test.tsx
+   Resultat: 29/29 tester PASSED.

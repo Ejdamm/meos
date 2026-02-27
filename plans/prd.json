@@ -955,7 +955,7 @@
           "id": "4.31",
           "title": "Test: Team-sida",
           "description": "Komponenttest: rendera laglista, skapa lag, lägg till medlem, spara, verifiera API-anrop.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.12",
             "4.26"
