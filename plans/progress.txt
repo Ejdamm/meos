@@ -856,3 +856,20 @@
    - src/ui/web/src/pages/AutomationsPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/AutomationsPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (AutomationsPage som separat chunk).
+
+[2026-02-27] Task 4.21 DONE: Import/Export-funktionalitet
+   Implementerade fullständig ImportExportSection i CompetitionPage med:
+   - Formatväljare: IOF XML och CSV import med toggle-knappar
+   - Drag-and-drop filuppladdning med visuell dropzone och filtypsfilter
+   - Klickbar dropzone som alternativ till drag-and-drop
+   - Filuppladdning via hidden file input med accept-filter (.xml/.iof eller .csv)
+   - Export-knappar för IOF XML och CSV med blob-nedladdning
+   - Statusmeddelanden (success/error) med färgkodning
+   - Keyboard-accessible dropzone (Enter/Space)
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Integrerad i CompetitionPage (visas när tävling finns)
+   - Använder befintliga hooks: useImportCsv, useImportIof, useExportCsv, useExportIof
+   Filer ändrade:
+   - src/ui/web/src/pages/CompetitionPage.tsx (lagt till ImportExportSection)
+   - src/ui/web/src/pages/CompetitionPage.css (lagt till .comp-io-* stilar)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (CompetitionPage som separat chunk).

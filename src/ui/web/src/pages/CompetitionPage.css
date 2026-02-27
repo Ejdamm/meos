@@ -176,6 +176,102 @@
   background-color: #edf2f7;
 }
 
+/* Import / Export section */
+.comp-io {
+  background: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.comp-io__title {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+}
+
+.comp-io__row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.comp-io__import {
+  flex: 1;
+}
+
+.comp-io__export {
+  min-width: 160px;
+}
+
+.comp-io__format-select {
+  margin-bottom: 0.75rem;
+}
+
+.comp-io__format-btns {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.comp-io__dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  border: 2px dashed var(--color-border, #cbd5e0);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  font-size: 0.875rem;
+  color: #718096;
+  text-align: center;
+}
+
+.comp-io__dropzone:hover,
+.comp-io__dropzone--active {
+  border-color: #3182ce;
+  background-color: rgba(49, 130, 206, 0.05);
+}
+
+.comp-io__dropzone-icon {
+  font-size: 2rem;
+}
+
+.comp-io__dropzone-hint {
+  font-size: 0.75rem;
+  color: #a0aec0;
+}
+
+.comp-io__file-input {
+  display: none;
+}
+
+.comp-io__export-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.comp-io__status {
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.comp-io__status--success {
+  background: #c6f6d5;
+  color: #276749;
+}
+
+.comp-io__status--error {
+  background: #fed7d7;
+  color: #9b2c2c;
+}
+
 /* Dark mode */
 @media (prefers-color-scheme: dark) {
   .comp-detail {
@@ -229,6 +325,36 @@
   .comp-btn--secondary:hover:not(:disabled) {
     background-color: #4a5568;
   }
+
+  .comp-io {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .comp-io__dropzone {
+    border-color: #4a5568;
+    color: #a0aec0;
+  }
+
+  .comp-io__dropzone:hover,
+  .comp-io__dropzone--active {
+    border-color: #63b3ed;
+    background-color: rgba(99, 179, 237, 0.1);
+  }
+
+  .comp-io__dropzone-hint {
+    color: #718096;
+  }
+
+  .comp-io__status--success {
+    background: #22543d;
+    color: #9ae6b4;
+  }
+
+  .comp-io__status--error {
+    background: #742a2a;
+    color: #feb2b2;
+  }
 }
 
 @media (max-width: 767px) {
@@ -249,5 +375,13 @@
 
   .comp-detail__label {
     min-width: unset;
+  }
+
+  .comp-io__row {
+    flex-direction: column;
+  }
+
+  .comp-io__export-btns {
+    flex-direction: row;
   }
 }

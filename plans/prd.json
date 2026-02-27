@@ -850,7 +850,7 @@
           "id": "4.21",
           "title": "Import/Export-funktionalitet",
           "description": "Implementera: IOF XML import/export-knappar, CSV-import, filuppladdning med drag-and-drop. Integrera i Competition-sidan.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.10",
             "3.20"

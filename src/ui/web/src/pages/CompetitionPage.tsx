@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { useCompetitions, useUpdateCompetition, useCreateCompetition } from '../hooks';
+import { useState, useRef, useCallback, type FormEvent, type DragEvent, type ChangeEvent } from 'react';
+import { useCompetitions, useUpdateCompetition, useCreateCompetition, useImportCsv, useImportIof, useExportCsv, useExportIof } from '../hooks';
 import type { Competition } from '../types';
 import './CompetitionPage.css';
 
@@ -204,6 +204,163 @@ function CreateForm({ onCreated }: { onCreated: () => void }): React.JSX.Element
   );
 }
 
+function ImportExportSection(): React.JSX.Element {
+  const [isDragging, setIsDragging] = useState(false);
+  const [importFormat, setImportFormat] = useState<'iof' | 'csv'>('iof');
+  const [statusMessage, setStatusMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const importCsvMutation = useImportCsv();
+  const importIofMutation = useImportIof();
+  const { refetch: refetchCsv, isFetching: isFetchingCsv } = useExportCsv();
+  const { refetch: refetchIof, isFetching: isFetchingIof } = useExportIof();
+
+  const isImporting = importCsvMutation.isPending || importIofMutation.isPending;
+
+  const handleFile = useCallback((file: File) => {
+    setStatusMessage(null);
+    const mutation = importFormat === 'iof' ? importIofMutation : importCsvMutation;
+    mutation.mutate(file, {
+      onSuccess: (result) => {
+        const count = result.imported != null ? ` (${result.imported} importerade)` : '';
+        setStatusMessage({ text: `Import lyckades${count}`, type: 'success' });
+      },
+      onError: (err) => {
+        setStatusMessage({ text: `Import misslyckades: ${err.message}`, type: 'error' });
+      },
+    });
+  }, [importFormat, importCsvMutation, importIofMutation]);
+
+  function handleDragOver(e: DragEvent): void {
+    e.preventDefault();
+    setIsDragging(true);
+  }
+
+  function handleDragLeave(e: DragEvent): void {
+    e.preventDefault();
+    setIsDragging(false);
+  }
+
+  function handleDrop(e: DragEvent): void {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }
+
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>): void {
+    const file = e.target.files?.[0];
+    if (file) handleFile(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
+  async function handleExport(format: 'iof' | 'csv'): Promise<void> {
+    setStatusMessage(null);
+    try {
+      const refetch = format === 'iof' ? refetchIof : refetchCsv;
+      const result = await refetch();
+      if (result.data) {
+        const blob = new Blob([result.data.data], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = format === 'iof' ? 'export.xml' : 'export.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        setStatusMessage({ text: `Export (${format.toUpperCase()}) klar`, type: 'success' });
+      }
+    } catch (err) {
+      setStatusMessage({ text: `Export misslyckades: ${err instanceof Error ? err.message : 'Okänt fel'}`, type: 'error' });
+    }
+  }
+
+  return (
+    <div className="comp-io">
+      <h3 className="comp-io__title">Import / Export</h3>
+
+      <div className="comp-io__row">
+        <div className="comp-io__import">
+          <div className="comp-io__format-select">
+            <label className="comp-form__label">Importformat</label>
+            <div className="comp-io__format-btns">
+              <button
+                type="button"
+                className={`comp-btn ${importFormat === 'iof' ? 'comp-btn--primary' : 'comp-btn--secondary'}`}
+                onClick={() => setImportFormat('iof')}
+              >
+                IOF XML
+              </button>
+              <button
+                type="button"
+                className={`comp-btn ${importFormat === 'csv' ? 'comp-btn--primary' : 'comp-btn--secondary'}`}
+                onClick={() => setImportFormat('csv')}
+              >
+                CSV
+              </button>
+            </div>
+          </div>
+
+          <div
+            className={`comp-io__dropzone ${isDragging ? 'comp-io__dropzone--active' : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="comp-io__file-input"
+              accept={importFormat === 'iof' ? '.xml,.iof' : '.csv'}
+              onChange={handleFileChange}
+            />
+            {isImporting ? (
+              <span>Importerar…</span>
+            ) : (
+              <>
+                <span className="comp-io__dropzone-icon">📂</span>
+                <span>Dra och släpp fil här, eller klicka för att välja</span>
+                <span className="comp-io__dropzone-hint">{importFormat === 'iof' ? '.xml / .iof' : '.csv'}</span>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="comp-io__export">
+          <label className="comp-form__label">Exportera</label>
+          <div className="comp-io__export-btns">
+            <button
+              type="button"
+              className="comp-btn comp-btn--primary"
+              disabled={isFetchingIof}
+              onClick={() => void handleExport('iof')}
+            >
+              {isFetchingIof ? 'Exporterar…' : 'IOF XML'}
+            </button>
+            <button
+              type="button"
+              className="comp-btn comp-btn--primary"
+              disabled={isFetchingCsv}
+              onClick={() => void handleExport('csv')}
+            >
+              {isFetchingCsv ? 'Exporterar…' : 'CSV'}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {statusMessage && (
+        <p className={`comp-io__status comp-io__status--${statusMessage.type}`}>
+          {statusMessage.text}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function CompetitionPage(): React.JSX.Element {
   const { data: competitions, isLoading, isError, error } = useCompetitions();
   const [isEditing, setIsEditing] = useState(false);
@@ -272,6 +429,8 @@ function CompetitionPage(): React.JSX.Element {
           onSaved={() => setIsEditing(false)}
         />
       )}
+
+      {competition && <ImportExportSection />}
 
       {!competition && !showCreate && (
         <p className="comp-page__empty">Ingen tävling laddad. Skapa en ny tävling för att komma igång.</p>
