@@ -1356,3 +1356,14 @@
    Filer skapade:
    - src/ui/web/e2e/import-export.spec.ts
    Resultat: 5/5 tester PASSED.
+
+[2026-02-27] Task 5.9 DONE: E2E: parallella klienter
+   Skapade parallel-clients.spec.ts med 4 Playwright E2E-tester som verifierar:
+   - Löpare tillagd i klient A syns i klient B efter navigation (delat mock-state)
+   - Tävlingsuppdatering i klient A synlig i klient B efter reload
+   - Flera löpare från olika klienter sammanfogas korrekt (båda synliga efter reload)
+   - Bana skapad i klient A visas i klient B vid navigation
+   Två separata BrowserContext per test delar mutable mock-state via route-interceptors.
+   Filer skapade:
+   - src/ui/web/e2e/parallel-clients.spec.ts
+   Resultat: 4/4 tester PASSED.

@@ -1101,7 +1101,7 @@
           "id": "5.9",
           "title": "E2E: parallella klienter",
           "description": "Playwright-test: öppna två webbläsar-kontexter, gör ändringar i en, verifiera att den andra ser uppdateringen (via polling/refetch).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.6"
           ]
