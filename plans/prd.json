@@ -820,7 +820,7 @@
           "id": "4.18",
           "title": "List-sida (TabList)",
           "description": "Implementera: generera/visa resultatlistor, startlistor, sträcktider. Välj listtyp och klass med select-komponenter.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.17"

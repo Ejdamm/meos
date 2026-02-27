@@ -809,3 +809,17 @@
    - src/ui/web/src/pages/SiPage.css (ny)
    - src/ui/web/src/hooks/useCards.ts (lagt till refetchInterval-parameter)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (SiPage som separat chunk).
+
+[2026-02-27] Task 4.18 DONE: List-sida (TabList)
+   Implementerade fullständig ListsPage med:
+   - Dropdown för listtyp (populerad från useLists-hook) och klass (från useClasses-hook)
+   - Genererad lista visas som HTML (dangerouslySetInnerHTML) från useList(type)-hook
+   - Resultattabell med sortering (placering, namn, klubb, tid) och riktningsindikator
+   - Sökfält som filtrerar på namn och klubb
+   - Statusetiketter med färgkodade badges (OK, DNS, DNF, MP, DQ, OT)
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddningsfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/ListsPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/ListsPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ListsPage som separat chunk).
