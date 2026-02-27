@@ -758,3 +758,20 @@
    - src/ui/web/src/pages/CoursesPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/CoursesPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (CoursesPage som separat chunk).
+
+[2026-02-27] Task 4.15 DONE: Control-sida (TabControl)
+   Implementerade fullständig ControlsPage med:
+   - Tabell med sortering (namn, typ, koder, rogaining-poäng) och riktningsindikator
+   - Sökfält som filtrerar på kontrollnamn och kontrollkoder
+   - Radval med visuell markering (klick för att välja/avmarkera)
+   - Modal för att skapa ny kontroll med validering (namn krävs)
+   - Modal för att redigera vald kontroll (namn, kontrollkoder, rogaining-poäng)
+   - Kontrollkoder: kommaseparerad inmatning som parsas till nummer-array
+   - Kontrolltyper: statusetiketter (Normal, Start, Mål, Korsning)
+   - Ta bort-knapp för vald kontroll med mutation-hook
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och sparfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/ControlsPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/ControlsPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ControlsPage som separat chunk).

@@ -790,7 +790,7 @@
           "id": "4.15",
           "title": "Control-sida (TabControl)",
           "description": "Implementera: hantera kontroller, kontrollkoder, positioner, kontrolltyper.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.14"
