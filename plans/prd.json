@@ -646,7 +646,7 @@
           "id": "3.28",
           "title": "Test: statisk filservering och SPA-fallback",
           "description": "Integrationstest: GET / → index.html, GET /assets/main.js → JS-fil med korrekt Content-Type, GET /okand-route → fallback till index.html (SPA routing).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.21"
           ]

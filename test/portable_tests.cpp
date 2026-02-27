@@ -21,6 +21,7 @@
 #include "MockNotifier.h"
 #include "platform_socket.h"
 #include "api_router.h"
+#include "static_file_handler.h"
 
 namespace fs = std::filesystem;
 
@@ -3226,6 +3227,141 @@ void testApiResponseConflictHelper() {
   CHECK(res.body.find("already exists") != std::string::npos, "conflict body contains message");
 }
 
+// --- Task 3.28: Static file serving and SPA fallback ---
+
+// Helper: create a temporary web root with sample files.
+struct TempWebRoot {
+  fs::path root;
+  TempWebRoot() {
+    root = fs::temp_directory_path() / "meos_static_test";
+    fs::create_directories(root / "assets");
+    { std::ofstream f(root / "index.html"); f << "<html><body>SPA</body></html>"; }
+    { std::ofstream f(root / "assets" / "main.js"); f << "console.log('hi');"; }
+    { std::ofstream f(root / "assets" / "style.css"); f << "body{margin:0}"; }
+    { std::ofstream f(root / "favicon.ico"); f << "ICON"; }
+  }
+  ~TempWebRoot() { fs::remove_all(root); }
+};
+
+void testStaticServeRootReturnsIndexHtml() {
+  std::cout << "testStaticServeRootReturnsIndexHtml\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 200, "GET / returns 200");
+  CHECK(resp.contentType == "text/html", "GET / Content-Type is text/html");
+  CHECK(resp.body.find("SPA") != std::string::npos, "GET / body contains index.html content");
+}
+
+void testStaticServeJsFile() {
+  std::cout << "testStaticServeJsFile\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/assets/main.js";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 200, "GET /assets/main.js returns 200");
+  CHECK(resp.contentType == "application/javascript", "JS Content-Type is application/javascript");
+  CHECK(resp.body == "console.log('hi');", "JS body matches file content");
+}
+
+void testStaticServeCssFile() {
+  std::cout << "testStaticServeCssFile\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/assets/style.css";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 200, "GET /assets/style.css returns 200");
+  CHECK(resp.contentType == "text/css", "CSS Content-Type is text/css");
+}
+
+void testStaticServeFavicon() {
+  std::cout << "testStaticServeFavicon\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/favicon.ico";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 200, "GET /favicon.ico returns 200");
+  CHECK(resp.contentType == "image/x-icon", "favicon Content-Type is image/x-icon");
+}
+
+void testStaticSpaFallback() {
+  std::cout << "testStaticSpaFallback\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/unknown-route";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 200, "SPA fallback returns 200");
+  CHECK(resp.contentType == "text/html", "SPA fallback Content-Type is text/html");
+  CHECK(resp.body.find("SPA") != std::string::npos, "SPA fallback serves index.html content");
+}
+
+void testStaticSpaFallbackDeepPath() {
+  std::cout << "testStaticSpaFallbackDeepPath\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/runners/42/edit";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 200, "SPA fallback for deep path returns 200");
+  CHECK(resp.contentType == "text/html", "SPA fallback deep path Content-Type is text/html");
+}
+
+void testStaticApiRouteHasPriority() {
+  std::cout << "testStaticApiRouteHasPriority\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  router.addRoute("GET", "/api/status", [](const ApiRequest &) {
+    return ApiResponse::ok("{\"ok\":true}");
+  });
+  ApiRequest req; req.method = "GET"; req.path = "/api/status";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 200, "API route takes priority over static");
+  CHECK(resp.contentType == "application/json", "API route returns JSON");
+  CHECK(resp.body.find("ok") != std::string::npos, "API route body is from handler");
+}
+
+void testStaticEmptyWebRootReturns404() {
+  std::cout << "testStaticEmptyWebRootReturns404\n";
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/anything";
+  auto resp = dispatchWithStatic(router, req, "");
+  CHECK(resp.status == 404, "empty webRoot returns 404");
+}
+
+void testStaticPostMethodNotServed() {
+  std::cout << "testStaticPostMethodNotServed\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "POST"; req.path = "/index.html";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  CHECK(resp.status == 404, "POST for static file returns 404");
+}
+
+void testStaticPathTraversalBlocked() {
+  std::cout << "testStaticPathTraversalBlocked\n";
+  TempWebRoot tw;
+  ApiRouter router;
+  ApiRequest req; req.method = "GET"; req.path = "/../../../etc/passwd";
+  auto resp = dispatchWithStatic(router, req, tw.root.string());
+  // Should either serve index.html (fallback) or 404, never the traversal file
+  CHECK(resp.status == 200 || resp.status == 404, "path traversal does not crash");
+  if (resp.status == 200) {
+    CHECK(resp.body.find("SPA") != std::string::npos, "path traversal falls back to index.html");
+  }
+}
+
+void testGuessMimeTypes() {
+  std::cout << "testGuessMimeTypes\n";
+  CHECK(guessMimeType(".html") == "text/html", "mime .html");
+  CHECK(guessMimeType(".js") == "application/javascript", "mime .js");
+  CHECK(guessMimeType(".css") == "text/css", "mime .css");
+  CHECK(guessMimeType(".json") == "application/json", "mime .json");
+  CHECK(guessMimeType(".png") == "image/png", "mime .png");
+  CHECK(guessMimeType(".svg") == "image/svg+xml", "mime .svg");
+  CHECK(guessMimeType(".woff2") == "font/woff2", "mime .woff2");
+  CHECK(guessMimeType(".xyz") == "application/octet-stream", "mime unknown ext");
+}
+
 int main() {
   std::cout << "=== MeOS Portable Unit Tests ===\n\n";
 
@@ -3444,6 +3580,19 @@ int main() {
   testContentNegMissingResourceReturns404();
   testContentNegDuplicateReturns409();
   testApiResponseConflictHelper();
+
+  // Task 3.28: Static file serving and SPA fallback
+  testStaticServeRootReturnsIndexHtml();
+  testStaticServeJsFile();
+  testStaticServeCssFile();
+  testStaticServeFavicon();
+  testStaticSpaFallback();
+  testStaticSpaFallbackDeepPath();
+  testStaticApiRouteHasPriority();
+  testStaticEmptyWebRootReturns404();
+  testStaticPostMethodNotServed();
+  testStaticPathTraversalBlocked();
+  testGuessMimeTypes();
 
   std::cout << "\nResults: " << gPassed << " passed, " << gFailed << " failed\n";
 

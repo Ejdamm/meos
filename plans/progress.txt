@@ -572,3 +572,19 @@
      - Nätverksfel (inget response) → "Kunde inte nå servern".
      - Serverns message/detail-fält används om tillgängliga.
    TypeScript strict-check, build (32 moduler) och lint passerade utan fel.
+
+[2026-02-27] Task 3.28 DONE: Test: statisk filservering och SPA-fallback
+   Lade till 11 testfunktioner (30 CHECK-anrop) i test/portable_tests.cpp:
+   - testStaticServeRootReturnsIndexHtml: GET / → 200, text/html, index.html-innehåll
+   - testStaticServeJsFile: GET /assets/main.js → 200, application/javascript
+   - testStaticServeCssFile: GET /assets/style.css → 200, text/css
+   - testStaticServeFavicon: GET /favicon.ico → 200, image/x-icon
+   - testStaticSpaFallback: GET /unknown-route → 200, text/html (index.html fallback)
+   - testStaticSpaFallbackDeepPath: GET /runners/42/edit → 200, text/html
+   - testStaticApiRouteHasPriority: API-route /api/status → 200 JSON (ej static)
+   - testStaticEmptyWebRootReturns404: tom webRoot → 404
+   - testStaticPostMethodNotServed: POST /index.html → 404 (bara GET)
+   - testStaticPathTraversalBlocked: /../../../etc/passwd → fallback till index.html
+   - testGuessMimeTypes: 8 MIME-typer verifierade (.html, .js, .css, .json, .png, .svg, .woff2, okänd)
+   Använde TempWebRoot-hjälpstruktur som skapar/rensar temp-katalog med testfiler.
+   470/470 tester passerade (30 nya) med g++ på Linux.
