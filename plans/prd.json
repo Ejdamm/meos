@@ -704,7 +704,7 @@
           "id": "4.6",
           "title": "Skapa Tanstack Query hooks per resurs",
           "description": "Skapa custom hooks i src/ui/web/src/hooks/: useRunners(filters?), useRunner(id), useCreateRunner(), useUpdateRunner(), useDeleteRunner(). Motsvarande hooks för alla resurser. Konfigurera cache-invalidering vid mutationer.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.5"
           ]

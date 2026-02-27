@@ -607,3 +607,23 @@
    - index.ts: barrel re-export av alla funktioner och typer
    Alla funktioner använder apiClient med typade generics och returnerar Promise.
    npm run build: 32 moduler, inga TS-fel. npm run lint: 0 fel.
+
+[2026-02-27] Task 4.6 DONE: Skapa TanStack Query hooks per resurs
+   Skapade custom hooks i src/ui/web/src/hooks/ med barrel index.ts:
+   - useRunners.ts: useRunners, useRunner(id), useCreateRunner, useUpdateRunner, useDeleteRunner
+   - useTeams.ts: useTeams, useTeam(id), useCreateTeam, useUpdateTeam, useDeleteTeam
+   - useClasses.ts: useClasses, useClass(id), useCreateClass, useUpdateClass, useDeleteClass
+   - useCourses.ts: useCourses, useCourse(id), useCreateCourse, useUpdateCourse, useDeleteCourse
+   - useControls.ts: useControls, useControl(id), useCreateControl, useUpdateControl, useDeleteControl
+   - useClubs.ts: useClubs, useClub(id), useCreateClub, useUpdateClub, useDeleteClub
+   - useCards.ts: useCards, useCard(id), useReadCard
+   - useCompetitions.ts: useCompetitions, useCompetition(id), useUpdateCompetition
+   - useLists.ts: useLists, useList(type), useResults(classId?)
+   - useSpeaker.ts: useSpeakerConfig, useUpdateSpeakerConfig, useSpeakerMonitor(refetchInterval)
+   - useAutomations.ts: useAutomations, useAutomation(id), useAutomationStatus(id, refetchInterval), useCreateAutomation, useUpdateAutomation, useDeleteAutomation
+   - useImportExport.ts: useImportCsv, useImportIof, useExportCsv, useExportIof
+   - usePunches.ts: usePunches(refetchInterval?)
+   - index.ts: barrel re-export av alla hooks
+   Varje hook har query keys-factory. Mutationer invaliderar list-cache och detail-cache.
+   Live-polling hooks (speaker monitor, automation status, punches) accepterar refetchInterval.
+   TypeScript strict-check, build (32 moduler) och lint passerade utan fel.
