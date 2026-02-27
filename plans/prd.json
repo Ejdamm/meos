@@ -1074,7 +1074,7 @@
           "id": "5.6",
           "title": "E2E: setup och smoke-tester",
           "description": "Konfigurera Playwright (TypeScript) i src/ui/web/e2e/. Starta C++-servern headless med testdatabas. Smoke-test: appen laddas, navigation fungerar, alla sidor renderar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.2"
           ]

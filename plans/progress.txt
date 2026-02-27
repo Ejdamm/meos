@@ -1272,3 +1272,28 @@
    Validering: docker compose config passerar utan varningar
    Filer skapade:
    - docker-compose.yml
+
+[2026-02-27] Task 5.6 DONE: E2E: setup och smoke-tester
+   Konfigurerade Playwright (TypeScript) i src/ui/web/:
+   - Installerade @playwright/test och Chromium headless browser
+   - Skapade playwright.config.ts med webServer-integration (Vite dev server)
+   - Konfigurerat: fullyParallel, retries i CI, html/github reporter,
+     trace on-first-retry, screenshot only-on-failure
+   Smoke-tester i e2e/smoke.spec.ts (18 tester):
+   - App laddas och visar MeOS-header
+   - Root (/) omdirigerar till /competition
+   - Navigeringsfält synligt med alla 11 länkar
+   - Okänd route omdirigerar till /competition
+   - Alla 11 sidor renderar (lazy-loaded via Suspense)
+   - Navigation mellan sidor fungerar (klick, URL-ändring)
+   - Aktiv nav-länk markeras med active-klass
+   - Skip-nav-länk finns för tillgänglighet
+   Tillagda npm-scripts: test:e2e, test:e2e:ui
+   Uppdaterade .gitignore med Playwright-artefakter
+   Filer skapade:
+   - src/ui/web/playwright.config.ts
+   - src/ui/web/e2e/smoke.spec.ts
+   Filer ändrade:
+   - src/ui/web/package.json (scripts + devDependencies)
+   - src/ui/web/.gitignore (Playwright-artefakter)
+   Resultat: 18/18 tester PASSED.
