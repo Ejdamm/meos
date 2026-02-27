@@ -647,3 +647,14 @@
    - src/ui/web/src/index.css: Uppdaterad med box-sizing reset, 100vh root, app-anpassade
      färger. Borttagna Vite-demo-stilar.
    Build: 90 moduler, inga TS-fel. Lint: 0 fel.
+
+[2026-02-27] Task 4.8 DONE: Konfigurera React Router med lazy routes
+   Migrerade från BrowserRouter + Routes till createBrowserRouter + RouterProvider.
+   Skapade 11 page-komponenter i src/ui/web/src/pages/ (en per tab):
+   - CompetitionPage, RunnersPage, TeamsPage, ClassesPage, CoursesPage,
+     ControlsPage, ClubsPage, SiPage, ListsPage, SpeakerPage, AutomationsPage.
+   Varje sida laddas med React.lazy() + Suspense med "Laddar…"-fallback.
+   Router definierad med createBrowserRouter i App.tsx; BrowserRouter borttagen ur main.tsx.
+   Vite-build genererar separata chunk-filer per sida (code-splitting bekräftat).
+   Barrel export i pages/index.ts. Outlet finns redan i AppShell.
+   Build: 102 moduler, inga TS-fel. Lint: 0 fel.

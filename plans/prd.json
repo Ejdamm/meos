@@ -722,7 +722,7 @@
           "id": "4.8",
           "title": "Konfigurera React Router med lazy routes",
           "description": "Konfigurera React Router v6 (createBrowserRouter) med lazy routes (React.lazy + Suspense) för varje sida. Implementera Outlet i layout-komponenten.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.7"
           ]

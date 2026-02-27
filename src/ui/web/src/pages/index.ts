@@ -1,0 +1,11 @@
+export { default as CompetitionPage } from './CompetitionPage';
+export { default as RunnersPage } from './RunnersPage';
+export { default as TeamsPage } from './TeamsPage';
+export { default as ClassesPage } from './ClassesPage';
+export { default as CoursesPage } from './CoursesPage';
+export { default as ControlsPage } from './ControlsPage';
+export { default as ClubsPage } from './ClubsPage';
+export { default as SiPage } from './SiPage';
+export { default as ListsPage } from './ListsPage';
+export { default as SpeakerPage } from './SpeakerPage';
+export { default as AutomationsPage } from './AutomationsPage';
