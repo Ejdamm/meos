@@ -780,7 +780,7 @@
           "id": "4.14",
           "title": "Course-sida (TabCourse)",
           "description": "Implementera: skapa/redigera banor, kontrollsekvens (ordningsbar lista), längd och stigning.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.13"

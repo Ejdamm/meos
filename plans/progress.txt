@@ -741,3 +741,20 @@
    - src/ui/web/src/pages/ClassesPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/ClassesPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ClassesPage som separat chunk).
+
+[2026-02-27] Task 4.14 DONE: Course-sida (TabCourse)
+   Implementerade fullständig CoursesPage med:
+   - Tabell med sortering (namn, längd, antal kontroller) och riktningsindikator
+   - Sökfält som filtrerar på bannamn
+   - Radval med visuell markering (klick för att välja/avmarkera)
+   - Modal för att skapa ny bana med validering (namn krävs)
+   - Modal för att redigera vald bana (namn, längd, kontrollsekvens)
+   - Kontrollsekvens: ordningsbar lista med upp/ner-knappar, ta bort och lägg till kontroll
+     via dropdown populerad från useControls-hook
+   - Ta bort-knapp för vald bana med mutation-hook
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och sparfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/CoursesPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/CoursesPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (CoursesPage som separat chunk).
