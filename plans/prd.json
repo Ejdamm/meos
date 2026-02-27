@@ -830,7 +830,7 @@
           "id": "4.19",
           "title": "Speaker-sida (TabSpeaker)",
           "description": "Implementera: konfigurera speaker-display, välj klasser, live-uppdateringar med polling (useQuery + refetchInterval).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.18"

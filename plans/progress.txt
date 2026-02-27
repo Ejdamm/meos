@@ -823,3 +823,20 @@
    - src/ui/web/src/pages/ListsPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/ListsPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ListsPage som separat chunk).
+
+[2026-02-27] Task 4.19 DONE: Speaker-sida (TabSpeaker)
+   Implementerade fullständig SpeakerPage med:
+   - Konfigurationssektion: välj klasser att bevaka via checkbox-chips,
+     ställ in tidsfönster (windowSeconds) med formulär som anropar PUT /api/speaker/config
+   - Live-händelsetabell med polling (5s interval via useSpeakerMonitor)
+   - Tabell med sortering (tid, typ, klass, löpare/lag) och riktningsindikator
+   - Sökfält som filtrerar på klassnamn, händelsetyp och löpar-/lag-ID
+   - Händelsetyp-badges med färgkodning (Start, Mål, Radio, Förväntas)
+   - Polling-indikator med animerad prick
+   - Servertid visas i räknaren
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och konfigurationsfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/SpeakerPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/SpeakerPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (SpeakerPage som separat chunk).
