@@ -1315,3 +1315,16 @@
    Filer skapade:
    - src/ui/web/e2e/competition-flow.spec.ts
    Resultat: 5/5 tester PASSED.
+
+[2026-02-27] Task 5.10 DONE: Test: Docker build lyckas
+   Lade till docker-build job i .github/workflows/build.yml:
+   - Set up Docker Buildx (docker/setup-buildx-action@v3)
+   - Build Docker image med docker/build-push-action@v6 (push: false, load: true)
+   - GHA build cache (cache-from/cache-to: type=gha)
+   - Startar container (docker run -d, port 2009)
+   - Väntar på container ready (polling /meos endpoint, max 60s)
+   - Verifierar health endpoint (HTTP status 2xx/3xx)
+   - Cleanup: stoppar och tar bort container (always())
+   Filer ändrade:
+   - .github/workflows/build.yml (ny docker-build job)
+   Validering: YAML-struktur verifierad, inga tab-tecken, alla actions korrekt refererade.

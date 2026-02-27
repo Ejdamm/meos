@@ -1110,7 +1110,7 @@
           "id": "5.10",
           "title": "Test: Docker build lyckas",
           "description": "CI-steg: bygg Docker-image från Dockerfile, verifiera att bygget lyckas utan fel. Starta containern och verifiera att health-endpoint svarar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.3"
           ]
