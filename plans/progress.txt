@@ -1257,3 +1257,18 @@
    Filer skapade:
    - src/ui/web/src/__tests__/a11y-audit.test.tsx
    Resultat: 11/11 tester PASSED.
+
+[2026-02-27] Task 5.4 DONE: Skapa docker-compose.yml
+   Skapade docker-compose.yml med två tjänster:
+   - meos: bygger från Dockerfile, exponerar port 2009, volym meos-data
+     för tävlingsdata, environment-variabler för MySQL-anslutning,
+     depends_on mysql med healthcheck
+   - mysql: MySQL 8.0, skapar databas/användare via env-vars,
+     volym mysql-data för persistens, healthcheck med mysqladmin ping
+   Konfiguration:
+   - Nätverk: meos-net (bridge driver) kopplar ihop tjänsterna
+   - Volymer: meos-data (tävlingsdata), mysql-data (databas)
+   - restart: unless-stopped på båda tjänster
+   Validering: docker compose config passerar utan varningar
+   Filer skapade:
+   - docker-compose.yml

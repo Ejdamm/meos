@@ -1,0 +1,49 @@
+services:
+  meos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "2009:2009"
+    volumes:
+      - meos-data:/opt/meos/data
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USER=meos
+      - MYSQL_PASSWORD=meos
+      - MYSQL_DATABASE=meos
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - meos-net
+    restart: unless-stopped
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: meos
+      MYSQL_USER: meos
+      MYSQL_PASSWORD: meos
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - meos-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  meos-data:
+  mysql-data:
+
+networks:
+  meos-net:
+    driver: bridge

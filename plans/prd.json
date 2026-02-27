@@ -1056,7 +1056,7 @@
           "id": "5.4",
           "title": "Skapa docker-compose.yml",
           "description": "Skapa docker-compose.yml med MeOS-server-tjänst och MySQL-tjänst. Konfigurera nätverk, volymer för tävlingsdata, environment-variabler för DB-connection.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.3"
           ]
