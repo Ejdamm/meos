@@ -19,3 +19,5 @@ export {
 export { useImportCsv, useImportIof, useExportCsv, useExportIof } from './useImportExport';
 export { usePunches } from './usePunches';
 export { useToast } from '../components/Toast';
+export { useKeyboardShortcuts, useEscapeKey } from './useKeyboardShortcuts';
+export type { KeyboardShortcut } from './useKeyboardShortcuts';

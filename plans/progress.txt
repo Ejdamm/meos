@@ -953,3 +953,20 @@
    - src/ui/web/src/hooks/index.ts (re-export useToast)
    - src/ui/web/src/test/renderWithProviders.tsx (ToastProvider i testWrapper)
    Build: inga TS-fel. Lint: 0 fel. Tester: 7/7 passed. Vite build OK.
+
+[2026-02-27] Task 4.24 DONE: Keyboard shortcuts
+   Implementerade useKeyboardShortcuts och useEscapeKey hooks:
+   - useKeyboardShortcuts: generisk hook för tangentbordsgenvägrar med stöd för Ctrl/Shift/Alt/Meta
+   - Automatisk global-mode för Ctrl/Alt-shortcuts (fungerar i inputs)
+   - Icke-globala shortcuts ignoreras när input/textarea/select har fokus
+   - Case-insensitive key-matching
+   - preventDefault på matchade shortcuts
+   - useEscapeKey: convenience-hook för att stänga modaler/dialoger
+   - Cleanup av event listeners vid unmount
+   - Exporterad via hooks/index.ts
+   Filer skapade:
+   - src/ui/web/src/hooks/useKeyboardShortcuts.ts
+   - src/ui/web/src/__tests__/keyboard-shortcuts.test.ts (16 tester)
+   Filer ändrade:
+   - src/ui/web/src/hooks/index.ts (export av useKeyboardShortcuts, useEscapeKey, KeyboardShortcut)
+   Build: inga TS-fel. Tester: 16/16 passed.
