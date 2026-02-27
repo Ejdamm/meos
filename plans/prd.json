@@ -1027,7 +1027,7 @@
           "id": "5.1",
           "title": "CMake custom command för React-build",
           "description": "Konfigurera CMake custom command som kör npm run build i src/ui/web/ och producerar dist/. Trigga automatiskt vid build av MeOS-server.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "3.21",
             "4.22"

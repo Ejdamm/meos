@@ -49,14 +49,14 @@ function ControlSequence({
   function moveUp(idx: number): void {
     if (idx === 0) return;
     const next = [...controls];
-    [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+    [next[idx - 1], next[idx]] = [next[idx]!, next[idx - 1]!];
     onChange(next);
   }
 
   function moveDown(idx: number): void {
     if (idx === controls.length - 1) return;
     const next = [...controls];
-    [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+    [next[idx], next[idx + 1]] = [next[idx + 1]!, next[idx]!];
     onChange(next);
   }
 

@@ -1035,3 +1035,26 @@
    Filer skapade:
    - src/ui/web/src/__tests__/competition-page.test.tsx
    Resultat: 18/18 tester PASSED.
+
+[2026-02-27] Task 5.1 DONE: CMake custom command för React-build
+   Implementerade CMake-integration för automatisk React-build:
+   - Lade till option MEOS_BUILD_WEB (default ON) i CMakeLists.txt
+   - find_program(NPM_EXECUTABLE npm) hittar npm automatiskt
+   - add_custom_command kör "npm ci && npm run build" i src/ui/web/
+   - OUTPUT: src/ui/web/dist/index.html (spårar om rebuild behövs)
+   - DEPENDS: package.json, package-lock.json, tsconfig.json, vite.config.ts
+   - add_custom_target(web-ui ALL) gör att bygget triggas automatiskt
+   - add_dependencies(MeOS-server web-ui) kopplar till serverbygget
+   - Varning om npm saknas; kan stängas av med -DMEOS_BUILD_WEB=OFF
+   - Fixade 9 pre-existerande TS-fel som blockerade npm run build:
+     * useFocusTrap.ts: non-null assertions på NodeList-element
+     * AutomationsPage.tsx: optional chaining på deleteMutation.error
+     * CoursesPage.tsx: non-null assertions på array-element vid swap
+     * competition-page.test.tsx: tog bort oanvänd fireEvent-import
+   Filer ändrade:
+   - CMakeLists.txt (CMake custom command/target)
+   - src/ui/web/src/hooks/useFocusTrap.ts (TS-fix)
+   - src/ui/web/src/pages/AutomationsPage.tsx (TS-fix)
+   - src/ui/web/src/pages/CoursesPage.tsx (TS-fix)
+   - src/ui/web/src/__tests__/competition-page.test.tsx (TS-fix)
+   Build: npm run build OK, dist/ producerad. Tester: 18/18 passed.

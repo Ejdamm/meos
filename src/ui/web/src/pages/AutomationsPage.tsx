@@ -331,7 +331,7 @@ function AutomationsPage(): React.JSX.Element {
         <p className="auto-error">
           {createMutation.isError
             ? `Fel vid skapande: ${createMutation.error.message}`
-            : `Fel vid borttagning: ${deleteMutation.error.message}`}
+            : `Fel vid borttagning: ${deleteMutation.error?.message}`}
         </p>
       )}
 

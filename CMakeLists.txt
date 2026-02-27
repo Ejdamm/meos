@@ -399,3 +399,33 @@ endif()
 
 enable_testing()
 add_test(NAME portable-unit-tests COMMAND MeOS-test)
+
+# -----------------------------------------------------------------------
+# React web UI build (produces src/ui/web/dist/)
+# -----------------------------------------------------------------------
+option(MEOS_BUILD_WEB "Build the React web UI via npm" ON)
+
+if(MEOS_BUILD_WEB)
+  find_program(NPM_EXECUTABLE npm)
+  if(NPM_EXECUTABLE)
+    set(WEB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/ui/web")
+    set(WEB_DIST_INDEX "${WEB_DIR}/dist/index.html")
+
+    add_custom_command(
+      OUTPUT  "${WEB_DIST_INDEX}"
+      COMMAND "${NPM_EXECUTABLE}" ci --prefix "${WEB_DIR}"
+      COMMAND "${NPM_EXECUTABLE}" run build --prefix "${WEB_DIR}"
+      WORKING_DIRECTORY "${WEB_DIR}"
+      COMMENT "Building React web UI (npm ci && npm run build)"
+      DEPENDS "${WEB_DIR}/package.json"
+              "${WEB_DIR}/package-lock.json"
+              "${WEB_DIR}/tsconfig.json"
+              "${WEB_DIR}/vite.config.ts"
+    )
+
+    add_custom_target(web-ui ALL DEPENDS "${WEB_DIST_INDEX}")
+    add_dependencies(MeOS-server web-ui)
+  else()
+    message(WARNING "npm not found – skipping React web UI build. Install Node.js/npm or set -DMEOS_BUILD_WEB=OFF")
+  endif()
+endif()

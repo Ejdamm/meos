@@ -20,7 +20,7 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>() {
     // Focus first focusable element inside the container
     const focusables = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
     if (focusables.length > 0) {
-      focusables[0].focus();
+      focusables[0]!.focus();
     }
 
     function handleKeyDown(e: KeyboardEvent) {
@@ -34,12 +34,12 @@ export function useFocusTrap<T extends HTMLElement = HTMLDivElement>() {
       if (e.shiftKey) {
         if (document.activeElement === first) {
           e.preventDefault();
-          last.focus();
+          last!.focus();
         }
       } else {
         if (document.activeElement === last) {
           e.preventDefault();
-          first.focus();
+          first!.focus();
         }
       }
     }
