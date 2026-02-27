@@ -1328,3 +1328,17 @@
    Filer ändrade:
    - .github/workflows/build.yml (ny docker-build job)
    Validering: YAML-struktur verifierad, inga tab-tecken, alla actions korrekt refererade.
+
+[2026-02-27] Task 5.5 DONE: Dokumentera ny arkitektur i README
+   Uppdaterade README.md med fullständig dokumentation:
+   - Arkitekturöversikt: headless C++ server + React frontend
+   - Komponenttabell (server, GUI, web frontend, databas)
+   - Build targets (MeOS-server, MeOS, MeOS-test)
+   - Headless vs GUI-jämförelsetabell
+   - REST API-översikt med alla endpoints
+   - Bygginstruktioner per plattform (Linux, macOS, Windows)
+   - CMake-alternativ (MEOS_USE_MYSQL, MEOS_BUILD_WEB)
+   - Web frontend standalone-instruktioner (dev, build, test, e2e)
+   - Docker: single container och docker-compose full stack
+   Filer ändrade:
+   - README.md

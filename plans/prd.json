@@ -1065,7 +1065,7 @@
           "id": "5.5",
           "title": "Dokumentera ny arkitektur i README",
           "description": "Uppdatera README.md: ny arkitektur (headless C++-server + React), bygginstruktioner för Windows/Linux/Mac, Docker-instruktioner, API-översikt, headless vs GUI-läge.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.2"
           ]
