@@ -890,3 +890,27 @@
    - src/ui/web/index.html (viewport-fit=cover, titel MeOS)
    - src/ui/web/src/pages/*.css (alla 11 filer – tablet breakpoint tillagt)
    Build: inga TS-fel. Lint: 0 fel. Vite build OK.
+
+[2026-02-27] Task 4.26 DONE: Sätt upp Vitest + React Testing Library + MSW
+   Konfigurerade komplett testinfrastruktur:
+   - Vitest som testrunner med jsdom-environment (vitest.config.ts)
+   - @testing-library/react + @testing-library/user-event + @testing-library/jest-dom
+   - MSW 2.x med handlers för alla API-endpoints (runners, teams, classes, courses, controls, clubs, cards, competitions, automations, lists, speaker, punches, import/export)
+   - Test fixtures med realistisk testdata för alla typer
+   - renderWithProviders() hjälpare (QueryClientProvider + MemoryRouter)
+   - Test setup (setup.ts) med MSW server lifecycle (beforeAll/afterEach/afterAll)
+   - Barrel export (test/index.ts) för enkel import
+   - npm scripts: test (vitest run), test:watch (vitest)
+   - Smoke test verifierar att infrastrukturen fungerar
+   Filer skapade:
+   - src/ui/web/vitest.config.ts
+   - src/ui/web/src/test/setup.ts
+   - src/ui/web/src/test/server.ts
+   - src/ui/web/src/test/handlers.ts
+   - src/ui/web/src/test/fixtures.ts
+   - src/ui/web/src/test/renderWithProviders.tsx
+   - src/ui/web/src/test/index.ts
+   - src/ui/web/src/__tests__/smoke.test.tsx
+   Filer ändrade:
+   - src/ui/web/package.json (test scripts + devDependencies)
+   Build: inga nya TS-fel. Lint: 0 fel. Smoke test: 2/2 passed.

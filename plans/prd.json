@@ -906,7 +906,7 @@
           "id": "4.26",
           "title": "Sätt upp Vitest + React Testing Library + MSW",
           "description": "Konfigurera Vitest som testrunner (integreras med Vite). Installera @testing-library/react och @testing-library/user-event. Konfigurera MSW med handlers för alla API-endpoints. Skapa renderWithProviders()-hjälpare (QueryClientProvider + MemoryRouter).",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.2"
           ]
