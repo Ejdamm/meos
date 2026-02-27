@@ -295,6 +295,21 @@
   }
 }
 
+/* Tablet (768px–1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .clubs-page {
+    max-width: 100%;
+  }
+
+  .clubs-page__header h2 {
+    font-size: 1.25rem;
+  }
+
+  .clubs-toolbar__search {
+    min-width: 140px;
+  }
+}
+
 @media (max-width: 767px) {
   .clubs-page__header {
     flex-direction: column;

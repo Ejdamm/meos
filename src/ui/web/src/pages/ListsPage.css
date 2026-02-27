@@ -273,6 +273,21 @@
   }
 }
 
+/* Tablet (768px–1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .lists-page {
+    max-width: 100%;
+  }
+
+  .lists-page__header h2 {
+    font-size: 1.25rem;
+  }
+
+  .lists-toolbar {
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 767px) {
   .lists-page__header {
     flex-direction: column;

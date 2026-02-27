@@ -860,7 +860,7 @@
           "id": "4.22",
           "title": "Responsiv layout och surfplatte-stöd",
           "description": "Säkerställ att alla sidor fungerar på desktop (1024px+) och surfplatta. Testa och justera breakpoints, touch-targets, scrollbeteende.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.10",
             "4.11",

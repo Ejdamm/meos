@@ -313,6 +313,21 @@
   }
 }
 
+/* Tablet (768px–1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .runners-page {
+    max-width: 100%;
+  }
+
+  .runners-page__header h2 {
+    font-size: 1.25rem;
+  }
+
+  .runners-toolbar__search {
+    min-width: 140px;
+  }
+}
+
 @media (max-width: 767px) {
   .runners-page__header {
     flex-direction: column;

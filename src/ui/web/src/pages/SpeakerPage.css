@@ -370,6 +370,26 @@
   }
 }
 
+/* Tablet (768px–1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .speaker-page {
+    max-width: 100%;
+  }
+
+  .speaker-page__header h2 {
+    font-size: 1.25rem;
+  }
+
+  .speaker-toolbar__search {
+    min-width: 140px;
+  }
+
+  .speaker-table th,
+  .speaker-table td {
+    padding: 0.5rem;
+  }
+}
+
 @media (max-width: 767px) {
   .speaker-page__header {
     flex-direction: column;

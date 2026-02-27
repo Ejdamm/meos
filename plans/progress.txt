@@ -873,3 +873,20 @@
    - src/ui/web/src/pages/CompetitionPage.tsx (lagt till ImportExportSection)
    - src/ui/web/src/pages/CompetitionPage.css (lagt till .comp-io-* stilar)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (CompetitionPage som separat chunk).
+
+[2026-02-27] Task 4.22 DONE: Responsiv layout och surfplatte-stöd
+   Implementerade responsiv layout med tablet-stöd:
+   - Skapade shared responsive.css med globala responsiva regler
+   - Tablet breakpoint (768–1023px) i alla 11 sidstilar
+   - Touch-friendly sizing: min-height 44px på knappar, inputs, tabellrader (≤1023px)
+   - Sidcontainrar använder full bredd på tablet (max-width: 100%)
+   - Rubriker, tabeller och toolbars anpassade för tablet-storlek
+   - Smooth scrolling och overscroll-behavior för touch-enheter
+   - viewport-fit=cover i meta-tag för notched tablets
+   - CompetitionPage stats-grid anpassat till 3 kolumner på tablet
+   Filer skapade/ändrade:
+   - src/ui/web/src/responsive.css (ny – shared responsive utilities)
+   - src/ui/web/src/main.tsx (import av responsive.css)
+   - src/ui/web/index.html (viewport-fit=cover, titel MeOS)
+   - src/ui/web/src/pages/*.css (alla 11 filer – tablet breakpoint tillagt)
+   Build: inga TS-fel. Lint: 0 fel. Vite build OK.

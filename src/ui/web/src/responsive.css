@@ -1,0 +1,91 @@
+/* ==========================================================================
+   Shared responsive utilities – tablet (768–1023px) and touch-friendly sizing.
+   Imported globally; uses attribute-substring selectors to match the BEM-like
+   class-name conventions used across all page CSS files.
+   ========================================================================== */
+
+/* --- Touch-friendly minimum sizes (all viewports ≤ 1023px) --------------- */
+@media (max-width: 1023px) {
+  /* Buttons: ensure 44px minimum touch target */
+  [class*="-btn"] {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Form inputs & selects: 44px touch target */
+  [class*="__search"],
+  [class*="__select"],
+  [class*="__input"] {
+    min-height: 44px;
+  }
+
+  /* Table rows: taller for easier tapping */
+  [class*="-table"] td {
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
+  }
+
+  /* Nav links: 44px touch target */
+  .app-nav__link {
+    min-height: 44px;
+  }
+}
+
+/* --- Tablet breakpoint (768–1023px) -------------------------------------- */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Page containers: use full width on tablet */
+  [class$="-page"] {
+    max-width: 100%;
+  }
+
+  /* Headers: keep row layout but tighten */
+  [class*="-page__header"] {
+    gap: 0.5rem;
+  }
+
+  [class*="-page__header"] h2 {
+    font-size: 1.25rem;
+  }
+
+  /* Toolbars: keep row layout, allow wrapping */
+  [class*="-toolbar"] {
+    flex-wrap: wrap;
+  }
+
+  /* Tables: smaller font for tablet to prevent overflow */
+  [class*="-table"] {
+    font-size: 0.8125rem;
+  }
+
+  [class*="-table"] th,
+  [class*="-table"] td {
+    padding: 0.5rem;
+  }
+
+  /* Modals: slightly wider on tablets */
+  [class*="-modal"]:not([class*="-overlay"]) {
+    max-width: 560px;
+  }
+}
+
+/* --- Smooth scrolling & overscroll --------------------------------------- */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (pointer: coarse) {
+  /* Touch devices: prevent pull-to-refresh interfering with scroll areas */
+  .app-main {
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Horizontal table scroll: snap feeling */
+  [class*="-table-wrap"] {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+  }
+}
