@@ -63,6 +63,7 @@ static void handleSignal(int) {
 int main(int argc, char *argv[]) {
   int port = 2009;
   std::string competitionFile;
+  std::string webRoot;
 
   for (int i = 1; i < argc; ++i) {
     std::string arg(argv[i]);
@@ -70,8 +71,10 @@ int main(int argc, char *argv[]) {
       port = std::atoi(argv[++i]);
     else if ((arg == "--competition" || arg == "-c") && i + 1 < argc)
       competitionFile = argv[++i];
+    else if ((arg == "--web-root" || arg == "-w") && i + 1 < argc)
+      webRoot = argv[++i];
     else if (arg == "--help" || arg == "-h") {
-      printf("Usage: MeOS-server [--port PORT] [--competition FILE]\n");
+      printf("Usage: MeOS-server [--port PORT] [--competition FILE] [--web-root DIR]\n");
       return 0;
     }
   }
@@ -96,16 +99,21 @@ int main(int argc, char *argv[]) {
     printf("Loaded competition: %s\n", competitionFile.c_str());
   }
 
-  RestServer server;
-  server.startService(port);
+  auto server = RestServer::construct();
+  if (!webRoot.empty())
+    server->setWebRoot(webRoot);
+  server->startService(port);
   printf("MeOS server started on port %d\n", port);
+  if (!webRoot.empty())
+    printf("Serving web UI from %s\n", webRoot.c_str());
 
   while (g_running) {
     RestServer::computeRequested(oe);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
 
-  server.stop();
+  server->stop();
+  RestServer::remove(server);
   printf("MeOS server stopped.\n");
   return 0;
 }

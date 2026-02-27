@@ -115,6 +115,7 @@ private:
 
   string root;
   multimap<string, string> rootMap;
+  string webRoot_;
 
   struct InfoServerContainer {
     //static int currentInstanceId;
@@ -153,6 +154,9 @@ public:
 
   void setRootMap(const string &rootMap);
   const string &getRootMap() const { return root; }
+
+  void setWebRoot(const string &webRoot);
+  const string &getWebRoot() const { return webRoot_; }
 
   std::tuple<EntryPermissionClass, EntryPermissionType> getEntryPermission() const {
     return std::make_tuple(epClass, epType);

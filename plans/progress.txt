@@ -1058,3 +1058,21 @@
    - src/ui/web/src/pages/CoursesPage.tsx (TS-fix)
    - src/ui/web/src/__tests__/competition-page.test.tsx (TS-fix)
    Build: npm run build OK, dist/ producerad. Tester: 18/18 passed.
+
+[2026-02-27] Task 5.2 DONE: Koppla restserver till React dist/
+   Uppdaterade restserver.cpp att servera statiska filer från webRoot (React dist/):
+   - restserver.h: lade till webRoot_ medlem, setWebRoot() och getWebRoot()
+   - restserver.cpp: handleRequest() serverar index.html för GET / när webRoot satt
+   - restserver.cpp: startThread() sätter set_error_handler på Restbed-service
+     som fångar 404 för omatchade sökvägar och serverar statiska filer med
+     korrekt MIME-typ, path traversal-skydd och SPA fallback till index.html
+   - Använder befintliga readFileContents() och guessMimeType() från
+     static_file_handler.h
+   - server_main.cpp: lade till --web-root/-w CLI-flagga
+   - server_main.cpp: fixade privat konstruktor-problem (RestServer::construct())
+   - /meos-endpointen oförändrad (bakåtkompatibel)
+   Filer ändrade:
+   - src/net/restserver.h (webRoot_ + accessors)
+   - src/net/restserver.cpp (static file serving + setWebRoot)
+   - src/app/server_main.cpp (--web-root flag + construct())
+   Build: g++ kompilering OK. Tester: 470/470 passed.

@@ -47,6 +47,7 @@ extern Image image;
 #endif
 #include "cardsystem.h"
 #include "platform_string.h"
+#include "static_file_handler.h"
 
 using namespace restbed;
 using namespace std;
@@ -103,6 +104,19 @@ void RestServer::handleRequest(const shared_ptr<restbed::Session> &session) {
   const auto request = session->get_request();
   string path = request->get_path();
   
+  // Serve React SPA index.html for root when webRoot is configured
+  if (path == "/" && !webRoot_.empty()) {
+    namespace fs = std::filesystem;
+    std::string body;
+    if (readFileContents(fs::path(webRoot_) / "index.html", body)) {
+      session->close(restbed::OK, body, { { "Content-Type", "text/html" },
+                                          { "Content-Length", itos(body.length()) },
+                                          { "Connection", "close" },
+                                          { "Access-Control-Allow-Origin", "*" } });
+      return;
+    }
+  }
+
   size_t content_length = request->get_header("Content-Length", 0);  
   chrono::time_point<chrono::system_clock> start, end;
   start = chrono::system_clock::now();
@@ -156,6 +170,47 @@ void RestServer::startThread(int port) {
   resourceRoot->set_method_handler("GET", method_handler);
   restService->publish(resourceRoot);
   
+  // Serve static files from webRoot for unmatched paths (React SPA assets)
+  if (!webRoot_.empty()) {
+    string wr = webRoot_;
+    restService->set_error_handler([wr](const int code, const exception& /*e*/, const shared_ptr<Session> session) {
+      namespace fs = std::filesystem;
+      if (code == 404 && session && session->is_open()) {
+        const auto request = session->get_request();
+        string reqPath = request->get_path();
+        fs::path root = fs::path(wr).lexically_normal();
+        string urlPath = (reqPath.size() > 1) ? reqPath.substr(1) : "";
+        fs::path relPath = fs::path(urlPath).lexically_normal();
+        if (!relPath.empty() && relPath.begin()->string() == "..")
+          relPath = fs::path("index.html");
+
+        string body;
+        fs::path filePath = (root / relPath).lexically_normal();
+        if (readFileContents(filePath, body)) {
+          string ext = filePath.extension().string();
+          session->close(restbed::OK, body, { { "Content-Type", guessMimeType(ext) },
+                                              { "Content-Length", to_string(body.length()) },
+                                              { "Connection", "close" },
+                                              { "Access-Control-Allow-Origin", "*" } });
+          return;
+        }
+        // SPA fallback: serve index.html
+        if (readFileContents(root / "index.html", body)) {
+          session->close(restbed::OK, body, { { "Content-Type", "text/html" },
+                                              { "Content-Length", to_string(body.length()) },
+                                              { "Connection", "close" },
+                                              { "Access-Control-Allow-Origin", "*" } });
+          return;
+        }
+      }
+      string msg = "{ \"error\": \"Not found\" }";
+      if (session && session->is_open())
+        session->close(code, msg, { { "Content-Type", "application/json" },
+                                    { "Content-Length", to_string(msg.length()) },
+                                    { "Connection", "close" } });
+    });
+  }
+
   restService->start(settings);
 }
 
@@ -172,6 +227,10 @@ void RestServer::setRootMap(const string &rmap) {
     else if (sp2.size() == 2)
       rootMap.emplace(sp2[0], sp2[1]);
   }
+}
+
+void RestServer::setWebRoot(const string &webRoot) {
+  webRoot_ = webRoot;
 }
 
 void RestServer::startService(int port) {

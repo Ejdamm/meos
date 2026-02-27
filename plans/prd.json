@@ -1037,7 +1037,7 @@
           "id": "5.2",
           "title": "Koppla restserver till React dist/",
           "description": "Uppdatera restserver.cpp att servera filer från den CMake-genererade dist/-sökvägen. Verifiera att GET / returnerar React-appens index.html.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "5.1"
           ]
