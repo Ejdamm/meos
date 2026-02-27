@@ -915,7 +915,7 @@
           "id": "4.27",
           "title": "Test: API-klient och interceptors",
           "description": "Testa axios-instansens interceptors: 401-svar ger felmeddelande, 500-svar ger generiskt fel, timeout hanteras korrekt, retry-logik fungerar.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.4",
             "4.26"

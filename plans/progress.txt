@@ -914,3 +914,19 @@
    Filer ändrade:
    - src/ui/web/package.json (test scripts + devDependencies)
    Build: inga nya TS-fel. Lint: 0 fel. Smoke test: 2/2 passed.
+
+[2026-02-27] Task 4.27 DONE: Test: API-klient och interceptors
+   Skapade api-client.test.ts med 16 tester som verifierar:
+   - Lyckade svar: 200 OK returnerar data korrekt
+   - Default headers: Accept (GET) och Content-Type (POST) skickas korrekt
+   - Base URL: /api prefix används
+   - Error interceptor: 401→"Ej autentiserad", 403→"Åtkomst nekad",
+     404→"Resursen hittades inte", 500→"Internt serverfel",
+     400→"Ogiltig förfrågan", 409→"Konflikt"
+   - Custom error message extraheras från response body (message + detail)
+   - Okänd statuskod ger fallback-meddelande med statuskod
+   - Nätverksfel (inget svar) ger status 0
+   - ApiRequestError-klassen: korrekt name, instanceof Error, detail hanteras
+   Filer skapade:
+   - src/ui/web/src/__tests__/api-client.test.ts
+   Resultat: 16/16 tester PASSED.
