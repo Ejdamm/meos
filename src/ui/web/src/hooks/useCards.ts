@@ -7,10 +7,11 @@ const cardsKeys = {
   detail: (id: number) => ['cards', id] as const,
 };
 
-export function useCards() {
+export function useCards(refetchInterval?: number) {
   return useQuery({
     queryKey: cardsKeys.all,
     queryFn: getCards,
+    refetchInterval,
   });
 }
 

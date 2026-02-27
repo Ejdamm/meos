@@ -790,3 +790,22 @@
    - src/ui/web/src/pages/ClubsPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/ClubsPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ClubsPage som separat chunk).
+
+[2026-02-27] Task 4.17 DONE: SI-sida (TabSI)
+   Implementerade fullständig SiPage med:
+   - Tabell med sortering (bricknummer, löpare, antal stämplingar) och riktningsindikator
+   - Sökfält som filtrerar på bricknummer och löparnamn
+   - Polling via useCards(refetchInterval=5000) för automatisk uppdatering
+   - Formulär för att läsa bricka (POST /api/cards/read) med bricknummer-inmatning
+   - Radval med visuell markering (klick för att välja/avmarkera)
+   - Detaljpanel: visar stämplingar per bricka med typ (Start/Mål/Kontroll), kontroll-ID och tid
+   - Koppling bricka → löpare via cardNo-mappning från useRunners
+   - Polling-indikator med animerad prick
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och avläsningsfel
+   - useCards-hook utökad med optional refetchInterval-parameter
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/SiPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/SiPage.css (ny)
+   - src/ui/web/src/hooks/useCards.ts (lagt till refetchInterval-parameter)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (SiPage som separat chunk).

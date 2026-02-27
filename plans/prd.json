@@ -810,7 +810,7 @@
           "id": "4.17",
           "title": "SI-sida (TabSI)",
           "description": "Implementera: visa brickstatus, avlästa brickor via polling (useQuery med refetchInterval), stämplingsdata per löpare.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.16"
