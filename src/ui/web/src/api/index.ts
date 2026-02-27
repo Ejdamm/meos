@@ -13,8 +13,10 @@ export type { ReadCardRequest } from './cards';
 export {
   getCompetitions,
   getCompetition,
+  createCompetition,
   updateCompetition,
 } from './competitions';
+export type { CreateCompetitionRequest } from './competitions';
 export { getLists, getList, getResults } from './lists';
 export type { ListType, ListData, ResultEntry } from './lists';
 export {

@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCompetitions, getCompetition, updateCompetition } from '../api';
+import { getCompetitions, getCompetition, createCompetition, updateCompetition } from '../api';
 import type { Competition } from '../types';
+import type { CreateCompetitionRequest } from '../api';
 
 const competitionsKeys = {
   all: ['competitions'] as const,
@@ -19,6 +20,17 @@ export function useCompetition(id: number) {
     queryKey: competitionsKeys.detail(id),
     queryFn: () => getCompetition(id),
     enabled: id > 0,
+  });
+}
+
+export function useCreateCompetition() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (competition: CreateCompetitionRequest) =>
+      createCompetition(competition),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: competitionsKeys.all });
+    },
   });
 }
 

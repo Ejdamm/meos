@@ -1,0 +1,253 @@
+.comp-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.comp-page__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.comp-page__header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.comp-page__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.comp-page__empty {
+  color: #718096;
+  font-style: italic;
+}
+
+/* Detail view */
+.comp-detail {
+  background: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.comp-detail__row {
+  display: flex;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border, #e2e8f0);
+}
+
+.comp-detail__row:last-of-type {
+  border-bottom: none;
+}
+
+.comp-detail__label {
+  font-weight: 600;
+  min-width: 120px;
+  color: #4a5568;
+}
+
+.comp-detail__value {
+  flex: 1;
+}
+
+/* Statistics cards */
+.comp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.comp-stats__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: var(--color-stat-bg, #ebf8ff);
+  border-radius: 8px;
+}
+
+.comp-stats__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2b6cb0;
+}
+
+.comp-stats__label {
+  font-size: 0.8125rem;
+  color: #4a5568;
+  margin-top: 0.25rem;
+}
+
+/* Form */
+.comp-form {
+  background: var(--color-card-bg, #ffffff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.comp-form__title {
+  margin: 0 0 1rem;
+  font-size: 1.125rem;
+}
+
+.comp-form__field {
+  margin-bottom: 1rem;
+}
+
+.comp-form__label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  color: #4a5568;
+}
+
+.comp-form__input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #cbd5e0);
+  border-radius: 4px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background: var(--color-input-bg, #ffffff);
+  color: inherit;
+}
+
+.comp-form__input:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+}
+
+.comp-form__input--error {
+  border-color: #e53e3e;
+}
+
+.comp-form__error {
+  color: #e53e3e;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+}
+
+.comp-form__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* Buttons */
+.comp-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s, opacity 0.15s;
+}
+
+.comp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.comp-btn--primary {
+  background-color: #3182ce;
+  color: #ffffff;
+}
+
+.comp-btn--primary:hover:not(:disabled) {
+  background-color: #2b6cb0;
+}
+
+.comp-btn--secondary {
+  background-color: transparent;
+  color: #4a5568;
+  border-color: #cbd5e0;
+}
+
+.comp-btn--secondary:hover:not(:disabled) {
+  background-color: #edf2f7;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  .comp-detail {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .comp-detail__label {
+    color: #a0aec0;
+  }
+
+  .comp-detail__row {
+    border-bottom-color: #4a5568;
+  }
+
+  .comp-stats__item {
+    background: #2a4365;
+  }
+
+  .comp-stats__value {
+    color: #90cdf4;
+  }
+
+  .comp-stats__label {
+    color: #a0aec0;
+  }
+
+  .comp-form {
+    background: #2d3748;
+    border-color: #4a5568;
+  }
+
+  .comp-form__label {
+    color: #a0aec0;
+  }
+
+  .comp-form__input {
+    background: #1a202c;
+    border-color: #4a5568;
+  }
+
+  .comp-page__empty {
+    color: #a0aec0;
+  }
+
+  .comp-btn--secondary {
+    color: #a0aec0;
+    border-color: #4a5568;
+  }
+
+  .comp-btn--secondary:hover:not(:disabled) {
+    background-color: #4a5568;
+  }
+}
+
+@media (max-width: 767px) {
+  .comp-page__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .comp-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .comp-detail__row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .comp-detail__label {
+    min-width: unset;
+  }
+}

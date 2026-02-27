@@ -740,7 +740,7 @@
           "id": "4.10",
           "title": "Competition-sida (TabCompetition)",
           "description": "Implementera: skapa/öppna tävling, redigera tävlingsdata (namn, datum, arrangör). Controlled forms med validering. Mutation hooks för POST/PUT.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.9"

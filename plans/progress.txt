@@ -669,3 +669,22 @@
    - src/ui/web/src/App.tsx: RouteErrorFallback med useRouteError() som errorElement
      på root-routen, fångar react-router-specifika fel.
    TypeScript strict-check, build (103 moduler) och lint passerade utan fel.
+
+[2026-02-27] Task 4.10 DONE: Competition-sida (TabCompetition)
+   Implementerade fullständig CompetitionPage med:
+   - CompetitionInfo: visar statistik (deltagare, klasser, banor, brickor) i rutnät
+   - EditForm: kontrollerad formulär för redigering av namn, datum, nolltid med validering
+   - CreateForm: formulär för att skapa ny tävling med POST-anrop
+   - Validering: namn krävs, datumformat ÅÅÅÅ-MM-DD, tidsformat HH:MM(:SS)
+   - Mutation hooks: useUpdateCompetition (PUT) och nytt useCreateCompetition (POST)
+   - API-lager: lade till createCompetition() och CreateCompetitionRequest-interface
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering: visar felmeddelanden vid laddnings- och sparfel
+   Filer ändrade:
+   - src/ui/web/src/pages/CompetitionPage.tsx (helt omskriven)
+   - src/ui/web/src/pages/CompetitionPage.css (ny)
+   - src/ui/web/src/api/competitions.ts (lade till createCompetition)
+   - src/ui/web/src/api/index.ts (exporterar createCompetition)
+   - src/ui/web/src/hooks/useCompetitions.ts (lade till useCreateCompetition)
+   - src/ui/web/src/hooks/index.ts (exporterar useCreateCompetition)
+   Build: 183 moduler, inga TS-fel. Lint: 0 fel.

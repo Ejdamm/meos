@@ -5,7 +5,7 @@ export { useCourses, useCourse, useCreateCourse, useUpdateCourse, useDeleteCours
 export { useControls, useControl, useCreateControl, useUpdateControl, useDeleteControl } from './useControls';
 export { useClubs, useClub, useCreateClub, useUpdateClub, useDeleteClub } from './useClubs';
 export { useCards, useCard, useReadCard } from './useCards';
-export { useCompetitions, useCompetition, useUpdateCompetition } from './useCompetitions';
+export { useCompetitions, useCompetition, useCreateCompetition, useUpdateCompetition } from './useCompetitions';
 export { useLists, useList, useResults } from './useLists';
 export { useSpeakerConfig, useUpdateSpeakerConfig, useSpeakerMonitor } from './useSpeaker';
 export {
