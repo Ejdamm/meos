@@ -770,7 +770,7 @@
           "id": "4.13",
           "title": "Class-sida (TabClass)",
           "description": "Implementera: skapa/redigera klasser, lottningsinställningar, bansträckningar, startintervall. Formulär med validering.",
-          "done": false,
+          "done": true,
           "dependencies": [
             "4.8",
             "3.12"

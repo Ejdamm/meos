@@ -723,3 +723,21 @@
    - src/ui/web/src/pages/TeamsPage.tsx (helt omskriven från placeholder)
    - src/ui/web/src/pages/TeamsPage.css (ny)
    Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (TeamsPage som separat chunk).
+
+[2026-02-27] Task 4.13 DONE: Class-sida (TabClass)
+   Implementerade fullständig ClassesPage med:
+   - Tabell med sortering (namn, typ, sträckor, bana) och riktningsindikator
+   - Sökfält som filtrerar på klassnamn
+   - Dropdown-filter för klasstyp (populerad från data)
+   - Radval med visuell markering (klick för att välja/avmarkera)
+   - Modal för att skapa ny klass med validering (namn krävs)
+   - Modal för att redigera vald klass (namn, typ, antal sträckor, bana)
+   - Bansträckning: dropdown med tillgängliga banor från useCourses-hook
+   - Antal sträckor: numeriskt fält med minimum 1 (stafett-stöd)
+   - Ta bort-knapp för vald klass med mutation-hook
+   - Responsiv CSS med light/dark mode, mobil-anpassning
+   - Felhantering vid laddnings- och sparfel
+   Filer skapade/ändrade:
+   - src/ui/web/src/pages/ClassesPage.tsx (helt omskriven från placeholder)
+   - src/ui/web/src/pages/ClassesPage.css (ny)
+   Build: inga TS-fel. Lint: 0 fel. Code-splitting bekräftat (ClassesPage som separat chunk).
