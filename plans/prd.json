@@ -1140,7 +1140,7 @@
     },
     {
       "name": "Fas 6: Åtgärda byggfel",
-      "description": "Åtgärda identifierade byggfel från CI-körning 2026-02-27 (run 58847144837). Felen delas upp i: vcpkg-versionsmatchning, Windows CI-konfiguration, TypeScript/ESLint-fel i webbfrontend.",
+      "description": "Åtgärda identifierade byggfel från CI-körningar. Fas 6.1–6.9 åtgärdade fel från körning 2026-02-27 (run 58847144837). Fas 6.10–6.14 åtgärdar nya fel från körning 2026-03-01 (run 58972635750) samt förebygger framtida byggfel.",
       "tasks": [
         {
           "id": "6.1",
@@ -1204,6 +1204,47 @@
           "description": "ESLint-fel react-hooks/refs i src/ui/web/src/hooks/useKeyboardShortcuts.ts rad 27: \"Cannot update ref during render\" — shortcutsRef.current = shortcuts tilldelas direkt i render-kroppen. Åtgärd: flytta tilldelningen shortcutsRef.current = shortcuts in i ett useLayoutEffect utan beroende-array (körs synkront efter varje render): useLayoutEffect(() => { shortcutsRef.current = shortcuts; }); Detta är det korrekta mönstret för att hålla en ref uppdaterad med senaste prop/state-värde utan att orsaka re-render.",
           "done": true,
           "dependencies": []
+        },
+        {
+          "id": "6.10",
+          "title": "Rätta vcpkg builtin-baseline till giltigt commit",
+          "description": "Alla C++-byggen (Windows Release/Debug, Linux Debug) misslyckas med ogiltigt vcpkg baseline-commit. Windows-felet: \"while checking out baseline from commit ffc071e0c08432c60c9b64f00334c0227667931b, failed to git show versions/baseline.json\". Linux-felet: \"no version database entry for libpng at 1.6.5\" (konsekvens av att baseline inte kan lösas). Committen ffc071e0c08432c60c9b64f00334c0227667931b existerar inte i vcpkg-repot. Åtgärd: (1) Hitta ett giltigt, nyligen vcpkg-commit via \"git ls-remote https://github.com/microsoft/vcpkg.git HEAD\" eller vcpkg-repots senaste releasetagg. (2) Uppdatera \"builtin-baseline\" i vcpkg.json till det nya commithashet. (3) Verifiera att cmake --preset=default konfigurerar korrekt och att alla dependencies (nlohmann-json, libharu, restbed, libpng, zlib, libmysql) installeras. OBS: version>=-constrainten \"1.6.5\" för libpng behöver inte ändras — den är en minimigräns och en giltig baseline kommer att erbjuda en nyare version som uppfyller kravet.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.11",
+          "title": "Rätta ESLint no-unused-vars i vitest.d.ts",
+          "description": "Web-quality-jobbet misslyckas med ESLint-fel i src/ui/web/src/vitest.d.ts rad 5: \"'T' is defined but never used\" (@typescript-eslint/no-unused-vars). Den generiska typparametern T i \"interface Assertion<T = unknown> extends AxeMatchers {}\" används inte av AxeMatchers. Åtgärd: antingen (a) lägg till eslint-disable-next-line-kommentar för @typescript-eslint/no-unused-vars (liknande den befintliga kommentaren för no-empty-object-type), eller (b) ändra till \"interface Assertion<T = unknown> extends AxeMatchers, TestingLibraryMatchers<T, void> {}\" så att T faktiskt används (kombineras med 6.12).",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.12",
+          "title": "Lägg till @testing-library/jest-dom type augmentation i vitest.d.ts",
+          "description": "Docker-bygget (och docker-compose-test) misslyckas med 551 TypeScript-fel av typen TS2339: \"Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'\" (plus toHaveTextContent, toHaveValue, toHaveAttribute, toHaveClass, toHaveNoViolations). Drabbade testfiler: a11y-audit.test.tsx, class-page.test.tsx, club-si-list-speaker-auto-page.test.tsx, competition-page.test.tsx, course-control-page.test.tsx, modal.test.tsx, routing-error-boundary.test.tsx, runner-page.test.tsx, smoke.test.tsx, team-page.test.tsx, toast.test.tsx. Orsak: vitest.d.ts augmenterar bara AxeMatchers men INTE @testing-library/jest-dom-matchare. Build-skriptet kör \"tsc -b\" som processar tsconfig.app.json vilken inkluderar src/ (inklusive testfiler). Åtgärd: I src/ui/web/src/vitest.d.ts, importera och augmentera med @testing-library/jest-dom: import type { TestingLibraryMatchers } from '@testing-library/jest-dom/matchers'; och utöka interface Assertion<T = unknown> extends AxeMatchers, TestingLibraryMatchers<T, void> {}. Alternativt kan man använda /// <reference types=\"@testing-library/jest-dom/vitest\" /> om paketet stödjer det. Verifiera att \"npm run build\" (tsc -b && vite build) passerar utan TypeScript-fel.",
+          "done": false,
+          "dependencies": [
+            "6.11"
+          ]
+        },
+        {
+          "id": "6.13",
+          "title": "Rätta typecheck-skriptet (tsc --noEmit är no-op)",
+          "description": "Förebyggande åtgärd: web-quality-jobbets TypeScript-typkontroll (npm run typecheck → tsc --noEmit) är i praktiken en no-op. tsconfig.json har \"files\": [] och ingen \"include\", utan bara \"references\" till tsconfig.app.json och tsconfig.node.json. I icke-build-mode ignorerar tsc references, så inga filer kontrolleras. Därför passerar typecheck i CI medan tsc -b i Docker-bygget hittar 551 TypeScript-fel. Åtgärd: ändra typecheck-skriptet i package.json från \"tsc --noEmit\" till \"tsc -b --noEmit\" så att project references processas korrekt. Detta säkerställer att typecheck fångar samma fel som build-steget.",
+          "done": false,
+          "dependencies": [
+            "6.12"
+          ]
+        },
+        {
+          "id": "6.14",
+          "title": "Exkludera testfiler från tsconfig.app.json",
+          "description": "Förebyggande åtgärd: tsconfig.app.json inkluderar \"src\" utan att exkludera testfiler. Detta innebär att testfiler (src/__tests__/*.test.tsx) typkontrolleras som del av produktionsbygget (tsc -b). Testfiler har beroenden på @testing-library/jest-dom, vitest-axe, msw etc. som inte bör krävas för produktionsbygget. Åtgärd: (1) Lägg till \"exclude\" i tsconfig.app.json: [\"src/__tests__/**\", \"src/**/*.test.ts\", \"src/**/*.test.tsx\", \"src/**/*.spec.ts\", \"src/**/*.spec.tsx\"]. (2) Skapa tsconfig.test.json som extender tsconfig.app.json men inkluderar testfilerna och lägger till \"vitest/globals\" i types. (3) Uppdatera tsconfig.json references att inkludera tsconfig.test.json. Detta separerar produktions- och test-typkontroll och förhindrar att testberoenden påverkar produktionsbygget.",
+          "done": false,
+          "dependencies": [
+            "6.13"
+          ]
         }
       ]
     }

@@ -142,3 +142,63 @@ docker run -p 2009:2009 meos   # serves web UI + REST API on port 2009
 docker compose up -d           # full stack: MeOS + MySQL 8.0
 docker compose down -v         # stop and remove volumes
 ```
+
+## Debugging CI Build Failures
+
+CI log artifacts are stored as ZIP files in `plans/` (e.g., `plans/logs_<run_id>.zip`).
+
+### Log ZIP structure
+
+```
+logs_<run_id>/
+├── 0_build-windows (x64, Release).txt   # full log per job (top-level)
+├── 1_build-windows (x64, Debug).txt
+├── 2_web-quality.txt
+├── 3_build-linux (Debug).txt
+├── ...
+├── build-windows (x64, Release)/        # per-step logs (subdirectory)
+│   ├── 3_Configure CMake.txt
+│   ├── 4_Build.txt
+│   └── ...
+├── docker-build/
+│   ├── 4_Build Docker image.txt
+│   └── ...
+└── web-quality/
+    ├── 5_TypeScript type check.txt
+    ├── 6_ESLint.txt
+    └── ...
+```
+
+### Triage workflow
+
+1. **Extract:** `unzip -o plans/logs_<run_id>.zip -d plans/logs_<run_id>`
+2. **Identify failing jobs:** grep error patterns across top-level `.txt` files:
+   ```sh
+   grep -li "##\[error\]\|error C\|error TS\|FAILED\|fatal error" plans/logs_<run_id>/*.txt
+   ```
+3. **Classify errors** by grepping for platform-specific patterns:
+   - **C++ (Windows):** `error C[0-9]` (MSVC), `fatal error LNK` (linker)
+   - **C++ (Linux):** `error:` from gcc/g++
+   - **vcpkg:** `vcpkg install failed`, `no version database entry`, `failed to.*baseline`
+   - **TypeScript:** `error TS[0-9]`
+   - **ESLint:** `error  ` (two spaces before rule name)
+   - **Docker:** `ERROR:`, `failed to build`, `exit code:`
+4. **Get unique errors:** deduplicate to see distinct issues:
+   ```sh
+   grep "error TS" <logfile> | sed 's/.*error /error /' | sort -u
+   ```
+5. **List affected files:**
+   ```sh
+   grep "error TS" <logfile> | sed 's/.*\(src\/[^(]*\).*/\1/' | sort -u
+   ```
+6. **Drill into step logs** in subdirectories for full context around a specific failure.
+
+### Common failure categories
+
+| Category | Symptom | Typical cause |
+|----------|---------|---------------|
+| vcpkg baseline | `failed to git show versions/baseline.json` | `builtin-baseline` commit in `vcpkg.json` doesn't exist in vcpkg repo |
+| vcpkg version | `no version database entry for X at Y` | `version>=` constraint specifies a version not in vcpkg's database, or baseline can't resolve |
+| TS type augmentation | `Property 'X' does not exist on type 'Assertion<Y>'` | Missing vitest matcher type declarations in `vitest.d.ts` |
+| ESLint unused | `'X' is defined but never used` | Unused imports/variables/type params |
+| Docker npm build | `npm run build` exit code 2 | TypeScript errors in `tsc -b` (check underlying TS errors) |
