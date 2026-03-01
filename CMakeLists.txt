@@ -11,8 +11,8 @@ option(MEOS_USE_MYSQL "Build with MySQL database support" ON)
 if(MEOS_USE_MYSQL)
   find_package(unofficial-libmysql CONFIG REQUIRED)
 endif()
-find_package(haru CONFIG REQUIRED)
-find_package(restbed CONFIG REQUIRED)
+find_package(unofficial-libharu CONFIG REQUIRED)
+find_package(unofficial-restbed CONFIG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
@@ -224,8 +224,8 @@ target_link_directories(MeOS PRIVATE
 target_link_libraries(MeOS PRIVATE
     # Third-party libraries
     ZLIB::ZLIB
-    haru::haru
-    restbed::restbed
+    unofficial::libharu::hpdf
+    unofficial::restbed::restbed-static
     PNG::PNG
     nlohmann_json::nlohmann_json
 )
@@ -343,8 +343,8 @@ endif()
 
 target_link_libraries(MeOS-server PRIVATE
     ZLIB::ZLIB
-    haru::haru
-    restbed::restbed
+    unofficial::libharu::hpdf
+    unofficial::restbed::restbed-static
     PNG::PNG
     nlohmann_json::nlohmann_json
 )

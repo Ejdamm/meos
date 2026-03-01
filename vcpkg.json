@@ -5,26 +5,11 @@
   "description": "MeOS - orienteering event management system",
   "builtin-baseline": "ffc071e0c08432c60c9b64f00334c0227667931b",
   "dependencies": [
-    {
-      "name": "nlohmann-json",
-      "version>=": "3.11.2"
-    },
-    {
-      "name": "libharu",
-      "version>=": "2.4.4"
-    },
-    {
-      "name": "restbed",
-      "version>=": "4.7"
-    },
-    {
-      "name": "libpng",
-      "version>=": "1.6.43"
-    },
-    {
-      "name": "zlib",
-      "version>=": "1.2.11"
-    }
+    "nlohmann-json",
+    "libharu",
+    "restbed",
+    "libpng",
+    "zlib"
   ],
   "features": {
     "mysql": {
