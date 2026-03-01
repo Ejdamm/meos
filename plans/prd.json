@@ -1153,7 +1153,7 @@
           "id": "6.2",
           "title": "Rätta Windows CI: lägg till vcpkg-toolchain i cmake-steget",
           "description": "Windows-bygget misslyckas med: \"Could not find a package configuration file provided by unofficial-libmysql\". Orsak: cmake-steget i build.yml saknar -DCMAKE_TOOLCHAIN_FILE och kör därmed inte vcpkg manifest install. I .github/workflows/build.yml, uppdatera Configure CMake-steget för build-windows till: cmake -B build -G \"Visual Studio 17 2022\" -A {{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=\"$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake\" -DVCPKG_MANIFEST_FEATURES=mysql. VCPKG_INSTALLATION_ROOT är förinstallerat på windows-latest-runners (pekar på C:\\vcpkg). Verifiera att vcpkg integrerar och installerar libmysql korrekt.",
-          "done": false,
+          "done": true,
           "dependencies": []
         },
         {

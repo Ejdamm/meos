@@ -1407,3 +1407,12 @@
    Version 2.4.4 finns i vcpkg version-databasen.
    Filer ändrade:
    - vcpkg.json (libharu version>=: 2.2.0 → 2.4.4)
+
+[2026-03-01] Task 6.2 DONE: Rätta Windows CI: lägg till vcpkg-toolchain i cmake-steget
+   Windows-bygget misslyckades med "Could not find unofficial-libmysql" eftersom
+   cmake-steget saknade -DCMAKE_TOOLCHAIN_FILE.
+   Lade till -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
+   i Configure CMake-steget för build-windows i .github/workflows/build.yml.
+   VCPKG_INSTALLATION_ROOT är förinstallerat på windows-latest runners.
+   Filer ändrade:
+   - .github/workflows/build.yml (build-windows Configure CMake)
