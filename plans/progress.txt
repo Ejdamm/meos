@@ -1400,3 +1400,10 @@
    - src/ui/web/.gitignore (/reports/)
    Validering: 313/313 Vitest-tester PASSED, coverage thresholds PASSED,
    TypeScript typecheck PASSED.
+
+[2026-03-01] Task 6.1 DONE: Rätta libharu-version i vcpkg.json
+   Linux-bygget misslyckades med "no version database entry for libharu at 2.2.0".
+   Ändrade libharu-beroendet i vcpkg.json från "version>=": "2.2.0" till "version>=": "2.4.4".
+   Version 2.4.4 finns i vcpkg version-databasen.
+   Filer ändrade:
+   - vcpkg.json (libharu version>=: 2.2.0 → 2.4.4)

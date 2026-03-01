@@ -1137,6 +1137,75 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Fas 6: Åtgärda byggfel",
+      "description": "Åtgärda identifierade byggfel från CI-körning 2026-02-27 (run 58847144837). Felen delas upp i: vcpkg-versionsmatchning, Windows CI-konfiguration, TypeScript/ESLint-fel i webbfrontend.",
+      "tasks": [
+        {
+          "id": "6.1",
+          "title": "Rätta libharu-version i vcpkg.json",
+          "description": "Linux-bygget misslyckas med: \"no version database entry for libharu at 2.2.0\". Tillgängliga versioner är 2.4.3, 2.4.4, 2.4.4#1, 2.4.5. I vcpkg.json: ändra libharu-beroendet från \"version>=\": \"2.2.0\" till \"version>=\": \"2.4.4\". Verifiera att vcpkg-install lyckas lokalt på Linux innan commit.",
+          "done": true,
+          "dependencies": []
+        },
+        {
+          "id": "6.2",
+          "title": "Rätta Windows CI: lägg till vcpkg-toolchain i cmake-steget",
+          "description": "Windows-bygget misslyckas med: \"Could not find a package configuration file provided by unofficial-libmysql\". Orsak: cmake-steget i build.yml saknar -DCMAKE_TOOLCHAIN_FILE och kör därmed inte vcpkg manifest install. I .github/workflows/build.yml, uppdatera Configure CMake-steget för build-windows till: cmake -B build -G \"Visual Studio 17 2022\" -A {{ matrix.arch }} -DCMAKE_TOOLCHAIN_FILE=\"$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake\" -DVCPKG_MANIFEST_FEATURES=mysql. VCPKG_INSTALLATION_ROOT är förinstallerat på windows-latest-runners (pekar på C:\\vcpkg). Verifiera att vcpkg integrerar och installerar libmysql korrekt.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.3",
+          "title": "Rätta oanvända importer i routing-error-boundary.test.tsx",
+          "description": "Filen src/ui/web/src/__tests__/routing-error-boundary.test.tsx orsakar både ESLint-fel och TypeScript-kompileringsfel (TS6133, TS6196) i Docker-bygget: \"Component is defined but never used\" (rad 5) och \"ErrorInfo is declared but never used\" (rad 6). Åtgärd: ta bort de oanvända named imports Component och ErrorInfo från React-importen på rad 5-6. Behåll övriga importer och all testlogik.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.4",
+          "title": "Rätta TypeScript-fel i a11y-audit.test.tsx: toHaveNoViolations saknas",
+          "description": "Docker-bygget misslyckas med TS2339: \"Property toHaveNoViolations does not exist on type Assertion<AxeResults>\" i src/ui/web/src/__tests__/a11y-audit.test.tsx (8 förekomster). Orsak: vitest-axe:s custom matchers är inte deklarerade för Vitests expect-typ. Åtgärd: (1) Kontrollera att vitest-axe finns i package.json (devDependencies). (2) I Vitests setup-fil (src/ui/web/src/test/setup.ts eller vitest.setup.ts), lägg till: import * as matchers from \"vitest-axe/matchers\"; expect.extend(matchers); (3) Skapa eller uppdatera src/ui/web/vitest.d.ts med: import type { AxeMatchers } from \"vitest-axe\"; declare module \"vitest\" { interface Assertion extends AxeMatchers {} interface AsymmetricMatchersContaining extends AxeMatchers {} } Verifiera att npm run typecheck passerar.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.5",
+          "title": "Rätta ESLint no-explicit-any i E2E-specfiler",
+          "description": "ESLint-fel @typescript-eslint/no-explicit-any i tre E2E-specfiler: e2e/competition-flow.spec.ts (rader 23, 24, 30), e2e/import-export.spec.ts (rader 11-15), e2e/parallel-clients.spec.ts (rader 11-15). Åtgärd: ersätt any med konkreta Playwright-typer (t.ex. Page, BrowserContext, APIRequestContext, Response) eller unknown där exakt typ är okänd. Importera nödvändiga typer från @playwright/test.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.6",
+          "title": "Rätta ESLint no-unused-vars i E2E smoke/parallel-clients",
+          "description": "ESLint-fel @typescript-eslint/no-unused-vars i två E2E-specfiler: e2e/parallel-clients.spec.ts rad 1: Browser importeras men används aldrig. e2e/smoke.spec.ts rad 1: Page importeras men används aldrig. Åtgärd: ta bort de oanvända named imports Browser och Page från respektive fil. Om typerna faktiskt behövs för TypeScript-annotering ska de användas explicit, annars tas de bort.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.7",
+          "title": "Rätta ESLint no-unused-vars i query-hooks.test.tsx",
+          "description": "ESLint-fel @typescript-eslint/no-unused-vars i src/ui/web/src/__tests__/query-hooks.test.tsx rad 212: \"_ is assigned a value but never used\". Åtgärd: antingen ta bort tilldelningen helt (om värdet inte behövs), eller använd void-mönstret: void someExpression; Alternativt, om det är en destrukturerad variabel som avsiktligt ignoreras, prefixera med underscore och kontrollera att ESLint-regeln tillåter _-prefix.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.8",
+          "title": "Rätta ESLint react-refresh/only-export-components i Toast.tsx",
+          "description": "ESLint-fel react-refresh/only-export-components i src/ui/web/src/components/Toast.tsx rad 33: \"Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components\". Åtgärd: flytta den icke-komponent-export (konstant eller funktion på rad 33) till en separat fil, t.ex. src/ui/web/src/utils/toastHelpers.ts. Uppdatera alla importerande filer att importera från den nya platsen.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "6.9",
+          "title": "Rätta ESLint react-hooks/refs i useKeyboardShortcuts.ts",
+          "description": "ESLint-fel react-hooks/refs i src/ui/web/src/hooks/useKeyboardShortcuts.ts rad 27: \"Cannot update ref during render\" — shortcutsRef.current = shortcuts tilldelas direkt i render-kroppen. Åtgärd: flytta tilldelningen shortcutsRef.current = shortcuts in i ett useLayoutEffect utan beroende-array (körs synkront efter varje render): useLayoutEffect(() => { shortcutsRef.current = shortcuts; }); Detta är det korrekta mönstret för att hålla en ref uppdaterad med senaste prop/state-värde utan att orsaka re-render.",
+          "done": false,
+          "dependencies": []
+        }
+      ]
     }
   ]
 }
