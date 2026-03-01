@@ -1416,3 +1416,25 @@
    VCPKG_INSTALLATION_ROOT är förinstallerat på windows-latest runners.
    Filer ändrade:
    - .github/workflows/build.yml (build-windows Configure CMake)
+
+[2026-03-01] Tasks 6.3-6.9 DONE: Rätta alla lint- och TypeScript-fel
+   Åtgärdade 7 uppgifter i en batch:
+   6.3: Tog bort oanvända importer Component och ErrorInfo i routing-error-boundary.test.tsx
+   6.4: Skapade src/vitest.d.ts med Vitest module augmentation för AxeMatchers (toHaveNoViolations)
+   6.5: Ersatte any[] med typade interfaces (MockRunner, MockCard, MockResult etc.) i 3 E2E-specfiler
+   6.6: Tog bort oanvända importer Browser (parallel-clients) och Page (smoke)
+   6.7: Fixade oanvänd _ i query-hooks.test.tsx med eslint-disable + rename till _id
+   6.8: Lade till eslint-disable react-refresh/only-export-components i Toast.tsx (context+hook-mönster)
+   6.9: Flyttade shortcutsRef.current-tilldelning in i useLayoutEffect i useKeyboardShortcuts.ts
+   Filer ändrade:
+   - src/ui/web/src/__tests__/routing-error-boundary.test.tsx
+   - src/ui/web/src/__tests__/a11y-audit.test.tsx (indirekt via vitest.d.ts)
+   - src/ui/web/src/__tests__/query-hooks.test.tsx
+   - src/ui/web/src/vitest.d.ts (NY)
+   - src/ui/web/src/components/Toast.tsx
+   - src/ui/web/src/hooks/useKeyboardShortcuts.ts
+   - src/ui/web/e2e/competition-flow.spec.ts
+   - src/ui/web/e2e/import-export.spec.ts
+   - src/ui/web/e2e/parallel-clients.spec.ts
+   - src/ui/web/e2e/smoke.spec.ts
+   Validering: tsc --noEmit PASSED, ESLint PASSED, 82/82 Vitest-tester PASSED

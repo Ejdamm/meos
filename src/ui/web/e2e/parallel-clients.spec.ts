@@ -1,4 +1,4 @@
-import { test, expect, type Page, type Route, type Browser, type BrowserContext } from '@playwright/test';
+import { test, expect, type Page, type Route, type BrowserContext } from '@playwright/test';
 
 /**
  * E2E: Parallel clients.
@@ -7,12 +7,57 @@ import { test, expect, type Page, type Route, type Browser, type BrowserContext 
  * when it refetches/navigates.
  */
 
+interface MockCompetition {
+  id: number;
+  name: string;
+  date: string;
+  zeroTime: string;
+  numRunners: number;
+  numClasses: number;
+  numCourses: number;
+  numCards: number;
+}
+interface MockRunner {
+  id: number;
+  name: string;
+  cardNo: number;
+  bib: string;
+  class: string;
+  club: string;
+  classId: number;
+  clubId: number;
+  startTime: number;
+  finishTime: number;
+  runningTime: number;
+  status: number;
+  sex: number;
+}
+interface MockClass {
+  id: number;
+  name: string;
+  type: string;
+  numStages: number;
+  courseId: number;
+}
+interface MockClub {
+  id: number;
+  name: string;
+  country: string;
+}
+interface MockCourse {
+  id: number;
+  name: string;
+  length: number;
+  numControls: number;
+  controls: number[];
+}
+
 // --------------- shared mock state ---------------
-let runners: any[] = [];
-let competitions: any[] = [];
-let classes: any[] = [];
-let clubs: any[] = [];
-let courses: any[] = [];
+let runners: MockRunner[] = [];
+let competitions: MockCompetition[] = [];
+let classes: MockClass[] = [];
+let clubs: MockClub[] = [];
+let courses: MockCourse[] = [];
 
 function resetState() {
   competitions = [

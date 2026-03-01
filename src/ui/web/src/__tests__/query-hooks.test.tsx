@@ -209,7 +209,8 @@ describe('useCreateTeam', () => {
     const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
 
     const { result } = renderHook(() => useCreateTeam(), { wrapper });
-    const { id: _, ...teamData } = fixtures.teams[0]!;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id: _id, ...teamData } = fixtures.teams[0]!;
     result.current.mutate({ ...teamData, name: 'New Team' });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['teams'] });

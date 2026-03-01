@@ -2,8 +2,8 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createMemoryRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
-import { lazy, Suspense, Component } from 'react';
-import type { ReactNode, ErrorInfo } from 'react';
+import { lazy, Suspense } from 'react';
+import type { ReactNode } from 'react';
 import { ToastProvider } from '../components/Toast';
 import ErrorBoundary from '../components/ErrorBoundary';
 

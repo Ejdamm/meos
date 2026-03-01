@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 
 export interface KeyboardShortcut {
   key: string;
@@ -24,7 +24,9 @@ function isEditableTarget(target: EventTarget | null): boolean {
  */
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]): void {
   const shortcutsRef = useRef(shortcuts);
-  shortcutsRef.current = shortcuts;
+  useLayoutEffect(() => {
+    shortcutsRef.current = shortcuts;
+  }, [shortcuts]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     for (const shortcut of shortcutsRef.current) {

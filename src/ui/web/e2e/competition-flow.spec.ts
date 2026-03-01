@@ -7,27 +7,92 @@ import { test, expect, type Page, type Route } from '@playwright/test';
  * register runner → read SI card → view results.
  */
 
+interface MockCompetition {
+  id: number;
+  name: string;
+  date: string;
+  zeroTime: string;
+  numRunners: number;
+  numClasses: number;
+  numCourses: number;
+  numCards: number;
+}
+interface MockCourse {
+  id: number;
+  name: string;
+  length: number;
+  numControls: number;
+  controls: number[];
+}
+interface MockClass {
+  id: number;
+  name: string;
+  type: string;
+  numStages: number;
+  courseId: number;
+}
+interface MockClub {
+  id: number;
+  name: string;
+  country: string;
+}
+interface MockRunner {
+  id: number;
+  name: string;
+  cardNo: number;
+  bib: string;
+  class: string;
+  club: string;
+  classId: number;
+  clubId: number;
+  startTime: number;
+  finishTime: number;
+  runningTime: number;
+  status: number;
+  sex: number;
+}
+interface MockCard {
+  id: number;
+  cardNo: number;
+  punches: { type: number; time: number; controlId: number }[];
+}
+interface MockControl {
+  id: number;
+  name: string;
+  status: number;
+  codes: number[];
+}
+interface MockResult {
+  runnerId: number;
+  name: string;
+  club: string;
+  class: string;
+  time: string;
+  status: number;
+  place: number;
+}
+
 // --------------- mock state ---------------
-let competitions = [
+let competitions: MockCompetition[] = [
   { id: 1, name: 'Test Competition', date: '2026-03-01', zeroTime: '10:00:00', numRunners: 0, numClasses: 0, numCourses: 0, numCards: 0 },
 ];
-let courses = [
+let courses: MockCourse[] = [
   { id: 1, name: 'Bana A', length: 4200, numControls: 3, controls: [31, 32, 33] },
 ];
-let classes = [
+let classes: MockClass[] = [
   { id: 1, name: 'H21', type: 'individual', numStages: 1, courseId: 1 },
 ];
-let clubs = [
+let clubs: MockClub[] = [
   { id: 1, name: 'OK Linné', country: 'SWE' },
 ];
-let runners: any[] = [];
-let cards: any[] = [];
-let controls = [
+let runners: MockRunner[] = [];
+let cards: MockCard[] = [];
+let controls: MockControl[] = [
   { id: 31, name: 'Kontroll 31', status: 0, codes: [31] },
   { id: 32, name: 'Kontroll 32', status: 0, codes: [32] },
   { id: 33, name: 'Kontroll 33', status: 0, codes: [33] },
 ];
-let results: any[] = [];
+let results: MockResult[] = [];
 
 function resetState() {
   competitions = [

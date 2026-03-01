@@ -7,12 +7,50 @@ import { test, expect, type Page, type Route } from '@playwright/test';
  * export IOF XML, export CSV, import error handling.
  */
 
+interface MockCompetition {
+  id: number;
+  name: string;
+  date: string;
+  zeroTime: string;
+  numRunners: number;
+  numClasses: number;
+  numCourses: number;
+  numCards: number;
+}
+interface MockRunner {
+  id: number;
+  name: string;
+  class: string;
+  club: string;
+  cardNo: number;
+  bib: string;
+  startTime: number;
+  finishTime: number;
+  runningTime: number;
+  status: number;
+  sex: number;
+  classId: number;
+  clubId: number;
+}
+interface MockClass {
+  id: number;
+  name: string;
+  type: string;
+  numStages: number;
+  courseId: number;
+}
+interface MockClub {
+  id: number;
+  name: string;
+  country: string;
+}
+
 // --------------- mock state ---------------
-let competitions: any[];
-let runners: any[];
-let classes: any[];
-let clubs: any[];
-let importedRunners: any[];
+let competitions: MockCompetition[];
+let runners: MockRunner[];
+let classes: MockClass[];
+let clubs: MockClub[];
+let importedRunners: MockRunner[];
 
 function resetState() {
   competitions = [
