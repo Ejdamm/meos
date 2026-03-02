@@ -1247,6 +1247,690 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Fas 7: Plattformsoberoende kodbas — ta bort Win32 GUI",
+      "description": "Ta bort Win32-desktopgränssnittet helt. Behåll enbart webb-UI (React). Gör all C++-kod plattformsoberoende genom att eliminera gdioutput-beroenden, ersätta med plattformsoberoende abstraktioner, och byta namn på filer med plattformsspecifika namn.",
+      "tasks": [
+        {
+          "id": "7.1",
+          "title": "Ersätt strängkonvertering i src/net/ handlers",
+          "description": "Ersätt gdioutput::toUTF8/fromUTF8/widen/narrow med platform_toUTF8/fromUTF8/widen/narrow i class_handlers.h, control_handlers.h, runner_handlers.h, club_handlers.h, team_handlers.h och övriga handler-filer. Lägg till #include \"platform_string.h\", ta bort #include \"gdioutput.h\" om det inte behövs för annat.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.2",
+          "title": "Ersätt strängkonvertering i xmlparser",
+          "description": "Ersätt gdioutput-strängkonverteringsanrop i xmlparser.cpp/h med platform_string.h-funktioner. Ta bort gdioutput *utfConverter-member och extern gdioutput *gdi_main-referensen. Använd platform_toUTF8/platform_widen istället.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.3",
+          "title": "Ersätt strängkonvertering i pdfwriter",
+          "description": "Ersätt gdi.narrow() och gdi.toUTF8() i pdfwriter.cpp med platform_narrow/platform_toUTF8. Lägg till #include \"platform_string.h\".",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.4",
+          "title": "Ersätt strängkonvertering i iof30interface",
+          "description": "Ersätt strängkonverteringsanrop i iof30interface.cpp med platform_string.h-funktioner. gdi-parametern används även för statusmeddelanden (addString) — strängkonverteringen kan åtgärdas separat.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.5",
+          "title": "Ersätt strängkonvertering i oImportExport",
+          "description": "Ersätt gdi-strängkonverteringsanrop i oImportExport.cpp med platform_string.h-funktioner.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.6",
+          "title": "Ersätt strängkonvertering i oEvent.cpp",
+          "description": "Ersätt gdibase.widen/narrow/toUTF8-anrop (15 st) i oEvent.cpp med platform_widen/platform_narrow/platform_toUTF8. Lägg till #include \"platform_string.h\".",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.7",
+          "title": "Ersätt strängkonvertering i övriga domänfiler",
+          "description": "Ersätt gdi-strängkonvertering i oClub.cpp (3 anrop), oRunner.cpp (1), oEventResult.cpp (4), oDataContainer.cpp (6), generalresult.cpp (3). Lägg till #include \"platform_string.h\" i varje fil.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.8",
+          "title": "Ersätt strängkonvertering i src/util/",
+          "description": "Ersätt gdioutput-strängkonverteringsanrop i parser.cpp och machinecontainer.cpp med platform_string.h-funktioner.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.9",
+          "title": "Ersätt strängkonvertering i restserver.cpp",
+          "description": "Ersätt gdioutput.widen()-anrop i restserver.cpp med platform_widen().",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.10",
+          "title": "Ersätt strängkonvertering i infoserver.cpp",
+          "description": "Ersätt gdioutput-strängkonverteringsanrop i infoserver.cpp med platform_string.h-funktioner.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.11",
+          "title": "Ersätt strängkonvertering i server_main.cpp",
+          "description": "Ersätt gdioutput-strängkonverteringsanrop i server_main.cpp med platform_string.h-funktioner. Ta bort #include \"gdioutput.h\" och gdioutput-instansieringen.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.12",
+          "title": "Skapa ListRenderer-interface",
+          "description": "Skapa src/domain/ListRenderer.h med ett pure virtual interface som abstraherar gdioutputs renderingsfunktioner. Metoder: addString, addStringUT, dropLine, fillDown, fillRight, fillNone, scaleLength, getCX, getCY, getLineHeight, pushX, popX, pushY, popY, newColumn, addRectangle, addImage, clearPage, refresh, getScale, calcStringSize, addSelection, addItem, selectItemByData, setItems, clearList, setText, getText, getTextNo, setData, getData, hasData, addTimer, addTimeout, addToolTip, addInfoBox, setListDescription, alert, getSelectedItem, hasWidget, registerEvent, setWindowTitle, isTest, getHeight, getOffsetY, setOffsetY, scrollToBottom, updateScrollbars, updatePos, size, restore, setRestorePoint, restoreNoUpdate, takeShownStringsSnapshot, refreshSmartFromSnapshot, refreshFast, selectFirstItem, setCX, addSelection. Flytta gdiFonts-enum till ListRenderer.h (eller behåll i separat FontStyle.h).",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.13",
+          "title": "Skapa NullListRenderer",
+          "description": "Skapa src/app/NullListRenderer.h som implementerar ListRenderer med tomma funktionskroppar (no-op). Används av headless-servern för kodvägar som vill rendera men inte behöver output.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.14",
+          "title": "Skapa HtmlListRenderer",
+          "description": "Skapa src/io/HtmlListRenderer.h/.cpp som implementerar ListRenderer och producerar HTML-output. Används av HTMLWriter, restserver och infoserver för serversidesrendering av resultatlistor och rapporter.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.15",
+          "title": "Ta bort gdioutput& gdibase-member från oEvent",
+          "description": "Ta bort gdioutput &gdibase från oEvent.h/cpp. Ersätt med plattformsoberoende alternativ: strängkonvertering → platform_string.h (redan gjort i 7.6), isTest() → egen bool-member, getHWND* → ta bort eller flytta till IEventNotifier, getTabs() → ta bort, getScale() → lagra skala lokalt. Uppdatera oEvent-konstruktorn att inte ta gdioutput&.",
+          "done": false,
+          "dependencies": [
+            "7.6",
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.16",
+          "title": "Migrera listrendering i oEvent.cpp till ListRenderer",
+          "description": "Ändra generateListInternal, generateFixedList, generateStatisticsPart, generateVacancyList, generateCompetitionReport, listConnectedClients, renderTimeLineEvents, sanityCheck, automaticDrawAll, printInvoices att ta ListRenderer& istället för gdioutput&. Uppdatera signaturer i oEvent.h.",
+          "done": false,
+          "dependencies": [
+            "7.15"
+          ]
+        },
+        {
+          "id": "7.17",
+          "title": "Migrera listrendering i oRunner.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oRunner.cpp/h renderingsmetoder (108 render-anrop). Uppdatera signaturer.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.18",
+          "title": "Migrera listrendering i oReport.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oReport.cpp (127 render-anrop, störst fil). Uppdatera alla addString/addStringUT/dropLine-anrop.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.19",
+          "title": "Migrera listrendering i oClub.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oClub.cpp/h (79 render-anrop). Uppdatera signaturer.",
+          "done": false,
+          "dependencies": [
+            "7.12",
+            "7.7"
+          ]
+        },
+        {
+          "id": "7.20",
+          "title": "Migrera listrendering i oListInfo.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oListInfo.cpp/h (64 render-anrop). oListInfo.h inkluderar gdioutput.h direkt — ta bort den inkluderingen.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.21",
+          "title": "Migrera listrendering i oEventSpeaker.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oEventSpeaker.cpp (33 render-anrop, 19 UI-anrop). Flytta UI-interaktion till IEventNotifier eller ta bort.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.22",
+          "title": "Migrera listrendering i oEventDraw.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oEventDraw.cpp/h (32 render-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.23",
+          "title": "Migrera listrendering i oCard.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oCard.cpp/h (19 render-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.24",
+          "title": "Migrera listrendering i oClass.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oClass.cpp/h (13 render-anrop, 6 UI-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.25",
+          "title": "Migrera listrendering i oTeamEvent.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oTeamEvent.cpp (13 render-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.26",
+          "title": "Migrera listrendering i oCourse.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oCourse.cpp/h (4 render-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.27",
+          "title": "Migrera listrendering i oControl.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oControl.cpp/h (4 render-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.28",
+          "title": "Migrera listrendering i oFreeImport.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oFreeImport.cpp/h (10 render-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.29",
+          "title": "Migrera listrendering i qualification_final.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i qualification_final.cpp/h (10 render-anrop).",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.30",
+          "title": "Migrera generalresult.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i generalresult.cpp/h (8 render-anrop, 3 strängkonverteringsanrop).",
+          "done": false,
+          "dependencies": [
+            "7.12",
+            "7.7"
+          ]
+        },
+        {
+          "id": "7.31",
+          "title": "Migrera oDataContainer.cpp till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i oDataContainer.cpp/h (20 UI-anrop, 6 strängkonverteringsanrop).",
+          "done": false,
+          "dependencies": [
+            "7.12",
+            "7.7"
+          ]
+        },
+        {
+          "id": "7.32",
+          "title": "Ta bort gdioutput.h-inkludering från oBase.h",
+          "description": "Ta bort forward declaration 'class gdioutput' från oBase.h och eventuella kvarvarande gdioutput-referenser i domänheaders. Verifiera att src/domain/ kompilerar utan gdioutput.h.",
+          "done": false,
+          "dependencies": [
+            "7.15",
+            "7.16",
+            "7.17",
+            "7.18",
+            "7.19",
+            "7.20",
+            "7.21",
+            "7.22",
+            "7.23",
+            "7.24",
+            "7.25",
+            "7.26",
+            "7.27",
+            "7.28",
+            "7.29",
+            "7.30",
+            "7.31"
+          ]
+        },
+        {
+          "id": "7.33",
+          "title": "Migrera HTMLWriter till ListRenderer",
+          "description": "Ersätt gdioutput&-parametrar med ListRenderer& i HTMLWriter.h/.cpp. Writern läser renderade textobjekt från renderern.",
+          "done": false,
+          "dependencies": [
+            "7.14"
+          ]
+        },
+        {
+          "id": "7.34",
+          "title": "Migrera pdfwriter till ListRenderer",
+          "description": "Ersätt gdioutput& med ListRenderer& i pdfwriter.cpp. Extrahera fontinfo till renderingsinterfacet.",
+          "done": false,
+          "dependencies": [
+            "7.12",
+            "7.3"
+          ]
+        },
+        {
+          "id": "7.35",
+          "title": "Ta bort gdioutput från xmlparser",
+          "description": "Ersätt gdioutput *utfConverter med platform_string.h-anrop. Ta bort extern gdi_main-referensen i xmlparser.cpp.",
+          "done": false,
+          "dependencies": [
+            "7.2"
+          ]
+        },
+        {
+          "id": "7.36",
+          "title": "Migrera iof30interface till ListRenderer",
+          "description": "Ersätt gdioutput&-parametrar med ListRenderer& i iof30interface.h/.cpp. Används för progress/statusmeddelanden under import.",
+          "done": false,
+          "dependencies": [
+            "7.12",
+            "7.4"
+          ]
+        },
+        {
+          "id": "7.37",
+          "title": "Migrera oImportExport till ListRenderer",
+          "description": "Ersätt gdioutput&-parametrar med ListRenderer& i oImportExport.cpp.",
+          "done": false,
+          "dependencies": [
+            "7.12",
+            "7.5"
+          ]
+        },
+        {
+          "id": "7.38",
+          "title": "Migrera restserver.cpp till ListRenderer",
+          "description": "Ersätt gdioutput-användning med HtmlListRenderer för listgenerering i REST-svar.",
+          "done": false,
+          "dependencies": [
+            "7.14",
+            "7.9"
+          ]
+        },
+        {
+          "id": "7.39",
+          "title": "Migrera infoserver.cpp till ListRenderer",
+          "description": "Ersätt gdioutput-användning med HtmlListRenderer.",
+          "done": false,
+          "dependencies": [
+            "7.14",
+            "7.10"
+          ]
+        },
+        {
+          "id": "7.40",
+          "title": "Ta bort gdioutput från onlineinput.cpp",
+          "description": "Onlineinput.cpp har tung gdioutput-UI-användning (addInput, addSelection, addCheckbox etc.). Flytta UI-logiken till webbgränssnittet, behåll enbart datalogiken. Exponera inställningar via REST API istället.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.41",
+          "title": "Ta bort gdioutput från onlineresults.cpp",
+          "description": "Liknande som onlineinput — flytta UI-logik till webb, behåll datalogik.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.42",
+          "title": "Ta bort gdioutput från liveresult.cpp",
+          "description": "Ersätt gdi-anrop med plattformsoberoende alternativ.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.43",
+          "title": "Ta bort gdioutput från speaker-modulen",
+          "description": "Ersätt gdi-anrop i speakermonitor.cpp och ta bort #include \"gdioutput.h\" i oSpeaker.h.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.44",
+          "title": "Ta bort gdioutput från print-modulen",
+          "description": "printer.cpp och printresultservice.cpp har tung gdi-UI-användning (addCheckbox, addInput, addButton). Flytta UI-logik till webbgränssnittet, behåll utskriftslogik.",
+          "done": false,
+          "dependencies": [
+            "7.12"
+          ]
+        },
+        {
+          "id": "7.45",
+          "title": "Ta bort gdioutput från SportIdent.cpp",
+          "description": "Ersätt CRITICAL_SECTION med std::mutex. Ta bort gdi-referenser och #include \"gdioutput.h\".",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.46",
+          "title": "Ta bort gdioutput från util-lagret",
+          "description": "Ersätt gdioutput-anrop i parser.cpp och machinecontainer.cpp med platform_string.h-funktioner.",
+          "done": false,
+          "dependencies": [
+            "7.8"
+          ]
+        },
+        {
+          "id": "7.47",
+          "title": "Ta bort gdioutput från oEventSQL.cpp",
+          "description": "Ersätt strängkonverteringsanrop i oEventSQL.cpp med platform_string.h-funktioner. Ta bort #include \"gdioutput.h\".",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.48",
+          "title": "Ta bort gdi_main global variabel",
+          "description": "Ta bort extern gdioutput *gdi_main och alla användningar av den i hela kodbasen. Detta är en nyckel-milstolpe — efter denna punkt refererar ingen kod till gdioutput* globalt.",
+          "done": false,
+          "dependencies": [
+            "7.32",
+            "7.33",
+            "7.34",
+            "7.35",
+            "7.36",
+            "7.37",
+            "7.38",
+            "7.39",
+            "7.40",
+            "7.41",
+            "7.42",
+            "7.43",
+            "7.44",
+            "7.45",
+            "7.46",
+            "7.47"
+          ]
+        },
+        {
+          "id": "7.49",
+          "title": "Ta bort GdiNotifier.h",
+          "description": "GdiNotifier behövs inte längre — bara NullNotifier används. Ta bort filen från src/ui/ och CMakeLists.txt.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.50",
+          "title": "Ta bort Tab*-filer från bygget",
+          "description": "Ta bort TabAuto, TabBase, TabClass, TabClub, TabCompetition, TabControl, TabCourse, TabList, TabMulti, TabRunner, TabSI, TabSpeaker, TabTeam från CMakeLists.txt SRC_UI. Behåll filerna i repot för referens men exkludera från bygget.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.51",
+          "title": "Ta bort gdioutput_server_stubs.cpp",
+          "description": "Behövs inte längre när domänlagret inte refererar till gdioutput. Ta bort från SRC_SERVER i CMakeLists.txt.",
+          "done": false,
+          "dependencies": [
+            "7.48"
+          ]
+        },
+        {
+          "id": "7.52",
+          "title": "Ta bort image_server_stub.cpp",
+          "description": "Behövs inte längre. Ta bort från SRC_SERVER i CMakeLists.txt.",
+          "done": false,
+          "dependencies": [
+            "7.48"
+          ]
+        },
+        {
+          "id": "7.53",
+          "title": "Ta bort meos.cpp WinMain från bygget",
+          "description": "Behåll server_main.cpp som enda entry point. Ta bort meos.cpp från SRC_APP i CMakeLists.txt.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.54",
+          "title": "Ta bort MeOS CMake-target",
+          "description": "Ta bort Win32-desktopgränssnittstarget:et helt från CMakeLists.txt. Rensa bort add_executable(MeOS ...), tillhörande target_include_directories, target_compile_definitions, target_link_libraries etc.",
+          "done": false,
+          "dependencies": [
+            "7.50",
+            "7.53"
+          ]
+        },
+        {
+          "id": "7.55",
+          "title": "Ta bort StdAfx.h Win32-precompiled header",
+          "description": "Ta bort src/app/StdAfx.h. Enbart src/stdafx.h (plattformsoberoende) ska användas. Uppdatera eventuella #include-direktiv.",
+          "done": false,
+          "dependencies": [
+            "7.54"
+          ]
+        },
+        {
+          "id": "7.56",
+          "title": "Byt namn på gdifonts.h till FontStyle.h",
+          "description": "Byt namn på filen gdifonts.h → FontStyle.h. Byt namn på enum gdiFonts → FontStyle. Uppdatera alla #include-direktiv i hela kodbasen.",
+          "done": false,
+          "dependencies": [
+            "7.32"
+          ]
+        },
+        {
+          "id": "7.57",
+          "title": "Byt namn på gdiconstants.h till RenderConstants.h",
+          "description": "Byt namn på filen gdiconstants.h → RenderConstants.h. Uppdatera alla #include-direktiv.",
+          "done": false,
+          "dependencies": [
+            "7.32"
+          ]
+        },
+        {
+          "id": "7.58",
+          "title": "Byt namn på gdistructures.h till RenderStructures.h",
+          "description": "Byt namn på filen gdistructures.h → RenderStructures.h. Uppdatera alla #include-direktiv.",
+          "done": false,
+          "dependencies": [
+            "7.32"
+          ]
+        },
+        {
+          "id": "7.59",
+          "title": "Ta bort eller förenkla gdioutput.h",
+          "description": "Efter att alla referenser migrerats, antingen radera gdioutput.h/.cpp eller reducera till minimal shim. ListRenderer-interfacet ersätter dess roll.",
+          "done": false,
+          "dependencies": [
+            "7.48"
+          ]
+        },
+        {
+          "id": "7.60",
+          "title": "Ta bort gdiimpl.h",
+          "description": "Används enbart av gdioutput.cpp. Ta bort efter att gdioutput.h rensats.",
+          "done": false,
+          "dependencies": [
+            "7.59"
+          ]
+        },
+        {
+          "id": "7.61",
+          "title": "Byt namn på guihandler.h till EventHandler.h",
+          "description": "Byt namn på filen guihandler.h → EventHandler.h. Uppdatera #include i Table.h och övriga filer.",
+          "done": false,
+          "dependencies": [
+            "7.32"
+          ]
+        },
+        {
+          "id": "7.62",
+          "title": "Byt namn på MeOS-server target till MeOS",
+          "description": "Eftersom det nu är det enda byggtarget:et behövs inte -server-suffixet. Uppdatera CMakeLists.txt: add_executable(MeOS ...), Dockerfile, docker-compose.yml, CI-workflows.",
+          "done": false,
+          "dependencies": [
+            "7.54"
+          ]
+        },
+        {
+          "id": "7.63",
+          "title": "Ta bort Win32-biblioteksberoenden från CMake",
+          "description": "Ta bort Msimg32, comctl32, odbc32, odbccp32, winmm, wininet från target_link_libraries. Behåll ws2_32 och pthread under respektive plattformsvillkor.",
+          "done": false,
+          "dependencies": [
+            "7.54"
+          ]
+        },
+        {
+          "id": "7.64",
+          "title": "Ta bort third_party lib/bin-kataloger från CMake",
+          "description": "Ta bort MEOS_LIB_DIR_RELEASE/DEBUG-variablerna och target_link_directories för Win32-bibliotek i CMakeLists.txt.",
+          "done": false,
+          "dependencies": [
+            "7.54"
+          ]
+        },
+        {
+          "id": "7.65",
+          "title": "Ta bort _WINDOWS-kompileringsdefinition",
+          "description": "Ta bort _WINDOWS och andra Windows-specifika compile-definitioner från kvarvarande CMake-target.",
+          "done": false,
+          "dependencies": [
+            "7.54"
+          ]
+        },
+        {
+          "id": "7.66",
+          "title": "Uppdatera MeOS-test att inte bero på gdioutput",
+          "description": "Verifiera att portable test-target:et kompilerar utan gdioutput-referenser.",
+          "done": false,
+          "dependencies": [
+            "7.48"
+          ]
+        },
+        {
+          "id": "7.67",
+          "title": "Ta bort newcompetition.cpp från bygget",
+          "description": "Filen använder <commctrl.h> och Tab*-beroenden — enbart Win32. Ta bort från SRC_UTIL eller SRC_SERVER_UTIL i CMakeLists.txt.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.68",
+          "title": "Flytta autocomplete.cpp/h ur bygget",
+          "description": "Enbart Win32 UI-funktionalitet. Ta bort från SRC_UI i CMakeLists.txt.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.69",
+          "title": "Förenkla stdafx.h",
+          "description": "Ta bort Win32-typstubbar (HWND, HDC, HFONT, HBITMAP etc.) från src/stdafx.h när all kod är plattformsoberoende. Behåll enbart plattformsoberoende standardinkluderingar.",
+          "done": false,
+          "dependencies": [
+            "7.48"
+          ]
+        },
+        {
+          "id": "7.70",
+          "title": "Verifiera att servern bygger på Linux utan gdioutput",
+          "description": "Kör cmake --preset=default && cmake --build --preset=default --target MeOS-server (eller MeOS efter 7.62) och verifiera att bygget lyckas utan gdioutput-beroenden.",
+          "done": false,
+          "dependencies": [
+            "7.48",
+            "7.69"
+          ]
+        },
+        {
+          "id": "7.71",
+          "title": "Verifiera att MeOS-test passerar på Linux",
+          "description": "Kör cmake --build build --target MeOS-test && ./build/MeOS-test och verifiera att alla tester passerar.",
+          "done": false,
+          "dependencies": [
+            "7.66"
+          ]
+        },
+        {
+          "id": "7.72",
+          "title": "Verifiera att webbgränssnittet bygger och testar korrekt",
+          "description": "Kör cd src/ui/web && npm ci && npm test && npm run build och verifiera att allt passerar.",
+          "done": false,
+          "dependencies": []
+        },
+        {
+          "id": "7.73",
+          "title": "Verifiera Docker-bygg",
+          "description": "Kör docker build -t meos . och verifiera att Docker-bygget lyckas med den nya kodbasen.",
+          "done": false,
+          "dependencies": [
+            "7.70",
+            "7.72"
+          ]
+        },
+        {
+          "id": "7.74",
+          "title": "Uppdatera CI-workflow för single-target bygg",
+          "description": "Uppdatera .github/workflows/ att enbart bygga MeOS (det nya målnamnet) istället för MeOS-server. Ta bort Windows desktop-byggjobb om de finns.",
+          "done": false,
+          "dependencies": [
+            "7.62"
+          ]
+        },
+        {
+          "id": "7.75",
+          "title": "Uppdatera README.md med nya bygginstruktioner",
+          "description": "Dokumentera att MeOS nu är en enda plattformsoberoende server med webbgränssnitt. Uppdatera byggkommandon, arkitekturbeskrivning och Docker-instruktioner.",
+          "done": false,
+          "dependencies": [
+            "7.62"
+          ]
+        }
+      ]
     }
   ]
 }
