@@ -1,0 +1,8 @@
+{
+  "name": "meos",
+  "version-string": "2.4.0",
+  "dependencies": [
+    "nlohmann-json",
+    "sqlite3"
+  ]
+}

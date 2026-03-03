@@ -1,0 +1,18 @@
+## Codebase Patterns
+- Use CMake with presets (`CMakePresets.json`) for building.
+- Dependencies are managed via `vcpkg` and `vcpkg.json`.
+- The modern source code is located in `src/`.
+- Executable name is `meos`.
+
+## 2026-03-03 23:15 - US-001
+- Implemented CMake build system with vcpkg integration.
+- Created `vcpkg.json` with `nlohmann-json` and `sqlite3` dependencies.
+- Created `CMakeLists.txt` and `CMakePresets.json`.
+- Added a minimal `src/main.cpp` that verifies dependencies.
+- **Learnings for future iterations:**
+  - vcpkg is installed at `/home/adam.georgsson@fnox.it/vcpkg/`.
+  - Use `cmake --preset default` to configure and `cmake --build --preset default` to build.
+  - The compiler found is GCC 13.3.0.
+---
+
+## US-001 (4m22s)
