@@ -30,3 +30,39 @@
 
 
 ## US-002 (3m01s)
+
+## 2026-03-03 22:50 - US-003
+- Integrated Google Test via vcpkg.
+- Configured CMake to enable testing and added a tests/ directory.
+- Created tests/CMakeLists.txt and tests/sample_test.cpp.
+- Added testPresets to CMakePresets.json.
+- Updated root AGENTS.md and created tests/AGENTS.md with testing documentation.
+- **Learnings for future iterations:**
+  - Remember to add  and link  and .
+  - Added  to  to allow running Test project /home/adam.georgsson@fnox.it/workspace/meos/build
+    Start 1: unit_tests
+1/1 Test #1: unit_tests .......................   Passed    0.00 sec
+
+100% tests passed, 0 tests failed out of 1
+
+Total Test time (real) =   0.00 sec.
+  - Tests require  in the top-level CMakeLists.txt.
+---
+
+## US-003 (3m22s)
+
+## 2026-03-03 22:50 - US-003
+- Integrated Google Test via vcpkg.
+- Configured CMake to enable testing and added a tests/ directory.
+- Created tests/CMakeLists.txt and tests/sample_test.cpp.
+- Added testPresets to CMakePresets.json.
+- Updated root AGENTS.md and created tests/AGENTS.md with testing documentation.
+- **Learnings for future iterations:**
+  - Remember to add `find_package(GTest CONFIG REQUIRED)` and link `GTest::gtest` and `GTest::gtest_main`.
+  - Added `testPresets` to `CMakePresets.json` to allow running `ctest --preset default`.
+  - Tests require `enable_testing()` in the top-level CMakeLists.txt.
+---
+
+## US-003 (3m22s)
+
+## US-003 — COMPLETED (3m55s)

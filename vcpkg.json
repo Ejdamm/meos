@@ -3,6 +3,7 @@
   "version-string": "2.4.0",
   "dependencies": [
     "nlohmann-json",
-    "sqlite3"
+    "sqlite3",
+    "gtest"
   ]
 }

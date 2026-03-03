@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find dependencies
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(SQLite3 REQUIRED)
+find_package(GTest CONFIG REQUIRED)
 
 # Modules
 add_subdirectory(src/util)
@@ -15,6 +16,10 @@ add_subdirectory(src/domain)
 add_subdirectory(src/net)
 add_subdirectory(src/io)
 add_subdirectory(src/app)
+
+# Testing
+enable_testing()
+add_subdirectory(tests)
 
 # Executable
 add_executable(meos src/main.cpp)

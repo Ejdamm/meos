@@ -46,8 +46,8 @@
         "Typecheck passes"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Google Test integrated via vcpkg and ctest. Added sample test and documentation."
     },
     {
       "id": "US-004",

@@ -7,16 +7,26 @@ MeOS (Much Easier Orienteering System) is a Windows desktop application for mana
 ### Modern (CMake + vcpkg)
 
 Recommended for cross-platform development (Linux/Windows).
-
 ```bash
 # Configure with presets
 cmake --preset default
 # Build
 cmake --build --preset default
+# Run tests
+ctest --preset default
 ```
 
 Dependencies are managed via `vcpkg.json`. Use `CMakePresets.json` to configure the `CMAKE_TOOLCHAIN_FILE` path for your local `vcpkg` installation.
 
+## Testing
+
+MeOS uses Google Test (GTest) for unit testing. All tests are located in the `tests/` directory.
+
+- Add new tests to `tests/` and register them in `tests/CMakeLists.txt`.
+- Run tests using `ctest --preset default`.
+- For specific test execution: `./build/tests/unit_tests --gtest_filter=*.`
+
+## Architecture
 ### Legacy (MSBuild)
 
 MSBuild-only (Visual Studio 2022, MSVC v143). Used for the original Windows-only GUI and legacy code in `code/`.
