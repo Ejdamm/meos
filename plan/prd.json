@@ -31,8 +31,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Created app, domain, net, db, util, io modules as static libraries and linked them to the meos executable."
     },
     {
       "id": "US-003",

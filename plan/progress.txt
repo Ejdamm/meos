@@ -16,3 +16,17 @@
 ---
 
 ## US-001 (4m22s)
+
+## 2026-03-03 23:30 - US-002
+- Created src/ subdirectories for app, domain, net, db, util, io.
+- Added CMakeLists.txt to each subdirectory defining static libraries.
+- Linked all modules to the main meos executable.
+- Verified bare header include works within modules.
+- Updated AGENTS.md and created src/AGENTS.md.
+- **Learnings for future iterations:**
+  - Bare #include within a module works by adding target_include_directories(target PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}).
+  - CMake static libraries require at least one source file (e.g., app_dummy.cpp).
+---
+
+
+## US-002 (3m01s)

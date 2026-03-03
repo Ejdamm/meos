@@ -25,7 +25,22 @@ Platforms: Win32 (x86) and x64. Precompiled header: `StdAfx.h`.
 
 ## Architecture
 
-All source files live in `code/` (flat directory). Headers are included by bare filename (e.g., `#include "oBase.h"`).
+### Modern Modular Structure (New)
+
+The modernized codebase is located in `src/` and uses a modular structure with CMake targets for each module:
+
+- `src/app/`: Application-level logic, main entry point (eventually).
+- `src/domain/`: Core domain entities (`oRunner`, `oClass`, etc.) and business logic.
+- `src/net/`: Networking, REST API, and HTTP server.
+- `src/db/`: Database abstraction and persistence (SQLite).
+- `src/util/`: General-purpose utilities, parsers, and cross-platform helpers.
+- `src/io/`: File I/O, import/export formats (IOF XML, CSV, PDF).
+
+Each module is a static library. Bare `#include` works within each module (e.g., `#include "util_header.h"` from within `src/util/`).
+
+### Legacy Architecture
+
+All legacy source files live in `code/` (flat directory). Headers are included by bare filename (e.g., `#include "oBase.h"`).
 
 ### Domain model
 

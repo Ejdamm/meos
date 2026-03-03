@@ -8,8 +8,25 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(SQLite3 REQUIRED)
 
+# Modules
+add_subdirectory(src/util)
+add_subdirectory(src/db)
+add_subdirectory(src/domain)
+add_subdirectory(src/net)
+add_subdirectory(src/io)
+add_subdirectory(src/app)
+
 # Executable
 add_executable(meos src/main.cpp)
 
-# Link dependencies
-target_link_libraries(meos PRIVATE nlohmann_json::nlohmann_json SQLite::SQLite3)
+# Link dependencies and modules
+target_link_libraries(meos PRIVATE 
+    util
+    db
+    domain
+    net
+    io
+    app
+    nlohmann_json::nlohmann_json 
+    SQLite::SQLite3
+)
