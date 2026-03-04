@@ -15,8 +15,6 @@
   - The compiler found is GCC 13.3.0.
 ---
 
-## US-001 (4m22s)
-
 ## 2026-03-03 23:30 - US-002
 - Created src/ subdirectories for app, domain, net, db, util, io.
 - Added CMakeLists.txt to each subdirectory defining static libraries.
@@ -28,30 +26,7 @@
   - CMake static libraries require at least one source file (e.g., app_dummy.cpp).
 ---
 
-
-## US-002 (3m01s)
-
-## 2026-03-03 22:50 - US-003
-- Integrated Google Test via vcpkg.
-- Configured CMake to enable testing and added a tests/ directory.
-- Created tests/CMakeLists.txt and tests/sample_test.cpp.
-- Added testPresets to CMakePresets.json.
-- Updated root AGENTS.md and created tests/AGENTS.md with testing documentation.
-- **Learnings for future iterations:**
-  - Remember to add  and link  and .
-  - Added  to  to allow running Test project /home/adam.georgsson@fnox.it/workspace/meos/build
-    Start 1: unit_tests
-1/1 Test #1: unit_tests .......................   Passed    0.00 sec
-
-100% tests passed, 0 tests failed out of 1
-
-Total Test time (real) =   0.00 sec.
-  - Tests require  in the top-level CMakeLists.txt.
----
-
-## US-003 (3m22s)
-
-## 2026-03-03 22:50 - US-003
+## 2026-03-03 23:50 - US-003
 - Integrated Google Test via vcpkg.
 - Configured CMake to enable testing and added a tests/ directory.
 - Created tests/CMakeLists.txt and tests/sample_test.cpp.
@@ -63,6 +38,17 @@ Total Test time (real) =   0.00 sec.
   - Tests require `enable_testing()` in the top-level CMakeLists.txt.
 ---
 
-## US-003 (3m22s)
+## 2026-03-04 10:45 - US-004
+- Created GitHub Actions CI pipeline at .github/workflows/ci.yml.
+- Configured workflow to build on Linux (GCC) and Windows (MSVC) in Debug and Release modes.
+- Integrated vcpkg in CI for dependency management.
+- Added step to run ctest after build.
+- Configured build artifacts upload for both platforms.
+- **Learnings for future iterations:**
+  - Ninja generator is faster and available on ubuntu-latest.
+  - vcpkg can be cloned and bootstrapped in CI to ensure the latest version.
+  - CMAKE_TOOLCHAIN_FILE must be set to the vcpkg.cmake path in the vcpkg installation directory.
+  - Use github.workspace to get the absolute path for toolchain configuration in CI.
+---
 
-## US-003 — COMPLETED (3m55s)
+## US-004 (7m25s)

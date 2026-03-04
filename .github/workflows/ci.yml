@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: ${{ matrix.os }} - ${{ matrix.build_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up vcpkg
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        ./vcpkg/bootstrap-vcpkg.sh
+      if: runner.os == 'Linux'
+
+    - name: Set up vcpkg (Windows)
+      run: |
+        git clone https://github.com/microsoft/vcpkg.git
+        .\vcpkg\bootstrap-vcpkg.bat
+      if: runner.os == 'Windows'
+
+    - name: Install dependencies (Linux)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build
+      if: runner.os == 'Linux'
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -S . -G Ninja \
+          -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      shell: bash
+
+    - name: Build
+      run: cmake --build build --config ${{ matrix.build_type }}
+
+    - name: Test
+      run: |
+        cd build
+        ctest -C ${{ matrix.build_type }} --output-on-failure
+      shell: bash
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: meos-${{ matrix.os }}-${{ matrix.build_type }}
+        path: |
+          build/meos
+          build/meos.exe
+          build/Debug/meos.exe
+          build/Release/meos.exe

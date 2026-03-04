@@ -18,6 +18,16 @@ ctest --preset default
 
 Dependencies are managed via `vcpkg.json`. Use `CMakePresets.json` to configure the `CMAKE_TOOLCHAIN_FILE` path for your local `vcpkg` installation.
 
+## CI (GitHub Actions)
+
+MeOS uses GitHub Actions for Continuous Integration. The workflow is defined in `.github/workflows/ci.yml`.
+
+- It builds on both **Linux (ubuntu-latest)** and **Windows (windows-latest)**.
+- It builds both **Debug** and **Release** configurations.
+- It uses **Ninja** generator for fast builds.
+- It runs `ctest` after each build to ensure all tests pass.
+- It uploads build artifacts (the `meos` executable) for each platform and configuration.
+
 ## Testing
 
 MeOS uses Google Test (GTest) for unit testing. All tests are located in the `tests/` directory.
