@@ -115,7 +115,6 @@ public:
 
   wstring getRunningTime(int startTime) const;
 
-  enum SpecialPunch { PunchUnused = 0, PunchStart = 1, PunchFinish = 2, PunchCheck = 3, HiredCard = 11111 };
   void decodeString(const char* s);
   string codeString() const;
   void appendCodeString(string& dst) const;

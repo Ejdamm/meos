@@ -3,6 +3,10 @@ add_library(domain STATIC
     oBase.h
     oDataContainer.cpp
     oDataContainer.h
+    oControl.cpp
+    oControl.h
+    oPunch.cpp
+    oPunch.h
     TableType.h
 )
 target_include_directories(domain PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

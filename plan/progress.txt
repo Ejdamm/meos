@@ -5,6 +5,9 @@
 - Executable name is `meos`.
 - Redefine common Win32 types (e.g., `SYSTEMTIME`) on non-Windows for legacy compatibility.
 - Avoid redundant integer conversion overloads (`itos`, `itow`) that overlap on 64-bit platforms (e.g., `unsigned long` vs `uint64_t`).
+- For domain object unit tests, ensure `oe->oControlData` (or relevant data container) is initialized.
+- Include template implementation files (e.g., `*impl.hpp`) at the end of their respective headers.
+- Move shared enums to `domain_header.h` to avoid circular dependencies between core domain entities.
 
 ## 2026-03-03 23:15 - US-001
 - Implemented CMake build system with vcpkg integration.
@@ -112,3 +115,22 @@
 ---
 
 ## US-008 (43m38s)
+
+## 2026-03-04 14:00 - US-009
+- Migrated oControl.h/cpp and oPunch.h/cpp to src/domain/
+- Created stubs for oCourse, oClass, oRunner, oCard, oFreePunch to satisfy domain dependencies
+- Created stubs for Table, gdioutput, and MeOSFeatures in src/domain/
+- Updated oEvent.h stub with missing methods and members used by oControl and oPunch
+- Moved SpecialPunch enum to domain_header.h to resolve circular dependencies
+- Refactored string functions (_itow_s, swprintf_s, sprintf_s, _stricmp, _wcsicmp) to standard C++ or meos_util equivalents
+- Fixed linker errors by updating intkeymap.hpp to include its implementation
+- Added unit tests in tests/domain_test.cpp for oControl and oPunch
+- Verified that all 15 unit tests pass
+- **Learnings for future iterations:**
+  - oControl and oEvent are tightly coupled; many oEvent methods are implemented in oControl.cpp.
+  - SpecialPunch enum is central to both oPunch and oControl; moving it to a common header avoids circular includes.
+  - intkeymap requires its implementation (intkeymapimpl.hpp) to be included in the header since it's a template.
+  - oBase::getDI() requires oe->oControlData to be initialized, which is important for unit tests.
+---
+
+## US-009 (64m52s)

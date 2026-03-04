@@ -30,3 +30,5 @@ typedef unsigned char * LPBYTE;
 #ifndef NOTIME
 #define NOTIME 0x7FFFFFFF
 #endif
+
+enum SpecialPunch { PunchUnused = 0, PunchStart = 1, PunchFinish = 2, PunchCheck = 3, HiredCard = 11111 };

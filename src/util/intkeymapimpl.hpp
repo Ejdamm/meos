@@ -18,12 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Melin Software HB - software@melin.nu - www.melin.nu
-    Eksoppsv‰gen 16, SE-75646 UPPSALA, Sweden
+    Eksoppsv√§gen 16, SE-75646 UPPSALA, Sweden
 
 ************************************************************************/
 
 
-#include "stdafx.h"
 #include "intkeymap.hpp"
 
 
@@ -38,8 +37,8 @@ template <class T, class KEY> intkeymap<T, KEY>::intkeymap()  {
   next = 0;
   level = 0;
   parent = 0;
-  dummy = 0;
-  noValue = 0;
+  dummy = T();
+  noValue = T();
   clear();
 }
 
@@ -398,6 +397,6 @@ template <class T, class KEY> bool intkeymap<T, KEY>::empty() const
 template <class T, class KEY> void intkeymap<T, KEY>::resize(int size)
 {
   allocFactor = 1.0;
-  rehash(size, NoKey, 0);
+  rehash(size, NoKey, T());
   allocFactor = 1.3;
 }

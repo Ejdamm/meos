@@ -1,38 +1,17 @@
-﻿/************************************************************************
-    MeOS - Orienteering Software
-    Copyright (C) 2009-2026 Melin Software HB
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-    Melin Software HB - software@melin.nu - www.melin.nu
-    Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
-
-************************************************************************/
-
-// oPunch.cpp: implementation of the oPunch class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#include "stdafx.h"
 #include "oPunch.h"
 #include "oEvent.h"
 #include "meos_util.h"
 #include "localizer.h"
+#include "oCourse.h"
+#include <stdexcept>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+
+void oPunch::merge(const oBase &input, const oBase *base) {
+  // Stub implementation
+}
 
 oPunch::oPunch(oEvent* poe) : oBase(poe) {
   type = 0;
@@ -55,44 +34,44 @@ wstring oPunch::getInfo() const
 string oPunch::codeString() const
 {
   char bf[32];
-  sprintf_s(bf, 32, "%d-%d;", type, punchTime);
+  snprintf(bf, 32, "%d-%d;", type, punchTime);
   return bf;
 }
 
 void oPunch::appendCodeString(string &dst) const {
   char ubf[16];
   if (punchUnit > 0)
-    sprintf_s(ubf, "@%d", punchUnit);
+    snprintf(ubf, 16, "@%d", punchUnit);
   else
     ubf[0] = 0;
 
   char ubo[16];
   if (origin != 0)
-    sprintf_s(ubo, "#%d", origin);
+    snprintf(ubo, 16, "#%d", origin);
   else
     ubo[0] = 0;
 
   char bf[48];
   if (timeConstSecond == 10 && punchTime != -1) {
     if (punchTime >= 0)
-      sprintf_s(bf, 32, "%d-%d.%d%s%s;", type, punchTime / timeConstSecond,
+      snprintf(bf, 48, "%d-%d.%d%s%s;", type, punchTime / timeConstSecond,
         punchTime % timeConstSecond, ubf, ubo);
     else {
-      sprintf_s(bf, 32, "%d--%d.%d%s%s;", type, (-punchTime) / timeConstSecond, 
+      snprintf(bf, 48, "%d--%d.%d%s%s;", type, (-punchTime) / timeConstSecond, 
         (-punchTime) % timeConstSecond, ubf, ubo);
     }
   }
   else if (timeConstSecond == 100 && punchTime != -1) {
     if (punchTime >= 0)
-      sprintf_s(bf, 32, "%d-%d.%02d%s%s;", type, punchTime / timeConstSecond,
+      snprintf(bf, 48, "%d-%d.%02d%s%s;", type, punchTime / timeConstSecond,
         punchTime % timeConstSecond, ubf, ubo);
     else {
-      sprintf_s(bf, 32, "%d--%d.%02d%s%s;", type, (-punchTime) / timeConstSecond,
+      snprintf(bf, 48, "%d--%d.%02d%s%s;", type, (-punchTime) / timeConstSecond,
         (-punchTime) % timeConstSecond, ubf, ubo);
     }
   }
   else
-    sprintf_s(bf, 32, "%d-%d%s%s;", type, punchTime, ubf, ubo);
+    snprintf(bf, 48, "%d-%d%s%s;", type, punchTime, ubf, ubo);
 
   dst.append(bf);
 }
@@ -182,17 +161,17 @@ wstring oPunch::getString() const {
   wstring typeS = getType(nullptr);
   const wchar_t *tp = typeS.c_str();
 
-  if (type == oPunch::PunchStart || type == oPunch::PunchCheck || type == oPunch::PunchFinish) {
+  if (type == PunchStart || type == PunchCheck || type == PunchFinish) {
     if (false && punchUnit > 0)
-      swprintf_s(bf, L"%s/%d\t%s", tp, punchUnit, ct);
+      swprintf(bf, 32, L"%ls/%d\t%ls", tp, punchUnit, ct);
     else
-      swprintf_s(bf, L"%s\t%s", tp, ct);
+      swprintf(bf, 32, L"%ls\t%ls", tp, ct);
   }
   else {
     if (isUsed)
-      swprintf_s(bf, L"%d\t%s", type, ct);
+      swprintf(bf, 32, L"%d\t%ls", type, ct);
     else
-      swprintf_s(bf, L"  %d*\t%s", type, ct);
+      swprintf(bf, 32, L"  %d*\t%ls", type, ct);
   }
 
   return bf;
@@ -202,11 +181,11 @@ wstring oPunch::getSimpleString() const
 {
   wstring time(getTime(false, SubSecond::Auto));
 
-  if (type==oPunch::PunchStart)
+  if (type==PunchStart)
     return lang.tl(L"starten (X)#" + time);
-  else if (type==oPunch::PunchFinish)
+  else if (type==PunchFinish)
     return lang.tl(L"målet (X)#" + time);
-  else if (type==oPunch::PunchCheck)
+  else if (type==PunchCheck)
     return lang.tl(L"check (X)#" + time);
   else
     return lang.tl(L"kontroll X (Y)#" + itow(type) + L"#" + time);
@@ -226,8 +205,8 @@ wstring oPunch::getTime(bool adjust, SubSecond mode) const
 
 int oPunch::getTimeInt() const {
   if (punchUnit > 0)
-    return punchTime + oe->getUnitAdjustment(oPunch::SpecialPunch(type), punchUnit);
-  return punchTime + tTimeAdjust.first; // Adjustment "wrong time" at control
+    return punchTime + oe->getUnitAdjustment(SpecialPunch(type), punchUnit);
+  return punchTime + tTimeAdjust.first; // Adjustment \"wrong time\" at control
 }
 
 int oPunch::getAdjustedTime() const
@@ -248,7 +227,7 @@ void oPunch::setTime(const wstring &t)
   if (tt < 0)
     tt = 0;
   else if (punchUnit > 0) {
-    tt -= oe->getUnitAdjustment(oPunch::SpecialPunch(type), punchUnit);
+    tt -= oe->getUnitAdjustment(SpecialPunch(type), punchUnit);
   }
   setTimeInt(tt, false);
 }
@@ -270,8 +249,8 @@ void oPunch::setPunchUnit(int unit) {
   }
 }
 
-oDataContainer &oPunch::getDataBuffers(pvoid &data, pvoid &olddata, pvectorstr &strData) const {
-  throw std::exception("Unsupported");
+oDataContainer &oPunch::getDataBuffers(void* &data, void* &olddata, vector<vector<wstring>>* &strData) const {
+  throw std::runtime_error("Unsupported");
 }
 
 wstring oPunch::getRunningTime(int startTime) const
@@ -298,11 +277,11 @@ const wstring &oPunch::getType(const oCourse *crs) const {
 }
 
 const wstring &oPunch::getType(int t, const oCourse* crs) {
-  if (t==oPunch::PunchStart || (crs && t == crs->getStartPunchType()))
+  if (t==PunchStart || (crs && t == crs->getStartPunchType()))
     return lang.tl("Start");
-  else if (t==oPunch::PunchFinish || (crs && t == crs->getFinishPunchType()))
+  else if (t==PunchFinish || (crs && t == crs->getFinishPunchType()))
     return lang.tl("Mål");
-  else if (t==oPunch::PunchCheck)
+  else if (t==PunchCheck)
     return lang.tl("Check");
   else if (t>10 && t<10000) {
     return itow(t);
@@ -347,8 +326,8 @@ int oPunch::getOriginalTime() const {
   int pt = ((xcode/7)-type%29) / 29;
 
   if (punchUnit > 0)
-    return pt + oe->getUnitAdjustment(oPunch::SpecialPunch(type), punchUnit);
-  return pt + tTimeAdjust.first; // Adjustment "wrong time" at control
+    return pt + oe->getUnitAdjustment(SpecialPunch(type), punchUnit);
+  return pt + tTimeAdjust.first; // Adjustment \"wrong time\" at control
 }
 
 const oControl *oPunch::getRogainingControl(const oCourse &crs) const {

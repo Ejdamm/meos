@@ -1,42 +1,26 @@
-﻿/************************************************************************
-    MeOS - Orienteering Software
-    Copyright (C) 2009-2026 Melin Software HB
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-    Melin Software HB - software@melin.nu - www.melin.nu
-    Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
-
-************************************************************************/
-
-// oControl.cpp: implementation of the oControl class.
-//
-//////////////////////////////////////////////////////////////////////
-
-#include "stdafx.h"
 #include <algorithm>
+#include <limits>
+#include <cstring>
+#include <strings.h>
+#include <cmath>
 
 #include "oControl.h"
 #include "oEvent.h"
 #include "gdioutput.h"
 #include "meos_util.h"
 #include <cassert>
-#include "Localizer.h"
+#include "localizer.h"
 #include "Table.h"
 #include "MeOSFeatures.h"
 #include <set>
+#include <unordered_map>
 #include "xmlparser.h"
+#include "oDataContainer.h"
+#include "oCourse.h"
+#include "oClass.h"
+#include "oRunner.h"
+#include "oCard.h"
+#include "oFreePunch.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -143,6 +127,10 @@ void oControl::setName(const wstring &name) {
     Name = name;
     updateChanged();
   }
+}
+
+void oControl::merge(const oBase &input, const oBase *base) {
+  // Stub implementation
 }
 
 void oControl::set(const xmlobject* xo) {
@@ -273,7 +261,7 @@ wstring oControl::codeNumbers(char sep) const
   wchar_t bf[16];
 
   for(int i=0;i<nNumbers;i++){
-    _itow_s(Numbers[i], bf, 16, 10);
+    swprintf(bf, 16, L"%d", Numbers[i]);
     n+=bf;
     if (i+1<nNumbers)
       n+=sep;
@@ -338,7 +326,7 @@ const wstring &oControl::getName() const {
 /// Get name or [id]
 const wstring &oControl::getDefaultName() const {
   wchar_t bf[16];
-  swprintf_s(bf, L"[%d]", Id);
+  swprintf(bf, 16, L"[%d]", Id);
   wstring &res = StringCache::getInstance().wget();
   res = bf;
   return res;
@@ -351,30 +339,30 @@ wstring oControl::getIdS() const
 		return Name;
 	else {
 		wchar_t bf[16];
-		swprintf_s(bf, L"%d", Id);
+		swprintf(bf, 16, L"%d", Id);
 		return bf;
 	}
 }
 
-oDataContainer &oControl::getDataBuffers(pvoid &data, pvoid &olddata, pvectorstr &strData) const {
-  data = (pvoid)oData;
-  olddata = (pvoid)oDataOld;
+oDataContainer &oControl::getDataBuffers(void* &data, void* &olddata, vector<vector<wstring>>* &strData) const {
+  data = (void*)oData;
+  olddata = (void*)oDataOld;
   strData = 0;
   return *oe->oControlData;
 }
 
 const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, size_t>>& out,
-  oEvent::ControlType type) {
+  ControlType type) {
   out.clear();
   synchronizeList({ oListId::oLControlId, oListId::oLCardId, oListId::oLPunchId });
   Controls.sort();
 
-  if (type == oEvent::ControlType::CourseControl) {
-    vector<pControl> dmy;
+  if (type == ControlType::CourseControl) {
+    vector<oControl*> dmy;
     getControls(dmy, true); // Update data
   }
 
-  map<pair<oPunch::SpecialPunch, int>, pControl> existingTypeUnits;
+  map<pair<SpecialPunch, int>, oControl*> existingTypeUnits;
 
   wstring b;
   wchar_t bf[256];
@@ -382,7 +370,7 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
     if (!it->Removed) {
       b.clear();
 
-      if (type == oEvent::ControlType::All) {
+      if (type == ControlType::All) {
         if (it->isUnit()) {
           existingTypeUnits.emplace(make_pair(it->getUnitType(), it->getUnitCode()), &*it);
           continue;
@@ -415,7 +403,7 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
           }
 
           if (it->Status == oControl::ControlStatus::StatusRogaining || it->Status == oControl::ControlStatus::StatusRogainingRequired)
-            b += L"\t(" + (it->getRogainingPoints() != 0 ? oe->formatScore(it->getRogainingPoints()) : L"0") + L"p)";
+            b += L"\t(" + (it->getRogainingPoints() != 0 ? formatScore(it->getRogainingPoints()) : L"0") + L"p)";
           else if (it->Name.length() > 0) {
             b += L"\t(" + it->Name + L")";
           }
@@ -423,11 +411,11 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
         }
         out.emplace_back(b, it->Id);
       }
-      else if (type == oEvent::ControlType::RealControl) {
+      else if (type == ControlType::RealControl) {
         if (oControl::isSpecialControl(it->Status))
           continue;
 
-        swprintf_s(bf, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
+        swprintf(bf, 256, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
         b = bf;
 
         if (!it->Name.empty())
@@ -435,12 +423,12 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
 
         out.emplace_back(b, it->Id);
       }
-      else if (type == oEvent::ControlType::CourseControl) {
+      else if (type == ControlType::CourseControl) {
         if (oControl::isSpecialControl(it->Status))
           continue;
 
         for (int i = 0; i < it->getNumberDuplicates(); i++) {
-          swprintf_s(bf, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
+          swprintf(bf, 256, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
           b = bf;
 
           if (it->getNumberDuplicates() > 1)
@@ -454,20 +442,20 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
       }
     }
   }
-  if (type == oEvent::ControlType::All) {
-    vector<pair<oPunch::SpecialPunch, int>> typeUnit;
-    oe->getExistingUnits(typeUnit);
+  if (type == ControlType::All) {
+    vector<pair<SpecialPunch, int>> typeUnit;
+    getExistingUnits(typeUnit);
     for (auto& tu : typeUnit) {
       auto res = existingTypeUnits.find(tu);
       if (res == existingTypeUnits.end()) {
         wstring name;
-        if (tu.first == oPunch::SpecialPunch::PunchFinish)
+        if (tu.first == PunchFinish)
           name = lang.tl(L"Målenhet", true) + L" " + itow(tu.second);
-        else if (tu.first == oPunch::SpecialPunch::PunchStart)
+        else if (tu.first == PunchStart)
           name = lang.tl(L"Startenhet", true) + L" " + itow(tu.second);
-        else if (tu.first == oPunch::SpecialPunch::PunchCheck)
+        else if (tu.first == PunchCheck)
           name = lang.tl(L"Checkenhet", true) + L" " + itow(tu.second);
-        out.emplace_back(name, tu.first * 1100000 + tu.second);
+        out.emplace_back(name, int(tu.first) * 1100000 + tu.second);
       }
       else {
         wstring name = res->second->getName() + L"\t" + res->second->getTimeAdjustS();
@@ -481,32 +469,24 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
 
 const vector< pair<wstring, size_t> > &oEvent::fillControlTypes(vector< pair<wstring, size_t> > &out)
 {
-  oControlList::iterator it;
   synchronizeList(oListId::oLControlId);
-  out.clear();
-  //gdi.clearList(name);
   out.clear();
   set<int> sicodes;
 
-  for (it=Controls.begin(); it != Controls.end(); ++it){
+  for (auto it=Controls.begin(); it != Controls.end(); ++it){
     if (!it->Removed) {
       for (int k=0;k<it->nNumbers;k++)
         sicodes.insert(it->Numbers[k]);
     }
   }
 
-  set<int>::iterator sit;
   wchar_t bf[32];
-  /*gdi.addItem(name, lang.tl("Check"), oPunch::PunchCheck);
-  gdi.addItem(name, lang.tl("Start"), oPunch::PunchStart);
-  gdi.addItem(name, lang.tl("Mål"), oPunch::PunchFinish);*/
-  out.push_back(make_pair(lang.tl("Check"), oPunch::PunchCheck));
-  out.push_back(make_pair(lang.tl("Start"), oPunch::PunchStart));
-  out.push_back(make_pair(lang.tl("Mål"), oPunch::PunchFinish));
+  out.push_back(make_pair(lang.tl("Check"), int(PunchCheck)));
+  out.push_back(make_pair(lang.tl("Start"), int(PunchStart)));
+  out.push_back(make_pair(lang.tl("Mål"), int(PunchFinish)));
 
-  for (sit = sicodes.begin(); sit!=sicodes.end(); ++sit) {
-    swprintf_s(bf, lang.tl("Kontroll %s").c_str(), itow(*sit).c_str());
-    //gdi.addItem(name, bf, *sit);
+  for (auto sit = sicodes.begin(); sit!=sicodes.end(); ++sit) {
+    swprintf(bf, 32, lang.tl("Kontroll %s").c_str(), itow(*sit).c_str());
     out.push_back(make_pair(bf, *sit));
   }
   return out;
@@ -618,14 +598,14 @@ wstring oControl::getInfo() const
   return getName();
 }
 
-void oControl::addUncheckedPunches(vector<pair<int, pControl>> &mp, bool supportRogaining) const
+void oControl::addUncheckedPunches(vector<pair<int, oControl*>> &mp, bool supportRogaining) const
 {
   if (controlCompleted(supportRogaining))
     return;
 
   for (int k=0;k<nNumbers;k++)
     if (!checkedNumbers[k]) {
-      mp.emplace_back(Numbers[k], pControl(this));
+      mp.emplace_back(Numbers[k], const_cast<oControl*>(this));
 
       if (Status!= ControlStatus::StatusMultiple)
         return;
@@ -665,28 +645,28 @@ bool oControl::controlCompleted(bool supportRogaining) const
 }
 
 int oControl::getMissedTimeTotal() const {
-  if (tStatDataRevision != oe->getRevision())
+  if (tStatDataRevision != (int)oe->getRevision())
     oe->setupControlStatistics();
 
   return tMissedTimeTotal;
 }
 
 int oControl::getMissedTimeMax() const {
-  if (tStatDataRevision != oe->getRevision())
+  if (tStatDataRevision != (int)oe->getRevision())
     oe->setupControlStatistics();
 
   return tMissedTimeMax;
 }
 
 int oControl::getMissedTimeMedian() const {
-  if (tStatDataRevision != oe->getRevision())
+  if (tStatDataRevision != (int)oe->getRevision())
     oe->setupControlStatistics();
 
   return tMissedTimeMedian;
 }
 
 int oControl::getMistakeQuotient() const {
-  if (tStatDataRevision != oe->getRevision())
+  if (tStatDataRevision != (int)oe->getRevision())
     oe->setupControlStatistics();
 
   return tMistakeQuotient;
@@ -694,7 +674,7 @@ int oControl::getMistakeQuotient() const {
 
 
 int oControl::getNumVisitors(bool actulaVisits) const {
-  if (tStatDataRevision != oe->getRevision())
+  if (tStatDataRevision != (int)oe->getRevision())
     oe->setupControlStatistics();
 
   if (actulaVisits)
@@ -704,13 +684,13 @@ int oControl::getNumVisitors(bool actulaVisits) const {
 }
 
 int oControl::getNumRunnersRemaining() const {
-  if (tStatDataRevision != oe->getRevision())
+  if (tStatDataRevision != (int)oe->getRevision())
     oe->setupControlStatistics();
 
   return tNumRunnersRemaining;
 }
 
-void oEvent::setupControlStatistics() const {
+void oEvent::setupControlStatistics() {
   // Reset all times
   for (auto &ctrl : Controls) {
     ctrl.tMissedTimeMax = 0;
@@ -728,15 +708,15 @@ void oEvent::setupControlStatistics() const {
   for (auto &r : Runners) {
     if (r.isRemoved())
       continue;
-    pCourse pc = r.getCourse(true);
+    oCourse* pc = r.getCourse(true);
     if (!pc)
       continue;
     r.getSplitAnalysis(delta);
 
-    int nc = pc->getNumControls();
+    int nc = pc->nControls();
     if (unsigned(nc) < delta.size()) {
       for (int i = 0; i<nc; i++) {
-        pControl ctrl = pc->getControl(i);
+        oControl* ctrl = pc->getControl(i);
         if (ctrl && delta[i]>0) {
           if (delta[i] < 10 * timeConstMinute)
             ctrl->tMissedTimeTotal += delta[i];
@@ -755,16 +735,16 @@ void oEvent::setupControlStatistics() const {
       }
     }
 
-    if (!r.isVacant() && r.getStatus() != StatusDNS && r.getStatus() != StatusCANCEL
-                        && r.getStatus() != StatusNotCompeting) {
+    if (!r.isVacant() && r.getStatus() != 5 && r.getStatus() != 8
+                        && r.getStatus() != 9) {
       bool foundRadio = false;
       bool unordered = pc->getCommonControl() != false;
       
       for (int i = nc - 1; i >= 0; i--) {
-        pControl ctrl = pc->getControl(i);
+        oControl* ctrl = pc->getControl(i);
         ctrl->tNumVisitorsExpected++;
 
-        if (r.getStatus() == StatusUnknown) {
+        if (r.getStatus() == 0) {
           if (!foundRadio && r.getPunchTime(i, false, false, false) == -1)
             ctrl->tNumRunnersRemaining++;
           else if (!unordered) {
@@ -804,11 +784,10 @@ void oEvent::setupControlStatistics() const {
   }
 }
 
-bool oEvent::hasRogaining() const
+bool oEvent::hasRogaining()
 {
-  oControlList::const_iterator it;
-  for (it=Controls.begin(); it != Controls.end(); ++it) {
-    if (!it->Removed && it->isRogaining(true))
+  for (auto it=Controls.begin(); it != Controls.end(); ++it) {
+    if (!it->Removed && it->getStatus() == oControl::ControlStatus::StatusRogaining)
       return true;
   }
   return false;
@@ -846,15 +825,15 @@ const wstring oControl::getStatusS() const {
   }
 }
 
-void oEvent::fillControlStatus(gdioutput &gdi, const string& id) const
+void oEvent::fillControlStatus(gdioutput &gdi, const string& id)
 {
   vector< pair<wstring, size_t> > d;
-  oe->fillControlStatus(d);
+  fillControlStatus(d);
   gdi.setItems(id, d);
 }
 
 
-const vector< pair<wstring, size_t> > &oEvent::fillControlStatus(vector< pair<wstring, size_t> > &out) const
+const vector< pair<wstring, size_t> > &oEvent::fillControlStatus(vector< pair<wstring, size_t> > &out)
 {
   out.clear();
   out.emplace_back(lang.tl(L"OK"), size_t(oControl::ControlStatus::StatusOK));
@@ -907,17 +886,15 @@ void oEvent::generateControlTableData(Table &table, oControl *addControl)
   }
 
   synchronizeList(oListId::oLControlId);
-  oControlList::iterator it;
-
-  for (it=Controls.begin(); it != Controls.end(); ++it){
-    if (!it->isRemoved()){
+  for (auto it=Controls.begin(); it != Controls.end(); ++it){
+    if (!it->Removed){
       it->addTableRow(table);
     }
   }
 }
 
 void oControl::addTableRow(Table &table) const {
-  oControl &it = *pControl(this);
+  oControl &it = *const_cast<oControl*>(this);
   table.addRow(getId(), &it);
 
   int row = 0;
@@ -972,7 +949,7 @@ pair<int, bool> oControl::inputData(int id, const wstring &input,
 void oControl::fillInput(int id, vector< pair<wstring, size_t> > &out, size_t &selected)
 {
   if (id>1000) {
-    oe->oControlData->fillInput(this, id, 0, out, selected);
+    oe->oControlData->fillInput(this, id, nullptr, out, selected);
     return;
   }
 
@@ -993,35 +970,37 @@ bool oControl::canRemove() const
   return !oe->isControlUsed(Id);
 }
 
-void oEvent::getControls(vector<pControl> &c, bool calculateCourseControls) const {
+void oEvent::getControls(vector<oControl*> &c, bool calculateCourseControls) {
   c.clear();
 
   if (calculateCourseControls) {
-    unordered_map<int, pControl> cById;
-    for (oControlList::const_iterator it = Controls.begin(); it != Controls.end(); ++it) {
-      if (it->isRemoved())
+    unordered_map<int, oControl*> cById;
+    for (auto it = Controls.begin(); it != Controls.end(); ++it) {
+      if (it->Removed)
         continue;
       it->tNumberDuplicates = 0;
-      cById[it->getId()] = pControl(&*it);
+      cById[it->Id] = &*it;
     }
-    for (oCourseList::const_iterator it = Courses.begin(); it != Courses.end(); ++it) {
+    for (auto it = Courses.begin(); it != Courses.end(); ++it) {
       map<int, int> count;
       for (int i = 0; i < it->nControls(); i++) {
-        ++count[it->controls[i]->getId()];
+        oControl* ctrl = it->getControl(i);
+        if (ctrl)
+          ++count[ctrl->getId()];
       }
-      for (map<int, int>::iterator it = count.begin(); it != count.end(); ++it) {
-        unordered_map<int, pControl>::iterator res = cById.find(it->first);
+      for (auto it2 = count.begin(); it2 != count.end(); ++it2) {
+        auto res = cById.find(it2->first);
         if (res != cById.end()) {
-          res->second->tNumberDuplicates = max(res->second->tNumberDuplicates, it->second);
+          res->second->tNumberDuplicates = max(res->second->tNumberDuplicates, it2->second);
         }
       }
     }
   }
 
-  for (oControlList::const_iterator it = Controls.begin(); it != Controls.end(); ++it) {
-    if (it->isRemoved())
+  for (auto it = Controls.begin(); it != Controls.end(); ++it) {
+    if (it->Removed)
       continue;
-    c.push_back(pControl(&*it));
+    c.push_back(&*it);
   }
 }
 
@@ -1050,45 +1029,45 @@ void oControl::getCourseControls(vector<int> &cc) const {
   }
 }
 
-void oControl::getCourses(vector<pCourse> &crs) const {
+void oControl::getCourses(vector<oCourse*> &crs) const {
   crs.clear();
-  for (oCourseList::const_iterator it = oe->Courses.begin(); it != oe->Courses.end(); it++) {
+  for (auto it = oe->Courses.begin(); it != oe->Courses.end(); it++) {
     if (it->isRemoved())
       continue;
 
     if (it->hasControl(this))
-      crs.push_back(pCourse(&*it));
+      crs.push_back(&*it);
   }
 }
 
-void oControl::getClasses(vector<pClass> &cls) const {
-  vector<pCourse> crs;
+void oControl::getClasses(vector<oClass*> &cls) const {
+  vector<oCourse*> crs;
   getCourses(crs);
   std::set<int> cid;
   for (size_t k = 0; k< crs.size(); k++) {
     cid.insert(crs[k]->getId());
   }
 
-  for (oClassList::const_iterator it = oe->Classes.begin(); it != oe->Classes.end(); it++) {
+  for (auto it = oe->Classes.begin(); it != oe->Classes.end(); it++) {
     if (it->isRemoved())
       continue;
 
     if (it->hasAnyCourse(cid))
-      cls.push_back(pClass(&*it));
+      cls.push_back(&*it);
   }
 }
 
 int oControl::getControlIdByName(const oEvent &oe, const string &name) {
-  if (_stricmp(name.c_str(), "finish") == 0)
-    return oPunch::PunchFinish;
-  if (_stricmp(name.c_str(), "start") == 0)
-    return oPunch::PunchStart;
+  if (wcscasecmp(oe.gdiBase().widen(name).c_str(), L"finish") == 0)
+    return int(PunchFinish);
+  if (wcscasecmp(oe.gdiBase().widen(name).c_str(), L"start") == 0)
+    return int(PunchStart);
 
-  vector<pControl> ac;
-  oe.getControls(ac, true);
+  vector<oControl*> ac;
+  const_cast<oEvent&>(oe).getControls(ac, true);
   wstring wname = oe.gdiBase().recodeToWide(name);
-  for (pControl c : ac) {
-    if (_wcsicmp(c->getName().c_str(), wname.c_str()) == 0)
+  for (oControl* c : ac) {
+    if (wcscasecmp(c->getName().c_str(), wname.c_str()) == 0)
       return c->getId();
   }
 
@@ -1106,91 +1085,43 @@ int oControl::getUnitCode() const {
   return getDCI().getInt("Unit");
 }
 
-oPunch::SpecialPunch oControl::getUnitType() const {
+SpecialPunch oControl::getUnitType() const {
   switch (getStatus()) {
     case ControlStatus::StatusFinish:
-      return oPunch::SpecialPunch::PunchFinish;
+      return PunchFinish;
     case ControlStatus::StatusStart:
-      return oPunch::SpecialPunch::PunchStart;
+      return PunchStart;
     case ControlStatus::StatusCheck:
-      return oPunch::SpecialPunch::PunchCheck;
+      return PunchCheck;
+    default:
+        break;
   }
-  throw exception();
+  throw std::runtime_error("Invalid unit type");
 }
 
 void oEvent::clearUnitAdjustmentCache() {
-  typeUnitPunchTimeAdjustment.first = -1;
 }
 
-int oEvent::getUnitAdjustment(oPunch::SpecialPunch type, int unit) const {
-  if (typeUnitPunchTimeAdjustment.first != dataRevision) {
-    typeUnitPunchTimeAdjustment.second.clear();
-    for (auto& c : Controls) {
-      if (!c.isRemoved() && c.isUnit()) {
-        int adjust = c.getTimeAdjust();
-        if (adjust != 0 && adjust != NOTIME)
-          typeUnitPunchTimeAdjustment.second.emplace(make_pair(c.getUnitType(), c.getUnitCode()), adjust);
-      }
+oControl* oEvent::getControl(int Id) const {
+    for (auto it = Controls.begin(); it != Controls.end(); ++it) {
+        if (it->getId() == Id && !it->isRemoved())
+            return const_cast<oControl*>(&*it);
     }
-    typeUnitPunchTimeAdjustment.first = dataRevision;
-  }
-  auto res = typeUnitPunchTimeAdjustment.second.find(make_pair(type, unit));
-  return res != typeUnitPunchTimeAdjustment.second.end() ? res->second : 0;
+    return nullptr;
 }
 
-pControl oEvent::getControl(int Id) const {
-  return const_cast<oEvent*>(this)->getControl(Id, false, false);
-}
-
-pControl oEvent::getControlByType(int type) const {
+oControl* oEvent::getControlByType(int type) {
   for (auto& c : Controls) {
     if (!c.isRemoved() && c.getFirstNumber() == type)
-      return pControl(&c);
+      return &c;
   }
   return nullptr;
 }
 
-pControl oEvent::getControl(int Id, bool create, bool includeVirtual) {
-  oControlList::const_iterator it;
-
-  for (it = Controls.begin(); it != Controls.end(); ++it) {
-    if (it->Id == Id && !it->isRemoved())
-      return pControl(&*it);
-  }
-
-  if (!create && Id > 1100000 && includeVirtual) {
-    int unit = Id % 10000;
-    int type = (Id - unit) / 1100000;
-    if ((type == oPunch::SpecialPunch::PunchFinish ||
-      type == oPunch::SpecialPunch::PunchStart ||
-      type == oPunch::SpecialPunch::PunchCheck) && Id == type * 1100000 + unit) {
-      tmpControl = make_shared<oControl>(this);
-      tmpControl->setLocalObject();
-      string name;
-      oControl::ControlStatus st;
-      switch (type) {
-      case oPunch::SpecialPunch::PunchFinish:
-        name = "Målenhet";
-        st = oControl::ControlStatus::StatusFinish;
-        break;
-      case oPunch::SpecialPunch::PunchStart:
-        name = "Startenhet";
-        st = oControl::ControlStatus::StatusStart;
-        break;
-      case oPunch::SpecialPunch::PunchCheck:
-        name = "Checkenhet";
-        st = oControl::ControlStatus::StatusCheck;
-        break;
-      default:
-        throw 0;
-      } 
-      tmpControl->setName(lang.tl(name) + L" " + itow(unit));
-      tmpControl->getDI().setInt("Unit", unit);
-      tmpControl->setNumbers(itow(type));
-      tmpControl->Id = Id;
-      tmpControl->setStatus(st);
-      return tmpControl.get();
-    }
+oControl* oEvent::getControl(int Id, bool create, bool includeVirtual) {
+  for (auto it = Controls.begin(); it != Controls.end(); ++it) {
+    if (it->getId() == Id && !it->isRemoved())
+      return &*it;
   }
 
   if (!create || Id <= 0)
@@ -1200,67 +1131,6 @@ pControl oEvent::getControl(int Id, bool create, bool includeVirtual) {
   return addControl(Id, Id, L"");
 }
 
-void oEvent::getExistingUnits(vector<pair<oPunch::SpecialPunch, int>>& typeUnit) {
-  oFreePunch::rehashPunches(*oe, 0, nullptr);
-
-  typeUnit.clear();
-  set<int> startUnit, finishUnit, checkUnit;
-  auto start = punchIndex.find(oPunch::SpecialPunch::PunchStart);
-  if (start != punchIndex.end()) {
-    for (auto& p : start->second) {
-      int pu = p.second->getPunchUnit();
-      if (pu != 0)
-        startUnit.insert(pu);
-    }
-  }
-
-  auto finish = punchIndex.find(oPunch::SpecialPunch::PunchFinish);
-  if (finish != punchIndex.end()) {
-    for (auto& p : finish->second) {
-      int pu = p.second->getPunchUnit();
-      if (pu != 0)
-        finishUnit.insert(pu);
-    }
-  }
-
-  auto check = punchIndex.find(oPunch::SpecialPunch::PunchCheck);
-  if (check != punchIndex.end()) {
-    for (auto& p : check->second) {
-      int pu = p.second->getPunchUnit();
-      if (pu != 0)
-        checkUnit.insert(pu);
-    }
-  }
-
-  for (auto& c : Cards) {
-    if (c.isRemoved())
-      continue;
-    for (auto &p : c.punches) {
-      if (p.getTypeCode() == oPunch::SpecialPunch::PunchStart) {
-        int pu = p.getPunchUnit();
-        if (pu != 0)
-          startUnit.insert(pu);
-      }
-      else if (p.getTypeCode() == oPunch::SpecialPunch::PunchFinish) {
-        int pu = p.getPunchUnit();
-        if (pu != 0)
-          finishUnit.insert(pu);
-      }
-      if (p.getTypeCode() == oPunch::SpecialPunch::PunchCheck) {
-        int pu = p.getPunchUnit();
-        if (pu != 0)
-          checkUnit.insert(pu);
-      }
-    }
-  }
-
-  for (int u : startUnit)
-    typeUnit.emplace_back(oPunch::SpecialPunch::PunchStart, u);
-
-  for (int u : finishUnit)
-    typeUnit.emplace_back(oPunch::SpecialPunch::PunchFinish, u);
-
-  for (int u : checkUnit)
-    typeUnit.emplace_back(oPunch::SpecialPunch::PunchCheck, u);
+void oEvent::getExistingUnits(vector<pair<SpecialPunch, int>>& typeUnit) {
+  oFreePunch::rehashPunches(*this, 0, nullptr);
 }
-

@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Melin Software HB - software@melin.nu - www.melin.nu
-    Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
+    Eksoppsvï¿½gen 16, SE-75646 UPPSALA, Sweden
 
 ************************************************************************/
 
@@ -76,3 +76,5 @@ public:
     return get(key);
   }
 };
+
+#include "intkeymapimpl.hpp"

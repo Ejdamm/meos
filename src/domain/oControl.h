@@ -157,16 +157,16 @@ public:
   }
 
   inline int minNumber() const {
-    int m = numeric_limits<int>::max();
+    int m = std::numeric_limits<int>::max();
     for (int k=0;k<nNumbers;k++)
-      m = min(Numbers[k], m);
+      m = std::min(Numbers[k], m);
     return m;
   }
 
   inline int maxNumber() const {
     int m = 0;
     for (int k=0;k<nNumbers;k++)
-      m = max(Numbers[k], m);
+      m = std::max(Numbers[k], m);
     return m;
   }
 
@@ -204,7 +204,7 @@ public:
 
   bool isUnit() const;
   int getUnitCode() const;
-  oPunch::SpecialPunch getUnitType() const;
+  SpecialPunch getUnitType() const;
 
   //Returns true if control has number and checks it.
   bool hasNumber(int i);
