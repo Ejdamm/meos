@@ -19,6 +19,15 @@ Provides various utility functions:
 
 Defines `meosException` and `meosCancel` for error handling and cancellation.
 
+### localizer.h / localizer.cpp
+
+The `Localizer` class provides the localization system for MeOS. It is available as a global `extern Localizer lang;`.
+- **Initialization**: Call `lang.init()` at the beginning and `lang.unload()` at the end.
+- **Translation**: Use `lang.tl(L"String")` to translate a wide string or `lang.tl("String")` for a normal string.
+- **Substitutions**: Use `#` to separate key and values for substitution: `lang.tl(L"Sträcka X#" + itow(leg))`. The translation table must contain the placeholder (e.g., `X`, `Y`, `Z`, `W`).
+- **Resource Loading**: Add a language resource using `lang.get().addLangResource(L"Name", L"path/to/file.lng")` and load it using `lang.get().loadLangResource(L"Name")`.
+- **Files**: `.lng` files are expected to be in UTF-8 format.
+
 ## Cross-Platform Implementation
 
 The module has been refactored to be platform-independent:

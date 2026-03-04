@@ -1,4 +1,5 @@
 #pragma once
+
 /************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -21,12 +22,69 @@
 
 ************************************************************************/
 
+#include <map>
+#include <set>
 #include <string>
+#include <vector>
+#include <memory>
+
+class LocalizerImpl;
+
+// Stub for oWordList until it is migrated
+class oWordList {
+public:
+    void save(const std::wstring &file) const {}
+    void load(const std::wstring &file) {}
+    void insert(const wchar_t *s) {}
+    bool lookup(const wchar_t *s) const { return false; }
+};
 
 class Localizer {
 public:
-    const std::wstring& tl(const std::wstring& str) const { return str; }
+    class LocalizerInternal {
+    private:
+        std::map<std::wstring, std::wstring> langResource;
+        std::unique_ptr<LocalizerImpl> impl;
+        std::unique_ptr<LocalizerImpl> implBase;
+
+        bool owning;
+        LocalizerInternal* user;
+
+    public:
+        LocalizerInternal();
+        ~LocalizerInternal();
+
+        void debugDump(const std::wstring& untranslated, const std::wstring& translated) const;
+
+        std::vector<std::wstring> getLangResource() const;
+        void loadLangResource(const std::wstring& name);
+        void addLangResource(const std::wstring& name, const std::wstring& resource);
+
+        /** Translate string */
+        const std::wstring& tl(const std::wstring& str) const;
+
+        void set(Localizer& li);
+
+        /** Get database with given names */
+        const oWordList& getGivenNames() const;
+    };
+
+private:
+    std::unique_ptr<LocalizerInternal> linternal;
+
+public:
+    bool capitalizeWords() const;
+
+    LocalizerInternal& get() { return *linternal; }
     const std::wstring& tl(const std::string& str) const;
+    const std::wstring& tl(const std::wstring& str) const { return linternal->tl(str); }
+
+    const std::wstring tl(const std::wstring& str, bool cap) const;
+
+    void init() { linternal = std::make_unique<LocalizerInternal>(); }
+    void unload() { linternal.reset(); }
+
+    Localizer() : linternal(nullptr) {}
 };
 
 extern Localizer lang;

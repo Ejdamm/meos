@@ -53,8 +53,6 @@
   - Use github.workspace to get the absolute path for toolchain configuration in CI.
 ---
 
-## US-004 (7m25s)
-
 ## 2026-03-04 11:30 - US-005
 - Migrated meos_util.h/cpp and meosexception.h to src/util/.
 - Refactored meos_util to be cross-platform, using std::chrono, std::filesystem, and standard C++.
@@ -68,8 +66,6 @@
   - Redundant itos/itow overloads for unsigned long and uint64_t must be avoided on 64-bit Linux where they are identical.
 ---
 
-## US-005 (18m56s)
-
 ## ons  4 mar 2026 09:21:25 CET - US-006
 - Migrated xmlparser.h/cpp, csvparser.h/cpp, TimeStamp.cpp/h, timeconstants.hpp to src/util/.
 - Created SICard.h and localizer stubs to satisfy dependencies.
@@ -81,13 +77,21 @@
   - csvparser has many domain dependencies; migrated with stubs for now.
   - Use std::int64_t and std::uint64_t explicitly in headers to avoid ambiguity.
   - TimeStamp uses a custom epoch (seconds since 2014); implemented using std::tm and time_t for cross-platform compatibility.
+---
 
-## US-006 (47m02s)
 
-## iteration-4 (5m23s)
+## ons  4 mar 2026 09:41:25 CET - US-007
+- Migrated localization system (localizer.h/cpp) to src/util/.
+- Removed Win32 calls (MultiByteToWideChar, LoadResource, etc.) and replaced with standard C++ (codecvt, ifstream).
+- Improved string2Wide and wide2String in meos_util.cpp to support UTF-8 using codecvt.
+- Added a stub for oWordList to satisfy dependencies until it is migrated.
+- Copied .lng files to resources/lang/ and verified loading.
+- Added unit tests in tests/localizer_test.cpp.
+- **Learnings for future iterations:**
+  - Localization uses '#' as a separator for substitutions (e.g., L"Key#Value").
+  - The placeholders (X, Y, Z, W) must be present in both the key and the translation in the table.
+  - string2Wide and wide2String now support UTF-8, which is important for correctly loading .lng files.
+  - The localizer implementation is now fully cross-platform and does not require Windows resources.
+---
 
-## iteration-5 — COMPLETED (0m09s)
-
-## iteration-1 (0m26s)
-
-## iteration-1 (0m29s)
+## US-007 (13m04s)

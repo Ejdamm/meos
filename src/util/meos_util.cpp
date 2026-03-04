@@ -44,6 +44,9 @@
 
 using namespace std;
 
+const wstring _EmptyWString = L"";
+const string _EmptyString = "";
+
 StringCache globalStringCache;
 
 namespace MeOSUtil {
@@ -321,12 +324,25 @@ const wstring &formatTimeHMS(int rt, SubSecond mode) {
   return res;
 }
 
+#include <codecvt>
+#include <locale>
+
 void string2Wide(const string &in, wstring &out) {
-  out.assign(in.begin(), in.end());
+  try {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    out = converter.from_bytes(in);
+  } catch (...) {
+    out.assign(in.begin(), in.end());
+  }
 }
 
 void wide2String(const wstring &in, string &out) {
-  out.assign(in.begin(), in.end());
+  try {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    out = converter.to_bytes(in);
+  } catch (...) {
+    out.assign(in.begin(), in.end());
+  }
 }
 
 bool fileExists(const wstring &file) {

@@ -1,6 +1,7 @@
 add_executable(unit_tests 
     sample_test.cpp
     util_test.cpp
+    localizer_test.cpp
 )
 
 target_link_libraries(unit_tests PRIVATE 

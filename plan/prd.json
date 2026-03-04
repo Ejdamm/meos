@@ -109,8 +109,8 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Migrated localization system with support for .lng files and standard C++ encoding."
     },
     {
       "id": "US-008",

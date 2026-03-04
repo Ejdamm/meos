@@ -51,6 +51,9 @@ typedef void* HANDLE;
 
 #define NOTIME 0x7FFFFFFF
 
+extern const std::wstring _EmptyWString;
+extern const std::string _EmptyString;
+
 class StringCache {
 private:
   std::vector<std::string> cache;
