@@ -83,8 +83,8 @@
         "Domain library compiles successfully"
       ],
       "priority": 6,
-      "passes": true,
-      "notes": "Wait, prd says it passed, but I don't see them in src/domain? Ah, maybe they are stubs or I misread."
+      "passes": false,
+      "notes": "Currently only stubs or missing files. Needs full migration from code/."
     },
     {
       "id": "US-007",
@@ -132,7 +132,7 @@
     {
       "id": "US-010",
       "title": "Implement SQLite persistence layer in src/db/",
-      "status": "Backlog",
+      "status": "Done",
       "acceptanceCriteria": [
         "SQLite connection management",
         "Schema migration system",
@@ -140,7 +140,7 @@
         "Database library compiles"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": ""
     }
   ]

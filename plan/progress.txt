@@ -8,6 +8,7 @@
 - For domain object unit tests, ensure `oe->oControlData` (or relevant data container) is initialized.
 - Include template implementation files (e.g., `*impl.hpp`) at the end of their respective headers.
 - Move shared enums to `domain_header.h` to avoid circular dependencies between core domain entities.
+- Always call `migrate()` after opening the database to ensure the schema is up to date.
 
 ## 2026-03-03 23:15 - US-001
 - Implemented CMake build system with vcpkg integration.
@@ -134,3 +135,21 @@
 ---
 
 ## US-009 (64m52s)
+
+## 2026-03-04 15:45 - US-010
+- Implemented SQLiteDatabase in src/db/ for SQLite connection management.
+- Implemented a simple schema migration system using a _migrations table.
+- Created initial schema for runners and clubs (V1).
+- Updated src/db/CMakeLists.txt to link with SQLite3.
+- Added unit tests in tests/db_test.cpp for database operations and migrations.
+- Verified all tests pass.
+- **Learnings for future iterations:**
+  - Use unofficial::sqlite3::sqlite3 target if find_package(SQLite3) doesn't provide the expected target, but SQLite::SQLite3 worked in this setup.
+  - meosException is lowercase 'm' in src/util/meosexception.h.
+  - SQLite in-memory database can be opened with ":memory:".
+  - Always call migrate() after opening the database to ensure schema consistency.
+---
+
+## US-010 — COMPLETED (8m10s)
+
+## iteration-1 (12m41s)
