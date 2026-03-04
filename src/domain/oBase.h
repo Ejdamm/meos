@@ -35,7 +35,6 @@ class oDataConstInterface;
 class oDataContainer;
 typedef void * pvoid;
 typedef vector<vector<wstring>> * pvectorstr;
-struct SqlUpdated;
 
 class oBase {
 public:

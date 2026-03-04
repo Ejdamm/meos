@@ -33,6 +33,8 @@ class oCourse;
 class oControl;
 
 class oPunch : public oBase {
+public:
+  enum PunchType { PunchUnused = 0, PunchStart = 1, PunchFinish = 2, PunchCheck = 3, HiredCard = 11111 };
 protected:
   int type = 0;
   int punchTime = 0;

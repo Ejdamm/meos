@@ -4,17 +4,17 @@ add_library(util STATIC
     meosexception.h
     xmlparser.cpp
     xmlparser.h
-    csvparser.cpp
-    csvparser.h
     TimeStamp.cpp
     TimeStamp.h
     timeconstants.hpp
-    SICard.h
     localizer.cpp
     localizer.h
     inthashmap.h
     intkeymap.hpp
     intkeymapimpl.hpp
+    random.cpp
+    random.h
+    win_types.h
 )
 target_include_directories(util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(util PRIVATE stdc++fs)

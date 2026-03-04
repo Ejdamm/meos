@@ -261,7 +261,7 @@ wstring oControl::codeNumbers(char sep) const
   wchar_t bf[16];
 
   for(int i=0;i<nNumbers;i++){
-    swprintf(bf, 16, L"%d", Numbers[i]);
+    swprintf_s(bf, 16, L"%d", Numbers[i]);
     n+=bf;
     if (i+1<nNumbers)
       n+=sep;
@@ -326,7 +326,7 @@ const wstring &oControl::getName() const {
 /// Get name or [id]
 const wstring &oControl::getDefaultName() const {
   wchar_t bf[16];
-  swprintf(bf, 16, L"[%d]", Id);
+  swprintf_s(bf, 16, L"[%d]", Id);
   wstring &res = StringCache::getInstance().wget();
   res = bf;
   return res;
@@ -339,7 +339,7 @@ wstring oControl::getIdS() const
 		return Name;
 	else {
 		wchar_t bf[16];
-		swprintf(bf, 16, L"%d", Id);
+		swprintf_s(bf, 16, L"%d", Id);
 		return bf;
 	}
 }
@@ -415,7 +415,7 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
         if (oControl::isSpecialControl(it->Status))
           continue;
 
-        swprintf(bf, 256, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
+        swprintf_s(bf, 256, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
         b = bf;
 
         if (!it->Name.empty())
@@ -428,7 +428,7 @@ const vector<pair<wstring, size_t>>& oEvent::fillControls(vector< pair<wstring, 
           continue;
 
         for (int i = 0; i < it->getNumberDuplicates(); i++) {
-          swprintf(bf, 256, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
+          swprintf_s(bf, 256, lang.tl("Kontroll %s").c_str(), it->codeNumbers(' ').c_str());
           b = bf;
 
           if (it->getNumberDuplicates() > 1)
@@ -486,7 +486,7 @@ const vector< pair<wstring, size_t> > &oEvent::fillControlTypes(vector< pair<wst
   out.push_back(make_pair(lang.tl("Mål"), int(PunchFinish)));
 
   for (auto sit = sicodes.begin(); sit!=sicodes.end(); ++sit) {
-    swprintf(bf, 32, lang.tl("Kontroll %s").c_str(), itow(*sit).c_str());
+    swprintf_s(bf, 32, lang.tl("Kontroll %s").c_str(), itow(*sit).c_str());
     out.push_back(make_pair(bf, *sit));
   }
   return out;
@@ -690,7 +690,7 @@ int oControl::getNumRunnersRemaining() const {
   return tNumRunnersRemaining;
 }
 
-void oEvent::setupControlStatistics() {
+void oEvent::setupControlStatistics() const {
   // Reset all times
   for (auto &ctrl : Controls) {
     ctrl.tMissedTimeMax = 0;
@@ -784,7 +784,7 @@ void oEvent::setupControlStatistics() {
   }
 }
 
-bool oEvent::hasRogaining()
+bool oEvent::hasRogaining() const
 {
   for (auto it=Controls.begin(); it != Controls.end(); ++it) {
     if (!it->Removed && it->getStatus() == oControl::ControlStatus::StatusRogaining)
@@ -825,7 +825,7 @@ const wstring oControl::getStatusS() const {
   }
 }
 
-void oEvent::fillControlStatus(gdioutput &gdi, const string& id)
+void oEvent::fillControlStatus(gdioutput &gdi, const string &id) const
 {
   vector< pair<wstring, size_t> > d;
   fillControlStatus(d);
@@ -833,7 +833,7 @@ void oEvent::fillControlStatus(gdioutput &gdi, const string& id)
 }
 
 
-const vector< pair<wstring, size_t> > &oEvent::fillControlStatus(vector< pair<wstring, size_t> > &out)
+const vector<pair<wstring, size_t>> &oEvent::fillControlStatus(vector<pair<wstring, size_t>> &out) const
 {
   out.clear();
   out.emplace_back(lang.tl(L"OK"), size_t(oControl::ControlStatus::StatusOK));
@@ -970,7 +970,7 @@ bool oControl::canRemove() const
   return !oe->isControlUsed(Id);
 }
 
-void oEvent::getControls(vector<oControl*> &c, bool calculateCourseControls) {
+void oEvent::getControls(vector<pControl> &controls, bool calculateCourseControls) const {
   c.clear();
 
   if (calculateCourseControls) {
@@ -1058,9 +1058,9 @@ void oControl::getClasses(vector<oClass*> &cls) const {
 }
 
 int oControl::getControlIdByName(const oEvent &oe, const string &name) {
-  if (wcscasecmp(oe.gdiBase().widen(name).c_str(), L"finish") == 0)
+  if (wcscasecmp(oe.gdioutput::widen(name).c_str(), L"finish") == 0)
     return int(PunchFinish);
-  if (wcscasecmp(oe.gdiBase().widen(name).c_str(), L"start") == 0)
+  if (wcscasecmp(oe.gdioutput::widen(name).c_str(), L"start") == 0)
     return int(PunchStart);
 
   vector<oControl*> ac;
@@ -1110,7 +1110,7 @@ oControl* oEvent::getControl(int Id) const {
     return nullptr;
 }
 
-oControl* oEvent::getControlByType(int type) {
+pControl oEvent::getControlByType(int type) const {
   for (auto& c : Controls) {
     if (!c.isRemoved() && c.getFirstNumber() == type)
       return &c;

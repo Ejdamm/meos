@@ -1,13 +1,69 @@
 add_library(domain STATIC 
-    oBase.cpp 
-    oBase.h
-    oDataContainer.cpp
-    oDataContainer.h
-    oControl.cpp
+    oControl.cpp 
     oControl.h
+    oClub.cpp
+    oClub.h
+    oRunner.cpp
+    oRunner.h
+    oClass.cpp
+    oClass.h
+    oCourse.cpp
+    oCourse.h
+    oTeam.cpp
+    oTeam.h
+    oCard.cpp
+    oCard.h
     oPunch.cpp
     oPunch.h
-    TableType.h
+    oFreePunch.cpp
+    oFreePunch.h
+    oEvent.cpp
+    oEvent.h
+    oEventDraw.cpp
+    oEventDraw.h
+    oEventResult.cpp
+    oTeamEvent.cpp
+    oevent_transfer.cpp
+    oEventSpeaker.cpp
+    oEventSQL.cpp
+    metalist.cpp
+    metalist.h
+    RunnerDB.cpp
+    RunnerDB.h
+    progress.cpp
+    progress.h
+    meos.cpp
+    infoserver.cpp
+    infoserver.h
+    liveresult.cpp
+    liveresult.h
+    onlineinput.cpp
+    onlineinput.h
+    onlineresults.cpp
+    onlineresults.h
+    RestService.cpp
+    RestService.h
+    socket.cpp
+    socket.h
+    cardsystem.cpp
+    cardsystem.h
+    qualification_final.cpp
+    qualification_final.h
+    oFreeImport.cpp
+    oFreeImport.h
+    oListInfo.cpp
+    oListInfo.h
+    Table.cpp
+    Table.h
+    csvparser.cpp
+    csvparser.h
+    generalresult.cpp
+    generalresult.h
+    datadefiners.h
+    classconfiginfo.cpp
+    classconfiginfo.h
+    MeOSFeatures.cpp
+    MeOSFeatures.h
 )
 target_include_directories(domain PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(domain PUBLIC util)

@@ -21,41 +21,23 @@
     Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
 
 ************************************************************************/
-#include "meos_util.h"
-#include <string>
+
 #include <exception>
+#include <stdexcept>
+#include <string>
+#include "meos_util.h"
 
-class meosException : public std::exception {
-  std::wstring wideMessage;
-  static const char *narrow(const std::wstring& msg) {
-    static std::string n;
-    wide2String(msg, n);
-    return n.c_str();
-  }
+using std::string;
+using std::wstring;
+
+class meosException : public std::runtime_error {
 public:
-  meosException(const std::wstring &wmsg) : std::exception(), wideMessage(wmsg) {
-    
-  }
-  meosException(const std::string &msg) : std::exception() {
-    string2Wide(msg, wideMessage);
-  }
-  meosException(const char *msg) : std::exception() {
-    string2Wide(std::string(msg), wideMessage);
-  }
-  meosException() : std::exception() {}
+  meosException(const wstring &wmsg) : std::runtime_error(narrow(wmsg)) {}
+  meosException(const string &msg) : std::runtime_error(msg) {}
+  meosException(const char *msg) : std::runtime_error(msg) {}
+  meosException() : std::runtime_error("MeOS Exception") {}
 
-  std::wstring wwhat() const {
-    return wideMessage;
+  wstring wwhat() const {
+    return widen(what());
   }
-
-  virtual const char* what() const noexcept override {
-    static std::string n;
-    wide2String(wideMessage, n);
-    return n.c_str();
-  }
-};
-
-class meosCancel : public meosException {
-public:
-  using meosException::meosException;
 };

@@ -28,7 +28,7 @@ oPunch::~oPunch() = default;
 
 wstring oPunch::getInfo() const
 {
-  return L"Stämpling "+oe->gdiBase().widen(codeString());
+  return L"Stämpling "+oe->gdioutput::widen(codeString());
 }
 
 string oPunch::codeString() const
@@ -163,15 +163,15 @@ wstring oPunch::getString() const {
 
   if (type == PunchStart || type == PunchCheck || type == PunchFinish) {
     if (false && punchUnit > 0)
-      swprintf(bf, 32, L"%ls/%d\t%ls", tp, punchUnit, ct);
+      swprintf_s(bf, 32, L"%ls/%d\t%ls", tp, punchUnit, ct);
     else
-      swprintf(bf, 32, L"%ls\t%ls", tp, ct);
+      swprintf_s(bf, 32, L"%ls\t%ls", tp, ct);
   }
   else {
     if (isUsed)
-      swprintf(bf, 32, L"%d\t%ls", type, ct);
+      swprintf_s(bf, 32, L"%d\t%ls", type, ct);
     else
-      swprintf(bf, 32, L"  %d*\t%ls", type, ct);
+      swprintf_s(bf, 32, L"  %d*\t%ls", type, ct);
   }
 
   return bf;

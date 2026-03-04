@@ -28,7 +28,7 @@
 #include "oEvent.h"
 #include "meos_util.h"
 #include "oDataContainer.h"
-#include "datadefiners.h"
+// #include "datadefiners.h"
 #include <algorithm>
 
 using std::max;
@@ -37,6 +37,9 @@ using std::move;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+
+#include "localizer.h"
+Localizer lang;
 
 oBase::oBase(oEvent *poe) {
   Removed = false;

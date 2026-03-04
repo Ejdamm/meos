@@ -22,7 +22,10 @@
 
 ************************************************************************/
 
-#include "domain_header.h"
+#include <map>
+#include <vector>
+#include <set>
+
 #include "oBase.h"
 #include "inthashmap.h"
 #include "TableType.h"
@@ -80,7 +83,7 @@ struct oDataInfo {
 struct oVariableInt {
   char name[MaxVarNameLength];
   int *data32 = nullptr;
-  long long *data64 = nullptr;
+  __int64 *data64 = nullptr;
   oVariableInt() {name[0] = 0;}
 };
 
@@ -200,8 +203,8 @@ public:
   bool setDouble(oBase* ob, void* data, const char* name, double value);
   double getDouble(const void* data, const char* name) const;
 
-  bool setInt64(void *data, const char *Name, long long V);
-  long long getInt64(const void *data, const char *Name) const;
+  bool setInt64(void *data, const char *Name, __int64 V);
+  __int64 getInt64(const void *data, const char *Name) const;
 
   bool setString(oBase *ob, const char *name, const wstring &v);
   const wstring &getString(const oBase *ob, const char *name) const;
@@ -263,7 +266,7 @@ public:
     return setInt(name.c_str(), value);
   }
 
-  inline bool setInt64(const char *Name, long long Value)
+  inline bool setInt64(const char *Name, __int64 Value)
   {
     if (oDC->setInt64(Data, Name, Value)){
       oB->updateChanged();
@@ -308,7 +311,7 @@ public:
     return oDC->getDouble(Data, name.c_str());
   }
 
-  inline long long getInt64(const char *Name) const
+  inline __int64 getInt64(const char *Name) const
     {return oDC->getInt64(Data, Name);}
 
   inline bool setStringNoUpdate(const char *name, const wstring &value)
@@ -449,7 +452,7 @@ public:
     return oDC->getDouble(Data, name.c_str());
   }
 
-  inline long long getInt64(const char *Name) const
+  inline __int64 getInt64(const char *Name) const
     {return oDC->getInt64(Data, Name);}
 
   inline const wstring &getString(const char *Name) const
@@ -469,7 +472,7 @@ public:
   inline int getYear(const char* name) const {
     return oDC->getYear(Data, name);
   }
-  inline long long getInt64(const string &name) const
+  inline __int64 getInt64(const string &name) const
     {return oDC->getInt64(Data, name.c_str());}
 
   inline const wstring &getDate(const string &name) const

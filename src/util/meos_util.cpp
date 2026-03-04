@@ -120,7 +120,7 @@ wstring getLocalTimeFileName() {
   SYSTEMTIME st;
   GetLocalTime_Internal(&st);
   wchar_t bf[32];
-  swprintf(bf, 32, L"%d%02d%02d_%02d%02d%02d", st.wYear, st.wMonth, st.wDay,
+  swprintf_s(bf, 32, L"%d%02d%02d_%02d%02d%02d", st.wYear, st.wMonth, st.wDay,
            st.wHour, st.wMinute, st.wSecond);
   return bf;
 }
@@ -140,27 +140,27 @@ string convertSystemTimeN(const SYSTEMTIME &st) {
 
 wstring convertSystemTime(const SYSTEMTIME &st) {
   wchar_t bf[64];
-  swprintf(bf, 64, L"%d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay,
+  swprintf_s(bf, 64, L"%d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay,
            st.wHour, st.wMinute, st.wSecond);
   return bf;
 }
 
 wstring convertSystemTimeOnly(const SYSTEMTIME &st) {
   wchar_t bf[32];
-  swprintf(bf, 32, L"%02d:%02d:%02d", st.wHour, st.wMinute, st.wSecond);
+  swprintf_s(bf, 32, L"%02d:%02d:%02d", st.wHour, st.wMinute, st.wSecond);
   return bf;
 }
 
 wstring convertSystemDate(const SYSTEMTIME &st) {
   wchar_t bf[32];
-  swprintf(bf, 32, L"%d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
+  swprintf_s(bf, 32, L"%d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
   return bf;
 }
 
 wstring formatDate(int m, bool useIsoFormat) {
   wchar_t bf[24];
   if (m > 0 && m < 30000101) {
-    swprintf(bf, 24, L"%d-%02d-%02d", m / (100 * 100), (m / 100) % 100, m % 100);
+    swprintf_s(bf, 24, L"%d-%02d-%02d", m / (100 * 100), (m / 100) % 100, m % 100);
   } else {
     bf[0] = '-';
     bf[1] = 0;
@@ -288,9 +288,9 @@ const wstring &formatTimeMS(int m, bool force2digit, SubSecond mode) {
   wchar_t bf[64];
   int am = abs(m);
   if (am < timeConstHour || !MeOSUtil::useHourFormat) {
-    swprintf(bf, 64, L"%s%d:%02d", m < 0 ? L"-" : L"", am / timeConstMinute, (am / timeConstSecond) % 60);
+    swprintf_s(bf, 64, L"%s%d:%02d", m < 0 ? L"-" : L"", am / timeConstMinute, (am / timeConstSecond) % 60);
   } else {
-    swprintf(bf, 64, L"%s%d:%02d:%02d", m < 0 ? L"-" : L"", am / timeConstHour, (am / timeConstMinute) % 60, (am / timeConstSecond) % 60);
+    swprintf_s(bf, 64, L"%s%d:%02d:%02d", m < 0 ? L"-" : L"", am / timeConstHour, (am / timeConstMinute) % 60, (am / timeConstSecond) % 60);
   }
   wstring &res = StringCache::getInstance().wget();
   res = bf;
@@ -302,9 +302,9 @@ const wstring &formatTime(int rt, SubSecond mode) {
   if (rt > 0 && rt < timeConstHour * 999) {
     wchar_t bf[64];
     if (rt >= timeConstHour && MeOSUtil::useHourFormat)
-      swprintf(bf, 64, L"%d:%02d:%02d", rt / timeConstHour, (rt / timeConstMinute) % 60, (rt / timeConstSecond) % 60);
+      swprintf_s(bf, 64, L"%d:%02d:%02d", rt / timeConstHour, (rt / timeConstMinute) % 60, (rt / timeConstSecond) % 60);
     else
-      swprintf(bf, 64, L"%d:%02d", rt / timeConstMinute, (rt / timeConstSecond) % 60);
+      swprintf_s(bf, 64, L"%d:%02d", rt / timeConstMinute, (rt / timeConstSecond) % 60);
     res = bf;
     return res;
   }
@@ -316,7 +316,7 @@ const wstring &formatTimeHMS(int rt, SubSecond mode) {
   wstring &res = StringCache::getInstance().wget();
   if (rt >= 0) {
     wchar_t bf[64];
-    swprintf(bf, 64, L"%02d:%02d:%02d", rt / timeConstHour, (rt / timeConstMinute) % 60, (rt / timeConstSecond) % 60);
+    swprintf_s(bf, 64, L"%02d:%02d:%02d", rt / timeConstHour, (rt / timeConstMinute) % 60, (rt / timeConstSecond) % 60);
     res = bf;
     return res;
   }

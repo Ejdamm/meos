@@ -27,27 +27,9 @@
 #include <string>
 #include <cstdint>
 #include "timeconstants.hpp"
+#include "win_types.h"
 
-#ifdef _WIN32
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-#include <windows.h>
-#else
-struct SYSTEMTIME {
-  uint16_t wYear;
-  uint16_t wMonth;
-  uint16_t wDayOfWeek;
-  uint16_t wDay;
-  uint16_t wHour;
-  uint16_t wMinute;
-  uint16_t wSecond;
-  uint16_t wMilliseconds;
-};
-
-typedef void* HANDLE;
 #define INVALID_HANDLE_VALUE (HANDLE)(-1)
-#endif
 
 #define NOTIME 0x7FFFFFFF
 
@@ -104,11 +86,9 @@ int getRelativeDay();
 /// Get time and date in a format that forms a part of a filename
 std::wstring getLocalTimeFileName();
 
-enum class SubSecond {
-  Off,
-  On,
-  Auto
-};
+#include "common_enums.h"
+
+// SubSecond moved to common_enums.h
 
 int parseRelativeTime(const char *data);
 int parseRelativeTime(const wchar_t *data);
@@ -285,17 +265,11 @@ void convertDynamicBase(long long val, int base, wchar_t out[16]);
 /// Find all files in dir matching given file pattern
 bool expandDirectory(const wchar_t *dir, const wchar_t *pattern, std::vector<std::wstring> &res);
 
-enum RunnerStatus {
-  StatusOK = 1, StatusDNS = 20, StatusCANCEL = 21, StatusOutOfCompetition = 15, StatusMP = 3,
-  StatusDNF = 4, StatusDQ = 5, StatusMAX = 6, StatusNoTiming = 2,
-  StatusUnknown = 0, StatusNotCompeting = 99
-};
+std::wstring getMeOSFile(const std::wstring& name);
 
-enum class DynamicRunnerStatus {
-  StatusInactive,
-  StatusActive,
-  StatusFinished
-};
+// RunnerStatus moved to domain_header.h
+
+// DynamicRunnerStatus moved to domain_header.h
 
 enum PersonSex {sFemale = 1, sMale, sBoth, sUnknown};
 
@@ -347,6 +321,18 @@ namespace MeOSUtil {
 
 void string2Wide(const std::string &in, std::wstring &out);
 void wide2String(const std::wstring &in, std::string &out);
+
+inline std::string narrow(const std::wstring& in) {
+    std::string out;
+    wide2String(in, out);
+    return out;
+}
+
+inline std::wstring widen(const std::string& in) {
+    std::wstring out;
+    string2Wide(in, out);
+    return out;
+}
 
 void checkWriteAccess(const std::wstring &file);
 

@@ -1,4 +1,13 @@
+﻿// TimeStamp.h: interface for the TimeStamp class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(AFX_TIMESTAMP_H__CC16BFC5_ECD9_4D76_AC98_79F802314B65__INCLUDED_)
+#define AFX_TIMESTAMP_H__CC16BFC5_ECD9_4D76_AC98_79F802314B65__INCLUDED_
+
+#if _MSC_VER > 1000
 #pragma once
+#endif // _MSC_VER > 1000
 /************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -23,19 +32,21 @@
 
 #include <string>
 
+using namespace std;
+
 class TimeStamp {
   unsigned int Time;
-  mutable std::string stampCode;
+  mutable string stampCode;
   mutable int stampCodeTime = 0;
 public:
-  void setStamp(const std::string &s);
-  const std::string &getStamp() const;
-  const std::string &getStamp(const std::string &sqlStampIn) const;
+  void setStamp(const string &s);
+  const string &getStamp() const;
+  const string &getStamp(const string &sqlStampIn) const;
 
-  const std::wstring getUpdateTime() const;
+  const wstring getUpdateTime() const;
 
-  std::wstring getStampString() const;
-  std::string getStampStringN() const;
+  wstring getStampString() const;
+  string getStampStringN() const;
   int getAge() const;
   unsigned int getModificationTime() const {return Time;}
 
@@ -44,3 +55,5 @@ public:
   TimeStamp();
   virtual ~TimeStamp();
 };
+
+#endif // !defined(AFX_TIMESTAMP_H__CC16BFC5_ECD9_4D76_AC98_79F802314B65__INCLUDED_)
