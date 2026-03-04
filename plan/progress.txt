@@ -3,6 +3,8 @@
 - Dependencies are managed via `vcpkg` and `vcpkg.json`.
 - The modern source code is located in `src/`.
 - Executable name is `meos`.
+- Redefine common Win32 types (e.g., `SYSTEMTIME`) on non-Windows for legacy compatibility.
+- Avoid redundant integer conversion overloads (`itos`, `itow`) that overlap on 64-bit platforms (e.g., `unsigned long` vs `uint64_t`).
 
 ## 2026-03-03 23:15 - US-001
 - Implemented CMake build system with vcpkg integration.
@@ -52,3 +54,18 @@
 ---
 
 ## US-004 (7m25s)
+
+## 2026-03-04 11:30 - US-005
+- Migrated meos_util.h/cpp and meosexception.h to src/util/.
+- Refactored meos_util to be cross-platform, using std::chrono, std::filesystem, and standard C++.
+- Defined a compatibility SYSTEMTIME struct for Linux.
+- Added unit tests in tests/util_test.cpp verifying string conversion and time formatting.
+- Created src/util/AGENTS.md with module documentation.
+- **Learnings for future iterations:**
+  - Redefined SYSTEMTIME on Linux to maintain compatibility with legacy code.
+  - Replaced Win32 specific functions (_itow_s, sprintf_s) with standard C++ (to_wstring, snprintf).
+  - Used std::filesystem for file existence and move operations.
+  - Redundant itos/itow overloads for unsigned long and uint64_t must be avoided on 64-bit Linux where they are identical.
+---
+
+## US-005 (18m56s)

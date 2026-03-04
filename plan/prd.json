@@ -78,8 +78,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Migrated meos_util and meosexception to src/util/ with cross-platform implementations for Linux."
     },
     {
       "id": "US-006",
