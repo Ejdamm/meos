@@ -26,6 +26,7 @@
 #include <map>
 #include <string>
 #include <cstdint>
+#include "timeconstants.hpp"
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
@@ -50,11 +51,6 @@ typedef void* HANDLE;
 
 #define NOTIME 0x7FFFFFFF
 
-const int timeUnitsPerSecond = 10;
-const int timeConstSecond = timeUnitsPerSecond;
-const int timeConstMinute = 60 * timeConstSecond;
-const int timeConstHour = 60 * timeConstMinute;
-
 class StringCache {
 private:
   std::vector<std::string> cache;
@@ -65,7 +61,9 @@ private:
 public:
   static StringCache &getInstance();
 
-  void init() { cache.resize(256); wcache.resize(256); }
+  StringCache() : ix(0), wix(0) { init(); }
+
+  void init() { if (cache.empty()) cache.resize(256); if (wcache.empty()) wcache.resize(256); }
   void clear() { cache.clear(); wcache.clear(); }
 
   std::string &get() {
@@ -215,6 +213,7 @@ bool stringMatch(const std::wstring &a, const std::wstring &b);
 
 const char *decodeXML(const char *in);
 const std::string &decodeXML(const std::string &in);
+void inplaceDecodeXML(char *in);
 const std::string &encodeXML(const std::string &in);
 const std::wstring &encodeXML(const std::wstring &in);
 const std::wstring &encodeHTML(const std::wstring &in);
@@ -282,6 +281,18 @@ void convertDynamicBase(long long val, int base, wchar_t out[16]);
 
 /// Find all files in dir matching given file pattern
 bool expandDirectory(const wchar_t *dir, const wchar_t *pattern, std::vector<std::wstring> &res);
+
+enum RunnerStatus {
+  StatusOK = 1, StatusDNS = 20, StatusCANCEL = 21, StatusOutOfCompetition = 15, StatusMP = 3,
+  StatusDNF = 4, StatusDQ = 5, StatusMAX = 6, StatusNoTiming = 2,
+  StatusUnknown = 0, StatusNotCompeting = 99
+};
+
+enum class DynamicRunnerStatus {
+  StatusInactive,
+  StatusActive,
+  StatusFinished
+};
 
 enum PersonSex {sFemale = 1, sMale, sBoth, sUnknown};
 

@@ -8,7 +8,10 @@ The `util` module provides general-purpose utilities, including time/date operat
 
 Provides various utility functions:
 - **Time/Date**: `getLocalTime`, `formatTime`, `convertDateYMD`, etc.
-- **String**: `itos`, `itow`, `split`, `trim`, `encodeXML`, etc.
+- **Parsing**: `xmlparser` and `csvparser` are available for high-level data processing.
+- **Time**: `TimeStamp` and `timeconstants.hpp` provide platform-independent time handling.
+- **Initialization**: `StringCache` must be initialized (handled by constructor now).
+- **Migration**: `csvparser` currently has stubs for domain-dependent methods (`oEvent` etc) until those modules are migrated.
 - **Conversions**: `string2Wide`, `wide2String`.
 - **Files**: `fileExists`, `moveFile`.
 

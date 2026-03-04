@@ -69,3 +69,25 @@
 ---
 
 ## US-005 (18m56s)
+
+## ons  4 mar 2026 09:21:25 CET - US-006
+- Migrated xmlparser.h/cpp, csvparser.h/cpp, TimeStamp.cpp/h, timeconstants.hpp to src/util/.
+- Created SICard.h and localizer stubs to satisfy dependencies.
+- Updated meos_util.h/cpp with missing implementations (parseRelativeTime, encodeXML, etc.).
+- Fixed SegFault in StringCache by adding a constructor for initialization.
+- Added unit tests for xmlparser, csvparser, and TimeStamp.
+- **Learnings for future iterations:**
+  - StringCache was previously uninitialized, causing crashes in utility functions.
+  - csvparser has many domain dependencies; migrated with stubs for now.
+  - Use std::int64_t and std::uint64_t explicitly in headers to avoid ambiguity.
+  - TimeStamp uses a custom epoch (seconds since 2014); implemented using std::tm and time_t for cross-platform compatibility.
+
+## US-006 (47m02s)
+
+## iteration-4 (5m23s)
+
+## iteration-5 — COMPLETED (0m09s)
+
+## iteration-1 (0m26s)
+
+## iteration-1 (0m29s)

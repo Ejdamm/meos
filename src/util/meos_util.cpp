@@ -396,7 +396,7 @@ string trim(const string &s) {
 }
 
 const wstring &encodeXML(const wstring &in) {
-  static wstring out;
+  wstring &out = StringCache::getInstance().wget();
   out.clear();
   for (wchar_t c : in) {
     switch (c) {
@@ -405,6 +405,22 @@ const wstring &encodeXML(const wstring &in) {
       case L'>': out += L"&gt;"; break;
       case L'\"': out += L"&quot;"; break;
       case L'\'': out += L"&apos;"; break;
+      default: out += c; break;
+    }
+  }
+  return out;
+}
+
+const string &encodeXML(const string &in) {
+  string &out = StringCache::getInstance().get();
+  out.clear();
+  for (char c : in) {
+    switch (c) {
+      case '&': out += "&amp;"; break;
+      case '<': out += "&lt;"; break;
+      case '>': out += "&gt;"; break;
+      case '\"': out += "&quot;"; break;
+      case '\'': out += "&apos;"; break;
       default: out += c; break;
     }
   }
@@ -444,7 +460,104 @@ int compareStringIgnoreCase(const wstring &a, const wstring &b) {
 }
 
 // Implement other missing functions as stubs or simplified versions
-int getRelativeDay() { return 0; }
+int parseRelativeTime(const char *data) {
+  if (data) {
+    int ret = atoi(data);
+    if (timeConstSecond == 10) {
+      int j = 0;
+      while (data[j]) {
+        if (data[j] == '.') {
+          int t = data[j + 1] - '0';
+          if (t > 0 && t < 10) {
+            if (ret < 0 || data[0] == '-')
+              return ret * timeConstSecond - t;
+            else
+              return ret * timeConstSecond + t;
+          }
+          break;
+        }
+        j++;
+      }
+    }
+    else if (timeConstSecond == 100) {
+      int j = 0;
+      while (data[j]) {
+        if (data[j] == '.') {
+          int t = data[j + 1] - '0';
+          if (t >= 0 && t < 10) {
+            t *= 10;
+            int t2 = data[j + 2] - '0';
+            if (t2 > 0 && t2 < 10)
+              t += t2;
+
+            if (ret < 0 || data[0] == '-')
+              return ret * timeConstSecond - t;
+            else
+              return ret * timeConstSecond + t;
+          }
+          break;
+        }
+        j++;
+      }
+    }
+    if (ret == -1)
+      return ret; // Special value
+
+    return ret * timeConstSecond;
+  }
+  return 0;
+}
+
+int parseRelativeTime(const wchar_t *data) {
+  if (data) {
+    int ret = (int)wcstol(data, nullptr, 10);
+    if (timeConstSecond == 10) {
+      int j = 0;
+      while (data[j]) {
+        if (data[j] == '.') {
+          int t = data[j + 1] - '0';
+          if (t > 0 && t < 10) {
+            if (ret < 0 || data[0] == '-')
+              return ret * timeConstSecond - t;
+            else
+              return ret * timeConstSecond + t;
+          }
+          break;
+        }
+        j++;
+      }
+    }
+    else if (timeConstSecond == 100) {
+      int j = 0;
+      while (data[j]) {
+        if (data[j] == '.') {
+          int t = data[j + 1] - '0';
+          if (t >= 0 && t < 10) {
+            t *= 10;
+            int t2 = data[j + 2] - '0';
+            if (t2 > 0 && t2 < 10)
+              t += t2;
+
+            if (ret < 0 || data[0] == '-')
+              return ret * timeConstSecond - t;
+            else
+              return ret * timeConstSecond + t;
+          }
+          break;
+        }
+        j++;
+      }
+    }
+    if (ret == -1)
+      return ret; // Special value
+
+    return ret * timeConstSecond;
+  }
+  return 0;
+}
+
+const wstring &codeRelativeTimeW(int rt) { static wstring res; return res; }
+const string &codeRelativeTime(int rt) { static string res; return res; }
 int64_t SystemTimeToInt64TenthSecond(const SYSTEMTIME &st) { return 0; }
 SYSTEMTIME Int64TenthSecondToSystemTime(int64_t time) { SYSTEMTIME st = {0}; return st; }
 int convertAbsoluteTimeISO(const wstring &m) { return 0; }
@@ -465,9 +578,82 @@ wstring getMeosCompectVersion() { return L""; }
 void getSupporters(vector<wstring> &supp, vector<wstring> &developSupp) {}
 int countWords(const wchar_t *p) { return 0; }
 bool stringMatch(const wstring &a, const wstring &b) { return a == b; }
-const char *decodeXML(const char *in) { return in; }
-const string &decodeXML(const string &in) { return in; }
-const string &encodeXML(const string &in) { static string res; res = in; return res; }
+const char *decodeXML(const char *in)
+{
+  if (in == nullptr) return nullptr;
+  const char *bf = in;
+  bool needDecode = false;
+  for (int k=0; bf[k] ;k++)
+    needDecode |=  (bf[k]=='&');
+
+  if (!needDecode)
+    return in;
+
+  string &res = StringCache::getInstance().get();
+  res.clear();
+  res.reserve(strlen(in));
+  for (int k=0;bf[k] ;k++) {
+    if (bf[k] != '&')
+      res += bf[k];
+    else {
+      if ( memcmp(&bf[k], "&amp;", 5)==0 )
+        res += '&', k+=4;
+      else if  ( memcmp(&bf[k], "&lt;", 4)==0 )
+        res += '<', k+=3;
+      else if  ( memcmp(&bf[k], "&gt;", 4)==0 )
+        res += '>', k+=3;
+      else if  ( memcmp(&bf[k], "&quot;", 6)==0 )
+        res += '"', k+=5;
+      else if  ( memcmp(&bf[k], "&apos;", 6)==0 )
+        res += '\'', k+=5;
+      else if  ( memcmp(&bf[k], "&#10;", 5)==0 )
+        res += '\n', k+=4;
+      else if  ( memcmp(&bf[k], "&#13;", 5)==0 )
+        res += '\r', k+=4;
+      else
+        res += bf[k];
+    }
+  }
+  return res.c_str();
+}
+
+const string &decodeXML(const string &in)
+{
+  static string res;
+  res = decodeXML(in.c_str());
+  return res;
+}
+
+void inplaceDecodeXML(char *in)
+{
+  if (in == nullptr) return;
+  char *bf = in;
+  int outp = 0;
+
+  for (int k=0;bf[k] ;k++) {
+    if (bf[k] != '&')
+      bf[outp++] = bf[k];
+    else {
+      if ( memcmp(&bf[k], "&amp;", 5)==0 )
+        bf[outp++] = '&', k+=4;
+      else if  ( memcmp(&bf[k], "&lt;", 4)==0 )
+        bf[outp++] = '<', k+=3;
+      else if  ( memcmp(&bf[k], "&gt;", 4)==0 )
+        bf[outp++] = '>', k+=3;
+      else if  ( memcmp(&bf[k], "&quot;", 6)==0 )
+        bf[outp++] = '"', k+=5;
+      else if  ( memcmp(&bf[k], "&apos;", 6)==0 )
+        bf[outp++] = '\'', k+=5;
+      else if  ( memcmp(&bf[k], "&#10;", 5)==0 )
+        bf[outp++] = '\n', k+=4;
+      else if  ( memcmp(&bf[k], "&#13;", 5)==0 )
+        bf[outp++] = '\r', k+=4;
+      else
+        bf[outp++] = bf[k];
+    }
+  }
+  bf[outp] = 0;
+}
 const wstring &encodeHTML(const wstring &in) { return in; }
 const wchar_t *canonizeName(const wchar_t *name) { return name; }
 double stringDistance(const wchar_t *a, const wchar_t *b) { return 0; }
