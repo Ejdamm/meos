@@ -12,6 +12,9 @@ add_library(util STATIC
     SICard.h
     localizer.cpp
     localizer.h
+    inthashmap.h
+    intkeymap.hpp
+    intkeymapimpl.hpp
 )
 target_include_directories(util PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(util PRIVATE stdc++fs)

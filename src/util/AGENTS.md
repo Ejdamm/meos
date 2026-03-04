@@ -15,6 +15,13 @@ Provides various utility functions:
 - **Conversions**: `string2Wide`, `wide2String`.
 - **Files**: `fileExists`, `moveFile`.
 
+### inthashmap.h / intkeymap.hpp
+
+Provides a custom high-performance hash map implementation:
+- `intkeymap<T, KEY>`: Template for a hash map with custom key and value types.
+- `inthashmap`: A typedef for `intkeymap<int, int>`.
+- The implementation is in `intkeymapimpl.hpp` and is typically included in `.cpp` files where it is used.
+
 ### meosexception.h
 
 Defines `meosException` and `meosCancel` for error handling and cancellation.

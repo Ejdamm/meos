@@ -95,3 +95,20 @@
 ---
 
 ## US-007 (13m04s)
+
+## 2026-03-04 10:25:40 - US-008
+- Migrated oBase and oDataContainer to src/domain/
+- Migrated inthashmap and intkeymap to src/util/
+- Created domain_header.h and datadefiners.h for common domain definitions
+- Stubbed oEvent.h in src/domain/ to allow compilation
+- Updated oDataContainer.cpp to be Linux compatible using macros and standard functions
+- Wrapped GUI-dependent code in oDataContainer.cpp with #ifdef _WIN32
+- Verified that domain library compiles with dependency on util library only
+- **Learnings for future iterations:**
+  - The codebase uses long long for 64-bit integers in many places, which is more compatible with meos_util functions than int64_t.
+  - Circular dependencies between oBase and oDataContainer are handled via forward declarations in headers.
+  - Standard headers should be used instead of stdafx.h.
+  - NOTIME is defined as 0x7FFFFFFF in meos_util.h.
+---
+
+## US-008 (43m38s)

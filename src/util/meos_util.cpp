@@ -690,8 +690,74 @@ bool isAscii(const wstring &s) { return true; }
 bool isNumber(const wstring &s) { return true; }
 bool isAscii(const string &s) { return true; }
 bool isNumber(const string &s) { return true; }
-int convertDynamicBase(const wstring &s, long long &out) { return 0; }
-void convertDynamicBase(long long val, int base, wchar_t out[16]) {}
+int convertDynamicBase(const wstring &s, long long &out) {
+  out = 0;
+  if (s.empty())
+    return 0;
+
+  bool alpha = false;
+  bool general = false;
+  int len = s.length();
+  for (int k = 0; k < len; k++) {
+    unsigned c = s[k];
+    if (c >= '0' && c <= '9')
+      continue;
+    if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+      alpha = true;
+      continue;
+    }
+    general = true;
+    if (c<32)
+      return 0; // Not a supported character
+  }
+
+  int base = general ? 256-32 : (alpha ? 36 : 10);
+  long long factor = 1;
+  for (int k = len-1; k >= 0; k--) {
+    unsigned c = s[k]&0xFF;
+    if (general)
+      c -= 32;
+    else {
+      if (c >= '0' && c <= '9')
+        c -= '0';
+      else if (c >= 'A' && c <= 'Z')
+        c -= 'A'-10;
+      else if (c >= 'a' && c <= 'z')
+        c -= 'a'-10;
+    }
+    out += factor * c;
+    factor *= base;
+  }
+
+  return base;
+}
+
+void convertDynamicBase(long long val, int base, wchar_t out[16]) {
+  int len = 0;
+  if (val == 0) {
+    out[len++] = '0';
+  } else {
+    while (val != 0) {
+      unsigned int c = val % base;
+      val = val / base;
+      wchar_t cc;
+      if (base == 10)
+        cc = '0' + c;
+      else if (base == 36) {
+        if (c < 10)
+          cc = '0' + c;
+        else
+          cc = 'A' + c - 10;
+      }
+      else {
+        cc = c + 32;
+      }
+      out[len++] = cc;
+    }
+  }
+  out[len] = 0;
+  std::reverse(out, out+len);
+}
 bool expandDirectory(const wchar_t *dir, const wchar_t *pattern, vector<wstring> &res) { return false; }
 PersonSex interpretSex(const wstring &sex) { return sUnknown; }
 wstring encodeSex(PersonSex sex) { return L""; }

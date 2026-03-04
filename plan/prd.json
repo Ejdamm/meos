@@ -115,7 +115,7 @@
     {
       "id": "US-008",
       "title": "Migrate domain base classes to src/domain/",
-      "description": "As a developer, I want oBase and oDataContainer migrated as the foundation for all domain entities.",
+      "description": "Port oBase and oDataContainer to the new modular structure.",
       "acceptanceCriteria": [
         "oBase.h/cpp migrated to src/domain/",
         "oDataContainer.h/cpp migrated to src/domain/",
@@ -126,7 +126,7 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
