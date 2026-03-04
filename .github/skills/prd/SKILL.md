@@ -8,6 +8,17 @@ user-invocable: true
 
 Create detailed Product Requirements Documents that are clear, actionable, and suitable for implementation.
 
+## Iterative Migration Context
+
+PRDs created for MeOS are executed by Ralph (an autonomous agent loop) which runs the **entire migration from scratch** each time. This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos) — upstream changes may alter the legacy code between migration runs.
+
+**Implications for PRDs:**
+
+- **Acceptance criteria must be robust to upstream changes.** Describe the *desired end state*, not specific line numbers or exact code snippets that may shift.
+- **User stories should be self-contained and dynamically discoverable.** "Replace all `DWORD` in domain files" is robust. "Fix 50 DWORD usages in these 5 files" is fragile.
+- **Reference skill files for patterns** (e.g., "See `.gemini/skills/migration/Skill.md`") rather than inlining knowledge that may become stale.
+- **Each run is disposable.** The code produced is thrown away and regenerated. Only the learnings (documented in progress.txt and skill files) carry forward.
+
 ---
 
 ## The Job
@@ -87,6 +98,7 @@ Each story should be small enough to implement in one focused session.
 
 **Important:** 
 - Acceptance criteria must be verifiable, not vague. "Works correctly" is bad. "Button shows confirmation dialog before deleting" is good.
+- For migration PRDs: criteria must be robust to upstream code changes. "No `DWORD` in domain files" is good. "Replace DWORD on line 42" is bad — line numbers shift with upstream syncs.
 
 ### 4. Functional Requirements
 Numbered list of specific functionalities:

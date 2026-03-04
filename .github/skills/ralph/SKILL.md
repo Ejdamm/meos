@@ -8,6 +8,16 @@ user-invocable: true
 
 Converts existing PRDs to the prd.json format that Ralph uses for autonomous execution.
 
+## Iterative Migration Context
+
+Ralph runs the **entire migration from scratch** each time. After each full run, we analyze the results, update the PRD/skills/prompt, and run again. The generated code is disposable — only the learnings persist.
+
+This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos). Upstream changes may alter the legacy code between runs. Therefore:
+
+- **Acceptance criteria must be robust to upstream changes.** Describe *what* to achieve, not *where* in the code. "Replace all `DWORD` in domain files" is good. "Replace DWORD on line 42" is bad.
+- **Stories should dynamically discover code structure** (grep for patterns, enumerate files) rather than assuming exact file contents.
+- **Include "read progress.txt Codebase Patterns" as implicit context** — Ralph always does this, and patterns from previous runs help avoid repeated mistakes.
+
 ---
 
 ## The Job
@@ -81,20 +91,22 @@ Stories execute in priority order. Earlier stories must not depend on later ones
 
 ## Acceptance Criteria: Must Be Verifiable
 
-Each criterion must be something Ralph can CHECK, not something vague.
+Each criterion must be something Ralph can CHECK, not something vague. Criteria must also be **robust to upstream changes** — they should describe the desired end state, not reference specific lines, counts, or file contents that may shift.
 
-### Good criteria (verifiable):
+### Good criteria (verifiable and robust):
 - "Add `status` column to tasks table with default 'pending'"
 - "Filter dropdown has options: All, Active, Completed"
 - "Clicking delete shows confirmation dialog"
+- "No `DWORD` usage in domain `.cpp/.h` files"
 - "Typecheck passes"
 - "Tests pass"
 
-### Bad criteria (vague):
+### Bad criteria (vague or fragile):
 - "Works correctly"
 - "User can do X easily"
 - "Good UX"
 - "Handles edge cases"
+- "Replace DWORD on line 42 of oRunner.h" (fragile — line numbers change with upstream syncs)
 
 ### Always include as final criterion:
 ```

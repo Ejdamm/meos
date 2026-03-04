@@ -1,6 +1,14 @@
 #!/bin/bash
 # Ralph Wiggum - Long-running AI agent loop
 # Usage: ./ralph.sh [--tool claude|copilot|gemini] [max_iterations]
+#
+# ITERATIVE MIGRATION: This script runs the entire migration from scratch.
+# After each full run, we analyze results (progress.txt, metrics.csv),
+# improve the PRD/skills/prompt.md, and run again. The generated code is
+# disposable — only the learnings persist across iterations.
+#
+# Before running: sync with upstream (code/ is a fork of melinsoftware/meos)
+# and ensure plan/prd.json is regenerated from the PRD.
 
 set -e
 

@@ -1,25 +1,28 @@
 # Copilot Instructions for MeOS
 
-MeOS (Much Easier Orienteering System) is a Windows desktop application for managing orienteering competitions. It is built with C++17, Win32/GDI, and MSBuild.
+MeOS (Much Easier Orienteering System) is a Windows desktop application for managing orienteering competitions. A platform modernization is planned — see the PRD in `plan/prd-platform-modernization.md` for the target architecture.
 
-## Build
+## Project Overview
 
-MSBuild-only (Visual Studio 2022, MSVC v143). No CMake or Makefile.
+### Directory Structure
 
-```bash
-msbuild code/MeOS.sln /p:Configuration=Release /p:Platform=x64
-msbuild code/MeOS.sln /p:Configuration=Debug /p:Platform=x64
-```
+| Directory | Purpose |
+|-----------|---------|
+| `code/` | Legacy Windows-only codebase (MSBuild, Win32/GDI, MySQL). Has its own `AGENTS.md` with detailed architecture docs. |
+| `plan/` | PRD and planning artifacts for the modernization effort. |
 
-Platforms: Win32 (x86) and x64. Precompiled header: `StdAfx.h`.
+## Legacy Codebase (`code/`)
 
-## Architecture
+See `code/AGENTS.md` for full details. In summary:
 
-All source files live in `code/` (flat directory). Headers are included by bare filename (e.g., `#include "oBase.h"`).
+- ~190 source files in a flat directory
+- C++17, Win32/GDI UI, MySQL backend
+- MSBuild with Visual Studio 2022 (`MeOS.sln`)
+- Vendored dependencies (restbed, libharu, minizip, mysql, png)
 
-### Domain model
+### Domain Model
 
-`oEvent` is the aggregate root — it owns collections of all domain objects. Domain entity classes use the `o` prefix:
+`oEvent` is the aggregate root owning all domain objects:
 
 ```
 oBase (abstract base: ID, change tracking, data interface)
@@ -33,21 +36,6 @@ oBase (abstract base: ID, change tracking, data interface)
 ├── oFreePunch
 └── oPunch
 ```
-
-Key relationships: `oRunner`/`oTeam` → `oCard` (punch records), `oTeam` → `oRunner` (members), `oClass` → `oCourse`.
-
-### UI layer
-
-Tab-based GUI built on `gdioutput` (custom Win32/GDI wrapper). Each feature area is a `TabBase` subclass (`TabRunner`, `TabClass`, `TabCompetition`, etc.) — one tab per domain entity plus specialized tabs for results, speaker, automation.
-
-### Persistence & integration
-
-- **Database:** `MeosSQL` (ORM-like layer) → `mysqlwrapper` → MySQL
-- **REST API:** `RestService`/`RestServer` using the restbed library
-- **Hardware:** `SportIdent` for RF card reader protocol
-- **Results:** `GeneralResult` (strategy pattern for pluggable scoring algorithms), `metalist` for output formatting
-- **PDF:** libharu (`libharu/`)
-- **Localization:** `.lng` files (key-value format, Swedish primary)
 
 ## Conventions
 
@@ -66,14 +54,30 @@ Wide strings (`wstring`) are the primary string type (Swedish/internationalized 
 
 Custom exception `meosException` (with `wwhat()` for wide-string messages) and `meosCancel` for cancellation. Most functions prefer returning bool/error codes; exceptions are for critical failures.
 
-### Data container pattern
-
-`oDataContainer` provides metadata-driven field definitions (`oDataInfo`). Access via `oDataInterface` (mutable) / `oDataConstInterface` (read-only), which auto-track changes.
-
 ### Other patterns
 
 - `#pragma once` for header guards
 - Heavy use of forward declarations to minimize include dependencies
-- Smart pointers (`shared_ptr`, `unique_ptr`) for ownership; raw pointers for parent/back-references
+- Smart pointers for ownership; raw pointers for parent/back-references
 - No namespaces — flat namespace with `using std::` in `StdAfx.h`
-- Disabled warnings: 4267, 4244, 4018 (integer conversion/truncation)
+
+## Modernization
+
+The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite. No modern codebase (`src/`) exists yet — the migration has not started.
+
+### Iterative Migration Approach
+
+The migration is **run from scratch repeatedly** by Ralph (an autonomous agent loop in `plan/ralph.sh`). Each full attempt is analyzed, the PRD/skills/prompts are improved, and the migration is run again. The generated code is disposable — only the learnings persist across runs.
+
+**This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos).** We sync with upstream before each migration run. The legacy code in `code/` is therefore **not static** — do not make assumptions about exact file contents, line numbers, or function signatures. Always read and discover code structure dynamically.
+
+**Key files for the migration loop:**
+
+| File | Purpose |
+|------|---------|
+| `plan/prd-platform-modernization.md` | What to build (updated between runs) |
+| `plan/prd.json` | Machine-readable PRD for Ralph (regenerated from the PRD) |
+| `plan/prompt.md` | Instructions for each Ralph iteration (updated between runs) |
+| `plan/ralph.sh` | The agent loop runner (updated between runs) |
+| `plan/progress.txt` | Learnings from the current run (discarded between runs, patterns extracted first) |
+| `.gemini/skills/migration/Skill.md` | Accumulated migration knowledge (persists across runs) |

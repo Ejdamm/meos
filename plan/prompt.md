@@ -2,6 +2,17 @@
 
 You are an autonomous coding agent working on a software project.
 
+## Migration Philosophy
+
+This migration is **iterative and disposable**. The entire migration will be run from scratch many times. After each full attempt, we analyze results to improve the PRD, skills, prompt.md, and ralph.sh — then run it again. Your output from this run **will be discarded**, but your **learnings will persist** across iterations via progress.txt, AGENTS.md, and skill files.
+
+**This means:**
+
+- **Document everything you learn.** Every gotcha, pattern, and insight you discover is more valuable than the code you write — because the code will be regenerated, but the learnings will make the next run better.
+- **Never hardcode assumptions about legacy code.** This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos). Upstream may push changes at any time, and we will re-sync before re-running the migration. Your implementation must work by **reading and understanding the legacy code dynamically**, not by assuming specific line numbers, exact function signatures, or fixed file contents.
+- **Prefer robust over clever.** Code that adapts to the shape of the legacy codebase (e.g., by parsing headers, enumerating members, following naming conventions) is better than code that only works for today's snapshot.
+- **Flag fragile assumptions.** If you must make an assumption about legacy code structure, document it clearly in your progress report so it can be validated or automated away in future iterations.
+
 ## Your Task
 
 1. Read the PRD at `prd.json` (in the same directory as this file)
@@ -30,7 +41,7 @@ APPEND to progress.txt (never replace, always append):
 ---
 ```
 
-The learnings section is critical - it helps future iterations avoid repeating mistakes and understand the codebase better.
+The learnings section is **the most valuable part of your output**. Remember: the code you write will be thrown away and regenerated — but these learnings feed back into improving the PRD, skills, and prompts for the next migration run. Be specific, actionable, and thorough.
 
 ## Consolidate Patterns
 
@@ -88,9 +99,23 @@ If ALL stories are complete and passing, reply with:
 
 If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
 
+## Update Gemini Migration Skill
+
+After each completed story, update `.gemini/skills/migration.md` with any new migration knowledge:
+
+1. **New patterns or gotchas** discovered during migration (add to relevant section)
+2. **Useful one-liners or scripts** you used or created (add to "Useful One-Liners & Scripts")
+3. **Migration status changes** — move items between "Migrated" and "Not Yet Migrated" sections
+4. **New Win32 → standard C++ replacements** (add to the replacement table)
+5. **Script results** — if a diagnostic script revealed useful info, include the output summary
+
+Keep the skill concise and actionable. This file is consumed by Gemini as a skill to assist with future migration work.
+
 ## Important
 
 - Work on ONE story per iteration
 - Commit frequently
 - Keep CI green
 - Read the Codebase Patterns section in progress.txt before starting
+- Update `.gemini/skills/migration.md` with migration learnings after each story
+- **Never assume legacy code is static** — always read and parse it dynamically, as upstream changes may alter structure, signatures, or file contents between migration runs
