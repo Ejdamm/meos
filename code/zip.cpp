@@ -228,23 +228,19 @@ void unzip(const wchar_t *wzipfilename, const char *password, vector<wstring> &e
   if (uf==NULL)
     throw std::exception("Cannot open zip file");
 
-  wstring base = getTempPath();
-  wchar_t end = base[base.length()-1];
-  if (end != '\\' && end != '/')
-    base += L"\\";
-
+  path base = getTempPath();
   int id = rand();
-  wstring target;
+  path target;
   do {
-    target = base + L"zip" + itow(id) + L"\\";
+    target = base / (L"zip" + itow(id));
     id++;
   }
-  while ( _waccess( target.c_str(), 0 ) == 0 );
+  while ( _waccess( target.wstring().c_str(), 0 ) == 0 );
 
   if (CreateDirectory(target.c_str(), NULL) == 0)
     throw std::exception("Failed to create temporary folder");
 
-  registerTempFile(target);
+  registerTempFile(target.wstring());
   do_extract(uf, target.c_str(), password, extractedFiles);
 
   unzClose(uf);

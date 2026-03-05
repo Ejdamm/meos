@@ -742,15 +742,7 @@ void oEvent::duplicate(const wstring &annotationIn, bool keepTags) {
 
   getUserFile(file, filename);
 
-  _wsplitpath_s(filename, NULL, 0, NULL,0, nameid, 64, NULL, 0);
-  int i=0;
-  while (nameid[i]) {
-    if (nameid[i]=='.') {
-      nameid[i]=0;
-      break;
-    }
-    i++;
-  }
+  wcscpy_s(nameid, path(filename).stem().c_str());
 
   wchar_t oldFile[260];
   wstring oldId;
@@ -1139,15 +1131,7 @@ namespace {
     getUserFile(file, filename);
 
     wchar_t CurrentNameId[64];
-    _wsplitpath_s(file, NULL, 0, NULL, 0, CurrentNameId, 64, NULL, 0);
-    int i = 0;
-    while (CurrentNameId[i]) {
-      if (CurrentNameId[i] == '.') {
-        CurrentNameId[i] = 0;
-        break;
-      }
-      i++;
-    }
+    wcscpy_s(CurrentNameId, path(file).stem().c_str());
 
     fn = file;
     nameId = CurrentNameId;
@@ -1197,15 +1181,7 @@ bool oEvent::open(const wstring &file, bool doImport, bool forMerge, bool forceN
     wcscpy_s(CurrentFile, MAX_PATH, file.c_str()); //Keep new file name, if imported
 
     wchar_t CurrentNameId[64];
-    _wsplitpath_s(CurrentFile, NULL, 0, NULL,0, CurrentNameId, 64, NULL, 0);
-    int i=0;
-    while (CurrentNameId[i]) {
-      if (CurrentNameId[i]=='.') {
-        CurrentNameId[i]=0;
-        break;
-      }
-      i++;
-    }
+    wcscpy_s(CurrentNameId, path(CurrentFile).stem().c_str());
     currentNameId = CurrentNameId;
   }
   bool res = open(xml, file);
@@ -3826,21 +3802,12 @@ void oEvent::clearListedCmp()
 
 bool oEvent::enumerateCompetitions(const wchar_t *file, const wchar_t *filetype)
 {
+  path p(file);
   WIN32_FIND_DATA fd;
 
-  wchar_t dir[MAX_PATH];
-  wchar_t FullPath[MAX_PATH];
+  wstring searchPattern = (p / filetype).wstring();
 
-  wcscpy_s(dir, MAX_PATH, file);
-
-  if (dir[wcslen(file)-1]!='\\')
-    wcscat_s(dir, MAX_PATH, L"\\");
-
-  wcscpy_s(FullPath, MAX_PATH, dir);
-
-  wcscat_s(dir, MAX_PATH, filetype);
-
-  HANDLE h=FindFirstFile(dir, &fd);
+  HANDLE h=FindFirstFile(searchPattern.c_str(), &fd);
 
   if (h==INVALID_HANDLE_VALUE)
     return false;
@@ -3852,13 +3819,9 @@ bool oEvent::enumerateCompetitions(const wchar_t *file, const wchar_t *filetype)
   while (more) {
     if (fd.cFileName[0]!='.') //Avoid .. and .
     {
-      wchar_t FullPathFile[MAX_PATH];
-      wcscpy_s(FullPathFile, MAX_PATH, FullPath);
-      wcscat_s(FullPathFile, MAX_PATH, fd.cFileName);
-
       CompetitionInfo ci;
 
-      ci.FullPath=FullPathFile;
+      ci.FullPath = (p / fd.cFileName).wstring();
       ci.Name=L"";
       ci.Date=L"2007-01-01";
       ci.Id=id++;
@@ -3869,7 +3832,7 @@ bool oEvent::enumerateCompetitions(const wchar_t *file, const wchar_t *filetype)
       xmlparser xp;
 
       try {
-        xp.read(FullPathFile, 30);
+        xp.read(ci.FullPath.c_str(), 30);
 
         const xmlobject date=xp.getObject("Date");
 
@@ -3974,18 +3937,13 @@ void oEvent::deleteBackups(const BackupInfo &bu) {
       toRemove.push_back(it->FullPath);
   }
   if (!toRemove.empty()) {
-    wchar_t path[260];
-    wchar_t drive[48];
-    wchar_t filename[260];
-    wchar_t ext[64];
-    //_splitpath_s(toRemove.back().c_str(), drive, ds, path, dirs, filename, fns, ext, exts);
-    _wsplitpath_s(toRemove.back().c_str(), drive, path, filename, ext);
-
-    wstring dest = wstring(drive) + path;
-    toRemove.push_back(dest + bu.fileName + L".persons");
-    toRemove.push_back(dest + bu.fileName + L".clubs");
-    toRemove.push_back(dest + bu.fileName + L".wclubs");
-    toRemove.push_back(dest + bu.fileName + L".wpersons");
+    path p(toRemove.back());
+    path parent = p.parent_path();
+    
+    toRemove.push_back((parent / (bu.fileName + L".persons")).wstring());
+    toRemove.push_back((parent / (bu.fileName + L".clubs")).wstring());
+    toRemove.push_back((parent / (bu.fileName + L".wclubs")).wstring());
+    toRemove.push_back((parent / (bu.fileName + L".wpersons")).wstring());
 
     for (list<wstring>::iterator it = toRemove.begin(); it != toRemove.end(); ++it) {
       DeleteFile(it->c_str());
@@ -4056,18 +4014,11 @@ bool BackupInfo::operator<(const BackupInfo &ci)
 
 bool oEvent::enumerateBackups(const wstring &file, const wstring &filetype, int type)
 {
+  path p(file);
   WIN32_FIND_DATA fd;
-  wchar_t dir[MAX_PATH];
-  wchar_t FullPath[MAX_PATH];
+  wstring searchPattern = (p / filetype).wstring();
 
-  wcscpy_s(dir, MAX_PATH, file.c_str());
-
-  if (dir[file.length()-1]!='\\')//WCS
-    wcscat_s(dir, MAX_PATH, L"\\");
-
-  wcscpy_s(FullPath, MAX_PATH, dir);
-  wcscat_s(dir, MAX_PATH, filetype.c_str());
-  HANDLE h=FindFirstFile(dir, &fd);
+  HANDLE h=FindFirstFile(searchPattern.c_str(), &fd);
 
   if (h==INVALID_HANDLE_VALUE)
     return false;
@@ -4075,14 +4026,10 @@ bool oEvent::enumerateBackups(const wstring &file, const wstring &filetype, int 
   bool more=true;
   while (more) {
     if (fd.cFileName[0]!='.') {//Avoid .. and .
-      wchar_t FullPathFile[MAX_PATH];
-      wcscpy_s(FullPathFile, MAX_PATH, FullPath);
-      wcscat_s(FullPathFile, MAX_PATH, fd.cFileName);
-
       BackupInfo ci;
 
       ci.type = type;
-      ci.FullPath=FullPathFile;
+      ci.FullPath = (p / fd.cFileName).wstring();
       ci.Name=L"";
       ci.Date=L"2007-01-01";
       ci.fileName = fd.cFileName;
@@ -4100,7 +4047,7 @@ bool oEvent::enumerateBackups(const wstring &file, const wstring &filetype, int 
       xmlparser xp;
 
       try {
-        xp.read(FullPathFile, 5);
+        xp.read(ci.FullPath.c_str(), 5);
         //xmlobject *xo=xp.getObject("meosdata");
         const xmlobject date=xp.getObject("Date");
 
@@ -7344,7 +7291,7 @@ const CardSystem& oEvent::getCardSystem() const {
 
 #ifdef _DEBUG
     if (!fileExists(path))
-      path = L".\\..\\Lists\\sportident.cardsystem";
+      path = L"./../Lists/sportident.cardsystem";
 #endif
     cardSystem->load(path);
   }

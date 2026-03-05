@@ -69,13 +69,12 @@ void oClub::loadNameMap() {
   wstring path = ccpath;
 
   if (!fileExists(path) && exePath[0]) {
-    path = exePath;
-    path += L"\\clubnamemap.csv";
+    path = (std::filesystem::path(exePath) / L"clubnamemap.csv").wstring();
   }
 
 #ifdef _DEBUG
   if (!fileExists(path))
-    path = L".\\..\\Lists\\clubnamemap.csv";
+    path = L"./../Lists/clubnamemap.csv";
 #endif
 
   bool good = false;
@@ -925,15 +924,13 @@ void oEvent::printInvoices(gdioutput &gdi, InvoicePrintType type,
 
   bool toFile = type > 10;
 
-  wstring path = basePath;
-  if (basePath.size() > 0 && *basePath.rbegin() != '\\' && *basePath.rbegin() != '/')
-    path.push_back('\\');
+  std::filesystem::path p(basePath);
 
   if (toFile) {
     std::ofstream fout;
 
     if (type == IPTElectronincHTML)
-      fout.open((path + L"invoices.txt").c_str());
+      fout.open((p / L"invoices.txt").wstring().c_str());
 
 
     for (it=Clubs.begin(); it != Clubs.end(); ++it) {
@@ -947,6 +944,7 @@ void oEvent::printInvoices(gdioutput &gdi, InvoicePrintType type,
           filename = lang.tl(L"Faktura ") + makeValidFileName(it->getDisplayName(), false) + L" (" + itow(nr) + L").pdf";
         else
           filename = lang.tl(L"Faktura ") + makeValidFileName(it->getDisplayName(), false) + L" (" + itow(nr) + L").html";
+        wstring fullFileName = (p / filename).wstring();
         wstring email = it->getDCI().getString("EMail");
         bool hasEmail = !(email.empty() || email.find_first_of('@') == email.npos);
 
@@ -965,10 +963,10 @@ void oEvent::printInvoices(gdioutput &gdi, InvoicePrintType type,
 
         if (type == IPTAllPDF) {
           pdfwriter pdf;
-          pdf.generatePDF(gdi, path + filename, lang.tl("Faktura"), L"", gdi.getTL(), true);
+          pdf.generatePDF(gdi, fullFileName, lang.tl("Faktura"), L"", gdi.getTL(), true);
         }
         else
-          HTMLWriter::writeHTML(gdi, path + filename, lang.tl(L"Faktura"), 0, 1.0);
+          HTMLWriter::writeHTML(gdi, fullFileName, lang.tl(L"Faktura"), 0, 1.0);
 
         clubId.insert(it->getId());
         fees.push_back(pay);

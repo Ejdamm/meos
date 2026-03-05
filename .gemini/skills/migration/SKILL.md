@@ -135,9 +135,15 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 **Win32 types in domain code:**
 - All occurrences of `DWORD`, `BOOL`, `WORD`, `BYTE`, `LPWSTR`, `LPCWSTR` have been replaced with standard C++ types (`uint32_t`, `bool`, `uint16_t`, `uint8_t`, `wchar_t*`, `const wchar_t*`) in domain files (`o*.cpp/h`, `generalresult.*`, `metalist.*`, `datadefiners.h`, `xmlparser.*`, `meos_util.*`, `onlineinput.h`, `MeosSQL.*`).
 - `#include <cstdint>` added to headers using these types.
-- MSVC still supports these replacements via `StdAfx.h` or direct inclusion.
 
-**Path separators:** ~47 hardcoded backslash (`\\`) in file path strings (meos.cpp, zip.cpp, oClub.cpp, oEvent.cpp).
+**Path separators:**
+- ~47 hardcoded backslash (`\\`) in file path strings (meos.cpp, zip.cpp, oClub.cpp, oEvent.cpp, oEventSpeaker.cpp) have been normalized.
+- **Use `std::filesystem::path` (aliased as `path` in `StdAfx.h`)** for all path manipulations and construction.
+- Replace `path += L"\\file.ext"` with `path = (path(path) / L"file.ext").wstring()`.
+- Replace Win32-specific path splitting functions (`_wsplitpath_s`, `_splitpath_s`) with standard `std::filesystem::path` methods: `p.stem().wstring()`, `p.extension().wstring()`, `p.filename().wstring()`, `p.parent_path().wstring()`.
+- Replace `GetFileAttributes` with `std::filesystem::exists`.
+- Use forward slashes (`/`) in hardcoded path string literals: `L"./../Lists/"`.
+- Check for both separators: `if (c == '/' || c == '\\')`.
 
 **oEvent → Tab* direct coupling (3 calls to remove before migration):**
 

@@ -26,6 +26,7 @@
 
 #include <string>
 #include <fstream>
+#include <filesystem>
 #include <list>
 #include <vector>
 #include <map>
@@ -54,6 +55,7 @@ using std::multimap;
 using std::unique_ptr;
 using std::deque;
 using std::tuple;
+using std::filesystem::path;
 
 bool getUserFile(wchar_t *fileNamePath, const wchar_t *fileName);
 bool getDesktopFile(wchar_t *fileNamePath, const wchar_t *fileName, const wchar_t *subFolder = 0);

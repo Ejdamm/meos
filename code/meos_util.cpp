@@ -1072,7 +1072,7 @@ wstring trim(const wstring &s) {
 
 bool fileExists(const wstring &file)
 {
-  return GetFileAttributes(file.c_str()) != INVALID_FILE_ATTRIBUTES;
+  return std::filesystem::exists(file);
 }
 
 bool stringMatch(const wstring &a, const wstring &b) {
@@ -1901,25 +1901,15 @@ void convertDynamicBase(long long val, int base, wchar_t out[16]) {
 
 bool expandDirectory(const wchar_t *file, const wchar_t *filetype, vector<wstring> &res)
 {
-  WIN32_FIND_DATA fd;
-
-  wchar_t dir[MAX_PATH];
-  wchar_t fullPath[MAX_PATH];
-
-  if (file[0] == '.') {
-    GetCurrentDirectory(MAX_PATH, dir);
-    wcscat(dir, file+1);
+  path p(file);
+  if (p.is_relative() && !p.empty() && p.native()[0] == '.') {
+    p = std::filesystem::absolute(p);
   }
-  else
-    wcscpy(dir, file);
 
-  if (dir[wcslen(dir)-1]!='\\')
-    wcscat(dir, L"\\");
+  WIN32_FIND_DATA fd;
+  wstring searchPattern = (p / filetype).wstring();
 
-  wcscpy(fullPath, dir);
-  wcscat(dir, filetype);
-
-  HANDLE h=FindFirstFile(dir, &fd);
+  HANDLE h=FindFirstFile(searchPattern.c_str(), &fd);
 
   if (h == INVALID_HANDLE_VALUE)
     return false;
@@ -1929,10 +1919,7 @@ bool expandDirectory(const wchar_t *file, const wchar_t *filetype, vector<wstrin
   while (more) {
     if (fd.cFileName[0] != '.') {
       //Avoid .. and .
-      wchar_t fullPathFile[MAX_PATH];
-      wcscpy(fullPathFile, fullPath);
-      wcscat(fullPathFile, fd.cFileName);
-      res.push_back(fullPathFile);
+      res.push_back((p / fd.cFileName).wstring());
     }
     more=FindNextFile(h, &fd)!=0;
   }

@@ -67,3 +67,16 @@
 ## US-P0d (17m39s)
 
 ## US-P0e (40m30s)
+## 2026-03-05 14:12:13 - US-P0e
+- Replaced Win32-specific path splitting functions (_wsplitpath_s) with std::filesystem::path in image.cpp, meos.cpp, oEvent.cpp, and HTMLWriter.cpp.
+- Replaced GetFileAttributes with std::filesystem::exists in meos_util.cpp.
+- Fixed remaining hardcoded backslash in TabList.cpp.
+- Updated code/AGENTS.md with new path normalization guidelines.
+- **Learnings for future iterations:**
+  - std::filesystem::path::stem() is a direct replacement for _wsplitpath_s(..., nameid, ...) when combined with manual dot removal loops.
+  - _wsplitpath_s is often used just to get the filename or parent directory; std::filesystem::path::filename() and parent_path() are cleaner.
+  - When replacing _wsplitpath_s's 'dir' component with parent_path(), be aware that parent_path() might not include a trailing slash, which some legacy concatenation logic might expect.
+  - StdAfx.h 'using std::filesystem::path' alias makes path usage very concise.
+---
+
+## US-P0e (24m22s)

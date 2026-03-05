@@ -2274,7 +2274,7 @@ void TabList::handleHTMLSettings(gdioutput &gdi, BaseInfo &info, GuiEventType ty
           bf[0] = 0;
           GetCurrentDirectory(260, bf);
           lastHtmlTarget = bf;
-          lastHtmlTarget += L"\\exported.html";
+          lastHtmlTarget += L"/exported.html";
         }
         dest_gdi.sendCtrlMessage("Automatic");
       }

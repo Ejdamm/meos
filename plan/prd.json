@@ -71,7 +71,7 @@
       ],
       "priority": 5,
       "passes": true,
-      "notes": "Normalized 47+ hardcoded backslashes in path literals and construction across domain files (o*.cpp, meos_util.cpp, meos.cpp, zip.cpp, HTMLWriter.cpp, etc.) using std::filesystem::path and forward slashes. Added path alias to StdAfx.h."
+      "notes": "Normalized hardcoded backslashes in path literals and construction across domain files. Replaced Win32-specific _wsplitpath_s and GetFileAttributes with std::filesystem::path and std::filesystem::exists in oEvent.cpp, meos.cpp, image.cpp, HTMLWriter.cpp, and meos_util.cpp. Fixed hardcoded backslash in TabList.cpp."
     },
     {
       "id": "US-P0f",

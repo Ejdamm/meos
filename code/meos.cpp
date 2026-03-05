@@ -216,17 +216,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   GetCurrentDirectory(MAX_PATH, programPath);
 
   GetModuleFileName(NULL, exePath, MAX_PATH);
-  int lastDiv = -1;
-  for (int i = 0; i < MAX_PATH; i++) {
-    if (exePath[i] == 0)
-      break;
-    if (exePath[i] == '\\' || exePath[i] == '/')
-      lastDiv = i;
-  }
-  if (lastDiv != -1)
-    exePath[lastDiv] = 0;
-  else
-    exePath[0] = 0;
+  path exe_p(exePath);
+  wcscpy_s(exePath, MAX_PATH, exe_p.parent_path().c_str());
 
   oClub::loadNameMap();
 
@@ -320,8 +311,8 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   try {
     vector<wstring> res;
 #ifdef _DEBUG
-    expandDirectory(L".\\..\\Lists\\", L"*.lxml", res);
-    expandDirectory(L".\\..\\Lists\\", L"*.listdef", res);
+    expandDirectory(L"./../Lists/", L"*.lxml", res);
+    expandDirectory(L"./../Lists/", L"*.listdef", res);
 #endif
     
     if (exePath[0]) {
@@ -342,17 +333,15 @@ int APIENTRY WinMain(HINSTANCE hInstance,
     for (size_t k = 0; k<res.size(); k++) {
       try {
 
-        wchar_t filename[128];
-        wchar_t ext[32];
-        _wsplitpath_s(res[k].c_str(), NULL, 0, NULL, 0, filename, 128, ext, 32);
-        wstring fullFile = wstring(filename) + ext;
-        if (processed.count(fullFile))
-          continue;
-        processed.insert(fullFile);
-        xmlparser xml;
+    path p(res[k]);
+    wstring fullFile = p.filename().wstring();
+    if (processed.count(fullFile))
+      continue;
+    processed.insert(fullFile);
+    xmlparser xml;
 
-        wcscpy_s(listpath, res[k].c_str());
-        xml.read(listpath);
+    wcscpy_s(listpath, res[k].c_str());
+    xml.read(listpath);
 
         xmlobject xlist = xml.getObject(0);
         gEvent->getListContainer().load(MetaListContainer::InternalList, xlist, true);
@@ -1788,10 +1777,8 @@ void Setup(bool overwrite, bool overwriteAll)
   wchar_t bf[260];
   for(size_t k=0; k<toInstall.size(); k++) {
     const wstring src = toInstall[k].first;
-    wchar_t filename[128];
-    wchar_t ext[32];
-    _wsplitpath_s(src.c_str(), NULL, 0, NULL,0, filename, 128, ext, 32);
-    wstring fullFile = wstring(filename) + ext;
+    path p(src);
+    wstring fullFile = p.filename().wstring();
     
     getUserFile(bf, fullFile.c_str());
     bool canOverwrite = overwrite && toInstall[k].second;
@@ -1809,36 +1796,19 @@ void exportSetup()
 }
 
 wstring getMeOSFile(const wchar_t *fileName) {
-  wstring out = programPath;
-  int i = out.length();
-
-  if (i > 0 && out[i - 1] != '\\')
-    out.push_back('\\');
-
-  out += fileName;
-  return out;
+  return (path(programPath) / fileName).wstring();
 }
 
 bool getUserFile(wchar_t* FileNamePath, const wchar_t* FileName) {
   wchar_t Path[MAX_PATH];
-  wchar_t AppPath[MAX_PATH];
 
   if (SHGetSpecialFolderPath(hWndMain, Path, CSIDL_APPDATA, 1) != NOERROR) {
-    int i = wcslen(Path);
-    if (Path[i - 1] != '\\')
-      wcscat_s(Path, MAX_PATH, L"\\");
-
-    wcscpy_s(AppPath, MAX_PATH, Path);
-    wcscat_s(AppPath, MAX_PATH, L"Meos\\");
-
-    CreateDirectory(AppPath, NULL);
+    path appPath = path(Path) / L"Meos";
+    CreateDirectory(appPath.c_str(), NULL);
 
     Setup(false, false);
 
-    wcscpy_s(FileNamePath, MAX_PATH, AppPath);
-    wcscat_s(FileNamePath, MAX_PATH, FileName);
-
-    //return true;
+    wcscpy_s(FileNamePath, MAX_PATH, (appPath / FileName).c_str());
   }
   else wcscpy_s(FileNamePath, MAX_PATH, FileName);
 
@@ -1849,26 +1819,17 @@ bool getUserFile(wchar_t* FileNamePath, const wchar_t* FileName) {
 bool getDesktopFile(wchar_t *fileNamePath, const wchar_t *fileName, const wchar_t *subFolder)
 {
   wchar_t Path[MAX_PATH];
-  wchar_t AppPath[MAX_PATH];
 
   if (SHGetSpecialFolderPath(hWndMain, Path, CSIDL_DESKTOPDIRECTORY, 1)!=NOERROR) {
-    int i=wcslen(Path);
-    if (Path[i-1]!='\\')
-      wcscat_s(Path, MAX_PATH, L"\\");
-
-    wcscpy_s(AppPath, MAX_PATH, Path);
-    wcscat_s(AppPath, MAX_PATH, L"Meos\\");
-
-    CreateDirectory(AppPath, NULL);
+    path appPath = path(Path) / L"Meos";
+    CreateDirectory(appPath.c_str(), NULL);
 
     if (subFolder) {
-      wcscat_s(AppPath, MAX_PATH, subFolder);
-      wcscat_s(AppPath, MAX_PATH, L"\\");
-      CreateDirectory(AppPath, NULL);
+      appPath /= subFolder;
+      CreateDirectory(appPath.c_str(), NULL);
     }
 
-    wcscpy_s(fileNamePath, MAX_PATH, AppPath);
-    wcscat_s(fileNamePath, MAX_PATH, fileName);
+    wcscpy_s(fileNamePath, MAX_PATH, (appPath / fileName).c_str());
   }
   else wcscpy_s(fileNamePath, MAX_PATH, fileName);
 

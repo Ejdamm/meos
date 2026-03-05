@@ -580,14 +580,12 @@ void HTMLWriter::writeHTML(gdioutput &gdi, const wstring &file,
   if (fout.bad())
     throw std::exception("Bad output stream");
   
-  wchar_t drive[20];
-  wchar_t dir[MAX_PATH];
-  wchar_t name[MAX_PATH];
-  wchar_t ext[MAX_PATH];
-  _wsplitpath_s(file.c_str(), drive, dir, name, ext);
-  wstring path = wstring(drive) + dir;
+  path p(file);
+  wstring pathStr = p.parent_path().wstring();
+  if (!pathStr.empty())
+    pathStr += L"/";
   
-  writeHTML(gdi, fout, title, true, path, refreshTimeOut, scale);
+  writeHTML(gdi, fout, title, true, pathStr, refreshTimeOut, scale);
 }
 
 void HTMLWriter::writeHTML(gdioutput& gdi, ostream& fout,
@@ -646,14 +644,12 @@ void HTMLWriter::writeTableHTML(gdioutput &gdi,
   if (fout.bad())
     return throw std::exception("Bad output stream");
 
-  wchar_t drive[20];
-  wchar_t dir[MAX_PATH];
-  wchar_t name[MAX_PATH];
-  wchar_t ext[MAX_PATH];
-  _wsplitpath_s(file.c_str(), drive, dir, name, ext);
-  wstring path = wstring(drive) + dir;
+  path p(file);
+  wstring pathStr = p.parent_path().wstring();
+  if (!pathStr.empty())
+    pathStr += L"/";
 
-  writeTableHTML(gdi, fout, title, true, path, false, refreshTimeOut, scale);
+  writeTableHTML(gdi, fout, title, true, pathStr, false, refreshTimeOut, scale);
 }
 
 void HTMLWriter::writeTableHTML(gdioutput& gdi,
@@ -773,8 +769,9 @@ void HTMLWriter::enumTemplates(TemplateType type, vector<TemplateInfo> &descript
   int userCounter = res.size();
 
 #ifdef _DEBUG
-  expandDirectory((wstring(programPath) + L".\\..\\Lists\\").c_str(), L"*.meostmpl", res);
-  expandDirectory((wstring(programPath) + L".\\..\\Lists\\").c_str(), L"*.template", res);
+  expandDirectory((path(programPath) / L"../Lists/").wstring().c_str(), L"*.meostmpl", res);
+  expandDirectory((path(programPath) / L"../Lists/").wstring().c_str(), L"*.template", res);
+
 #endif
 
   if (exePath[0]) {
@@ -1225,14 +1222,12 @@ void HTMLWriter::write(gdioutput &gdi, const wstring &file, const wstring &title
   checkWriteAccess(file);
   ofstream fout(file.c_str());
 
-  wchar_t drive[20];
-  wchar_t dir[MAX_PATH];
-  wchar_t name[MAX_PATH];
-  wchar_t ext[MAX_PATH];
-  _wsplitpath_s(file.c_str(), drive, dir, name, ext);
-  wstring path = wstring(drive) + dir;
+  path p(file);
+  wstring pathStr = p.parent_path().wstring();
+  if (!pathStr.empty())
+    pathStr += L"/";
 
-  write(gdi, fout, title, true, path, contentsDescription, respectPageBreak, typeTag, refresh,
+  write(gdi, fout, title, true, pathStr, contentsDescription, respectPageBreak, typeTag, refresh,
         rows, cols, time_ms, margin, scale);
 }
 

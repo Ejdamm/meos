@@ -619,11 +619,11 @@ InfoCompetition &OnlineResults::getInfoServer() const {
 wstring OnlineResults::getExportFileName() const {
   wchar_t bf[260];
   if (prefix.empty())
-    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s\\exp_%04d.xml", file.c_str(), exportCounter + sessionNumberOffset);
+    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"exp_%04d.xml", exportCounter + sessionNumberOffset);
   else
-    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s\\%s%04d.xml", file.c_str(), prefix.c_str(), exportCounter + sessionNumberOffset);
+    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s%04d.xml", prefix.c_str(), exportCounter + sessionNumberOffset);
 
-  return bf;
+  return (path(file) / bf).wstring();
 }
 
 pair<wstring, bool> OnlineResults::getCompetitionName(const oEvent& oe) const {

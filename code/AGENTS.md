@@ -91,6 +91,20 @@ Wide strings (`wstring`) are the primary string type (Swedish/internationalized 
 
 Legacy string functions have been replaced in all domain files to ensure cross-platform compatibility.
 
+### Path Normalization
+
+**Always use cross-platform path construction and standard C++ filesystem APIs instead of hardcoded backslashes and Win32-specific functions:**
+
+- Use `std::filesystem::path` (aliased as `path` in `StdAfx.h`) for all path manipulations.
+- Use `operator/` for joining paths: `path p = path(baseDir) / fileName;`.
+- Replace Win32-specific path functions like `_wsplitpath_s` or `_splitpath_s` with standard `std::filesystem::path` methods: `p.stem().wstring()`, `p.extension().wstring()`, `p.filename().wstring()`, `p.parent_path().wstring()`.
+- Use `std::filesystem::exists(path)` instead of `GetFileAttributes(path)` or `fileExists` wrappers that call it.
+- Convert back to `wstring` or `string` as needed: `p.wstring()`, `p.string()`, or `p.c_str()` (which returns `const wchar_t*` on Windows).
+- For hardcoded path literals in strings, prefer forward slashes: `L"./../Lists/"` instead of `L".\\..\\Lists\\"`. Forward slashes are portable and work on both Windows and Linux.
+- When checking for path separators, check for both: `if (c == '/' || c == '\\')`.
+
+Legacy path joining, splitting, and backslash literals have been normalized in domain files to ensure they work on case-sensitive, forward-slash-preferring filesystems like Linux.
+
 ### Error handling
 
 Custom exception `meosException` (with `wwhat()` for wide-string messages) and `meosCancel` for cancellation. Most functions prefer returning bool/error codes; exceptions are for critical failures.
