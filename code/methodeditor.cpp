@@ -139,7 +139,7 @@ void MethodEditor::show(gdioutput &gdi) {
     oe->getListContainer().getListsByResultModule(tag, listIx);
     
     string udtag = DynamicResult::undecorateTag(tag);
-    gdi.addInput("Tag", gdi.widen(udtag), 20, methodCB, L"Result module identifier:");
+    gdi.addInput("Tag", widen(udtag), 20, methodCB, L"Result module identifier:");
     if (!listIx.empty()) {
       gdi.disableInput("Tag");
       gdi.getBaseInfo("Tag").setExtra(1);
@@ -250,20 +250,20 @@ int MethodEditor::methodCb(gdioutput &gdi, GuiEventType type, BaseInfo &data) {
       dr.declareSymbols(DynamicResult::MRScore, true);
       vector< pair<wstring, size_t> > symbs;
       dr.getSymbols(symbs);
-      fout << "#head{" << gdi.toUTF8(lang.tl("Deltagare")) << "}\n#table{2}" << endl;
+      fout << "#head{" << toUTF8(lang.tl("Deltagare")) << "}\n#table{2}" << endl;
       for (size_t k = 0; k < symbs.size(); k++) {
         wstring name, desc;
         dr.getSymbolInfo(symbs[k].second, name, desc);
-        fout << "{#mono{" << gdi.toUTF8(name) << "}}{" << gdi.toUTF8(lang.tl(desc)) << "}" << endl;
+        fout << "{#mono{" << toUTF8(name) << "}}{" << toUTF8(lang.tl(desc)) << "}" << endl;
       }
 
       dr.declareSymbols(DynamicResult::MTScore, true);
       dr.getSymbols(symbs);
-      fout << "#head{" << gdi.toUTF8(lang.tl("Lag")) << "}\n#table{2}" << endl;
+      fout << "#head{" << toUTF8(lang.tl("Lag")) << "}\n#table{2}" << endl;
       for (size_t k = 0; k < symbs.size(); k++) {
         wstring name, desc;
         dr.getSymbolInfo(symbs[k].second, name, desc);
-        fout << "{#mono{" << gdi.toUTF8(name) << "}}{" << gdi.toUTF8(lang.tl(desc)) << "}" << endl;
+        fout << "{#mono{" << toUTF8(name) << "}}{" << toUTF8(lang.tl(desc)) << "}" << endl;
       }
     }
     else if (bi.id == "NewRules") {
@@ -419,7 +419,7 @@ int MethodEditor::methodCb(gdioutput &gdi, GuiEventType type, BaseInfo &data) {
         string utag = DynamicResult::undecorateTag(tag);
         vector<int> listIx;
         oe->getListContainer().getListsByResultModule(tag, listIx);
-        wstring n = tagNameList[k].second.second + L" (" + gdi.widen(utag) + L")";
+        wstring n = tagNameList[k].second.second + L" (" + widen(utag) + L")";
         
         if (listIx.size() > 0) {
           n += L" *";
@@ -505,9 +505,9 @@ int MethodEditor::methodCb(gdioutput &gdi, GuiEventType type, BaseInfo &data) {
     }
     else if (bi.id == "SaveSource") {
       DynamicResult::DynamicMethods dm = DynamicResult::DynamicMethods(bi.getExtraInt());
-      string src = gdi.narrow(gdi.getText("Source"));
+      string src = narrow(gdi.getText("Source"));
       currentResult->setMethodSource(dm, src);
-      gdi.setText("Source", gdi.widen(src));
+      gdi.setText("Source", widen(src));
     }
     else if (bi.id == "CancelSource") {
       checkChangedSave(gdi);
@@ -783,7 +783,7 @@ int MethodEditor::methodCb(gdioutput &gdi, GuiEventType type, BaseInfo &data) {
         gdi.pushX();
         gdi.setRestorePoint("NoSourceEdit");
         gdi.addInputBox("Source", 450, 300,
-                        gdi.widen(src),
+                        widen(src),
                         methodCB, L"Source code:").setFont(gdi, monoText);
         gdi.fillDown();
         gdi.setCX(gdi.getCX() + gdi.getLineHeight());
@@ -796,7 +796,7 @@ int MethodEditor::methodCb(gdioutput &gdi, GuiEventType type, BaseInfo &data) {
         gdi.scrollToBottom();
       }
       else {
-        gdi.setText("Source", gdi.widen(src));
+        gdi.setText("Source", widen(src));
       }
 
       currentResult->declareSymbols(m, true);
@@ -867,7 +867,7 @@ void MethodEditor::saveSettings(gdioutput &gdi) {
   string tag;
   const bool updateTag = gdi.getBaseInfo("Tag").getExtraInt() == 0;
   if (updateTag)
-    tag = gdi.narrow(gdi.getText("Tag"));
+    tag = narrow(gdi.getText("Tag"));
   else
     tag = currentResult->getTag();
 
@@ -885,7 +885,7 @@ void MethodEditor::saveSettings(gdioutput &gdi) {
   currentResult->setName(name);
   currentResult->setDescription(desc);
   gdi.setText("Name", name);
-  gdi.setText("Tag", gdi.widen(tag));
+  gdi.setText("Tag", widen(tag));
   gdi.setText("Desc", desc);
 }
 
@@ -938,9 +938,9 @@ void MethodEditor::checkChangedSave(gdioutput &gdi) {
     if (dynamic_cast<InputInfo &>(gdi.getBaseInfo("Source")).changed() &&
         gdi.ask(L"Save changes in rule code?")) {      
       DynamicResult::DynamicMethods dm = DynamicResult::DynamicMethods(gdi.getExtraInt("SaveSource"));
-      string src = gdi.narrow(gdi.getText("Source"));
+      string src = narrow(gdi.getText("Source"));
       currentResult->setMethodSource(dm, src);
-      gdi.setText("Source", gdi.widen(src));
+      gdi.setText("Source", widen(src));
     }
   }
 }
@@ -950,9 +950,9 @@ wstring MethodEditor::getInternalPath(const string &tag) {
   string udTag = DynamicResult::undecorateTag(tag);
   wstring resFile;
   if (udTag == tag)
-    resFile = gdi_main->widen(tag) + L".rules";
+    resFile = widen(tag) + L".rules";
   else
-    resFile = L"imp_" + gdi_main->widen(udTag) + L".rules";
+    resFile = L"imp_" + widen(udTag) + L".rules";
 
   wchar_t path[260];
   getUserFile(path, resFile.c_str());

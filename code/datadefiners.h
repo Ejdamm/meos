@@ -349,7 +349,7 @@ public:
     }
     try {
       const MetaListContainer& lc = obj->getEvent()->getListContainer();
-      EStdListType type = lc.getCodeFromUnqiueId(gdioutput::narrow(listId));
+      EStdListType type = lc.getCodeFromUnqiueId(narrow(listId));
       const MetaList& ml = lc.getList(type);
       return ml.getListName();
     }
@@ -363,7 +363,7 @@ public:
     oe->getListContainer().getLists(out, false, false, false, true);
     out.insert(out.begin(), make_pair(lang.tl("Standard"), -10));
     wstring listId = obj->getDCI().getString("SplitPrint");
-    EStdListType type = oe->getListContainer().getCodeFromUnqiueId(gdioutput::narrow(listId));
+    EStdListType type = oe->getListContainer().getCodeFromUnqiueId(narrow(listId));
     if (type == EStdListType::EStdNone)
       selected = -10;
     else {
@@ -386,7 +386,7 @@ public:
     else {
       EStdListType type = obj->getEvent()->getListContainer().getType(inputId);
       string id = obj->getEvent()->getListContainer().getUniqueId(type);
-      obj->getDI().setString("SplitPrint", gdioutput::widen(id));
+      obj->getDI().setString("SplitPrint", widen(id));
     }
 
     output = formatData(obj, index);

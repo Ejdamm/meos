@@ -1839,7 +1839,7 @@ string TabRunner::computeKeyForReport() {
     key += "|" + itos(id.first);
     pRunner r = oe->getRunner(id.first, 0);
     if (r) {
-      key += gdioutput::toUTF8(r->getCompleteIdentification(oRunner::IDType::OnlyThis) + r->getClass(true));
+      key += toUTF8(r->getCompleteIdentification(oRunner::IDType::OnlyThis) + r->getClass(true));
       key += itos(r->getStatus()) + itos(r->getFinishTime()) + itos(r->getStartTime());
       vector<pFreePunch> pl;
       oe->getPunchesForRunner(id.first, true, pl);

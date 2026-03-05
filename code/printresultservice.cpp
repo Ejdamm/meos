@@ -349,7 +349,7 @@ void PrintResultMachine::saveMachine(oEvent& oe, const wstring& guiInterval) {
 
   string res;
   xml.getMemoryOutput(res);
-  cnt.set("list", gdioutput::widen(res));
+  cnt.set("list", widen(res));
   cnt.set("interval", t);
 }
 
@@ -374,7 +374,7 @@ void PrintResultMachine::loadMachine(oEvent& oe, const wstring& name) {
 
   wstring wStrList;
   wStrList = cnt->getString("list");
-  string strList = gdioutput::narrow(wStrList);
+  string strList = narrow(wStrList);
 
   xmlparser xml;
   xml.readMemory(strList, 0);

@@ -267,7 +267,7 @@ void TabCourse::save(gdioutput &gdi, int canSwitchViewMode) {
 
 
   pc->setName(name);
-  bool changedCourse = pc->importControls(gdi.narrow(gdi.getText("Controls")), true, true);
+  bool changedCourse = pc->importControls(narrow(gdi.getText("Controls")), true, true);
   pc->setLength(gdi.getTextNo("Length"));
   pc->getDI().setInt("Climb", gdi.getTextNo("Climb"));
   pc->setNumberMaps(gdi.getTextNo("NumberMaps"));
@@ -1022,7 +1022,7 @@ void TabCourse::runCourseImport(gdioutput& gdi, const wstring &filename,
       wstring name;
       int first = 0;
       if (atoi(sw[0].c_str()) < 30 && trim(sw[0]).length() > 2) {
-        name = gdioutput::fromUTF8(trim(sw[0]));
+        name = fromUTF8(trim(sw[0]));
         first = 1;
       }
       if (name.empty())
@@ -1271,7 +1271,7 @@ void TabCourse::setupCourseImport(gdioutput& gdi, GUICALLBACK cb) {
 
 void TabCourse::fillCourseControls(gdioutput &gdi, const wstring &ctrl) {
   vector<int> nr;
-  oCourse::splitControls(gdi.narrow(ctrl), nr);
+  oCourse::splitControls(narrow(ctrl), nr);
 
   vector< pair<wstring, size_t> > item;
   map<int, int> used;
@@ -1346,7 +1346,7 @@ void TabCourse::saveLegLengths(gdioutput &gdi) {
   if (!gotAny)
     lstr = L"";
         
-  pc->importLegLengths(gdi.narrow(lstr), true);
+  pc->importLegLengths(narrow(lstr), true);
   pc->synchronize(true);
 }
 

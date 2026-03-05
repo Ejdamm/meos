@@ -1,6 +1,7 @@
 ## Codebase Patterns
 - Every `#include "..."` directive MUST match the exact filename casing on disk (case-sensitive for Linux).
 - Use `python3 verify_includes.py` to check for casing issues.
+- Use global string utility functions from `meos_util.h` for conversions (widen, narrow, toUTF8, fromUTF8, recodeToWide, recodeToNarrow).
 
 ## 2026-03-05 - US-P0a
 - Fixed 147 include case mismatches in the `code/` directory.
@@ -14,4 +15,16 @@
   - Windows doesn't care about casing, but Linux does. Fixing this early is crucial for cross-platform development.
 ---
 
-## US-P0a (22m39s)
+## 2026-03-05 - US-P0b
+- Extracted widen(), narrow(), toUTF8(), fromUTF8(), recodeToWide(), recodeToNarrow() from gdioutput to meos_util.h/cpp.
+- Updated gdioutput.cpp to use the new global functions as thin wrappers.
+- Performed global replacement of static and member calls (e.g., gdi.widen() -> widen()) in all code files using 'generalist'.
+- Removed gdioutput.h dependency from machinecontainer.cpp and infoserver.cpp.
+- Updated AGENTS.md and migration skill with the new string utility conventions.
+- **Learnings for future iterations:**
+  - gdioutput is heavily coupled to almost every part of the legacy codebase, including domain entities.
+  - The string utility functions were the easiest to decouple; other gdioutput functions (ask, alert, addString) require a more comprehensive interface-based approach.
+  - Using 'generalist' for global batch replacements is efficient but requires careful verification of headers in each file afterwards.
+---
+
+## US-P0b (43m43s)

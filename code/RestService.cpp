@@ -59,7 +59,7 @@ void RestService::save(oEvent &oe, gdioutput &gdi, bool doProcess) {
   }
 
   if (gdi.isChecked("MapRoot")) {
-    rootMap = gdi.recodeToNarrow(gdi.getText("RootMap"));
+    rootMap = recodeToNarrow(gdi.getText("RootMap"));
     server->setRootMap(rootMap);
     oe.setProperty("ServiceRootMap", gdi.getText("RootMap"));
   }
@@ -100,7 +100,7 @@ void RestService::settings(gdioutput &gdi, oEvent &oe, State state) {
   gdi.popX();
 
   gdi.addCheckbox("MapRoot", "Mappa rootadressen (http:///localhost:port/) till funktion:", nullptr, !rootMap.empty()).setHandler(this);
-  gdi.addInput("RootMap", gdi.recodeToWide(rootMap));
+  gdi.addInput("RootMap", recodeToWide(rootMap));
   gdi.setInputStatus("RootMap", !rootMap.empty());
 
   startCancelInterval(gdi, oe, "Save", state, IntervalType::IntervalNone, L"");

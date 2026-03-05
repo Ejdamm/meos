@@ -658,7 +658,7 @@ vector<InputInfo *> oDataContainer::buildDataFields(gdioutput &gdi, const vector
 
     if (di.Type==oDTInt){
       if (!di.fixedSet.empty()) {
-        gdi.addSelection(Id, 70, 100, nullptr, gdi.widen(di.Description) + L":");
+        gdi.addSelection(Id, 70, 100, nullptr, widen(di.Description) + L":");
         auto fs = di.fixedSet;
         for (auto& [desc, key] : fs)
           desc = lang.tl(desc);
@@ -666,18 +666,18 @@ vector<InputInfo *> oDataContainer::buildDataFields(gdioutput &gdi, const vector
         gdi.setItems(Id, fs);
       }
       else if (di.SubType == oISDate || di.SubType == oISTime || di.SubType == oISTimeAdjust || di.SubType == oISDateOrYear)
-        out.push_back(&gdi.addInput(Id, L"", 10, 0, gdi.widen(di.Description) + L":"));
+        out.push_back(&gdi.addInput(Id, L"", 10, 0, widen(di.Description) + L":"));
       else
-        out.push_back(&gdi.addInput(Id, L"", 6, 0, gdi.widen(di.Description) + L":"));
+        out.push_back(&gdi.addInput(Id, L"", 6, 0, widen(di.Description) + L":"));
     }
     else if (di.Type == oDTDouble) {
-      out.push_back(&gdi.addInput(Id, L"", 10, 0, gdi.widen(di.Description) + L":"));
+      out.push_back(&gdi.addInput(Id, L"", 10, 0, widen(di.Description) + L":"));
     }
     else if (di.Type==oDTString){
-      out.push_back(&gdi.addInput(Id, L"", min(di.Size+2, maxFieldSize), 0, gdi.widen(di.Description) + L":"));
+      out.push_back(&gdi.addInput(Id, L"", min(di.Size+2, maxFieldSize), 0, widen(di.Description) + L":"));
     }
     else if (di.Type==oDTStringDynamic){
-      out.push_back(&gdi.addInput(Id, L"", maxFieldSize, 0, gdi.widen(di.Description) + L":"));
+      out.push_back(&gdi.addInput(Id, L"", maxFieldSize, 0, widen(di.Description) + L":"));
     }
   }
   return out;

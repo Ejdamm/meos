@@ -65,8 +65,14 @@ Redefine common Win32 types in `src/util/win_types.h` for Linux compatibility:
 
 - Wide strings (`wstring`) are primary (Swedish/internationalized UI).
 - Narrow `string` for internal/config data.
-- Use `narrow()` and `widen()` from `meos_util.h` for conversions.
-- `string2Wide()` / `wide2String()` support UTF-8 via `codecvt`.
+- **Use global string utility functions from `meos_util.h` for conversions:**
+  - `widen(const string&)`: Windows-1252 to `wstring` (standard MeOS conversion)
+  - `narrow(const wstring&)`: `wstring` to `string` (simple truncation)
+  - `toUTF8(const wstring&)`: `wstring` to UTF-8 `string`
+  - `fromUTF8(const string&)`: UTF-8 `string` to `wstring`
+  - `recodeToWide(const string&)`: `defaultCodePage` to `wstring` (for external data)
+  - `recodeToNarrow(const wstring&)`: `wstring` to `defaultCodePage`
+- These return references to strings in `StringCache` for efficiency/brevity.
 
 Replace Win32-specific:
 | Win32 | Standard C++ replacement |
@@ -114,11 +120,11 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 | oBase.cpp | — | — | — |
 | oPunch.cpp | — | — | — |
 
-**Non-GUI utility functions living in gdioutput (extract to meos_util before migration):**
-- `gdioutput::widen()` — used in oEvent.cpp, oEventResult.cpp
-- `gdioutput::narrow()` — used in oRunner.cpp
-- `gdioutput::toUTF8()` — used in oEvent.cpp
-- `gdioutput::fromUTF8()` — used in oEvent.cpp
+**Non-GUI utility functions extracted from gdioutput to meos_util:**
+- `widen()`, `narrow()`, `toUTF8()`, `fromUTF8()`, `recodeToWide()`, `recodeToNarrow()` are now global functions in `meos_util.h`.
+- Static methods in `gdioutput` are thin wrappers for backward compatibility.
+- Files that only used these functions (e.g., `machinecontainer.cpp`, `infoserver.cpp`) no longer include `gdioutput.h`.
+- Static and member calls to these functions have been globally replaced with global calls across the legacy codebase.
 
 **Win32-specific functions in domain files (~58 calls):**
 - `oDataContainer.cpp`: 38 uses (`swprintf_s`, `_itow_s`)

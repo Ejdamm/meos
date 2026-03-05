@@ -49,7 +49,7 @@ oPunch::~oPunch() = default;
 
 wstring oPunch::getInfo() const
 {
-  return L"Stämpling "+oe->gdiBase().widen(codeString());
+  return L"Stämpling "+widen(codeString());
 }
 
 string oPunch::codeString() const

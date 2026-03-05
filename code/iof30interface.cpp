@@ -4933,12 +4933,12 @@ void IOF30Interface::setPreferredIdType(const pair<string, string> &type) {
     string stype = "type";
     if (!type.first.empty())
       externalIdTypes.emplace_back(vector<pair<string, wstring>>({
-             make_pair(stype, gdioutput::widen(type.first)) }));
+             make_pair(stype, widen(type.first)) }));
     else
       externalIdTypes.emplace_back();
 
     if (!type.second.empty())
       externalIdTypes.emplace_back(vector<pair<string, wstring>>({ 
-             make_pair(stype, gdioutput::widen(type.second)) }));
+             make_pair(stype, widen(type.second)) }));
   }
 }

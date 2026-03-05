@@ -105,7 +105,7 @@ void RunnerWDBEntry::initName() const {
       name[wlen-1] = 0;
     }
     else {
-      const wstring &wn = gdi_main->recodeToWide(db.name);
+      const wstring &wn = recodeToWide(db.name);
       wcsncpy_s(name, wn.c_str(), baseNameLength-1);
     }
   }

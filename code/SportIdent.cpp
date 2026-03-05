@@ -2406,9 +2406,9 @@ vector<string> SICard::codeLogData(gdioutput &gdi, int row) const {
   log.push_back("");
   log.push_back("");
   
-  log.push_back(gdi.recodeToNarrow(firstName));
-  log.push_back(gdi.recodeToNarrow(lastName));
-  log.push_back(gdi.recodeToNarrow(club));
+  log.push_back(recodeToNarrow(firstName));
+  log.push_back(recodeToNarrow(lastName));
+  log.push_back(recodeToNarrow(club));
   log.push_back("");
   log.push_back("");
   log.push_back("");

@@ -65,6 +65,19 @@ Libraries are vendored directly in subdirectories: `restbed/`, `libharu/`, `mini
 
 Wide strings (`wstring`) are the primary string type (Swedish/internationalized UI). Narrow `string` is used for internal/config data. Conversion via `string2Wide()` in `meos_util.h`.
 
+### String Utilities
+
+**Use global string utility functions from `meos_util.h` for conversions:**
+
+- `widen(const string&)`: Windows-1252 to `wstring` (standard MeOS conversion)
+- `narrow(const wstring&)`: `wstring` to `string` (simple truncation)
+- `toUTF8(const wstring&)`: `wstring` to UTF-8 `string`
+- `fromUTF8(const string&)`: UTF-8 `string` to `wstring`
+- `recodeToWide(const string&)`: `defaultCodePage` to `wstring` (for external data)
+- `recodeToNarrow(const wstring&)`: `wstring` to `defaultCodePage`
+
+**Legacy `gdioutput` static methods still exist but are thin wrappers.** Avoid adding new dependencies on `gdioutput.h` if you only need string utilities.
+
 ### Error handling
 
 Custom exception `meosException` (with `wwhat()` for wide-string messages) and `meosCancel` for cancellation. Most functions prefer returning bool/error codes; exceptions are for critical failures.

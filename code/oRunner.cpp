@@ -5006,7 +5006,7 @@ void oRunner::printSplits(gdioutput& gdi) const {
   else if (wListId == L"*") { // Standarad, no list
   }
   else {
-    listId = gdioutput::narrow(wListId);
+    listId = narrow(wListId);
   }
 
   const bool wideFormat = oe->getPropertyInt("WideSplitFormat", 0) == 1;

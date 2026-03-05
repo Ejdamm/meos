@@ -3122,7 +3122,7 @@ void MetaList::getFilters(vector< pair<wstring, bool> > &filters) const {
   for (map<EFilterList, string>::const_iterator it = filterToSymbol.begin();
                              it != filterToSymbol.end(); ++it) {
     bool has = this->filter.count(it->first) == 1;
-    filters.push_back(make_pair(gdi_main->widen(it->second), has));
+    filters.push_back(make_pair(widen(it->second), has));
   }
 }
 
@@ -3143,7 +3143,7 @@ void MetaList::getSubFilters(vector< pair<wstring, bool> > &filters) const {
   for (map<ESubFilterList, string>::const_iterator it = subFilterToSymbol.begin();
                              it != subFilterToSymbol.end(); ++it) {
     bool has = this->subFilter.count(it->first) == 1;
-    filters.push_back(make_pair(gdi_main->widen(it->second), has));
+    filters.push_back(make_pair(widen(it->second), has));
   }
 }
 

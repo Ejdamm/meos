@@ -604,7 +604,7 @@ int TabList::listCB(gdioutput &gdi, GuiEventType type, BaseInfo *data) {
           else {
             EStdListType type = oe->getListContainer().getType(res.first);
             string id = oe->getListContainer().getUniqueId(type);
-            oe->getDI().setString("SplitPrint", gdioutput::widen(id));
+            oe->getDI().setString("SplitPrint", widen(id));
           }
         }
       }
@@ -632,7 +632,7 @@ int TabList::listCB(gdioutput &gdi, GuiEventType type, BaseInfo *data) {
         int ix = li.load(oe->getListContainer(), res.first, true);
         EStdListType type = oe->getListContainer().getType(ix);
         string id = oe->getListContainer().getUniqueId(type);
-        oe->getDI().setString("SplitPrint", gdioutput::widen(id));
+        oe->getDI().setString("SplitPrint", widen(id));
 
         li.show(this, gdi);
         gdi.refresh();
@@ -2196,7 +2196,7 @@ void TabList::handleHTMLSettings(gdioutput &gdi, BaseInfo &info, GuiEventType ty
           if (!info.userInstalled)
             throw meosException("Kan inte ersätta den inbyggda mallen X.#" + info.tag);
 
-          if (!gdi.ask(L"Vill du ersätta den redan installerade mallen X (Y)#" + gdioutput::widen(info.tag) + L"#" + lang.tl(info.name)))
+          if (!gdi.ask(L"Vill du ersätta den redan installerade mallen X (Y)#" + widen(info.tag) + L"#" + lang.tl(info.name)))
             return;
           fn = info.file;
           wchar_t path[MAX_PATH];
@@ -2206,7 +2206,7 @@ void TabList::handleHTMLSettings(gdioutput &gdi, BaseInfo &info, GuiEventType ty
         }
         else {
           wchar_t path[MAX_PATH];
-          fn = gdioutput::widen(tmpl->tag) + L"-"  + getLocalDate() + L".meostmpl";
+          fn = widen(tmpl->tag) + L"-"  + getLocalDate() + L".meostmpl";
           getUserFile(path, fn.c_str());
           fn = path;
         }
@@ -3017,7 +3017,7 @@ void TabList::splitPrintSettings(oEvent &oe, gdioutput &gdi, bool setupPrinter,
     wstring listId = oe.getDCI().getString("SplitPrint");
     EStdListType type = EStdListType::EStdNone;
     if (listId.length() > 1)
-      type = oe.getListContainer().getCodeFromUnqiueId(gdioutput::narrow(listId));
+      type = oe.getListContainer().getCodeFromUnqiueId(narrow(listId));
     gdi.setInputStatus("EditPS", type != EStdListType::EStdNone);
     
     if (listId == L"*")

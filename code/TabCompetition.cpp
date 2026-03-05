@@ -405,7 +405,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
     ButtonInfo bi=*(ButtonInfo *)data;
 
     if (bi.id == "CopyLink") {
-      string url = gdi.narrow(gdi.getText("link"));
+      string url = narrow(gdi.getText("link"));
 
       if (OpenClipboard(gdi.getHWNDMain())) {
         EmptyClipboard();
@@ -543,7 +543,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       int ix = 0;
       wstring fn = gdi.browseForSave(cpp, L".cpp", ix);
       if (!fn.empty())
-        gdi.getRecorder().saveRecordings(gdi.narrow(fn));
+        gdi.getRecorder().saveRecordings(narrow(fn));
     }
     else if (bi.id == "RunTest") {
       TestMeOS tm(oe, "base");
@@ -722,9 +722,9 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
           oe->setProperty("Client", gdi.getText("ClientName"));
     }
     else if (bi.id=="ConnectToMySQL") {
-      bool s=oe->connectToMySQL(gdi.narrow(gdi.getText("Server")),
-                                gdi.narrow(gdi.getText("UserName")),
-                                gdi.narrow(gdi.getText("PassWord")),
+      bool s=oe->connectToMySQL(narrow(gdi.getText("Server")),
+                                narrow(gdi.getText("UserName")),
+                                narrow(gdi.getText("PassWord")),
                                 gdi.getTextNo("Port"));
 
       if (s) {
@@ -756,7 +756,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
 
       wstring nameId = oe->getNameId(id);
       vector<string> output;
-      oe->sql().repairTables(gdi.narrow(nameId), output);
+      oe->sql().repairTables(narrow(nameId), output);
       gdi.clearPage(true);
       gdi.addString("", boldLarge, "Reparerar tävlingsdatabasen");
       gdi.dropLine();
@@ -1033,7 +1033,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
     }
     else if (bi.id == "EventorAPISave") {
       wstring key = gdi.getText("apikey");
-      oe->setPropertyEncrypt("apikey", gdi.narrow(key));
+      oe->setPropertyEncrypt("apikey", narrow(key));
 
       int clubId = getOrganizer(false);
 
@@ -1162,7 +1162,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
         error = ex.wwhat();
       }
       catch (std::exception &ex) {
-        error = gdi.widen(ex.what());
+        error = widen(ex.what());
         if (error.empty())
           error = L"Okänt fel";
       }
@@ -1256,7 +1256,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
         error = ex.wwhat();
       }
       catch (std::exception &ex) {
-        error = gdi.widen(ex.what());
+        error = widen(ex.what());
         if (error.empty())
           error = L"Okänt fel";
       }
@@ -1490,7 +1490,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
         error = ex.wwhat();
       }
       catch (std::exception &ex) {
-        error = gdi.widen(ex.what());
+        error = widen(ex.what());
         if (error.empty())
           error = L"Okänt fel";
       }
@@ -1709,7 +1709,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       entryText.clear();
       while (fin.good() && !fin.eof()) {
         fin.getline(bf+2, 1024-2);
-        entryText += gdi.recodeToWide(bf);
+        entryText += recodeToWide(bf);
       }
       entryText+=L"\r\n";
       fin.close();
@@ -1782,7 +1782,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
         gdi.selectItemByData("Type", filterIndex);
         wchar_t *fn = gdi.getExtra("Filename");
         if (fn) {
-          gdi.enableInput(gdi.narrow(fn).c_str());
+          gdi.enableInput(narrow(fn).c_str());
         }
       }
     }
@@ -2218,7 +2218,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
     if (ii.id == "Filename") {
       const wchar_t *fn = ii.getExtra();
       if (fn) {
-        gdi.setInputStatus(gdi.narrow(fn).c_str(), !ii.text.empty());
+        gdi.setInputStatus(narrow(fn).c_str(), !ii.text.empty());
       }
     }
     else if (ii.id == "NumStages") {
@@ -2232,7 +2232,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
     if (ii.id == "Filename") {
       const wchar_t *fn = ii.getExtra();
       if (fn) {
-        gdi.setInputStatus(gdi.narrow(fn).c_str(), !ii.text.empty());
+        gdi.setInputStatus(narrow(fn).c_str(), !ii.text.empty());
       }
     }
     else if (ii.id == "Name") {
@@ -2787,7 +2787,7 @@ void TabCompetition::textSizeControl(gdioutput &gdi) const
 }
 
 int TabCompetition::getOrganizer(bool updateEvent) {
-  wstring apikey = gdioutput::widen(oe->getPropertyStringDecrypt("apikey", ""));
+  wstring apikey = widen(oe->getPropertyStringDecrypt("apikey", ""));
   if (apikey.empty())
     return 0;
   if (!isAscii(apikey))
@@ -2860,7 +2860,7 @@ int TabCompetition::getOrganizer(bool updateEvent) {
 }
 
 void TabCompetition::getAPIKey(vector< pair<wstring, wstring> > &key) const {
-  wstring apikey = gdioutput::widen(oe->getPropertyStringDecrypt("apikey", ""));
+  wstring apikey = widen(oe->getPropertyStringDecrypt("apikey", ""));
 
   if (apikey.empty() || organizorId == 0)
     throw std::exception("Internal error");
@@ -3013,7 +3013,7 @@ void TabCompetition::getEventorCmpData(gdioutput &gdi, int id,
 
   pw.setProgress(1);
   vector< pair<wstring, wstring> > key;
-  wstring apikey = gdioutput::widen(oe->getPropertyStringDecrypt("apikey", ""));
+  wstring apikey = widen(oe->getPropertyStringDecrypt("apikey", ""));
   key.push_back(pair<wstring, wstring>(L"ApiKey", apikey));
 
   gdi.fillRight();
@@ -3408,12 +3408,12 @@ void TabCompetition::meosFeatures(gdioutput &gdi, bool newGuide) {
     }
     else {
       MeOSFeatures::Feature f = mf.getFeature(k);
-      ButtonInfo &bi = gdi.addCheckbox("feat" + gdi.narrow(mf.getCode(f)), mf.getDescription(f),
+      ButtonInfo &bi = gdi.addCheckbox("feat" + narrow(mf.getCode(f)), mf.getDescription(f),
                                         CheckFeaturesCB, mf.hasFeature(f));
       maxLen = max<int>(maxLen, bi.width);
 
       if (mf.isRequired(f, *oe))
-        gdi.setInputStatus("feat" + gdi.narrow(mf.getCode(f)), false);
+        gdi.setInputStatus("feat" + narrow(mf.getCode(f)), false);
     }
   }
 
@@ -3436,7 +3436,7 @@ void TabCompetition::updateFeatureStatus(gdioutput &gdi) {
   for (int k = 0; k < nf; k++) {
     if (!mf.isHead(k)) {
       MeOSFeatures::Feature f = mf.getFeature(k);
-      string id = "feat" + gdi.narrow(mf.getCode(f));
+      string id = "feat" + narrow(mf.getCode(f));
       gdi.check(id, mf.hasFeature(f));
       gdi.setInputStatus(id, !mf.isRequired(f, *oe));
     }
@@ -3452,7 +3452,7 @@ void TabCompetition::saveMeosFeatures(gdioutput &gdi, bool write) {
   for (int k = 0; k < nf; k++) {
     if (!mf.isHead(k)) {
       MeOSFeatures::Feature f = mf.getFeature(k);
-      string key = "feat" + gdi.narrow(mf.getCode(f));
+      string key = "feat" + narrow(mf.getCode(f));
       mf.useFeature(f, gdi.isChecked(key), *oe);
     }
   }
@@ -3744,7 +3744,7 @@ FlowOperation importFilterGUI(oEvent *oe,
     gdi.addSelection("IdType", 150, 200, stageInfoCB, L"Välj vilken typ du vill importera:");
     int i = 0;
     for (const string &sn : idProviders) {
-      gdi.addItem("IdType", gdi.widen(sn), i++);
+      gdi.addItem("IdType", widen(sn), i++);
     }
     gdi.popX();
     gdi.dropLine(3.6);
@@ -3793,7 +3793,7 @@ FlowOperation importFilterGUI(oEvent *oe,
       if (idProviders.size() > 1) {
         ListBoxInfo lbi;
         if (gdi.getSelectedItem("IdType", lbi)) {
-          preferredIdProvider.first = gdi.narrow(lbi.text);
+          preferredIdProvider.first = narrow(lbi.text);
         }
 
         // Auto select secondary type. TODO: Manually select if not unique... 
@@ -4081,14 +4081,14 @@ pair<string, string> TabCompetition::getPreferredIdTypes(gdioutput& gdi) {
   if (gdi.hasWidget("PrimaryId")) {
     if (gdi.isChecked("PrimaryId")) {
       wstring pt = gdi.getText("PrimaryType");
-      preferredIdTypes.first = gdioutput::narrow(pt);
+      preferredIdTypes.first = narrow(pt);
       if (preferredIdTypes.first.empty())
         preferredIdTypes.first = "PRIMARY";
     }
 
     if (gdi.isChecked("SecondaryId")) {
       wstring st = gdi.getText("SecondaryType");
-      preferredIdTypes.second = gdioutput::narrow(st);
+      preferredIdTypes.second = narrow(st);
       if (preferredIdTypes.second.empty())
         preferredIdTypes.second = "SECONDARY";
     }
@@ -4821,7 +4821,7 @@ void TabCompetition::mergeCompetition(gdioutput &gdi) {
                 baseFile = tc->constructBase(L"base", L"");
               }
               else {
-                string merged = gdi.narrow(info);
+                string merged = narrow(info);
                 
                 if (mod <= merged) {
                   gdi.addString("", 1, "Fel: Denna tävlingsversion är redan infogad.").setColor(colorRed);
@@ -4839,7 +4839,7 @@ void TabCompetition::mergeCompetition(gdioutput &gdi) {
                 TimeStamp ts;
                 ts.setStamp(mod);
                 gdi.addString("", 0, "Infoga version: X#" + ts.getStampStringN());
-                thisFile = tc->constructBase(gdi.widen(mod), mergeEvent->getMergeTag());
+                thisFile = tc->constructBase(widen(mod), mergeEvent->getMergeTag());
               }
             }
           }

@@ -28,8 +28,8 @@
         "Typecheck passes"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "widen(), narrow(), toUTF8(), fromUTF8(), recodeToWide(), recodeToNarrow() moved to meos_util.h/cpp. gdioutput methods updated as thin wrappers. 1100+ calls replaced globally. gdioutput.h include removed from machinecontainer.cpp and infoserver.cpp."
     },
     {
       "id": "US-P0c",

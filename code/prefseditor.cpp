@@ -71,7 +71,7 @@ void PrefsEditor::showPrefs(gdioutput &gdi) {
     
       gdi.addButton(editPos, y - gdi.getLineHeight()/4, "Edit_" + prefs[k].first, "Ändra").setHandler(this);
     
-      wstring dkey = L"prefs" + gdi.widen(prefs[k].first);
+      wstring dkey = L"prefs" + widen(prefs[k].first);
       wstring desc = lang.tl(dkey);
       if (desc != dkey) {
         gdi.addStringUT(y, descPos, 0, desc).setColor(colorDarkGreen);
@@ -100,7 +100,7 @@ void PrefsEditor::handle(gdioutput &gdi, BaseInfo &data, GuiEventType type) {
       gdi.setData("EditPrefs", type);
       gdi.dropLine();
       gdi.addString("", fontMediumPlus, "Ändra X#" + pref);
-      wstring dkey = L"prefs" + gdi.widen(pref);
+      wstring dkey = L"prefs" + widen(pref);
       wstring desc = lang.tl(dkey);
       gdi.dropLine();
       if (desc != dkey) {

@@ -909,7 +909,7 @@ OpFailStatus MeosSQL::SyncUpdate(oEvent *oe)
     con->query().exec("SET sql_log_bin=off");
   }
   catch (const Exception &ex) {
-    oe->gdiBase().addInfoBox("binlog", L"warn:mysqlbinlog#" + oe->gdiBase().widen(ex.what()), L"", BoxStyle::Header, 10000);
+    oe->gdiBase().addInfoBox("binlog", L"warn:mysqlbinlog#" + widen(ex.what()), L"", BoxStyle::Header, 10000);
   }
 
   try{

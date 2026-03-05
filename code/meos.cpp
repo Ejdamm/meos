@@ -796,7 +796,7 @@ BOOL initInstance(HINSTANCE hInstance, int nCmdShow) {
     return false;
   }
   catch (const std::exception & ex) {
-    MessageBox(NULL, gdioutput::widen(ex.what()).c_str(), L"Error", MB_OK);
+    MessageBox(NULL, widen(ex.what()).c_str(), L"Error", MB_OK);
     return false;
   }
   catch (...) {
@@ -1189,7 +1189,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (it->id==id) {
               try {
                 gdi_main->setWaitCursor(true);
-                string cmd = "showTab("+ string(it->getTab().getTypeStr()) + "); //" + gdi_main->toUTF8(it->name);
+                string cmd = "showTab("+ string(it->getTab().getTypeStr()) + "); //" + toUTF8(it->name);
                 it->loadPage(*gdi_main);
                 gdi_main->getRecorder().record(cmd);
               }

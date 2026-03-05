@@ -1841,7 +1841,7 @@ bool Table::enter(gdioutput &gdi)
       if (editRow>=2) {
         string cmd;
         if (gdi.getRecorder().recording())
-          cmd = "setTableText(" + itos(editRow) + ", " + itos(editCol) + ", \"" + gdi.narrow(bf) + "\");"; 
+          cmd = "setTableText(" + itos(editRow) + ", " + itos(editCol) + ", \"" + narrow(bf) + "\");"; 
         setTableText(gdi, editRow, editCol, bf);
         gdi.getRecorder().record(cmd);
         return true;
@@ -2155,7 +2155,7 @@ void Table::exportClipboard(gdioutput &gdi)
   getExportData(min(col1, col2), max(col1, col2),
                 min(row1, row2), max(row1, row2), str, txt);
   
-  string htmlUTF = gdi.toUTF8(str);
+  string htmlUTF = toUTF8(str);
   gdi.copyToClipboard(htmlUTF, txt);
 
   /*if (OpenClipboard(gdi.getHWND()) != false) {
@@ -2242,7 +2242,7 @@ void Table::importClipboard(gdioutput &gdi)
         LPVOID lptstr = GlobalLock(data);
         if (lptstr) {
           string strn = string(((char*)lptstr));
-          str = gdi.recodeToWide(strn);
+          str = recodeToWide(strn);
           GlobalUnlock(data);
         }
       }

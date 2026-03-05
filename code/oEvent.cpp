@@ -1230,7 +1230,7 @@ bool oEvent::open(const wstring &file, bool doImport, bool forMerge, bool forceN
     getDI().setString("ImportStamp", L"");
   }
   else if (doImport && !forMerge) {
-    getDI().setString("ImportStamp", gdibase.widen(getLastModified()));
+    getDI().setString("ImportStamp", widen(getLastModified()));
   }
 
   return res;
@@ -1536,7 +1536,7 @@ bool oEvent::open(const xmlparser &xml, const wstring &fileArg) {
   }
   catch (const std::exception &ex) {
     if (err.empty())
-      err = gdibase.widen(ex.what());
+      err = widen(ex.what());
   }
 
   renderMaps = make_shared<MapDataContainer>();
@@ -1598,7 +1598,7 @@ bool oEvent::open(const xmlparser &xml, const wstring &fileArg) {
       }
       catch (const std::exception& ex) {
         if (err.empty())
-          err = gdibase.widen(ex.what());
+          err = widen(ex.what());
       }
     }
   }
@@ -1615,7 +1615,7 @@ bool oEvent::open(const xmlparser &xml, const wstring &fileArg) {
   }
   catch (const std::exception &ex) {
     if (err.empty())
-      err = gdibase.widen(ex.what());
+      err = widen(ex.what());
   }
 
 
@@ -1784,7 +1784,7 @@ void oEvent::updateRunnerDatabase()
     for (int k = 0; k < listContainer->getNumLists(); k++) {
       if (listContainer->isExternal(k)) {
         MetaList& ml = listContainer->getList(k);
-        wstring uid = gdibase.widen(ml.getUniqueId()) + L".meoslist";
+        wstring uid = widen(ml.getUniqueId()) + L".meoslist";
         wchar_t file[260];
         getUserFile(file, uid.c_str());
         if (!fileExists(file)) {
@@ -1796,7 +1796,7 @@ void oEvent::updateRunnerDatabase()
     listContainer->getFreeResultModules(freeMod);
 
     for (size_t k = 0; k < freeMod.size(); k++) {
-      wstring uid = gdibase.widen(freeMod[k].first) + L".rules";
+      wstring uid = widen(freeMod[k].first) + L".rules";
       wchar_t file[260];
       getUserFile(file, uid.c_str());
       if (!fileExists(file)) {
@@ -5420,7 +5420,7 @@ void oEvent::setPropertyEncrypt(const char *name, const string &prop) {
     prop2.push_back((unsigned char)b2);
   }
 
-  setProperty(name, gdibase.widen(prop2));
+  setProperty(name, widen(prop2));
 }
 
 void oEvent::setProperty(const char *name, int prop) {
@@ -6702,8 +6702,8 @@ MetaListContainer &oEvent::getListContainer() const {
 }
 
 void oEvent::updateListReferences(const string& oldId, const string& newId) {
-  wstring oldIdW = gdioutput::widen(oldId);
-  wstring newIdW = gdioutput::widen(newId);
+  wstring oldIdW = widen(oldId);
+  wstring newIdW = widen(newId);
 
   if (getDI().getString("SplitPrint") == oldIdW) {
     if (getDI().setString("SplitPrint", newIdW))
@@ -7109,7 +7109,7 @@ string oEvent::encodeStartGroups() const {
         if (name[j] == L';')
           name[j] = L'^';
       }
-      tmp += "," + gdioutput::toUTF8(name);
+      tmp += "," + toUTF8(name);
     }
     if (ss.empty())
       ss = tmp;
@@ -7131,7 +7131,7 @@ void oEvent::decodeStartGroups(const string &enc) const {
       int end = atoi(sg[2].c_str());
       wstring name;
       if (sg.size() == 4) {
-        name = gdioutput::fromUTF8(sg[3]);
+        name = fromUTF8(sg[3]);
         for (int j = 0; j < name.length(); j++) {
           if (name[j] == L'|')
             name[j] = L',';
@@ -7152,12 +7152,12 @@ void oEvent::setStartGroup(int id, int firstStart, int lastStart, const wstring 
 }
 
 void oEvent::updateStartGroups() {
-  getDI().setString("StartGroups", gdibase.widen(encodeStartGroups()));
+  getDI().setString("StartGroups", widen(encodeStartGroups()));
 }
 
 void oEvent::readStartGroups() const {
   auto &sg = getDCI().getString("StartGroups");
-  decodeStartGroups(gdibase.narrow(sg));
+  decodeStartGroups(narrow(sg));
 }
 
 const map<int, StartGroupInfo> &oEvent::getStartGroups(bool reload) const {
@@ -7182,7 +7182,7 @@ MachineContainer &oEvent::getMachineContainer() const {
 }
 
 void oEvent::setRunnerIdTypes(const pair<string, string>& preferredIdType) {
-  wstring coded = gdioutput::widen(preferredIdType.first + ";" + preferredIdType.second);
+  wstring coded = widen(preferredIdType.first + ";" + preferredIdType.second);
   getDI().setString("RunnerIdTypes", coded);
 }
 

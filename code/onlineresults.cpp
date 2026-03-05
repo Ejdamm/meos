@@ -642,8 +642,8 @@ void OnlineResults::saveMachine(oEvent &oe, const wstring &guiInterval) {
   int iv = _wtoi(guiInterval.c_str());
   cnt.set("interval", iv);
 
-  string pwProp = "@respwd" + gdioutput::narrow(getMachineName());
-  oe.setPropertyEncrypt(pwProp.c_str(), gdioutput::toUTF8(passwd));
+  string pwProp = "@respwd" + narrow(getMachineName());
+  oe.setPropertyEncrypt(pwProp.c_str(), toUTF8(passwd));
 
   cnt.set("cmp", cmpId);
   
@@ -672,8 +672,8 @@ void OnlineResults::loadMachine(oEvent &oe, const wstring &name) {
   prefix = cnt->getString("prefix");
   interval = cnt->getInt("interval");
 
-  string pwProp = "@respwd" + gdioutput::narrow(getMachineName());
-  passwd = gdioutput::fromUTF8(oe.getPropertyStringDecrypt(pwProp.c_str(), ""));
+  string pwProp = "@respwd" + narrow(getMachineName());
+  passwd = fromUTF8(oe.getPropertyStringDecrypt(pwProp.c_str(), ""));
 
   cmpId = cnt->getInt("cmp");
 
