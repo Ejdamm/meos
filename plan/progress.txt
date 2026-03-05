@@ -1,0 +1,17 @@
+## Codebase Patterns
+- Every `#include "..."` directive MUST match the exact filename casing on disk (case-sensitive for Linux).
+- Use `python3 verify_includes.py` to check for casing issues.
+
+## 2026-03-05 - US-P0a
+- Fixed 147 include case mismatches in the `code/` directory.
+- Created `verify_includes.py` for automated verification of include casing.
+- Updated `AGENTS.md` and `code/AGENTS.md` with the new casing convention.
+- Updated `.gemini/skills/migration/SKILL.md` with migration learnings.
+- **Learnings for future iterations:**
+  - `stdafx.h` is the most common mismatch (should be `StdAfx.h`).
+  - Many domain headers like `localizer.h`, `meosexception.h` were inconsistently cased in includes.
+  - Using a script to discover all files and then mapping them case-insensitively is the most robust way to find these issues.
+  - Windows doesn't care about casing, but Linux does. Fixing this early is crucial for cross-platform development.
+---
+
+## US-P0a (22m39s)
