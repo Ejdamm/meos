@@ -1,0 +1,757 @@
+{
+  "project": "MeOS Platform Modernization",
+  "description": "Comprehensive modernization of MeOS from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite, producing a cross-platform single-binary application",
+  "userStories": [
+    {
+      "id": "US-P0a",
+      "title": "Fix include case sensitivity",
+      "description": "As a developer, I want all #include directives to match the actual filename casing on disk so that the code compiles on case-sensitive filesystems (Linux).",
+      "acceptanceCriteria": [
+        "Every #include \"...\" directive uses exactly the same casing as the file on disk",
+        "A verification script confirms zero case mismatches",
+        "Windows build (MSBuild) still succeeds",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-P0b",
+      "title": "Extract utility functions from gdioutput",
+      "description": "As a developer, I want widen(), narrow(), toUTF8(), fromUTF8() moved out of gdioutput to meos_util.h/cpp so that domain files don't depend on the GUI header.",
+      "acceptanceCriteria": [
+        "widen(), narrow(), toUTF8(), fromUTF8() are available from meos_util.h or a new string_util.h",
+        "Domain files that only needed these functions no longer include gdioutput.h",
+        "gdioutput retains thin wrappers or using declarations for backward compatibility",
+        "Windows build (MSBuild) still succeeds",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-P0c",
+      "title": "Replace Win32-specific string functions in domain code",
+      "description": "As a developer, I want Windows-only string functions replaced with standard C++ equivalents in domain files so that domain code compiles on any platform.",
+      "acceptanceCriteria": [
+        "No direct calls to _wtoi, sprintf_s, swprintf_s, _itow_s in domain .cpp/.h files",
+        "Replacements use standard C++ (<cstdlib>, <string>, <cwchar>) or cross-platform wrappers",
+        "Windows build (MSBuild) still succeeds",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-P0d",
+      "title": "Replace Win32 types with standard types in domain code",
+      "description": "As a developer, I want Win32-specific type aliases (DWORD, BOOL) replaced with standard C++ types in domain code so that no Windows headers are needed.",
+      "acceptanceCriteria": [
+        "No DWORD or Win32 BOOL usage in domain .cpp/.h files",
+        "#include <cstdint> added where needed",
+        "Windows build (MSBuild) still succeeds",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-P0e",
+      "title": "Normalize path separators in domain code",
+      "description": "As a developer, I want hardcoded backslash path separators replaced with cross-platform alternatives in domain code.",
+      "acceptanceCriteria": [
+        "Domain files use std::filesystem::path or portable path construction",
+        "Hardcoded backslash in file paths replaced (non-escape-sequence uses)",
+        "Windows build (MSBuild) still succeeds",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-P0f",
+      "title": "Decouple oEvent from Tab* UI classes",
+      "description": "As a developer, I want oEvent.cpp decoupled from Tab UI classes (TabList, TabAuto, TabSI) so that the domain aggregate root has no knowledge of the UI layer.",
+      "acceptanceCriteria": [
+        "oEvent.cpp no longer includes TabList.h, TabAuto.h, or TabSI.h",
+        "TabList::baseButtons() call replaced with a callback or interface",
+        "TabAuto::tabAutoKillMachines() call replaced with a callback or interface",
+        "TabSI::getSI().setSubSecondMode() call replaced with a callback or interface",
+        "Tab classes register their callbacks during application initialization",
+        "Windows build (MSBuild) still succeeds",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-001",
+      "title": "CMake build system",
+      "description": "As a developer, I want to build MeOS with CMake so that I can compile on any platform.",
+      "acceptanceCriteria": [
+        "Top-level CMakeLists.txt exists and builds a minimal executable",
+        "vcpkg is integrated as the dependency manager via toolchain file",
+        "vcpkg.json manifest declares all external dependencies",
+        "Builds successfully on Linux (GCC/Clang)",
+        "Precompiled headers are configured for build performance",
+        "Debug and Release configurations work",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Modular source layout",
+      "description": "As a developer, I want source code organized in logical modules so that the codebase is navigable and each layer has clear boundaries.",
+      "acceptanceCriteria": [
+        "src/ directory created with subdirectories: app/, domain/, net/, db/, util/, io/",
+        "CMake targets defined per module (static libraries + main executable)",
+        "Module dependencies are explicit in CMake (no circular dependencies)",
+        "Header include paths configured so bare #include \"oBase.h\" still works within modules",
+        "Builds and links successfully with the new layout",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Test infrastructure",
+      "description": "As a developer, I want a proper test framework so that I can write and run tests for all modules.",
+      "acceptanceCriteria": [
+        "Google Test integrated via vcpkg",
+        "Test targets in CMake for each module (ctest runs all tests)",
+        "At least one smoke test that compiles and runs",
+        "Vitest configured for React frontend with React Testing Library",
+        "Test coverage reporting configured",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013a",
+      "title": "Core utils migration",
+      "description": "As a developer, I want fundamental utility functions and exception handling migrated to src/util/ so they are available to all modules.",
+      "acceptanceCriteria": [
+        "meos_util.h/cpp migrated to src/util/ (cross-platform)",
+        "meosexception.h migrated",
+        "Wide/narrow string conversion (string2Wide, wide2String, narrow, widen) works",
+        "Win32 function replacements (_itow_s -> to_wstring, sprintf_s -> snprintf)",
+        "std::filesystem for file operations",
+        "Unit tests for string conversion and time formatting",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013b",
+      "title": "Parsers migration",
+      "description": "As a developer, I want XML and CSV parsing utilities migrated to src/util/.",
+      "acceptanceCriteria": [
+        "xmlparser.h/cpp migrated to src/util/",
+        "csvparser.h/cpp migrated to src/util/",
+        "Unit tests for xmlparser and csvparser",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013c",
+      "title": "Time handling migration",
+      "description": "As a developer, I want time-related utilities migrated to src/util/.",
+      "acceptanceCriteria": [
+        "TimeStamp.h/cpp migrated to src/util/",
+        "timeconstants.hpp migrated to src/util/",
+        "Unit tests for TimeStamp",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013d",
+      "title": "Localization migration",
+      "description": "As a developer, I want the i18n/localization system migrated to src/util/ with cross-platform file loading.",
+      "acceptanceCriteria": [
+        "localizer.h/cpp migrated to src/util/ (fully cross-platform)",
+        "Win32 resource loading replaced with std::ifstream + codecvt",
+        ".lng files copied to resources/lang/",
+        "Unit tests for localizer",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003a",
+      "title": "Domain foundation — oBase, oDataContainer",
+      "description": "As a developer, I want the foundational base classes that all domain entities depend on migrated to src/domain/.",
+      "acceptanceCriteria": [
+        "oBase.h/cpp migrated to src/domain/",
+        "oDataContainer.h/cpp migrated with oDataInterface/oDataConstInterface",
+        "domain_header.h created with common enums and forward declarations",
+        "datadefiners.h migrated",
+        "Stubs created for oEvent.h and other dependents",
+        "Domain library compiles with dependency on util only",
+        "Unit tests for oBase basics",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003b",
+      "title": "Simple entities — oControl, oPunch",
+      "description": "As a developer, I want the simplest domain entities with fewest external dependencies migrated to src/domain/.",
+      "acceptanceCriteria": [
+        "oControl.h/cpp and oPunch.h/cpp migrated to src/domain/",
+        "SpecialPunch enum moved to domain_header.h to avoid circular deps",
+        "Win32 string functions replaced with meos_util equivalents",
+        "Stubs for oCourse, oClass, oRunner, oCard, oFreePunch",
+        "Unit tests for oControl and oPunch",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003c",
+      "title": "Domain entity — oClub",
+      "description": "As a developer, I want the club entity migrated to src/domain/.",
+      "acceptanceCriteria": [
+        "oClub.h/cpp migrated to src/domain/",
+        "Common enums centralized in src/util/common_enums.h",
+        "Unit tests for oClub",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003d",
+      "title": "Domain entity — oCourse",
+      "description": "As a developer, I want the course entity migrated to src/domain/ with full implementation.",
+      "acceptanceCriteria": [
+        "oCourse.h/cpp migrated to src/domain/ (full implementation, not stub)",
+        "Course-control relationship works",
+        "Length, climb, and course properties preserved",
+        "Unit tests for oCourse operations",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003e",
+      "title": "Domain entity — oClass + class configuration",
+      "description": "As a developer, I want the class entity and related configuration migrated to src/domain/.",
+      "acceptanceCriteria": [
+        "oClass.h/cpp migrated to src/domain/ (full implementation, not stub)",
+        "classconfiginfo.h/cpp migrated",
+        "Class-course assignment works",
+        "Start methods (individual, mass, pursuit, etc.) preserved",
+        "qualifications.h/cpp migrated",
+        "Unit tests for oClass operations",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003f",
+      "title": "Domain entities — oCard + oFreePunch",
+      "description": "As a developer, I want the card readout and free punch entities migrated to src/domain/.",
+      "acceptanceCriteria": [
+        "oCard.h/cpp migrated to src/domain/ (full implementation, not stub)",
+        "oFreePunch.h/cpp migrated (full implementation, not stub)",
+        "SICard.h data structure available in src/util/ or src/domain/",
+        "Card-punch matching logic preserved",
+        "Unit tests for card operations",
+        "Typecheck passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003g",
+      "title": "Domain entity — oRunner",
+      "description": "As a developer, I want the runner entity migrated to src/domain/ with full implementation. This is the largest and most complex entity (~230KB).",
+      "acceptanceCriteria": [
+        "oRunner.h/cpp migrated to src/domain/ (full implementation replacing stub)",
+        "Runner-class, runner-club, runner-card relationships work",
+        "Status computation (OK, DNS, DNF, DSQ, MP) works",
+        "Split time computation works",
+        "oAbstractRunner shared logic with oTeam preserved",
+        "Unit tests for runner status, splits, and result computation",
+        "Typecheck passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "Risk: oRunner is extremely large and coupled. Consider migrating a simplified version first, then backfilling logic incrementally."
+    },
+    {
+      "id": "US-003h",
+      "title": "Domain entity — oTeam",
+      "description": "As a developer, I want the team entity migrated to src/domain/ with full implementation.",
+      "acceptanceCriteria": [
+        "oTeam.h/cpp migrated to src/domain/ (full implementation)",
+        "Team-runner membership works",
+        "Relay leg computation works",
+        "Unit tests for team operations",
+        "Typecheck passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003i",
+      "title": "Domain aggregate root — oEvent",
+      "description": "As a developer, I want the full oEvent implementation migrated as the aggregate root owning all domain collections.",
+      "acceptanceCriteria": [
+        "oEvent.cpp full implementation replaces skeleton stub",
+        "oEventDraw.cpp — class drawing and start list generation migrated",
+        "oEventResult.cpp — result computation orchestration migrated",
+        "Event owns and manages all entity collections",
+        "Competition create/open/save lifecycle works",
+        "Integration tests covering entity relationships through oEvent",
+        "Typecheck passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "Risk: oEvent is massive. Migrate core ownership first, then draw, then results."
+    },
+    {
+      "id": "US-003j",
+      "title": "GeneralResult + result engine",
+      "description": "As a developer, I want the pluggable result computation engine migrated to src/domain/.",
+      "acceptanceCriteria": [
+        "generalresult.h/cpp migrated (full implementation)",
+        "Strategy pattern for scoring algorithms preserved",
+        "metalist.h/cpp for output formatting migrated",
+        "oListInfo migrated",
+        "Result computation produces correct results for individual and relay formats",
+        "Unit tests for result computation with known test data",
+        "Typecheck passes"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003k",
+      "title": "Domain cleanup — remove stubs and verify",
+      "description": "As a developer, I want all temporary stubs removed and the domain layer verified to compile cleanly with no Win32 dependencies.",
+      "acceptanceCriteria": [
+        "All stubs (gdioutput stub, oSpeaker stub, Table stub, MeOSFeatures stub) removed or replaced with proper interfaces",
+        "No #ifdef _WIN32 guards in domain code (except win_types.h shims)",
+        "Domain library compiles on Linux",
+        "No direct Win32/GDI includes in domain code",
+        "Full test suite passes",
+        "oDataContainer/oDataInterface pattern verified working",
+        "Typecheck passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004a",
+      "title": "Database abstraction + connection + migrations",
+      "description": "As a developer, I want SQLite connection management and a migration system set up in src/db/.",
+      "acceptanceCriteria": [
+        "src/db/ contains SQLiteDatabase with connection management",
+        "Migration system using _migrations table",
+        "Initial schema (V1) for runners and clubs",
+        "Unit tests for database operations and migrations",
+        "Typecheck passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004b",
+      "title": "Schema for simple entities",
+      "description": "As a developer, I want schema and CRUD for clubs, controls, and courses in the SQLite layer.",
+      "acceptanceCriteria": [
+        "Schema migration for clubs, controls, courses",
+        "CRUD operations (insert, get, update, delete) for each entity",
+        "Repository/DAO pattern for data access",
+        "Unit tests for each entity's CRUD operations",
+        "Typecheck passes"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004c",
+      "title": "Schema for complex entities",
+      "description": "As a developer, I want schema and CRUD for runners, classes, cards, and punches in the SQLite layer.",
+      "acceptanceCriteria": [
+        "Schema migration for runners, classes, cards, punches, free punches",
+        "Foreign key relationships enforced",
+        "CRUD operations with relationship loading (e.g., runner with club/class)",
+        "Unit tests for complex entity operations",
+        "Typecheck passes"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004d",
+      "title": "Schema for events + teams",
+      "description": "As a developer, I want event and team persistence completing the full SQLite schema.",
+      "acceptanceCriteria": [
+        "Schema migration for events and teams",
+        "Team-runner membership persistence",
+        "Event metadata (name, date, settings) persistence",
+        "Concurrent access handled appropriately",
+        "Full integration test: create event -> add entities -> query back",
+        "SQLite database is a single file in the working directory",
+        "Typecheck passes"
+      ],
+      "priority": 28,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005a",
+      "title": "API framework + error handling",
+      "description": "As a frontend developer, I want the HTTP server, routing infrastructure, JSON serialization, and error handling set up.",
+      "acceptanceCriteria": [
+        "HTTP server (cpp-httplib or restbed) integrated and running",
+        "Route registration pattern established",
+        "JSON request parsing and response serialization (nlohmann-json)",
+        "Consistent error response format with error codes",
+        "Input validation framework with meaningful error messages",
+        "API versioning (/api/v1/...)",
+        "Unit tests for routing and error handling",
+        "Typecheck passes"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005b",
+      "title": "Club + control endpoints",
+      "description": "As a frontend developer, I want CRUD endpoints for clubs and controls.",
+      "acceptanceCriteria": [
+        "GET/POST/PUT/DELETE /api/v1/clubs and /api/v1/clubs/{id}",
+        "GET/POST/PUT/DELETE /api/v1/controls and /api/v1/controls/{id}",
+        "List endpoints support basic filtering",
+        "Integration tests for each endpoint",
+        "Typecheck passes"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005c",
+      "title": "Course + class endpoints",
+      "description": "As a frontend developer, I want CRUD endpoints for courses and classes including their relationships.",
+      "acceptanceCriteria": [
+        "GET/POST/PUT/DELETE /api/v1/courses and /api/v1/courses/{id}",
+        "GET/POST/PUT/DELETE /api/v1/classes and /api/v1/classes/{id}",
+        "Course-control sequence in responses",
+        "Class-course assignment in requests/responses",
+        "Integration tests",
+        "Typecheck passes"
+      ],
+      "priority": 31,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005d",
+      "title": "Runner + team endpoints",
+      "description": "As a frontend developer, I want CRUD endpoints for runners and teams with filtering and pagination.",
+      "acceptanceCriteria": [
+        "GET/POST/PUT/DELETE /api/v1/runners and /api/v1/runners/{id}",
+        "GET/POST/PUT/DELETE /api/v1/teams and /api/v1/teams/{id}",
+        "Filtering by name, club, class",
+        "Pagination support",
+        "Competition entity endpoint (GET/PUT /api/v1/competitions)",
+        "Integration tests",
+        "Typecheck passes"
+      ],
+      "priority": 32,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Competition operations API",
+      "description": "As a frontend developer, I want API endpoints for competition-specific operations (start lists, results, card readout).",
+      "acceptanceCriteria": [
+        "GET /api/v1/results returns computed results (per class, overall)",
+        "GET /api/v1/startlist returns start lists",
+        "POST /api/v1/cards handles card readout data submission",
+        "POST /api/v1/runners/{id}/status allows manual status changes (DNS, DNF, DSQ)",
+        "Result computation uses existing GeneralResult logic",
+        "Endpoints support both preliminary and final results",
+        "Typecheck passes"
+      ],
+      "priority": 33,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "React + TypeScript web GUI shell",
+      "description": "As a user, I want a modern web-based interface shell so that I can manage competitions from any browser.",
+      "acceptanceCriteria": [
+        "React 18+ app with TypeScript in src/ui/web/",
+        "Vite as build tool",
+        "Routing with React Router (tabs map to routes: /runners, /classes, /clubs, etc.)",
+        "API client layer with typed interfaces matching REST API",
+        "Basic layout: navigation sidebar/tabs + content area",
+        "Responsive design (works on tablets for field use)",
+        "Production build outputs static files that the C++ server serves",
+        "Typecheck passes"
+      ],
+      "priority": 34,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Web GUI — competition management",
+      "description": "As a competition organizer, I want to create and configure competitions, manage classes, courses, and clubs through the web interface.",
+      "acceptanceCriteria": [
+        "Create/open/save competition",
+        "CRUD interface for classes (name, course assignment, start method)",
+        "CRUD interface for courses (name, length, controls)",
+        "CRUD interface for clubs",
+        "CRUD interface for controls",
+        "Form validation with user-friendly error messages",
+        "Typecheck passes"
+      ],
+      "priority": 35,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009a",
+      "title": "Web GUI — runner & team CRUD",
+      "description": "As a competition organizer, I want basic create/read/update/delete for runners and teams in the web interface.",
+      "acceptanceCriteria": [
+        "CRUD interface for runners (name, club, class, start time, card number)",
+        "CRUD interface for teams (name, club, class, members)",
+        "Search/filter runners by name, club, class",
+        "Form validation with user-friendly error messages",
+        "Typecheck passes"
+      ],
+      "priority": 36,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009b",
+      "title": "Web GUI — import runners",
+      "description": "As a competition organizer, I want to import runners from external data sources.",
+      "acceptanceCriteria": [
+        "Import runners from CSV",
+        "Import runners from IOF XML",
+        "Preview before import with conflict detection",
+        "Error reporting for invalid data",
+        "Typecheck passes"
+      ],
+      "priority": 37,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009c",
+      "title": "Web GUI — bulk operations",
+      "description": "As a competition organizer, I want efficient operations on multiple runners at once.",
+      "acceptanceCriteria": [
+        "Select multiple runners",
+        "Bulk assign class",
+        "Bulk assign start times (draw)",
+        "Bulk status changes",
+        "Typecheck passes"
+      ],
+      "priority": 38,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010a",
+      "title": "Web GUI — results & start list views",
+      "description": "As a competition organizer, I want to view results and start lists in the web interface.",
+      "acceptanceCriteria": [
+        "Results view per class with split times",
+        "Start list view per class",
+        "Print-friendly result formatting",
+        "Typecheck passes"
+      ],
+      "priority": 39,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010b",
+      "title": "Web GUI — live results",
+      "description": "As a competition organizer, I want auto-updating results for live competition monitoring.",
+      "acceptanceCriteria": [
+        "Auto-refresh for live results (polling initially)",
+        "Visual indication of recent changes",
+        "Configurable refresh interval",
+        "Typecheck passes"
+      ],
+      "priority": 40,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010c",
+      "title": "Web GUI — results export",
+      "description": "As a competition organizer, I want to export results in standard formats.",
+      "acceptanceCriteria": [
+        "Export results as CSV",
+        "Export results as IOF XML",
+        "Export start lists",
+        "Typecheck passes"
+      ],
+      "priority": 41,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014a",
+      "title": "IOF 3.0 XML import/export",
+      "description": "As a developer, I want IOF XML import and export migrated to src/io/.",
+      "acceptanceCriteria": [
+        "iof30interface.h/cpp migrated to src/io/",
+        "IOF 3.0 XML import works (runners, classes, clubs, courses)",
+        "IOF 3.0 XML export works (results, start lists)",
+        "Platform-independent (no Win32 XML APIs)",
+        "Unit tests with sample IOF XML files",
+        "Typecheck passes"
+      ],
+      "priority": 42,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014b",
+      "title": "CSV import/export",
+      "description": "As a developer, I want CSV data exchange migrated to src/io/.",
+      "acceptanceCriteria": [
+        "CSV import for runners migrated to src/io/",
+        "CSV export for results/start lists migrated",
+        "Unit tests for CSV round-trip",
+        "Typecheck passes"
+      ],
+      "priority": 43,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014c",
+      "title": "HTML result generation",
+      "description": "As a developer, I want HTML output for results and lists migrated to src/io/.",
+      "acceptanceCriteria": [
+        "HTML result generation migrated to src/io/",
+        "Templates work cross-platform",
+        "Unit tests for HTML output",
+        "Typecheck passes"
+      ],
+      "priority": 44,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014d",
+      "title": "PDF generation",
+      "description": "As a developer, I want PDF output using libharu migrated to src/io/.",
+      "acceptanceCriteria": [
+        "PDF generation (libharu) migrated to src/io/",
+        "libharu available via vcpkg",
+        "PDF output works on Linux and Windows",
+        "Unit tests for PDF generation",
+        "Typecheck passes"
+      ],
+      "priority": 45,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Static file serving from C++ server",
+      "description": "As a user, I want the C++ executable to serve the React frontend so that no separate web server is needed.",
+      "acceptanceCriteria": [
+        "C++ HTTP server serves static files from an embedded or bundled directory",
+        "index.html served at / with SPA fallback (all non-API routes serve index.html)",
+        "Correct MIME types for .js, .css, .html, .svg, .png, .woff2",
+        "Gzip/compression for static assets",
+        "React production build is integrated into CMake build process",
+        "Typecheck passes"
+      ],
+      "priority": 46,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "CI/CD pipeline",
+      "description": "As a developer, I want automated builds, tests, and quality checks on every push and PR.",
+      "acceptanceCriteria": [
+        "GitHub Actions workflow builds on Linux and Windows",
+        "All C++ tests run in CI",
+        "All frontend tests run in CI",
+        "Linting: clang-tidy for C++, ESLint + Prettier for TypeScript",
+        "Build artifacts uploaded (executables for Linux and Windows)",
+        "CI runs on push to main and on pull requests",
+        "Typecheck passes"
+      ],
+      "priority": 47,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Remove Win32 GUI code",
+      "description": "As a developer, I want Win32-specific GUI code removed so that the codebase is platform-independent.",
+      "acceptanceCriteria": [
+        "All Tab*.cpp/h files removed or migrated to web equivalents",
+        "gdioutput.cpp/h and related GDI files removed",
+        "Win32-specific APIs (CreateWindow, SendMessage, etc.) eliminated from core code",
+        "No Windows-only headers (windows.h, commctrl.h) in domain or server code",
+        "Application compiles and runs on Linux without Win32 dependencies",
+        "Typecheck passes"
+      ],
+      "priority": 48,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
