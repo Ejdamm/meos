@@ -28,3 +28,24 @@
 ---
 
 ## US-P0b (43m43s)
+
+## 2026-03-05 - US-P0c
+- Replaced Win32-specific string functions (_wtoi, _itow_s, swprintf_s, sprintf_s, _stricmp, _wcsicmp, lstrcmpi, _wtof, _wtoi64) with standard C++ or portable equivalents in domain code.
+- Added portable case-insensitive comparison wrappers (compareStringIgnoreCase) to meos_util.h/cpp.
+- Updated StdAfx.h to include <cstdio> and <cwchar>.
+- Refactored meos_util.cpp to use standard string functions.
+- Fixed 100+ occurrences across all domain files (o*.cpp/h, generalresult.cpp/h, metalist.cpp/h, datadefiners.h).
+- **Learnings for future iterations:**
+  - Case-insensitive string comparison is one of the most common Win32-specific patterns (stricmp/wcsicmp/lstrcmpi). A central wrapper is better than manual replacement.
+  - swprintf/snprintf are standard but have slightly different behavior/signatures than swprintf_s/sprintf_s in MSVC (especially regarding buffer size inference). Always specify the size explicitly for portability.
+  - Some legacy files use ISO-8859 encoding, which can cause issues with UTF-8 based tools.
+  - Domain files are mostly o*.cpp/h but also include datadefiners.h, generalresult.cpp, and metalist.cpp.
+---
+
+## US-P0c (32m19s)
+
+## iteration-1 (4m49s)
+
+## iteration-1 (7m08s)
+
+## iteration-1 (5m44s)

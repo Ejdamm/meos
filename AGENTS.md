@@ -67,6 +67,19 @@ Wide strings (`wstring`) are the primary string type (Swedish/internationalized 
 
 **Legacy `gdioutput` static methods still exist but are thin wrappers.** Avoid adding new dependencies on `gdioutput.h` if you only need string utilities.
 
+### Portable String Functions
+
+**Always use standard C++ or portable wrappers from `meos_util.h` instead of Win32-specific string functions:**
+
+- Use `compareStringIgnoreCase(a, b)` instead of `_stricmp`, `_wcsicmp`, or `lstrcmpi`.
+- Use `snprintf` and `swprintf` instead of `sprintf_s` and `swprintf_s`. Note that standard `swprintf` requires the buffer size as the second argument.
+- Use `std::wcstol` or `std::stoi` instead of `_wtoi`.
+- Use `std::wcstod` instead of `_wtof`.
+- Use `std::wcstoll` instead of `_wtoi64`.
+- Use `itow(int)` or `itos(int)` for simple integer to string conversions (returns `wstring`/`string`).
+
+Legacy string functions have been replaced in all domain files to ensure cross-platform compatibility.
+
 ### Error handling
 
 Custom exception `meosException` (with `wwhat()` for wide-string messages) and `meosCancel` for cancellation. Most functions prefer returning bool/error codes; exceptions are for critical failures.

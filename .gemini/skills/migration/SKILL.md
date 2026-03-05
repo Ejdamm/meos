@@ -77,11 +77,14 @@ Redefine common Win32 types in `src/util/win_types.h` for Linux compatibility:
 Replace Win32-specific:
 | Win32 | Standard C++ replacement |
 |-------|--------------------------|
-| `_itow_s` | `std::to_wstring` |
+| `_itow_s` | `swprintf(buf, size, L"%d", val)` |
 | `sprintf_s` | `snprintf` |
-| `swprintf_s` | `swprintf` (shimmed) |
-| `_stricmp` | `strcasecmp` (POSIX) |
-| `_wcsicmp` | `wcscasecmp` (POSIX) |
+| `swprintf_s` | `swprintf` |
+| `_stricmp` / `_wcsicmp` | `compareStringIgnoreCase(a, b)` |
+| `lstrcmpi` | `compareStringIgnoreCase(a, b)` |
+| `_wtoi` | `(int)std::wcstol(str, nullptr, 10)` |
+| `_wtof` | `std::wcstod(str, nullptr)` |
+| `_wtoi64` | `(long long)std::wcstoll(str, nullptr, 10)` |
 | `MultiByteToWideChar` | `codecvt` / `widen()` |
 
 ### 4. Circular Dependency Management
@@ -126,12 +129,8 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 - Files that only used these functions (e.g., `machinecontainer.cpp`, `infoserver.cpp`) no longer include `gdioutput.h`.
 - Static and member calls to these functions have been globally replaced with global calls across the legacy codebase.
 
-**Win32-specific functions in domain files (~58 calls):**
-- `oDataContainer.cpp`: 38 uses (`swprintf_s`, `_itow_s`)
-- `oClass.cpp`: 24 uses (mixed string operations)
-- `oEventSQL.cpp`: 13 uses (`swprintf_s`)
-- `oRunner.cpp`: 10 uses (`_wtoi`)
-- `oEvent.cpp`: 7 uses (`_wtoi`)
+**Win32-specific functions in domain files:**
+- All calls to `_wtoi`, `sprintf_s`, `swprintf_s`, `_itow_s`, `_wtoi64`, `_wtof`, `_stricmp`, `_wcsicmp`, and `lstrcmpi` have been replaced with standard C++ or portable equivalents (e.g., `compareStringIgnoreCase`) in domain files (`o*.cpp/h`, `generalresult.cpp/h`, `metalist.cpp/h`, `datadefiners.h`).
 
 **Win32 types in domain code (~90 uses):**
 - `DWORD` (~50 uses) — replace with `uint32_t`

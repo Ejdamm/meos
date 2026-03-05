@@ -159,10 +159,10 @@ public:
       type = 0;
     if (type == 2 || input.find_first_of('.') != wstring::npos) {
       pRunner r = pRunner(ob);
-      r->setRankingScore(_wtof(input.c_str()));
+      r->setRankingScore(std::wcstod(input.c_str(), nullptr));
     }
     else {
-      int rank = _wtoi(input.c_str());
+      int rank = (int)std::wcstol(input.c_str(), nullptr, 10);
       if (rank >= 0 && rank < MaxOrderRank)
         ob->getDI().setInt("Rank", rank);
     }
@@ -226,7 +226,7 @@ public:
       vector<wstring> sIn;
       split(input, L" ", sIn);
       for (wstring& in : sIn) {
-        int num = _wtoi(in.c_str());
+        int num = (int)std::wcstol(in.c_str(), nullptr, 10);
         if (in.find_first_of(':') != input.npos) {
           int t = ob->getEvent()->convertAbsoluteTime(input);
           if (t > 0) {
@@ -308,7 +308,7 @@ public:
     return lang.tl(v ? "true[boolean]" : "false[boolean]");
   }
   pair<int, bool> setData(oBase* obj, int index, const wstring& input, wstring& output, int inputId) const override {
-    bool v = compareStringIgnoreCase(L"true", input) == 0 || _wtoi64(input.c_str()) > 0;
+    bool v = compareStringIgnoreCase(L"true", input) == 0 || (long long)std::wcstoll(input.c_str(), nullptr, 10) > 0;
     if (!v) {
       const wstring& T = lang.tl("true[boolean]");
       v = compareStringIgnoreCase(T, input) == 0;
@@ -506,7 +506,7 @@ public:
   pair<int, bool> setData(oBase* obj, int index, const wstring& input, wstring& output, int inputId) const final {
     oAbstractRunner* r = static_cast<oAbstractRunner*>(obj);
     bool flag = false;
-    if (lstrcmpi(L"true", input.c_str()) == 0 || _wtoi(input.c_str()) != 0)
+    if (compareStringIgnoreCase(L"true", input.c_str()) == 0 || (int)std::wcstol(input.c_str(), nullptr, 10) != 0)
       flag = true;
     r->setFlag(fieldOrder[index].first, flag);
     output = formatData(obj, index);
@@ -517,23 +517,23 @@ public:
     fieldOrder.clear();
     int first = 100;
     if (!forTeam) {
-      first = table->addColumn("Anmäld API", max(minWidth, 90), false).firstColumn();
+      first = table->addColumn("Anmï¿½ld API", max(minWidth, 90), false).firstColumn();
       fieldOrder.emplace_back(oAbstractRunner::FlagAddedViaAPI, false);
 
-      table->addColumn("Förskottsbetalning", max(minWidth, 90), false);
+      table->addColumn("Fï¿½rskottsbetalning", max(minWidth, 90), false);
       fieldOrder.emplace_back(oAbstractRunner::FlagPayBeforeResult, true);
 
-      table->addColumn("Ändrad bricka", max(minWidth, 90), false);
+      table->addColumn("ï¿½ndrad bricka", max(minWidth, 90), false);
       fieldOrder.emplace_back(oAbstractRunner::FlagUpdateCard, false);
 
-      table->addColumn("Ändrad avgift", max(minWidth, 90), false);
+      table->addColumn("ï¿½ndrad avgift", max(minWidth, 90), false);
       fieldOrder.emplace_back(oAbstractRunner::FlagFeeSpecified, false);
     }
 
-    first = min(first, table->addColumn("Ändrat namn", max(minWidth, 90), false).firstColumn());
+    first = min(first, table->addColumn("ï¿½ndrat namn", max(minWidth, 90), false).firstColumn());
     fieldOrder.emplace_back(oAbstractRunner::FlagUpdateName, false);
 
-    table->addColumn("Ändrad klass", max(minWidth, 90), false);
+    table->addColumn("ï¿½ndrad klass", max(minWidth, 90), false);
     fieldOrder.emplace_back(oAbstractRunner::FlagUpdateClass, false);
 
     return TableColSpec(first, fieldOrder.size());

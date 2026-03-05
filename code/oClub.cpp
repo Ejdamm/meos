@@ -198,10 +198,10 @@ void oClub::internalSetName(const wstring &n) {
           skip = skip && w[i] >= 'A' && w[i] <= 'Z';
         }
       }
-      else if (_wcsicmp(w.c_str(),L"GOIF") == 0 || 
-        _wcsicmp(w.c_str(), L"Orientering") == 0 ||
-        _wcsicmp(w.c_str(), L"Orienteering") == 0 ||
-        _wcsicmp(w.c_str(), L"Suunnistajat") == 0)
+      else if (compareStringIgnoreCase(w.c_str(),L"GOIF") == 0 || 
+        compareStringIgnoreCase(w.c_str(), L"Orientering") == 0 ||
+        compareStringIgnoreCase(w.c_str(), L"Orienteering") == 0 ||
+        compareStringIgnoreCase(w.c_str(), L"Suunnistajat") == 0)
         skip = true;
       else {
         int pCount = 0;
@@ -281,7 +281,7 @@ pClub oEvent::getClubCreate(int Id, const wstring &createName)
     //if (mit!=clubIdIndex.end()) {
     pClub value;
     if (clubIdIndex.lookup(Id, value)) {
-      if (!trim(createName).empty() && _wcsicmp(value->getName().c_str(), trim(createName).c_str())!=0)
+      if (!trim(createName).empty() && compareStringIgnoreCase(value->getName().c_str(), trim(createName).c_str())!=0)
         Id = 0; //Bad, used Id.
       if (trim(createName).empty() || Id>0)
         return value;
@@ -298,7 +298,7 @@ pClub oEvent::getClubCreate(int Id, const wstring &createName)
 
     //Maybe club exist under different ID
     for (it=Clubs.begin(); it != Clubs.end(); ++it)
-      if (_wcsicmp(it->name.c_str(), tname.c_str())==0)
+      if (compareStringIgnoreCase(it->name.c_str(), tname.c_str())==0)
         return &*it;
 
     //Else, create club.
@@ -1080,7 +1080,7 @@ void oEvent::updateClubsFromDB()
 
 bool oClub::sameClub(const oClub &c)
 {
-  return _wcsicmp(name.c_str(), c.name.c_str())==0;
+  return compareStringIgnoreCase(name.c_str(), c.name.c_str())==0;
 }
 
 void oClub::remove()

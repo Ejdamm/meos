@@ -10,6 +10,8 @@
 
 #include <windows.h>
 #include <commctrl.h>
+#include <cstdio>
+#include <cwchar>
 #include "timeconstants.hpp"
 
 // C RunTime Header Files

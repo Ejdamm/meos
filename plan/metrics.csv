@@ -1,3 +1,7 @@
 task_id,tool,start_time,duration_seconds,status
 US-P0a,gemini,2026-03-05T08:20:00+01:00,1359,continuing
 US-P0b,gemini,2026-03-05T08:57:50+01:00,2623,continuing
+US-P0c,gemini,2026-03-05T09:43:21+01:00,1939,continuing
+iteration-1,gemini,2026-03-05T10:41:36+01:00,289,continuing
+iteration-1,gemini,2026-03-05T10:48:07+01:00,428,continuing
+iteration-1,gemini,2026-03-05T10:56:25+01:00,344,continuing

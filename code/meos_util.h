@@ -140,6 +140,9 @@ const T& unsplit(const vector<T>& split_vector, const T& separators, T& line);
 
 // Compare two strings, ignore case. 0 = equal, != zero compares as the integers.
 int compareStringIgnoreCase(const wstring &a, const wstring &b);
+int compareStringIgnoreCase(const string &a, const string &b);
+int compareStringIgnoreCase(const wchar_t *a, const wchar_t *b);
+int compareStringIgnoreCase(const char *a, const char *b);
 const wstring &limitText(const wstring& tIn, size_t numChar);
 wstring ensureEndingColon(const wstring &text);
 
