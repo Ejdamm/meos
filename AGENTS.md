@@ -46,6 +46,10 @@ oBase (abstract base: ID, change tracking, data interface)
 - Temporary/computed member variables: `t` prefix (`tStatus`, `tComputedTime`)
 - Methods: camelCase (`getId()`, `updateChanged()`)
 
+### Includes & Casing
+
+**Every `#include "..."` directive MUST match the exact filename casing on disk.** This is required for compatibility with Linux and other case-sensitive filesystems. All legacy code in `code/` has been fixed to follow this convention. Run `python3 verify_includes.py` to confirm.
+
 ### Strings
 
 Wide strings (`wstring`) are the primary string type (Swedish/internationalized UI). Narrow `string` is used for internal/config data. Conversion via `string2Wide()` in `meos_util.h`.

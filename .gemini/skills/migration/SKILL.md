@@ -57,37 +57,9 @@ Redefine common Win32 types in `src/util/win_types.h` for Linux compatibility:
 
 ### 2. Header & Include Fixes
 
-- **Case sensitivity**: Windows is case-insensitive; Linux is not. Filenames like `StdAfx.h` vs `stdafx.h` break on Linux.
+- **Case sensitivity**: Windows is case-insensitive; Linux is not. Filenames like `StdAfx.h` vs `stdafx.h` break on Linux. All known case mismatches in `code/` (147 total) have been fixed.
 
-**Known case mismatches in `code/` (146 total, fix before migration):**
-
-| Include as written | Actual filename | Count |
-|---|---|---|
-| `stdafx.h` | `StdAfx.h` | 89 |
-| `meosException.h` | `meosexception.h` | 15 |
-| `Localizer.h` | `localizer.h` | 15 |
-| `tabbase.h` | `TabBase.h` | 14 |
-| `table.h` | `Table.h` | 3 |
-| `Download.h` | `download.h` | 3 |
-| `oSpeaker.h` | `ospeaker.h` | 2 |
-| `oclub.h` | `oClub.h` | 1 |
-| `runnerdb.h` | `RunnerDB.h` | 1 |
-| `MetaList.h` | `metalist.h` | 1 |
-| `IOF30Interface.h` | `iof30interface.h` | 1 |
-| `ClassConfigInfo.h` | `classconfiginfo.h` | 1 |
-
-- **Batch fix** includes with sed:
-  ```bash
-  # Fix stdafx.h includes across migrated files
-  find src/ -name '*.cpp' -o -name '*.h' | xargs sed -i 's/#include "stdafx.h"/#include "win_types.h"/gI'
-
-  # Find case-mismatched includes
-  grep -rn '#include "' src/ | while read line; do
-    file=$(echo "$line" | sed 's/.*#include "\([^"]*\)".*/\1/')
-    dir=$(dirname "$(echo "$line" | cut -d: -f1)")
-    if [ ! -f "$dir/$file" ]; then echo "MISSING: $line"; fi
-  done
-  ```
+- **Verification**: Run `python3 verify_includes.py` from the project root to confirm zero case mismatches for `#include "..."` directives.
 
 ### 3. String Conversions
 
