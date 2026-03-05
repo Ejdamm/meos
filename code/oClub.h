@@ -27,6 +27,7 @@
 
 #include <map>
 #include "oBase.h"
+#include <cstdint>
 
 class oEvent;
 
@@ -67,8 +68,8 @@ protected:
   
   static const int dataSize = 768;
   int getDISize() const final {return dataSize;}
-  BYTE oData[dataSize];
-  BYTE oDataOld[dataSize];
+  uint8_t oData[dataSize];
+  uint8_t oDataOld[dataSize];
 
   int tNumRunners;
   int tFee;

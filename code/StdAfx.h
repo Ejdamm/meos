@@ -12,6 +12,7 @@
 #include <commctrl.h>
 #include <cstdio>
 #include <cwchar>
+#include <cstdint>
 #include "timeconstants.hpp"
 
 // C RunTime Header Files

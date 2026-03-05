@@ -56,8 +56,8 @@
         "Typecheck passes"
       ],
       "priority": 4,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Replaced DWORD, BOOL, WORD, BYTE, LPWSTR with standard types in domain files (o*.cpp/h, generalresult.*, metalist.*, datadefiners.h, xmlparser.*, meos_util.*, onlineinput.h, MeosSQL.*). Added #include <cstdint> to headers as required."
     },
     {
       "id": "US-P0e",
@@ -70,8 +70,8 @@
         "Typecheck passes"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Normalized 47+ hardcoded backslashes in path literals and construction across domain files (o*.cpp, meos_util.cpp, meos.cpp, zip.cpp, HTMLWriter.cpp, etc.) using std::filesystem::path and forward slashes. Added path alias to StdAfx.h."
     },
     {
       "id": "US-P0f",

@@ -50,9 +50,9 @@ string convertSystemDateN(const SYSTEMTIME &st);
 string convertSystemTimeOnlyN(const SYSTEMTIME &st);
 extern int defaultCodePage;
 
-DWORD mainThreadId = -1;
+uint32_t mainThreadId = -1;
 StringCache &StringCache::getInstance() {
-  DWORD id = GetCurrentThreadId();
+  uint32_t id = GetCurrentThreadId();
   if (mainThreadId == -1)
     mainThreadId = id;
   else if (mainThreadId != id)
@@ -276,7 +276,7 @@ int convertDateYMD(const string& m, SYSTEMTIME& st, bool checkValid) {
   int len = m.length();
   int dashCount = 0;
   for (int k = 0; k < len; k++) {
-    BYTE b = m[k];
+    uint8_t b = m[k];
     if (b == 'T')
       break;
     if (!(b == '-' || b == ' ' || (b >= '0' && b <= '9')))
@@ -416,7 +416,7 @@ int convertAbsoluteTimeHMS(const string &m, int daysZeroTime) {
 
   int plusIndex = -1;
   for (int k=0;k<len;k++) {
-    BYTE b=m[k];
+    uint8_t b=m[k];
     if ( !(isspace(b) || b==':' || (b>='0' && b<='9') || b == '.' || b == ',') ) {
       if (b=='+' && plusIndex ==-1 && k>0)
         plusIndex = k;
@@ -1039,11 +1039,11 @@ string trim(const string &s)
   int len=s.length();
 
   int i=0;
-  while(i<len && (isspace(BYTE(ptr[i])) || BYTE(ptr[i])==BYTE(160))) i++;
+  while(i<len && (isspace(uint8_t(ptr[i])) || uint8_t(ptr[i])==uint8_t(160))) i++;
 
   int k=len-1;
 
-  while(k>=0 && (isspace(BYTE(ptr[k])) || BYTE(ptr[i])==BYTE(160))) k--;
+  while(k>=0 && (isspace(uint8_t(ptr[k])) || uint8_t(ptr[i])==uint8_t(160))) k--;
 
   if (i == 0 && k == len-1)
     return s;
@@ -1684,13 +1684,13 @@ wstring getErrorMessage(int code) {
 /* Hue is undefined if Saturation is 0 (grey-scale) */
 #define UNDEFINED (HLSMAX*2/3)
 
-HLS &HLS::RGBtoHLS(DWORD lRGBColor)
+HLS &HLS::RGBtoHLS(uint32_t lRGBColor)
 {
-  WORD R,G,B;          /* input RGB values */
-  BYTE cMax,cMin;      /* max and min RGB values */
-  WORD  Rdelta,Gdelta,Bdelta; /* intermediate value: % of spread from max
+  uint16_t R,G,B;          /* input RGB values */
+  uint8_t cMax,cMin;      /* max and min RGB values */
+  uint16_t  Rdelta,Gdelta,Bdelta; /* intermediate value: % of spread from max
                               */
-  /* get R, G, and B out of DWORD */
+  /* get R, G, and B out of uint32_t */
   R = GetRValue(lRGBColor);
   G = GetGValue(lRGBColor);
   B = GetBValue(lRGBColor);
@@ -1699,8 +1699,8 @@ HLS &HLS::RGBtoHLS(DWORD lRGBColor)
   short &S = saturation;
 
   /* calculate lightness */
-  cMax = (BYTE)max( max(R,G), B);
-  cMin = (BYTE)min( min(R,G), B);
+  cMax = (uint8_t)max( max(R,G), B);
+  cMin = (uint8_t)min( min(R,G), B);
   L = ( ((cMax+cMin)*HLSMAX) + RGBMAX )/(2*RGBMAX);
 
   if (cMax == cMin) {           /* r=g=b --> achromatic case */
@@ -1737,7 +1737,7 @@ HLS &HLS::RGBtoHLS(DWORD lRGBColor)
 
 
 /* utility routine for HLStoRGB */
-WORD HLS::HueToRGB(WORD n1, WORD n2, WORD hue) const
+uint16_t HLS::HueToRGB(uint16_t n1, uint16_t n2, uint16_t hue) const
 {
   /* range check: note values passed add/subtract thirds of range */
   if (hue < 0)
@@ -1758,13 +1758,13 @@ WORD HLS::HueToRGB(WORD n1, WORD n2, WORD hue) const
     return ( n1 );
 }
 
-DWORD HLS::HLStoRGB() const
+uint32_t HLS::HLStoRGB() const
 {
-  const WORD &lum = lightness;
-  const WORD &sat = saturation;
+  const uint16_t &lum = lightness;
+  const uint16_t &sat = saturation;
 
-  WORD R,G,B;                /* RGB component values */
-  WORD  Magic1,Magic2;       /* calculated magic numbers (really!) */
+  uint16_t R,G,B;                /* RGB component values */
+  uint16_t  Magic1,Magic2;       /* calculated magic numbers (really!) */
 
   if (sat == 0) {            /* achromatic case */
     R=G=B=(lum*RGBMAX)/HLSMAX;
@@ -1791,11 +1791,11 @@ DWORD HLS::HLStoRGB() const
 }
 
 void HLS::lighten(double f) {
-  lightness = min<WORD>(HLSMAX, WORD(f*lightness));
+  lightness = min<uint16_t>(HLSMAX, uint16_t(f*lightness));
 }
 
 void HLS::saturate(double s) {
-  saturation = min<WORD>(HLSMAX, WORD(s*saturation));
+  saturation = min<uint16_t>(HLSMAX, uint16_t(s*saturation));
 }
 
 void HLS::colorDegree(double d) {
@@ -2091,7 +2091,7 @@ string makeValidFileName(const string& input, bool strict) {
 void capitalize(wstring &str) {
   if (str.length() > 0) {
     auto bf = str.c_str();
-    CharUpperBuff(const_cast<LPWSTR>(bf), 1);
+    CharUpperBuff(const_cast<wchar_t*>(bf), 1);
   }
 }
 
@@ -2534,7 +2534,7 @@ const string &recodeToNarrow(const wstring &input) {
   int res = input.size() * 3 + 2;
   output.reserve(res);
   output.resize(input.size(), 0);
-  BOOL usedDef = false;
+  bool usedDef = false;
   int ok = WideCharToMultiByte(cp, 0, input.c_str(), input.size(), &output[0], res, "?", &usedDef);
 
   return output;
@@ -2551,7 +2551,7 @@ void checkWriteAccess(const wstring &file) {
     wchar_t absPath[260];
     _wfullpath(absPath, file.c_str(), 260);
 
-    DWORD err = GetLastError();
+    uint32_t err = GetLastError();
     
     if (err == ERROR_ACCESS_DENIED)
       throw meosException(wstring(L"Behörighet saknas för att skriva till 'X'.#") + absPath);

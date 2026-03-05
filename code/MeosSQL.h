@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include <cstdint>
 /************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -130,7 +132,7 @@ protected:
   void warnOldDB();
   bool checkOldVersion(oEvent *oe, RowWrapper &row);
 
-  map<pair<int, int>, DWORD> readTimes;
+  map<pair<int, int>, uint32_t> readTimes;
   void synchronized(oBase &entity);
   bool skipSynchronize(const oBase &entity) const;
 

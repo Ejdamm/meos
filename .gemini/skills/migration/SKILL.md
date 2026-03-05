@@ -132,9 +132,10 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 **Win32-specific functions in domain files:**
 - All calls to `_wtoi`, `sprintf_s`, `swprintf_s`, `_itow_s`, `_wtoi64`, `_wtof`, `_stricmp`, `_wcsicmp`, and `lstrcmpi` have been replaced with standard C++ or portable equivalents (e.g., `compareStringIgnoreCase`) in domain files (`o*.cpp/h`, `generalresult.cpp/h`, `metalist.cpp/h`, `datadefiners.h`).
 
-**Win32 types in domain code (~90 uses):**
-- `DWORD` (~50 uses) — replace with `uint32_t`
-- `BOOL` (~30 uses) — replace with `bool`
+**Win32 types in domain code:**
+- All occurrences of `DWORD`, `BOOL`, `WORD`, `BYTE`, `LPWSTR`, `LPCWSTR` have been replaced with standard C++ types (`uint32_t`, `bool`, `uint16_t`, `uint8_t`, `wchar_t*`, `const wchar_t*`) in domain files (`o*.cpp/h`, `generalresult.*`, `metalist.*`, `datadefiners.h`, `xmlparser.*`, `meos_util.*`, `onlineinput.h`, `MeosSQL.*`).
+- `#include <cstdint>` added to headers using these types.
+- MSVC still supports these replacements via `StdAfx.h` or direct inclusion.
 
 **Path separators:** ~47 hardcoded backslash (`\\`) in file path strings (meos.cpp, zip.cpp, oClub.cpp, oEvent.cpp).
 

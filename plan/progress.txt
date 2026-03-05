@@ -2,6 +2,8 @@
 - Every `#include "..."` directive MUST match the exact filename casing on disk (case-sensitive for Linux).
 - Use `python3 verify_includes.py` to check for casing issues.
 - Use global string utility functions from `meos_util.h` for conversions (widen, narrow, toUTF8, fromUTF8, recodeToWide, recodeToNarrow).
+- Use standard C++ types (uint32_t, uint8_t, bool, etc.) in domain files and include <cstdint> in headers.
+- Be careful with BOOL in SQL strings; it might be a database-specific type (like in MySQL/SQLite) that should remain as is.
 
 ## 2026-03-05 - US-P0a
 - Fixed 147 include case mismatches in the `code/` directory.
@@ -44,8 +46,24 @@
 
 ## US-P0c (32m19s)
 
+## 2026-03-05 - US-P0d
+- Replaced Win32 types (DWORD, BOOL, WORD, BYTE, LPWSTR) with standard C++ types (uint32_t, bool, uint16_t, uint8_t, wchar_t*) in domain files.
+- Added #include <cstdint> to domain headers using these types (oEvent.h, oCourse.h, oControl.h, oClub.h, meos_util.h, onlineinput.h, MeosSQL.h).
+- Excluded BOOL usage in SQL query strings in MeosSQL.cpp to prevent breaking database schema.
+- Verified removal of Win32 types across domain files.
+- **Learnings for future iterations:**
+  - Standard types like uint32_t/uint8_t are more portable but require explicit <cstdint> inclusion in headers.
+  - Be careful with BOOL in SQL strings; it might be a database-specific type (like in MySQL/SQLite) that should remain as is.
+  - sed -i is powerful for bulk replacement but always use \b for word boundaries.
+  - Some files that were not in the initial "domain" list (like meos_util.cpp, xmlparser.cpp) should also be cleaned up as they are foundational.
+---
+
 ## iteration-1 (4m49s)
 
 ## iteration-1 (7m08s)
 
 ## iteration-1 (5m44s)
+
+## US-P0d (17m39s)
+
+## US-P0e (40m30s)

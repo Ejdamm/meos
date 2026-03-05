@@ -306,8 +306,8 @@ protected:
   static constexpr int dataSize = 512+64;
   int getDISize() const final {return dataSize;}
 
-  BYTE oData[dataSize];
-  BYTE oDataOld[dataSize];
+  uint8_t oData[dataSize];
+  uint8_t oDataOld[dataSize];
   vector< vector<wstring> > oDataStr;
   //Multicourse data
   string codeMultiCourse() const;

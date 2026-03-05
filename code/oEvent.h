@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 /************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -387,8 +389,8 @@ protected:
   
   wstring clientName;
   vector<wstring> connectedClients;
-  DWORD clientCheckSum() const; //Calculate a check sum for current clients
-  DWORD currentClientCS; //The current, stored check sum.
+  uint32_t clientCheckSum() const; //Calculate a check sum for current clients
+  uint32_t currentClientCS; //The current, stored check sum.
 
   //Protected speaker functions.
   int computerTime = 0;
@@ -403,8 +405,8 @@ protected:
 
   static const int dataSize = 1024;
   int getDISize() const final {return dataSize;}
-  BYTE oData[dataSize];
-  BYTE oDataOld[dataSize];
+  uint8_t oData[dataSize];
+  uint8_t oDataOld[dataSize];
   vector<vector<wstring>> dynamicData;
 
   /** Get internal data buffers for DI */
@@ -1134,11 +1136,11 @@ public:
   static int convertAbsoluteTime(const wstring &m);
 
   /// Get clock time from relative time
-  const wstring &getAbsTime(DWORD relativeTime, SubSecond mode = SubSecond::Auto) const;
+  const wstring &getAbsTime(uint32_t relativeTime, SubSecond mode = SubSecond::Auto) const;
   
-  wstring getAbsDateTimeISO(DWORD relativeTime, bool includeDate, bool useGMT) const;
+  wstring getAbsDateTimeISO(uint32_t relativeTime, bool includeDate, bool useGMT) const;
 
-  const wstring &getAbsTimeHM(DWORD relativeTime) const;
+  const wstring &getAbsTimeHM(uint32_t relativeTime) const;
   const wstring& formatScore(int score) const;
   int convertScore(const wstring &score) const;
 

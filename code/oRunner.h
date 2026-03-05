@@ -651,8 +651,8 @@ protected:
   static constexpr int dataSize = 256+64;
   int getDISize() const final {return dataSize;}
 
-  BYTE oData[dataSize];
-  BYTE oDataOld[dataSize];
+  uint8_t oData[dataSize];
+  uint8_t oDataOld[dataSize];
 
   void changedObject() final;
 

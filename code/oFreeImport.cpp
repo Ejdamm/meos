@@ -49,7 +49,7 @@ bool oWordDB::lookup(const wchar_t *s) const
 
 const char *oWordDB::deserialize(const char *bf, const char *end)
 {
-  BYTE s=bf[0];
+  uint8_t s=bf[0];
   bf++;
   str.clear();
   for (int k=0;k<s;k++) {
@@ -68,7 +68,7 @@ const char *oWordDB::deserialize(const char *bf, const char *end)
 char *oWordDB::serialize(char *bf) const
 {
   //Randomize order for better search performace on reload.
-  BYTE s=BYTE(str.size());
+  uint8_t s=uint8_t(str.size());
   vector<wstring> rnd(s);
   int k=0;
   for (set<wstring>::const_iterator it=str.begin(); it!=str.end(); ++it)
@@ -156,7 +156,7 @@ const char *oWordIndexHash::deserialize(const char *bf, const char *end)
       bf = db->deserialize(bf, end);
     }
 
-    DWORD i=a-indexMapStart;
+    uint32_t i=a-indexMapStart;
     if (i<=(indexMapEnd-indexMapStart)) {
       if (hashTable[i])
         throw std::exception("Internal error deserilizing wordlist.");
@@ -170,7 +170,7 @@ const char *oWordIndexHash::deserialize(const char *bf, const char *end)
 
 char *oWordIndexHash::serialize(char *bf) const
 {
-  unsigned short s = WORD(unMapped.size());
+  unsigned short s = uint16_t(unMapped.size());
   for (int k=0;k<hashTableSize;k++)
     if (hashTable[k])
       s++;
@@ -215,7 +215,7 @@ int oWordIndexHash::serialSize() const
 
 void oWordIndexHash::insert(const wchar_t *s)
 {
-  DWORD i=s[0]-indexMapStart;
+  uint32_t i=s[0]-indexMapStart;
 
   if (i<=(indexMapEnd-indexMapStart)) {
     if (!hashTable[i]) {
@@ -252,7 +252,7 @@ void oWordIndexHash::insert(const wchar_t *s)
 
 bool oWordIndexHash::lookup(const wchar_t *s) const
 {
-  DWORD i = s[0] - indexMapStart;
+  uint32_t i = s[0] - indexMapStart;
 
   if (i<=(indexMapEnd-indexMapStart)) {
     if (!hashTable[i])
@@ -335,7 +335,7 @@ void oWordList::save(const wstring &file) const
     const char *hdr="WWDB";
 
     _write(f, hdr, 4);
-    DWORD s=serial.size();
+    uint32_t s=serial.size();
     _write(f, &s, 4);
     _write(f, &serial[0], s);
 
@@ -358,7 +358,7 @@ void oWordList::load(const wstring &file)
     if ( strcmp(hdr, "WWDB")!=0 )
       throw meosException(ex);
 
-    DWORD s=0;
+    uint32_t s=0;
     _read(f, &s, 4);
 
     vector<char> serial(s);
@@ -803,7 +803,7 @@ bool oFreeImport::isTime(const wstring &m) const
     return false;
 
   for(size_t k=0;k<m.length();k++)
-    if (!isdigit(BYTE(m[k])) && !(m[k]==':' || m[k]=='.'))
+    if (!isdigit(uint8_t(m[k])) && !(m[k]==':' || m[k]=='.'))
       return false;
 
   int hour=(int)std::wcstol(m.c_str(, nullptr, 10));

@@ -1,4 +1,6 @@
 ﻿#pragma once
+
+#include <cstdint>
 /************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -41,7 +43,7 @@ protected:
   int lastImportedId;
   int importCounter;
   int bytesImported;
-  DWORD lastSync;
+  uint32_t lastSync;
 
   enum class Type {
     MIP,

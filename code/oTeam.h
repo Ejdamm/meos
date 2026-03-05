@@ -59,8 +59,8 @@ protected:
 
   static const int dataSize = 256;
   int getDISize() const final {return dataSize;}
-  BYTE oData[dataSize];
-  BYTE oDataOld[dataSize];
+  uint8_t oData[dataSize];
+  uint8_t oDataOld[dataSize];
 
   // Remove runner r by force and mark as need correction
   void correctRemove(pRunner r);

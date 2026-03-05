@@ -21,6 +21,8 @@
 ************************************************************************/
 
 #pragma once
+
+#include <cstdint>
 #include <vector>
 #include <map>
 
@@ -230,10 +232,10 @@ wstring getErrorMessage(int code);
 
 class HLS {
 private:
-  WORD HueToRGB(WORD n1, WORD n2, WORD hue) const;
+  uint16_t HueToRGB(uint16_t n1, uint16_t n2, uint16_t hue) const;
 public:
 
-  HLS(WORD H, WORD L, WORD S) : hue(H), lightness(L), saturation(S) {}
+  HLS(uint16_t H, uint16_t L, uint16_t S) : hue(H), lightness(L), saturation(S) {}
   HLS() : hue(0), lightness(0), saturation(1) {}
   short hue;
   short lightness;
@@ -241,8 +243,8 @@ public:
   void lighten(double f);
   void saturate(double s);
   void colorDegree(double d);
-  HLS &RGBtoHLS(DWORD lRGBColor);
-  DWORD HLStoRGB() const;
+  HLS &RGBtoHLS(uint32_t lRGBColor);
+  uint32_t HLStoRGB() const;
 };
 
 void unzip(const wchar_t *zipfilename, const char *password, vector<wstring> &extractedFiles);
