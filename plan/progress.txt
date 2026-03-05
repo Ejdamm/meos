@@ -79,4 +79,18 @@
   - StdAfx.h 'using std::filesystem::path' alias makes path usage very concise.
 ---
 
+## 2026-03-05 - US-P0f
+- Decoupled `oEvent` from `TabList`, `TabAuto`, and `TabSI` UI classes.
+- Added `std::function` callbacks (`baseButtonsCallback`, `tabAutoKillMachinesCallback`, `setSubSecondModeCallback`) to `oEvent` class.
+- Replaced direct static calls to `TabList`, `TabAuto`, and `TabSI` in `oEvent.cpp` with these callbacks.
+- Removed UI-related includes from `oEvent.cpp`.
+- Registered the callbacks in `meos.cpp` during application initialization.
+- Added `UI Decoupling` pattern documentation to `code/AGENTS.md`.
+- **Learnings for future iterations:**
+  - `std::function` is a robust way to decouple domain logic from UI without introducing complex interface inheritance.
+  - UI classes often use static pointers to their singleton instances; these can be safely accessed via callbacks registered in the main application loop.
+  - Decoupling `oEvent` (the aggregate root) is the most critical step for making the domain model portable and testable.
+  - Lambdas in `meos.cpp` require `#include <functional>`.
+---
+
 ## US-P0e (24m22s)

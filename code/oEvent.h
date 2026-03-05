@@ -48,6 +48,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <functional>
 
 #define cVacantId 888888888
 #define cNoClubId 999999999
@@ -496,6 +497,11 @@ protected:
   
   // Temporarily disable recaluclate leader times
   bool disableRecalculate = false;
+
+  BaseButtonsCallback baseButtonsCallback;
+  TabAutoKillMachinesCallback tabAutoKillMachinesCallback;
+  SetSubSecondModeCallback setSubSecondModeCallback;
+
 public:
   /** Mark as main event.*/
   void setMainEvent() { isMainEvent = true; }
@@ -1430,6 +1436,15 @@ public:
   bool open(const xmlparser &xml, const wstring& fileArg);
 
   void clearData(bool runnerTeam, bool courses);
+
+  // Callbacks for UI decoupling
+  using BaseButtonsCallback = std::function<void(gdioutput&, int, bool)>;
+  using TabAutoKillMachinesCallback = std::function<void()>;
+  using SetSubSecondModeCallback = std::function<void(bool)>;
+
+  void setBaseButtonsCallback(BaseButtonsCallback cb) { baseButtonsCallback = cb; }
+  void setTabAutoKillMachinesCallback(TabAutoKillMachinesCallback cb) { tabAutoKillMachinesCallback = cb; }
+  void setSetSubSecondModeCallback(SetSubSecondModeCallback cb) { setSubSecondModeCallback = cb; }
 
   bool save(const wstring &file, bool internalFormat, bool isAutoSave);
   pControl addControl(int id, int number, const wstring &name);

@@ -39,7 +39,6 @@
 
 #include "meosexception.h"
 #include "oFreeImport.h"
-#include "TabBase.h"
 #include "meos_util.h"
 #include "RunnerDB.h"
 #include "localizer.h"
@@ -52,9 +51,6 @@
 #include "generalresult.h"
 #include "oEventDraw.h"
 #include "MeosSQL.h"
-#include "TabAuto.h"
-#include "TabSI.h"
-#include "TabList.h"
 #include "binencoder.h"
 #include "image.h"
 #include "datadefiners.h"
@@ -3256,8 +3252,10 @@ void oEvent::generateInForestList(gdioutput& gdi, GUICALLBACK cb, GUICALLBACK cb
           gdi.setData("FilterSetting", lbi.data);
           lastFilter = uint32_t(lbi.data);
           oe.generateInForestList(gdi, cb, nullptr);
-          TabList::baseButtons(gdi, 1, false);
+          if (oe.baseButtonsCallback)
+            oe.baseButtonsCallback(gdi, 1, false);
           gdi.refreshFast();
+
         }
       }
     };
@@ -4193,7 +4191,8 @@ void oEvent::clear()
   Annotation.clear();
 
   //Make sure no daemon is hunting us.
-  TabAuto::tabAutoKillMachines();
+  if (tabAutoKillMachinesCallback)
+    tabAutoKillMachinesCallback();
 
   delete directSocket;
   directSocket = 0;
@@ -6832,7 +6831,8 @@ bool oEvent::supportSubSeconds() const {
 }
 
 void oEvent::supportSubSeconds(bool use) {
-  TabSI::getSI(gdiBase()).setSubSecondMode(use);
+  if (setSubSecondModeCallback)
+    setSubSecondModeCallback(use);
   getDI().setInt("SubSeconds", use ? 1 : 0);
 }
 

@@ -47,6 +47,7 @@
 #include "TabClub.h"
 #include "progress.h"
 #include <cassert>
+#include <functional>
 #include "localizer.h"
 #include "meos_util.h"
 #include "random.h"
@@ -1043,11 +1044,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       tabList->emplace_back(gdi_main->getTabs().get(TCmpTab), L"Tävling", 10);
       tabList->emplace_back(gdi_main->getTabs().get(TRunnerTab), L"Deltagare", 6);
       tabList->emplace_back(gdi_main->getTabs().get(TTeamTab), L"Lag(flera)", 7);
-      tabList->emplace_back(gdi_main->getTabs().get(TListTab), L"Listor", 5);
+      {
+        TabList *tl = (TabList *)gdi_main->getTabs().get(TListTab);
+        tabList->emplace_back(tl, L"Listor", 5);
+        if (gEvent) gEvent->setBaseButtonsCallback([](gdioutput &gdi, int mode, bool flag) {
+          TabList::baseButtons(gdi, mode, flag);
+        });
+      }
       {
         TabAuto *ta = (TabAuto *)gdi_main->getTabs().get(TAutoTab);
         tabList->emplace_back(ta, L"Automater", 4);
         TabAuto::tabAutoRegister(ta);
+        if (gEvent) gEvent->setTabAutoKillMachinesCallback([]() { TabAuto::tabAutoKillMachines(); });
       }
       tabList->emplace_back(gdi_main->getTabs().get(TSpeakerTab), L"Speaker", 3);
       tabList->emplace_back(gdi_main->getTabs().get(TClassTab), L"Klasser", 0);
@@ -1055,7 +1063,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       tabList->emplace_back(gdi_main->getTabs().get(TControlTab), L"Kontroller", 2);
       tabList->emplace_back(gdi_main->getTabs().get(TClubTab), L"Klubbar", 8);
 
-      tabList->emplace_back(gdi_main->getTabs().get(TSITab), L"SportIdent", 9);
+      {
+        TabSI *tsi = (TabSI *)gdi_main->getTabs().get(TSITab);
+        tabList->emplace_back(tsi, L"SportIdent", 9);
+        if (gEvent) gEvent->setSetSubSecondModeCallback([](bool use) {
+          TabSI::getSI(gEvent->gdiBase()).setSubSecondMode(use);
+        });
+      }
 
       INITCOMMONCONTROLSEX ic;
 

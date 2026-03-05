@@ -105,6 +105,27 @@ Legacy string functions have been replaced in all domain files to ensure cross-p
 
 Legacy path joining, splitting, and backslash literals have been normalized in domain files to ensure they work on case-sensitive, forward-slash-preferring filesystems like Linux.
 
+### UI Decoupling
+
+**Domain classes (especially `oEvent`) must not depend on UI classes (`Tab*` subclasses).**
+
+- Use `std::function` callbacks or abstract interfaces in domain classes to communicate back to the UI.
+- UI classes should register their callbacks during application initialization (e.g., in `meos.cpp`).
+- Avoid `#include "Tab*.h"` in domain code (`o*.cpp/h`).
+- If a domain function needs to trigger a UI action (like refreshing a list or killing a background process), call the registered callback if it exists.
+
+Example pattern:
+```cpp
+// oEvent.h
+using MyCallback = std::function<void(int)>;
+void setMyCallback(MyCallback cb) { myCallback = cb; }
+
+// oEvent.cpp
+if (myCallback) myCallback(data);
+```
+
+Legacy dependencies on `TabList.h`, `TabAuto.h`, and `TabSI.h` have been removed from `oEvent.cpp` using this pattern.
+
 ### Error handling
 
 Custom exception `meosException` (with `wwhat()` for wide-string messages) and `meosCancel` for cancellation. Most functions prefer returning bool/error codes; exceptions are for critical failures.

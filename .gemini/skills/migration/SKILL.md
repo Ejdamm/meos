@@ -145,7 +145,7 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 - Use forward slashes (`/`) in hardcoded path string literals: `L"./../Lists/"`.
 - Check for both separators: `if (c == '/' || c == '\\')`.
 
-**oEvent → Tab* direct coupling (3 calls to remove before migration):**
+**oEvent → Tab* direct coupling (REMOVED):**
 
 | Line (approx) | Call | Purpose | Replacement strategy |
 |---|---|---|---|
@@ -153,7 +153,11 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 | ~2700 | `TabAuto::tabAutoKillMachines()` | Kills automatic timing machines | Callback `std::function<void()>` registered by TabAuto |
 | ~5200 | `TabSI::getSI(gdiBase()).setSubSecondMode(use)` | Sets SportIdent sub-second mode | Callback `std::function<void(bool)>` registered by TabSI |
 
-oEvent.h should expose registration methods (e.g., `setOnKillMachines(std::function<void()>)`) and Tab classes register during init.
+**Implementation status:**
+- `oEvent.h` now exposes `BaseButtonsCallback`, `TabAutoKillMachinesCallback`, and `SetSubSecondModeCallback` via `std::function`.
+- `oEvent.cpp` has no direct dependencies on `TabList.h`, `TabAuto.h`, or `TabSI.h`.
+- UI classes register their callbacks in `meos.cpp` during application initialization.
+- This pattern successfully decouples the domain aggregate root from the UI layer, enabling cross-platform portability.
 
 ### 6. Redundant Overload Avoidance
 
