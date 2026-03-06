@@ -215,8 +215,8 @@
         "Typecheck passes"
       ],
       "priority": 14,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Migrated oBase and oDataContainer. Added domain_header.h. Implemented foundation stubs in domain_module.cpp. Fixed StringCache segfault. Added unit tests in tests/domain_test.cpp."
     },
     {
       "id": "US-003b",

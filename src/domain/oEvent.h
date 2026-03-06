@@ -91,17 +91,6 @@ struct oCounter {
   void operator++() {level1++, level2++, level3++;}
 };
 
-struct SqlUpdated {
-  string updated;
-  int counter = 0;
-  bool changed = false;
-  void reset() {
-    updated.clear();
-    changed = false;
-    counter = 0;
-  }
-};
-
 struct GeneralResultCtr;
 
 class oTimeLine {

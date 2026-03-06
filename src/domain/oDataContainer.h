@@ -25,8 +25,11 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <list>
+#include <string>
 
 #include "oBase.h"
+#include "domain_header.h"
 #include "inthashmap.h"
 #include "TableType.h"
 

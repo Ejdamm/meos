@@ -117,8 +117,8 @@ Replace Win32-specific:
 - **Package Names**: Some vcpkg packages use `unofficial-` prefix for CMake targets (e.g., `unofficial-libharu`, `unofficial-minizip`).
 
 - Move shared enums to `domain_header.h` or `src/util/common_enums.h`.
-- Use forward declarations heavily.
-- Template implementation files (`*impl.hpp`) must be included at the end of their headers.
+- Use forward declarations heavily in `domain_header.h` to reduce circular dependencies between `oBase`, `oDataContainer`, `oEvent`, and UI classes.
+- Template implementation files (`*impl.hpp`) must be included at the end of their headers (e.g., `intkeymap.hpp` includes `intkeymapimpl.hpp`).
 - `SpecialPunch` enum was moved to `domain_header.h` to break circular deps.
 
 ### 5. Heavy Stubbing Strategy
@@ -129,6 +129,7 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 - Stub unmigrated domain entities in `src/domain/` (minimal `.h` with just enough API)
 - `oEvent.h` needs extensive stubbing — it touches everything
 - `oRunner` is ~230KB; use simplified implementation initially
+- **Foundation Stubs**: Provide minimal implementations for heavily used methods of `oEvent`, `gdioutput`, and `Table` in `domain_module.cpp` to allow the domain library and its tests to link without pulling in the entire UI/Server layer.
 
 ### 5b. GUI Coupling in Domain Files (fix before migration)
 
@@ -194,6 +195,7 @@ On 64-bit Linux, `unsigned long` == `uint64_t`. Avoid redundant overloads for:
 ### 7. Data Container Initialization
 
 For domain object unit tests, ensure `oe->oControlData` (or relevant data container) is initialized before testing. The `oDataContainer` system requires explicit setup.
+- **`StringCache` Initialization**: Ensure `StringCache` (used by `meos_util` string functions) is initialized via its constructor; otherwise, `wget()`/`get()` will segfault on empty vectors.
 
 ### 8. Database Migration
 

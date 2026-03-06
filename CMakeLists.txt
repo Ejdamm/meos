@@ -46,6 +46,8 @@ target_precompile_headers(util PUBLIC src/util/StdAfx.h)
 # Domain module
 add_library(domain STATIC
     src/domain/domain_module.cpp
+    src/domain/oBase.cpp
+    src/domain/oDataContainer.cpp
 )
 target_include_directories(domain PUBLIC ${MEOS_INCLUDE_DIRS})
 target_link_libraries(domain PUBLIC util)

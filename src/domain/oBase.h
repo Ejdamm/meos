@@ -27,20 +27,14 @@
 
 #include "TimeStamp.h"
 #include "StdAfx.h"
+#include "domain_header.h"
 #include <vector>
 #include <memory>
 
-class oEvent;
-class gdioutput;
-class oDataInterface;
-class oDataConstInterface;
-class oDataContainer;
-typedef void * pvoid;
-typedef vector<vector<wstring>> * pvectorstr;
-struct SqlUpdated;
-
 class oBase {
 public:
+  using ChangeType = ::ChangeType;
+
   class oBaseReference {
   private:
     oBase * ref = nullptr;
@@ -53,10 +47,6 @@ public:
   };
 
   /** Indicate if a change is transient (quiet) or should be written to database. */
-  enum class ChangeType {
-    Quiet,
-    Update
-  };
 protected:
   int Id;
   TimeStamp Modified;

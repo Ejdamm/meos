@@ -29,11 +29,12 @@
 class StringCache {
 private:
   vector<std::string> cache;
-  size_t ix;
+  size_t ix = 0;
 
   vector<std::wstring> wcache;
-  size_t wix;
+  size_t wix = 0;
 public:
+  StringCache() { init(); }
   static StringCache &getInstance();
 
   void init() {cache.resize(256); wcache.resize(256);}

@@ -542,6 +542,34 @@ inline int sprintf_s(char* buf, size_t size, const char* fmt, ...) {
 #define _wrename(o, n) rename(path2str(o).c_str(), path2str(n).c_str())
 #define _wremove(f) remove(path2str(f).c_str())
 
+template<size_t N>
+inline int strcpy_s(char (&dest)[N], const char* src) {
+    strncpy(dest, src, N - 1);
+    dest[N - 1] = 0;
+    return 0;
+}
+
+inline int strcpy_s(char* dest, size_t size, const char* src) {
+    strncpy(dest, src, size - 1);
+    dest[size - 1] = 0;
+    return 0;
+}
+
+template<size_t N>
+inline int wcsncpy_s(wchar_t (&dest)[N], const wchar_t* src, size_t count) {
+    size_t toCopy = std::min(count, N - 1);
+    wcsncpy(dest, src, toCopy);
+    dest[toCopy] = 0;
+    return 0;
+}
+
+inline int wcsncpy_s(wchar_t* dest, size_t size, const wchar_t* src, size_t count) {
+    size_t toCopy = std::min(count, size - 1);
+    wcsncpy(dest, src, toCopy);
+    dest[toCopy] = 0;
+    return 0;
+}
+
 // GDI Stubs
 inline HDC GetDC(HWND hWnd) { return nullptr; }
 inline int ReleaseDC(HWND hWnd, HDC hDC) { return 1; }

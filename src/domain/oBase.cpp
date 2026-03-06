@@ -25,7 +25,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
-#include "meos.h"
 #include "oBase.h"
 #include "oCard.h"
 #include "meos_util.h"

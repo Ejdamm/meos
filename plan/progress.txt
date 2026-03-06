@@ -7,6 +7,9 @@
 - Use CMake and vcpkg for cross-platform builds. The `CMakeLists.txt` in the root builds the project on Linux.
 - GCC on Linux is stricter than MSVC about incomplete types in standard containers; always provide a definition for classes used in `std::vector` even if they are just stubs.
 - Set locale to "C.UTF-8" in tests or main to ensure case-insensitive string comparisons (`wcscasecmp`) work for non-ASCII characters on Linux.
+- Template implementation files (`*impl.hpp`) must be explicitly included in their headers (e.g., `intkeymap.hpp` includes `intkeymapimpl.hpp`).
+- Use `domain_header.h` for common enums and forward declarations to reduce circular dependencies.
+- Foundation Stubs: Provide minimal implementations for heavily used methods of coupled classes (`oEvent`, `gdioutput`, `Table`) in a central module file (`domain_module.cpp`) to allow independent migration and testing of layers.
 
 ## 2026-03-05 - US-P0a
 - Fixed 147 include case mismatches in the `code/` directory.
@@ -197,3 +200,21 @@
 ---
 
 ## US-013d (46m36s)
+
+## 2026-03-06 - US-003a
+- Migrated oBase.h/cpp and oDataContainer.h/cpp to src/domain/.
+- Created domain_header.h with common enums and forward declarations to reduce circular dependencies.
+- Added strcpy_s and wcsncpy_s shims to win_types.h.
+- Added minimal stubs for oEvent, gdioutput, and Table in domain_module.cpp to allow the domain library to link without pulling in the entire UI/Server layer.
+- Fixed a critical segfault in StringCache by adding a constructor to ensure vectors are initialized before use.
+- Included intkeymapimpl.hpp at the end of intkeymap.hpp to fix template linker errors.
+- Added unit tests for oBase and oDataContainer in tests/domain_test.cpp.
+- **Learnings for future iterations:**
+  - The domain layer is highly coupled to oEvent, gdioutput, and Table. Foundation stubs are essential for early migration steps.
+  - Template implementation files (*impl.hpp) must be explicitly included in their headers.
+  - StringCache segfault was due to missing constructor initialization of its vectors.
+  - Using alignas(16) for data buffers in tests helps avoid alignment issues with wchar_t on Linux.
+  - oDataInterface/oDataConstInterface are the main entry points for domain data access.
+---
+
+## US-003a (41m14s)
