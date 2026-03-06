@@ -43,6 +43,11 @@ Use `std::filesystem::path` (aliased as `path` in `StdAfx.h`) for all path manip
 
 Domain classes MUST NOT depend on UI classes. Use `std::function` callbacks registered in `src/app/meos.cpp` to communicate from domain to UI.
 
+### Time Handling
+
+Use `TimeStamp` class for consistent time-stamping and modification tracking. Time constants are centralized in `timeconstants.hpp`.
+Win32 time shims in `win_types.h` are timezone-independent; use `timegm` logic to avoid local offset shifts during conversion.
+
 ## Testing
 
 - **C++ Tests:** Located in `tests/` at the project root. Use Google Test.

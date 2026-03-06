@@ -297,14 +297,19 @@ inline void* MAKEINTRESOURCE(int i) { return (void*)(intptr_t)i; }
 inline BOOL SystemTimeToFileTime(const SYSTEMTIME* lpSystemTime, LPFILETIME lpFileTime) { 
     if (!lpSystemTime || !lpFileTime) return FALSE;
     struct tm tm_info;
+    memset(&tm_info, 0, sizeof(tm_info));
     tm_info.tm_year = lpSystemTime->wYear - 1900;
     tm_info.tm_mon = lpSystemTime->wMonth - 1;
     tm_info.tm_mday = lpSystemTime->wDay;
     tm_info.tm_hour = lpSystemTime->wHour;
     tm_info.tm_min = lpSystemTime->wMinute;
     tm_info.tm_sec = lpSystemTime->wSecond;
-    tm_info.tm_isdst = -1;
-    time_t t = mktime(&tm_info);
+    tm_info.tm_isdst = 0;
+    
+    // timegm is a non-standard but widely available GNU/BSD extension that
+    // converts struct tm (interpreted as UTC) to time_t.
+    // This avoids timezone conversion, which matches Win32 SystemTimeToFileTime behavior.
+    time_t t = timegm(&tm_info);
     if (t == -1) return FALSE;
     
     uint64_t ticks = (uint64_t)t * 10000000 + (uint64_t)lpSystemTime->wMilliseconds * 10000 + UNIX_EPOCH_IN_TICKS;

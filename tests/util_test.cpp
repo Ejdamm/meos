@@ -13,8 +13,46 @@ protected:
 TEST_F(UtilTest, TimeStampBasic) {
     TimeStamp ts;
     ts.update();
-    // Basic check that it doesn't crash
-    EXPECT_GT(ts.getAge(), -10); // Allowance for small time diffs
+    
+    // Check that getAge returns something reasonable (around 0)
+    EXPECT_GE(ts.getAge(), -1);
+    EXPECT_LE(ts.getAge(), 5);
+
+    // Check that getStamp returns a 14-character string (YYYYMMDDHHMMSS)
+    string stamp = ts.getStamp();
+    EXPECT_EQ(14, stamp.length());
+    for (char c : stamp) {
+        EXPECT_TRUE(isdigit(c));
+    }
+
+    // Check getStampString
+    wstring stampStr = ts.getStampString();
+    EXPECT_EQ(19, stampStr.length()); // YYYY-MM-DD HH:MM:SS
+
+    // Check setStamp round-trip
+    TimeStamp ts2;
+    string sampleStamp = "20260306143045";
+    ts2.setStamp(sampleStamp);
+    EXPECT_EQ(sampleStamp, ts2.getStamp());
+    EXPECT_EQ(L"2026-03-06 14:30:45", ts2.getStampString());
+    EXPECT_EQ(L"14:30", ts2.getUpdateTime());
+}
+
+TEST_F(UtilTest, TimeStampModification) {
+    TimeStamp ts1;
+    ts1.setStamp("20260306100000");
+    
+    TimeStamp ts2;
+    ts2.setStamp("20260306110000");
+    
+    EXPECT_GT(ts2.getModificationTime(), ts1.getModificationTime());
+    
+    TimeStamp ts3;
+    ts3.update(ts1);
+    EXPECT_EQ(ts3.getModificationTime(), ts1.getModificationTime());
+    
+    ts3.update(ts2);
+    EXPECT_EQ(ts3.getModificationTime(), ts2.getModificationTime());
 }
 
 TEST_F(UtilTest, StringConversion) {

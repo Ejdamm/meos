@@ -25,7 +25,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
-#include "meos.h"
 #include "TimeStamp.h"
 #include <algorithm>
 #include "meos_util.h"

@@ -169,3 +169,15 @@
 ---
 
 ## US-013b (20m39s)
+## 2026-03-06 17:50 - US-013c
+- Finalized migration of TimeStamp.h/cpp and timeconstants.hpp to src/util/.
+- Fixed timezone discrepancies between SystemTimeToFileTime and FileTimeToSystemTime in win_types.h by using timegm (treating input as UTC-like to avoid local timezone shifts).
+- Decoupled TimeStamp.cpp from meos.h, reducing dependencies.
+- Added comprehensive unit tests for TimeStamp in tests/util_test.cpp covering setStamp, getStamp, getAge, and modification time orchestration.
+- Verified build and tests pass on Linux.
+- **Learnings for future iterations:**
+  - Win32 time functions like SystemTimeToFileTime are generally timezone-agnostic (just calendar math). Shimming them with mktime requires care as it adds local timezone offsets. Use timegm for a consistent UTC-like behavior.
+  - Decoupling utility classes from main application headers (meos.h) is essential for keeping the utility library lightweight and reusable.
+---
+
+## US-013c (20m57s)

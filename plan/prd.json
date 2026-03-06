@@ -181,8 +181,8 @@
         "Typecheck passes"
       ],
       "priority": 12,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "TimeStamp.h/cpp and timeconstants.hpp migrated and modernized. Fixed timezone issues in Win32 time shims (SystemTimeToFileTime/FileTimeToSystemTime) using timegm. Decoupled TimeStamp from meos.h. Added unit tests in tests/util_test.cpp."
     },
     {
       "id": "US-013d",

@@ -98,13 +98,18 @@ Replace Win32-specific:
 - **Macro vs Inline**: Prefer inline functions for Win32 API shims (like `OffsetRect`) to avoid issues with `return` statements and expression evaluation.
 
 ### 11. Parsers (XML, CSV)
+...
+### 12. Time Handling Migration
 
-- **xmlparser**: Modernized to use standard `ifstream`/`ofstream`, `std::ostringstream`, and `snprintf`.
-- **csvparser**: Modernized to use `std::ifstream`/`ofstream` and `std::string`/`std::wstring`. Default delimiter is often `;` (semicolon).
-- **path2str**: Always use `path2str(filename).c_str()` when opening files with standard streams to ensure cross-platform path handling.
-- **encodeXML/decodeXML**: Use these global utilities from `meos_util.h` for XML entities. Note that they currently use static buffers and are not thread-safe.
+- **TimeStamp.h/cpp**: Modernized to use standard `snprintf`/`swprintf` and standard C++ types.
+- **timeconstants.hpp**: Centralizes time-related constants (`timeUnitsPerSecond`, `timeConstSecPerHour`).
+- **Win32 Time Shims**:
+  - `GetLocalTime`, `GetSystemTime` shimmed using `gettimeofday` and `localtime_r`/`gmtime_r`.
+  - **CRITICAL**: `SystemTimeToFileTime` and `FileTimeToSystemTime` must be timezone-independent to match Win32 behavior. Use `timegm` instead of `mktime` to avoid local timezone shifts during round-trips.
+- **Decoupling**: Utility classes like `TimeStamp` should not include heavy application headers like `meos.h`. Ensure they only depend on `StdAfx.h` and other necessary utilities.
+- **Custom Epoch**: MeOS uses a custom 32-bit unsigned epoch relative to 2014-01-01 for `TimeStamp::Time`. This fits ~136 years of seconds in a 32-bit integer.
 
-### 12. Dependency Management (vcpkg)
+### 13. Dependency Management (vcpkg)
 - **libmysql**: Building `libmysql` from source via vcpkg can be fragile on Linux environments due to heavy dependencies and build tool requirements (e.g., specific `ninja` versions). If it fails, consider using `libmariadb` or system-provided MySQL client libraries, or stubbing MySQL functionality for minimal builds.
 - **Package Names**: Some vcpkg packages use `unofficial-` prefix for CMake targets (e.g., `unofficial-libharu`, `unofficial-minizip`).
 
