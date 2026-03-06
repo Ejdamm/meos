@@ -990,7 +990,7 @@ void TabCourse::runCourseImport(gdioutput& gdi, const wstring &filename,
     gdi.fillDown();
   }
   else if (filename.find(L".txt") != wstring::npos || filename.find(L".TXT") != wstring::npos) {
-    std::ifstream fin(filename);
+    std::ifstream fin(string(filename.begin(), filename.end()).c_str());
 
     if (!fin.good())
       throw meosException(L"Cannot read " + filename);

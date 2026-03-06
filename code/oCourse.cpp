@@ -835,7 +835,7 @@ void oCourse::setLegLengths(const vector<int> &legs) {
     }
   }
   else
-    throw std::exception("Invalid parameter value");
+    throw std::runtime_error("Invalid parameter value");
 }
 
 double oCourse::getPartOfCourse(int start, int end) const {
@@ -1554,7 +1554,7 @@ pair<int, bool> oCourse::inputData(int id, const wstring &input,
 
   if (id >= 100) { 
     int cix = id - 100;
-    int v = (int)std::wcstol(input.c_str(, nullptr, 10));
+    int v = (int)std::wcstol(input.c_str(), nullptr, 10);
     pControl ctrl = oe->getControl(v);
     if (!ctrl && v > 32 && v < 300)
       ctrl = oe->addControl(v, v, L"");

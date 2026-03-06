@@ -168,7 +168,7 @@ void tabForceSync(gdioutput &gdi, pEvent oe) {
 
 int AutomaticCB(gdioutput *gdi, GuiEventType type, BaseInfo* data) {
   if (!tabAuto)
-    throw std::exception("tabAuto undefined.");
+    throw std::runtime_error("tabAuto undefined.");
 
   switch(type){
     case GUI_BUTTON: {
@@ -1346,7 +1346,7 @@ void SaveMachine::save(oEvent& oe, gdioutput& gdi, bool doProcess) {
 
   if (doProcess) {
     wstring sample = f + L"sample.txt";
-    ofstream fout(sample.c_str(), ios_base::trunc | ios_base::out);
+    ofstream fout(string(sample.begin(), sample.end()).c_str(), ios_base::trunc | ios_base::out);
     bool bad = false;
     if (fout.bad())
       bad = true;

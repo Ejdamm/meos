@@ -760,7 +760,7 @@ bool oEvent::addOECSVCompetitorDB(const vector<wstring> &row)
     OEclubno = 6, OEclub = 7, OEclubcity = 8, OEnat = 9, OEclassno = 10, OEclassshort = 11, OEclasslong = 12
   };
 
-  int pid = (int)std::wcstol(row[OEid].c_str(, nullptr, 10));
+  int pid = (int)std::wcstol(row[OEid].c_str(), nullptr, 10);
 
   wstring given = row[OEfirstname];
   wstring family = row[OEsurname];
@@ -790,7 +790,7 @@ bool oEvent::addOECSVCompetitorDB(const vector<wstring> &row)
 
   // Extract club data
 
-  int clubId = (int)std::wcstol(row[OEclubno].c_str(, nullptr, 10));
+  int clubId = (int)std::wcstol(row[OEclubno].c_str(), nullptr, 10);
   wstring clubName;
   wstring shortClubName;
 
@@ -815,7 +815,7 @@ bool oEvent::addOECSVCompetitorDB(const vector<wstring> &row)
 
   RunnerWDBEntry *rde = runnerDB->getRunnerById(pid);
 
-  int cardno = (int)std::wcstol(row[OEcard].c_str(, nullptr, 10));
+  int cardno = (int)std::wcstol(row[OEcard].c_str(), nullptr, 10);
   if (!rde) {
     rde = runnerDB->getRunnerByCard(cardno);
 

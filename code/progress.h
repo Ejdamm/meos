@@ -23,6 +23,7 @@
 #include <atomic>
 #include <thread>
 #include <mutex>
+#include <condition_variable>
 
 class ProgressWindow {
   HWND hWnd = nullptr;

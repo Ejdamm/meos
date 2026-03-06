@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Melin Software HB - software@melin.nu - www.melin.nu
-    Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
+    Eksoppsvï¿½gen 16, SE-75646 UPPSALA, Sweden
 
 ************************************************************************/
 
@@ -28,37 +28,36 @@
 
 class xmlparser;
 class xmlobject;
-using namespace std;
 
 class MachineContainer {
 
 public:
 
   class AbstractMachine {
-    map<string, wstring> props;
+    std::map<std::string, std::wstring> props;
   public:
     void clear() {
       props.clear();
     }
 
-    int getInt(const string &v) const;
-    const wstring &getString(const string &v) const;
-    vector<int> getVectorInt(const string &v) const;
-    set<int> getSetInt(const string &v) const;
-    bool has(const string& prop) const;
+    int getInt(const std::string &v) const;
+    const std::wstring &getString(const std::string &v) const;
+    std::vector<int> getVectorInt(const std::string &v) const;
+    std::set<int> getSetInt(const std::string &v) const;
+    bool has(const std::string& prop) const;
 
-    void set(const string &name, int v);
-    void set(const string &name, const vector<int> &v);
-    void set(const string &name, const wstring &v);
-    void set(const string& name, const string& v) = delete;
+    void set(const std::string &name, int v);
+    void set(const std::string &name, const std::vector<int> &v);
+    void set(const std::string &name, const std::wstring &v);
+    void set(const std::string& name, const std::string& v) = delete;
 
-    void set(const string &name, bool v) {
+    void set(const std::string &name, bool v) {
       set(name, int(v));
     }
 
     template<typename T>
-    void set(const string &name, const T &v) {
-      vector<int> vv;
+    void set(const std::string &name, const T &v) {
+      std::vector<int> vv;
       for (auto x : v)
         vv.push_back(x);
       set(name, vv);
@@ -66,40 +65,41 @@ public:
 
   protected:
     void load(const xmlobject &data);
-    void load(const string &data);
+    void load(const std::string &data);
     void save(xmlparser &data) const;
-    string save() const;
+    std::string save() const;
     friend class MachineContainer;
   };
 
 private:
-  map<pair<string, wstring>, AbstractMachine> machines;
+  std::map<std::pair<std::string, std::wstring>, AbstractMachine> machines;
 
 public:
-  const AbstractMachine *get(const string &type, const wstring &name) const {
-    auto res = machines.find(make_pair(type, name));
+  const AbstractMachine *get(const std::string &type, const std::wstring &name) const {
+    auto res = machines.find(std::make_pair(type, name));
     if (res != machines.end())
       return &res->second;
 
     return nullptr;
   }
 
-  void erase(const string &type, const wstring &name) {
-    machines.erase(make_pair(type, name));
+  void erase(const std::string &type, const std::wstring &name) {
+    machines.erase(std::make_pair(type, name));
   }
 
-  void rename(const string& type, const wstring& oldName, const wstring& newName);
+  void rename(const std::string& type, const std::wstring& oldName, const std::wstring& newName);
 
-  AbstractMachine &set(const string &type, const wstring &name) {
-    auto &m = machines[make_pair(type, name)];
+  AbstractMachine &set(const std::string &type, const std::wstring &name) {
+    auto &m = machines[std::make_pair(type, name)];
     m.clear();
     return m;
   }
 
-  vector<pair<string, wstring>> enumerate() const;
+  std::vector<std::pair<std::string, std::wstring>> enumerate() const;
 
   void load(const xmlobject &data);
-  void save(xmlparser &data);
-  void load(const string &data);
-  string save();
+  void save(xmlparser &data) const;
+
+  void load(const std::string &data);
+  std::string save();
 };

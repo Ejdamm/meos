@@ -1247,7 +1247,7 @@ void DynamicResult::prepareCommon(oAbstractRunner &runner, bool classResult) con
     parser.addSymbol("ClubId", 0);
     parser.addSymbol("DistrictId", 0);
   }
-  parser.addSymbol("Bib", (int)std::wcstol(runner.getBib(, nullptr, 10).c_str()));
+  parser.addSymbol("Bib", (int)std::wcstol(runner.getBib().c_str(), nullptr, 10));
 }
 
 void DynamicResult::prepareCalculations(oTeam &team, bool classResult) const {

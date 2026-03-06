@@ -152,17 +152,18 @@ const wstring &makeDash(const wstring &t);
 const wstring &makeDash(const wchar_t *t);
 
 wstring formatRank(int rank);
+const wstring &itow(int i);
+wstring itow(unsigned int i);
+// wstring itow(unsigned long i); // Removed: Redundant with uint64_t on x64
+wstring itow(int64_t i);
+wstring itow(uint64_t i);
+
 const string &itos(int i);
 string itos(unsigned int i);
-string itos(unsigned long i);
+// string itos(unsigned long i); // Removed: Redundant with uint64_t on x64
 string itos(int64_t i);
 string itos(uint64_t i);
 
-const wstring &itow(int i);
-wstring itow(unsigned int i);
-wstring itow(unsigned long i);
-wstring itow(int64_t i);
-wstring itow(uint64_t i);
 
 
 ///Lower case match (filt_lc must be lc and stripped of accents)
@@ -255,8 +256,8 @@ bool isNumber(const wstring &s);
 
 bool isAscii(const string &s);
 bool isNumber(const string &s);
-int convertDynamicBase(const wstring &s, long long &out);
-void convertDynamicBase(long long val, int base, wchar_t out[16]);
+int convertDynamicBase(const wstring &s, int64_t &out);
+void convertDynamicBase(int64_t val, int base, wchar_t out[16]);
 
 /// Find all files in dir matching given file pattern
 bool expandDirectory(const wchar_t *dir, const wchar_t *pattern, vector<wstring> &res);

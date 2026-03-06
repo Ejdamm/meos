@@ -1,6 +1,7 @@
-﻿#pragma once
+#pragma once
 
-#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 #define NOMINMAX
 
 #include <winsdkver.h>  
@@ -10,19 +11,26 @@
 
 #include <windows.h>
 #include <commctrl.h>
+#include <tchar.h>
+#include <crtdbg.h>
+#else
+#include "win_types.h"
+#define _CRTDBG_MAP_ALLOC
+#endif
+
 #include <cstdio>
 #include <cwchar>
 #include <cstdint>
+#include <stdexcept>
+#include "gdiconstants.h"
 #include "timeconstants.hpp"
 
 // C RunTime Header Files
 
-#define _CRTDBG_MAP_ALLOC
 #include <stdlib.h>
-#include <crtdbg.h>
 
 #include <memory>
-#include <tchar.h>
+
 
 #include <string>
 #include <fstream>

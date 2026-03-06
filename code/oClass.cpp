@@ -1204,7 +1204,7 @@ bool oClass::setStartData(int leg, const wstring &s) {
   if (styp==STTime || styp==STPursuit)
     rt=oe->getRelativeTime(s);
   else
-    rt=(int)std::wcstol(s.c_str(, nullptr, 10));
+    rt=(int)std::wcstol(s.c_str(), nullptr, 10);
 
   return setStartData(leg, rt);
 }
@@ -1431,7 +1431,7 @@ bool oEvent::fillClassesTB(gdioutput &gdi)//Table mode
       xp+=dx[1];
 
       char num[10];
-      _itoa_s(it->getNumRunners(false, false, false), num, 10);
+      snprintf(num, sizeof(num), "%d", it->getNumRunners(false, false, false));
 
       gdi.addString("", y, xp, 0, num, dx[2]);
       xp+=dx[2];

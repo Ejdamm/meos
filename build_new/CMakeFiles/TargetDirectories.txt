@@ -1,0 +1,5 @@
+/home/adam.georgsson@fnox.it/workspace/meos/build_new/CMakeFiles/meos.dir
+/home/adam.georgsson@fnox.it/workspace/meos/build_new/CMakeFiles/gui_stubs.dir
+/home/adam.georgsson@fnox.it/workspace/meos/build_new/CMakeFiles/test.dir
+/home/adam.georgsson@fnox.it/workspace/meos/build_new/CMakeFiles/edit_cache.dir
+/home/adam.georgsson@fnox.it/workspace/meos/build_new/CMakeFiles/rebuild_cache.dir

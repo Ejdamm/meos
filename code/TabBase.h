@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 /************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -65,7 +65,7 @@ public:
   virtual const char *getTypeStr() const = 0;
   
   TabBase(oEvent *poe) : oe(poe), tabId(0) {}
-  virtual ~TabBase()=0  {}
+  virtual ~TabBase() {}
   friend class TabObject;
   friend class FixedTabs;
 };
@@ -100,13 +100,15 @@ class TabTeam;
 class TabClass;
 class TabCourse;
 class TabControl;
-class TabClub;
 class TabSI;
 class TabList;
 class TabCompetition;
 class TabSpeaker;
+class TabClub;
 class TabAuto;
 
+#ifndef FIXED_TABS_DEFINED
+#define FIXED_TABS_DEFINED
 class FixedTabs {
   oEvent *oe;
   TabRunner *runnerTab;
@@ -128,9 +130,5 @@ public:
   const vector<TabBase *> &getActiveTabs() const {return tabs;}
   // Clean up competition specific data from user interface
   void clearCompetitionData();
-
-
-  FixedTabs();
-  ~FixedTabs();
 };
-
+#endif

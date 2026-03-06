@@ -352,7 +352,7 @@ bool TabCompetition::checkEventor(gdioutput &gdi, ButtonInfo &bi) {
       return true;
     }
     else if (clubId == -1)
-      throw std::exception("Kunde inte ansluta till Eventor");
+      throw std::runtime_error("Kunde inte ansluta till Eventor");
 
     organizorId = clubId;
   }
@@ -495,7 +495,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
         exit(0);
       }
       else
-        throw std::exception("Operationen misslyckades");
+        throw std::runtime_error("Operationen misslyckades");
     }
     else if (bi.id == "RunnerDatabase") {
       loadRunnerDB(gdi, 0, false);
@@ -872,7 +872,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       ListBoxInfo lbi;
       gdi.getSelectedItem("PostEvent", lbi);
       if (int(lbi.data) == -2)
-        throw std::exception("Nästa etapp är odefinierad.");
+        throw std::runtime_error("Nästa etapp är odefinierad.");
 
       gdi.clearPage(true);
       gdi.addString("", boldLarge, "Överför resultat till nästa etapp");
@@ -915,7 +915,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       oEvent nextStage(gdi);
 
       if (!file.empty())
-        success = nextStage.open(file.c_str(), false, false, false);
+        success = nextStage.open(string(file.begin(), file.end()).c_str(), false, false, false);
 
       if (success)
         success = nextStage.getNameId(0) == oe->getDCI().getString("PostEvent");
@@ -1003,7 +1003,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
         gdi.refresh();
       }
       else
-        throw std::exception("Kunde inte lokalisera nästa etapp");
+        throw std::runtime_error("Kunde inte lokalisera nästa etapp");
     }
     else if (bi.id == "UseEventor") {
       if (gdi.isChecked("UseEventor"))
@@ -1702,7 +1702,7 @@ int TabCompetition::competitionCB(gdioutput &gdi, GuiEventType type, BaseInfo *d
       ext.push_back(make_pair(L"Textfiler", L"*.txt"));
 
       wstring file=gdi.browseForOpen(ext, L"txt");
-      ifstream fin(file.c_str());
+      ifstream fin(string(file.begin(), file.end()).c_str());
       char bf[1024];
       bf[0]='\r';//WCS
       bf[1]='\n';
@@ -2806,11 +2806,11 @@ int TabCompetition::getOrganizer(bool updateEvent) {
     if (ex.code == 403)
       return 0;
     else {
-      throw std::exception("Kunde inte ansluta till Eventor.");
+      throw std::runtime_error("Kunde inte ansluta till Eventor.");
     }
   }
   catch (std::exception &) {
-    throw std::exception("Kunde inte ansluta till Eventor.");
+    throw std::runtime_error("Kunde inte ansluta till Eventor.");
   }
 
   dwl.createDownloadThread();
@@ -2863,7 +2863,7 @@ void TabCompetition::getAPIKey(vector< pair<wstring, wstring> > &key) const {
   wstring apikey = widen(oe->getPropertyStringDecrypt("apikey", ""));
 
   if (apikey.empty() || organizorId == 0)
-    throw std::exception("Internal error");
+    throw std::runtime_error("Internal error");
 
   key.clear();
   key.push_back(pair<wstring, wstring>(L"ApiKey", apikey));
@@ -3031,7 +3031,7 @@ void TabCompetition::getEventorCmpData(gdioutput &gdi, int id,
       Sleep(100);
     }
     if (!dwl.successful())
-      throw std::exception("Download failed");
+      throw std::runtime_error("Download failed");
 
     prg += int(event_prg * 0.2);
     pw.setProgress(prg);
@@ -3048,7 +3048,7 @@ void TabCompetition::getEventorCmpData(gdioutput &gdi, int id,
     }
 
     if (!dwl.successful())
-      throw std::exception("Download failed");
+      throw std::runtime_error("Download failed");
 
     prg += event_prg;
     pw.setProgress(prg);
@@ -3065,7 +3065,7 @@ void TabCompetition::getEventorCmpData(gdioutput &gdi, int id,
       Sleep(100);
     }
     if (!dwl.successful())
-      throw std::exception("Download failed");
+      throw std::runtime_error("Download failed");
 
     prg += int(event_prg * 1.8);
     pw.setProgress(prg);
@@ -3083,7 +3083,7 @@ void TabCompetition::getEventorCmpData(gdioutput &gdi, int id,
     Sleep(100);
   }
   if (!dwl.successful())
-    throw std::exception("Download failed");
+    throw std::runtime_error("Download failed");
 
   prg += club_prg;
   pw.setProgress(prg);
@@ -3103,7 +3103,7 @@ void TabCompetition::getEventorCmpData(gdioutput &gdi, int id,
     }
 
     if (!dwl.successful())
-      throw std::exception("Download failed");
+      throw std::runtime_error("Download failed");
 
     pw.setProgress(1000);
     gdi.addString("", 0, "OK");
@@ -4594,7 +4594,7 @@ void TabCompetition::saveSettings(gdioutput &gdi) {
         else if (dci.isInt(p))
           oe->setProperty(p.c_str(), dci.getInt(p));
         else
-          throw std::exception();
+          throw std::runtime_error();
       }
     }
   }

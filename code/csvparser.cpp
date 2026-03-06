@@ -70,7 +70,7 @@ public:
 csvparser::~csvparser() = default;
 
 csvparser::CSV csvparser::iscsv(const wstring &file) {
-  ifstream fin(file);
+  ifstream fin(string(file.begin(), file.end()).c_str());
 
   if (!fin.good())
     return CSV::NoCSV;
@@ -435,7 +435,7 @@ bool csvparser::importOE_CSV(oEvent &event, const wstring &file) {
 bool csvparser::openOutput(const wstring &filename, bool writeUTF)
 {
   checkWriteAccess(filename);
-  fout.open(filename);
+  fout.open(string(filename.begin(), filename.end()).c_str());
 
   if (fout.bad())
     return false;
@@ -1006,9 +1006,9 @@ bool csvparser::checkSIConfigLine(const oEvent &oe, const CSVLineWrapper &sp, SI
       card.Punch[k].Time = punches[k].second;
     }
     
-    wcsncpy_s(card.firstName, fname.c_str(), 20);
+    wcsncpy(card.firstName, fname.c_str(), 20);
     card.firstName[20] = 0;
-    wcsncpy_s(card.lastName, lname.c_str(), 20);
+    wcsncpy(card.lastName, lname.c_str(), 20);
     card.lastName[20] = 0;
     card.nPunch = punches.size();
     card.convertedTime = is12Hour ? ConvertedTimeStatus::Hour12 :  ConvertedTimeStatus::Hour24;
@@ -1106,9 +1106,12 @@ bool csvparser::importCards(const oEvent &oe, const wstring &file, vector<SICard
     else if (sp.size()>28) {
       int no = wtoi(sp[0]);
       card.CardNumber = wtoi(sp[2]);
-      wcsncpy_s(card.firstName, sp[5].c_str(), 20);
-      wcsncpy_s(card.lastName, sp[6].c_str(), 20);
-      wcsncpy_s(card.club, sp[7].c_str(), 40);
+      wcsncpy(card.firstName, sp[5].c_str(), 20);
+      card.firstName[19] = 0;
+      wcsncpy(card.lastName, sp[6].c_str(), 20);
+      card.lastName[19] = 0;
+      wcsncpy(card.club, sp[7].c_str(), 40);
+      card.club[39] = 0;
       bool hour12 = false;
       if (trim(sp[21]).length()>1) {
         card.CheckPunch.Code = wtoi(sp[19]);
@@ -1158,7 +1161,7 @@ bool csvparser::importCards(const oEvent &oe, const wstring &file, vector<SICard
 }
 
 void csvparser::parseUnicode(const wstring &file, list< vector<wstring> > &data) {
-  fin.open(file, ifstream::in | ifstream::binary);
+  fin.open(string(file.begin(), file.end()), ifstream::in | ifstream::binary);
   fin.seekg(0, ios_base::end);
   int len = int(fin.tellg())-2;
   if (len <= 0)
@@ -1203,7 +1206,7 @@ void csvparser::parseUnicode(const wstring &file, list< vector<wstring> > &data)
 void csvparser::parse(const wstring &file, list<vector<wstring>> &data) {
   data.clear();
 
-  fin.open(file);
+  fin.open(string(file.begin(), file.end()));
   
   fin.seekg(0, ios_base::end);
   auto flen = fin.tellg();
@@ -1279,7 +1282,7 @@ void csvparser::parse(const wstring &file, list<vector<wstring>> &data) {
 
 void csvparser::convertUTF(const wstring &file) {
   ifstream fin;
-  fin.open(file);
+  fin.open(string(file.begin(), file.end()).c_str());
   string rbf;
 
   if (!fin.good())
@@ -1306,7 +1309,7 @@ void csvparser::convertUTF(const wstring &file) {
   _wrename(file.c_str(), (file + L"_").c_str());
 
   ofstream fout;
-  fout.open(file);
+  fout.open(string(file.begin(), file.end()).c_str());
   fout.put(-17);
   fout.put(-69);
   fout.put(-65);

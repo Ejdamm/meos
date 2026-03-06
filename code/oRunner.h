@@ -30,6 +30,8 @@
 #include "oCard.h"
 #include "oDataContainer.h"
 
+class oListInfo;
+
 enum RunnerStatus {
   StatusOK = 1, StatusDNS = 20, StatusCANCEL = 21, StatusOutOfCompetition = 15, StatusMP = 3,
   StatusDNF = 4, StatusDQ = 5, StatusMAX = 6, StatusNoTiming = 2,

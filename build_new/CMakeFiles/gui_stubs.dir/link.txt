@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgui_stubs.a CMakeFiles/gui_stubs.dir/code/gdioutput_stub.cpp.o CMakeFiles/gui_stubs.dir/code/Table_stub.cpp.o
+/usr/bin/ranlib libgui_stubs.a

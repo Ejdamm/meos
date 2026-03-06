@@ -86,8 +86,19 @@ Replace Win32-specific:
 | `_wtof` | `std::wcstod(str, nullptr)` |
 | `_wtoi64` | `(long long)std::wcstoll(str, nullptr, 10)` |
 | `MultiByteToWideChar` | `codecvt` / `widen()` |
+| `OffsetRect` | `inline BOOL OffsetRect(LPRECT lprc, int dx, int dy)` |
 
 ### 4. Circular Dependency Management
+...
+### 10. Win32 Type Shimming Gotchas
+- **Incomplete Types**: Classes like `GDIImplFontEnum` and `GDIImplFontSet` must be defined (even if empty) rather than just forward-declared when used as value types in `std::vector` or `std::map` members on Linux/GCC.
+- **Missing Typedefs**: Ensure `INT`, `LPSIZE`, `LPOPENFILENAME`, and `LPBROWSEINFO` are defined in `win_types.h`.
+- **Macro Redefinitions**: Wrap Win32 resource IDs (like `IDD_SPLASH`) in `#ifndef` to avoid conflicts with `resource.h`.
+- **Macro vs Inline**: Prefer inline functions for Win32 API shims (like `OffsetRect`) to avoid issues with `return` statements and expression evaluation.
+
+### 11. Dependency Management (vcpkg)
+- **libmysql**: Building `libmysql` from source via vcpkg can be fragile on Linux environments due to heavy dependencies and build tool requirements (e.g., specific `ninja` versions). If it fails, consider using `libmariadb` or system-provided MySQL client libraries, or stubbing MySQL functionality for minimal builds.
+- **Package Names**: Some vcpkg packages use `unofficial-` prefix for CMake targets (e.g., `unofficial-libharu`, `unofficial-minizip`).
 
 - Move shared enums to `domain_header.h` or `src/util/common_enums.h`.
 - Use forward declarations heavily.

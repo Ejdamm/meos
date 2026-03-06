@@ -549,7 +549,7 @@ void OnlineResults::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast) {
             res = xml.getObject("MOPStatus");
           }
           catch (std::exception&) {
-            ifstream is(result.c_str());
+            ifstream is(string(result.begin(), result.end()).c_str());
             is.seekg(0, is.end);
             int length = (int)is.tellg();
             is.seekg(0, is.beg);
@@ -639,7 +639,7 @@ void OnlineResults::saveMachine(oEvent &oe, const wstring &guiInterval) {
   cnt.set("file", file);
   cnt.set("url", url);
   cnt.set("prefix", prefix);
-  int iv = (int)std::wcstol(guiInterval.c_str(, nullptr, 10));
+  int iv = (int)std::wcstol(guiInterval.c_str(), nullptr, 10);
   cnt.set("interval", iv);
 
   string pwProp = "@respwd" + narrow(getMachineName());

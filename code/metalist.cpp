@@ -584,7 +584,7 @@ const wstring &MetaList::fromResultModuleNumber(const wstring &in, int nr, wstri
     res.swap(out[ix]);
     if (res.find_first_of('%') != wstring::npos) {
       wchar_t bf2[256];
-      swprintf(bf2, res.c_str(), itow(nr).c_str());
+      swprintf(bf2, sizeof(bf2)/sizeof(wchar_t), res.c_str(), itow(nr).c_str());
       res = bf2;
     }
   }
@@ -1295,7 +1295,7 @@ void Position::alignNext(const string &newname, const int width, bool alignBlock
 void Position::update(const string &oldname, const string &newname,
                       const int width, bool alignBlock, bool alignLock) {
   if (pmap.count(oldname) == 0)
-    throw std::exception("Invalid position");
+    throw std::runtime_error("Invalid position");
 
   int ix = pmap[oldname];
 
@@ -1628,14 +1628,14 @@ void MetaList::load(const xmlobject &xDef) {
   xDef.getObjectString("SortOrder", tmp);
   if (symbolToOrder.count(tmp) == 0) {
     string err = "Invalid sort order X#" + tmp;
-    throw std::exception(err.c_str());
+    throw std::runtime_error(err.c_str());
   }
   sortOrder = symbolToOrder[tmp];
 
   xDef.getObjectString("ListType", tmp);
   if (symbolToBaseType.count(tmp) == 0) {
     string err = "Invalid type X#" + tmp;
-    throw std::exception(err.c_str());
+    throw std::runtime_error(err.c_str());
   }
   listType = symbolToBaseType[tmp];
 
@@ -1643,7 +1643,7 @@ void MetaList::load(const xmlobject &xDef) {
   if (!tmp.empty()) {
     if (symbolToBaseType.count(tmp) == 0) {
       string err = "Invalid type X#" + tmp;
-      throw std::exception(err.c_str());
+      throw std::runtime_error(err.c_str());
     }
 
     listSubType = symbolToBaseType[tmp];
@@ -1740,7 +1740,7 @@ void MetaList::load(const xmlobject &xDef) {
     string attrib = f[k].getAttrib("name").getStr();
     if (symbolToFilter.count(attrib) == 0) {
       string err = "Invalid filter X#" + attrib;
-      throw std::exception(err.c_str());
+      throw std::runtime_error(err.c_str());
     }
     EFilterList f = symbolToFilter[attrib];
     if (f == EFilterHasResult || f == EFilterHasPrelResult)
@@ -1755,7 +1755,7 @@ void MetaList::load(const xmlobject &xDef) {
     string attrib = f[k].getAttrib("name").getStr();
     if (symbolToSubFilter.count(attrib) == 0) {
       string err = "Invalid filter X#" + attrib;
-      throw std::exception(err.c_str());
+      throw std::runtime_error(err.c_str());
     }
     addSubFilter(symbolToSubFilter[attrib]);
   }
@@ -2077,7 +2077,7 @@ void MetaListPost::serialize(xmlparser &xml) const {
     xml.write("TextAdjust", getTextAdjust());
   if (color != colorDefault) {
     char bf[16];
-    snprintf(bf, "%x", color);
+    snprintf(bf, sizeof(bf), "%x", color);
     xml.write("Color", bf);
   }
   xml.endTag();
@@ -2427,10 +2427,10 @@ void MetaList::initSymbols() {
     }
 
     if (typeToSymbol.size() != lLastItem)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     if (symbolToType.size() != lLastItem)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     baseTypeToSymbol[oListInfo::EBaseTypeRunner] = "Runner";
     baseTypeToSymbol[oListInfo::EBaseTypeTeam] = "Team";
@@ -2453,10 +2453,10 @@ void MetaList::initSymbols() {
     }
 
     if (baseTypeToSymbol.size() != oListInfo::EBasedTypeLast_)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     if (symbolToBaseType.size() != oListInfo::EBasedTypeLast_)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
     symbolToBaseType["Punches"] = oListInfo::EBaseTypeCoursePunches; // Back comp MeOS --3.5
 
     orderToSymbol[ClassStartTime] = "ClassStartTime";
@@ -2490,10 +2490,10 @@ void MetaList::initSymbols() {
     }
 
     if (orderToSymbol.size() != SortEnumLastItem)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     if (symbolToOrder.size() != SortEnumLastItem)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     filterToSymbol[EFilterHasResult] = "FilterResult";
     filterToSymbol[EFilterHasPrelResult] = "FilterPrelResult";
@@ -2518,10 +2518,10 @@ void MetaList::initSymbols() {
     }
 
     if (filterToSymbol.size() != _EFilterMax)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     if (symbolToFilter.size() != _EFilterMax)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     subFilterToSymbol[ESubFilterHasResult] = "FilterResult";
     subFilterToSymbol[ESubFilterHasPrelResult] = "FilterPrelResult";
@@ -2538,10 +2538,10 @@ void MetaList::initSymbols() {
     }
 
     if (subFilterToSymbol.size() != _ESubFilterMax)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
     if (symbolToSubFilter.size() != _ESubFilterMax)
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
 
     fontToSymbol[normalText] = "NormalFont";
@@ -2565,7 +2565,7 @@ void MetaList::initSymbols() {
     }
 
     if (fontToSymbol.size() != symbolToFont.size())
-      throw std::exception("Bad symbol setup");
+      throw std::runtime_error("Bad symbol setup");
 
   }
 }
@@ -2901,7 +2901,7 @@ wstring MetaListContainer::makeUniqueParamName(const wstring &nameIn) const {
         maxValue = max(1, maxValue);
       else {
         if (it->second.name.substr(0, len) == nameIn) {
-          int v = (int)std::wcstol(it->second.name.substr(len + 1, nullptr, 10).c_str());
+          int v = (int)std::wcstol(it->second.name.substr(len + 1).c_str(), nullptr, 10);
           if (v > 0)
             maxValue = max(v, maxValue);
         }

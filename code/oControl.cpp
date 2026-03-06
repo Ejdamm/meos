@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <cwchar>
 #include <cstdio>
+#include <cmath>
 
 #include "oControl.h"
 #include "oEvent.h"
@@ -794,7 +795,7 @@ void oEvent::setupControlStatistics() const {
           ctrl.tMissedTimeMedian = avg;
         }
         if (ctrl.tNumVisitorsActual > 0)
-          ctrl.tMistakeQuotient = (int)round((100.00 * res->second.first) / double(ctrl.tNumVisitorsActual));
+          ctrl.tMistakeQuotient = (int)std::round((100.00 * res->second.first) / double(ctrl.tNumVisitorsActual));
         else
           ctrl.tMistakeQuotient = 0;
       }

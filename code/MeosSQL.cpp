@@ -173,7 +173,7 @@ bool MeosSQL::listCompetitions(oEvent *oe, bool keepConnection) {
   errorMessage.clear();
   CmpDataBase="";
   if (oe->isClient())
-    throw std::exception("Runtime error.");
+    throw std::runtime_error("Runtime error.");
 
   oe->serverName.clear();
 
@@ -286,7 +286,7 @@ bool MeosSQL::listCompetitions(oEvent *oe, bool keepConnection) {
           CompetitionInfo ci;
           ci.Name = fromUTF((string)row["Name"]);
           ci.Annotation = fromUTF((string)row["Annotation"]);
-          ci.Id = row["Id"];
+          ci.Id = (int)row["Id"];
           ci.Date = fromUTF((string)row["Date"]);
           ci.FullPath = fromUTF((string)row["NameId"]);
           ci.NameId = fromUTF((string)row["NameId"]);
@@ -529,7 +529,7 @@ MeosSQL::OpenStatus MeosSQL::openDB(oEvent* oe, bool update) {
     if (res && res.num_rows() >= 1) {
       auto row = res.at(0);
 
-      int version = row["Version"];
+      int version = (int)row["Version"];
       if (version < oEvent::dbVersion) {
         if (!update)
           return OpenStatus::NeedUpdate;
@@ -542,7 +542,7 @@ MeosSQL::OpenStatus MeosSQL::openDB(oEvent* oe, bool update) {
           query << "SELECT Version FROM oEvent WHERE NameId=" << quote << dbname;
           auto resV = query.store();
           if (res && res.num_rows() >= 1) {
-            version = res.at(0)["Version"];
+            version = (int)res.at(0)["Version"];
           }
         }
 
@@ -619,7 +619,7 @@ MeosSQL::OpenStatus MeosSQL::openDB(oEvent* oe, bool update) {
         return openDB(oe);
       }*/
 
-      oe->Id = row["Id"]; //Don't synchronize more here...
+      oe->Id = (int)row["Id"]; //Don't synchronize more here...
     }
     else {
       query.reset();
@@ -1251,7 +1251,7 @@ OpFailStatus MeosSQL::SyncRead(oEvent *oe) {
       oe->Name = fromUTF(string(row["Name"]));
       oe->Annotation = fromUTF(string(row["Annotation"]));
       oe->Date = fromUTF(string(row["Date"]));
-      oe->ZeroTime = row["ZeroTime"];
+      oe->ZeroTime = (int)row["ZeroTime"];
       oe->currentNameId = fromUTF(string(row["NameId"]));
     }
 
@@ -1326,10 +1326,10 @@ OpFailStatus MeosSQL::SyncRead(oEvent *oe) {
       oe->Name = fromUTF(string(row["Name"]));
       oe->Annotation = fromUTF(string(row["Annotation"]));
       oe->Date = fromUTF(string(row["Date"]));
-      oe->ZeroTime = row["ZeroTime"];
+      oe->ZeroTime = (int)row["ZeroTime"];
       oe->currentNameId = fromUTF(string(row["NameId"]));
-      oe->sqlUpdated = row["Modified"];
-      oe->counter = row["Counter"];
+      oe->sqlUpdated = (string)row["Modified"];
+      oe->counter = (int)row["Counter"];
 
       if (checkOldVersion(oe, row)) {
         warnOldDB();
@@ -1582,7 +1582,7 @@ OpFailStatus MeosSQL::SyncRead(oEvent *oe) {
     else
       cnt = query.store("SELECT DATE_FORMAT(NOW(),'%Y-%m-%d %H:%i:%s')");
 
-    dateTime = cnt.at(0).at(0);
+    dateTime = (string)cnt.at(0).at(0);
 
     oe->runnerDB->prepareLoadFromServer(nRunnerDB, nClubDB);
 
@@ -1596,7 +1596,7 @@ OpFailStatus MeosSQL::SyncRead(oEvent *oe) {
       while (row = res.fetch_row()) {
         oClub t(oe, row["Id"]);
 
-        string n = row["Name"];
+        string n = (string)row["Name"];
         storeData(t.getDI(), row, oe->dataRevision);
         t.internalSetName(fromUTF(n));
 
@@ -1624,12 +1624,12 @@ OpFailStatus MeosSQL::SyncRead(oEvent *oe) {
       RowWrapper row;
       while (row = res.fetch_row()) {
         string name = (string)row["Name"];
-        string ext = row["ExtId"];
-        string club = row["Club"];
-        string card = row["CardNo"];
-        string sex = row["Sex"];
-        string nat = row["Nation"];
-        string birth = row["BirthYear"];
+        string ext = (string)row["ExtId"];
+        string club = (string)row["Club"];
+        string card = (string)row["CardNo"];
+        string sex = (string)row["Sex"];
+        string nat = (string)row["Nation"];
+        string birth = (string)row["BirthYear"];
         RunnerWDBEntry *db = oe->runnerDB->addRunner(name.c_str(), _atoi64(ext.c_str()),
                                atoi(club.c_str()), atoi(card.c_str()));
         if (db) {
@@ -1666,11 +1666,11 @@ OpFailStatus MeosSQL::SyncRead(oEvent *oe) {
 
 void MeosSQL::storeClub(const RowWrapper &row, oClub &c)
 {
-  string n = row["Name"];
+  string n = (string)row["Name"];
   
-  c.sqlUpdated = row["Modified"];
-  c.counter = row["Counter"];
-  c.Removed = row["Removed"];
+  c.sqlUpdated = (string)row["Modified"];
+  c.counter = (int)row["Counter"];
+  c.Removed = (int)row["Removed"];
 
   c.changedObject();
 
@@ -1686,9 +1686,9 @@ void MeosSQL::storeControl(const RowWrapper &row, oControl &c)
   oControl::ControlStatus oldStat = c.Status;
   c.Status = oControl::ControlStatus(int(row["Status"]));
 
-  c.sqlUpdated = row["Modified"];
-  c.counter = row["Counter"];
-  c.Removed = row["Removed"];
+  c.sqlUpdated = (string)row["Modified"];
+  c.counter = (int)row["Counter"];
+  c.Removed = (int)row["Removed"];
 
   if (c.changed || oldStat != c.Status) {
     c.oe->dataRevision++;
@@ -1703,15 +1703,15 @@ void MeosSQL::storeControl(const RowWrapper &row, oControl &c)
 
 void MeosSQL::storeCard(const RowWrapper &row, oCard &c)
 {
-  c.cardNo = row["CardNo"];
-  c.readId = row["ReadId"];
-  c.miliVolt = row["Voltage"];
-  c.batteryDate = row["BDate"];
+  c.cardNo = (int)row["CardNo"];
+  c.readId = (int)row["ReadId"];
+  c.miliVolt = (int)row["Voltage"];
+  c.batteryDate = (int)row["BDate"];
   c.importPunches(string(row["Punches"]));
 
-  c.sqlUpdated = row["Modified"];
-  c.counter = row["Counter"];
-  c.Removed = row["Removed"];
+  c.sqlUpdated = (string)row["Modified"];
+  c.counter = (int)row["Counter"];
+  c.Removed = (int)row["Removed"];
 
   c.changedObject();
   synchronized(c);
@@ -1725,16 +1725,16 @@ void MeosSQL::storePunch(const RowWrapper &row, oFreePunch &p, bool rehash)
     p.setType(fromUTF(string(row["Type"])), true);
   }
   else {
-    p.CardNo = row["CardNo"];
-    p.punchTime = row["Time"];
-    p.type = row["Type"];
+    p.CardNo = (int)row["CardNo"];
+    p.punchTime = (int)row["Time"];
+    p.type = (int)row["Type"];
   }
-  p.punchUnit = row["Unit"];
-  p.origin = row["Origin"];
+  p.punchUnit = (int)row["Unit"];
+  p.origin = (int)row["Origin"];
 
-  p.sqlUpdated = row["Modified"];
-  p.counter = row["Counter"];
-  p.Removed = row["Removed"];
+  p.sqlUpdated = (string)row["Modified"];
+  p.counter = (int)row["Counter"];
+  p.Removed = (int)row["Removed"];
 
   p.changedObject();
   synchronized(p);
@@ -1746,7 +1746,7 @@ OpFailStatus MeosSQL::storeClass(const RowWrapper &row, oClass &c,
   OpFailStatus success = opStatusOK;
 
   c.Name=fromUTF(string(row["Name"]));
-  string multi = row["MultiCourse"];
+  string multi = (string)row["MultiCourse"];
 
   string lm(row["LegMethod"]);
   c.importLegMethod(lm);
@@ -1755,7 +1755,7 @@ OpFailStatus MeosSQL::storeClass(const RowWrapper &row, oClass &c,
   vector<vector<int>> multip;
   oClass::parseCourses(multi, multip, cid);
   
-  int classCourse =  row["Course"];
+  int classCourse = (int)row["Course"];
   if (classCourse != 0)
     cid.insert(classCourse);
   
@@ -1789,9 +1789,9 @@ OpFailStatus MeosSQL::storeClass(const RowWrapper &row, oClass &c,
 
   c.importCourses(multip);
 
-  c.sqlUpdated = row["Modified"];
-  c.counter = row["Counter"];
-  c.Removed = row["Removed"];
+  c.sqlUpdated = (string)row["Modified"];
+  c.counter = (int)row["Counter"];
+  c.Removed = (int)row["Removed"];
 
   storeData(c.getDI(), row, c.oe->dataRevision);
 
@@ -1808,11 +1808,11 @@ OpFailStatus MeosSQL::storeCourse(const RowWrapper &row, oCourse &c,
 
   c.name = fromUTF((string)row["Name"]);
   c.importControls(string(row["Controls"]), false, false);
-  c.length = row["Length"];
+  c.length = (int)row["Length"];
   c.importLegLengths(string(row["Legs"]), false);
 
-  int s = row["Start"];
-  int f = row["Finish"];
+  int s = (int)row["Start"];
+  int f = (int)row["Finish"];
   c.setStartFinishId(s, f, false);
 
   for (int i=0;i<c.nControls(); i++) {
@@ -1865,9 +1865,9 @@ OpFailStatus MeosSQL::storeCourse(const RowWrapper &row, oCourse &c,
     }
   }
 
-  c.sqlUpdated = row["Modified"];
-  c.counter = row["Counter"];
-  c.Removed = row["Removed"];
+  c.sqlUpdated = (string)row["Modified"];
+  c.counter = (int)row["Counter"];
+  c.Removed = (int)row["Removed"];
 
   storeData(c.getDI(), row, c.oe->dataRevision);
   c.oe->dataRevision++;
@@ -1897,20 +1897,20 @@ OpFailStatus MeosSQL::storeRunner(const RowWrapper &row, oRunner &r,
   
   if (!r.cardWasSet)
     r.setCardNo(row["CardNo"], false, true);
-  r.StartNo = row["StartNo"];
-  r.tStartTime = r.startTime = row["StartTime"];
+  r.StartNo = (int)row["StartNo"];
+  r.tStartTime = r.startTime = (int)row["StartTime"];
   if (!r.finishTimeWasSet)
-    r.FinishTime = row["FinishTime"];
+    r.FinishTime = (int)row["FinishTime"];
   r.tStatus = r.status = RunnerStatus(int(row["Status"]));
 
-  r.inputTime = row["InputTime"];
-  r.inputPoints = row["InputPoints"];
+  r.inputTime = (int)row["InputTime"];
+  r.inputPoints = (int)row["InputPoints"];
   r.inputStatus = RunnerStatus(int(row["InputStatus"]));
-  r.inputPlace = row["InputPlace"];
+  r.inputPlace = (int)row["InputPlace"];
 
-  r.Removed = row["Removed"];
-  r.sqlUpdated = row["Modified"];
-  r.counter = row["Counter"];
+  r.Removed = (int)row["Removed"];
+  r.sqlUpdated = (string)row["Modified"];
+  r.counter = (int)row["Counter"];
   int oldHeat = r.getDCI().getInt("Heat");
   storeData(r.getDI(), row, oe->dataRevision);
 
@@ -2064,30 +2064,30 @@ OpFailStatus MeosSQL::storeTeam(const RowWrapper &row, oTeam &t,
   const wstring &oldBib = t.getBib();
 
   t.sName=fromUTF((string)row["Name"]);
-  t.StartNo=row["StartNo"];
-  t.tStartTime  =  t.startTime = row["StartTime"];
-  t.FinishTime = row["FinishTime"];
+  t.StartNo = (int)row["StartNo"];
+  t.tStartTime  =  t.startTime = (int)row["StartTime"];
+  t.FinishTime = (int)row["FinishTime"];
   t.tStatus = t.status = RunnerStatus(int(row["Status"]));
   
-  t.inputTime = row["InputTime"];
-  t.inputPoints = row["InputPoints"];
+  t.inputTime = (int)row["InputTime"];
+  t.inputPoints = (int)row["InputPoints"];
   t.inputStatus = RunnerStatus(int(row["InputStatus"]));
-  t.inputPlace = row["InputPlace"];
+  t.inputPlace = (int)row["InputPlace"];
 
   storeData(t.getDI(), row, oe->dataRevision);
 
   if (oldSno != t.StartNo || oldBib != t.getBib())
     oe->bibStartNoToRunnerTeam.clear(); // Clear quick map (lazy setup)
 
-  t.Removed = row["Removed"];
+  t.Removed = (int)row["Removed"];
   if (t.Removed)
     t.prepareRemove();
 
-  t.sqlUpdated = row["Modified"];
-  t.counter = row["Counter"];
+  t.sqlUpdated = (string)row["Modified"];
+  t.counter = (int)row["Counter"];
 
   if (!t.Removed) {
-    int classId = row["Class"];
+    int classId = (int)row["Class"];
     if (classId!=0) {
       t.Class = oe->getClass(classId);
 
@@ -2106,7 +2106,7 @@ OpFailStatus MeosSQL::storeTeam(const RowWrapper &row, oTeam &t,
     }
     else t.Class=0;
 
-    int clubId = row["Club"];
+    int clubId = (int)row["Club"];
     if (clubId!=0) {
       t.Club=oe->getClub(clubId);
 
@@ -2752,9 +2752,9 @@ OpFailStatus MeosSQL::syncReadClassCourses(oClass *c, const set<int> &courses,
     set<int> controlIds;
     for (int k = 0; k < res.num_rows(); k++) {
       auto row = res.at(k);
-      int id = row["Id"];
-      int counter = row["Counter"];
-      string modified = row["Modified"];
+      int id = (int)row["Id"];
+      int counter = (int)row["Counter"];
+      string modified = (string)row["Modified"];
 
       pCourse pc = oe->getCourse(id);
       if (!pc) {
@@ -2813,9 +2813,9 @@ OpFailStatus MeosSQL::syncReadControls(oEvent *oe, const set<int> &controls) {
      set<int> processedControls(controls);
      for (int k = 0; k < res.num_rows(); k++) {
        RowWrapper row = res.at(k);
-       int id = row["Id"];
-       int counter = row["Counter"];
-       string modified = row["Modified"];
+       int id = (int)row["Id"];
+       int counter = (int)row["Counter"];
+       string modified = (string)row["Modified"];
 
        pControl pc = oe->getControl(id, false, false);
        if (!pc) {
@@ -3181,8 +3181,8 @@ OpFailStatus MeosSQL::updateTime(const char *oTable, oBase *ob)
   auto res = query.store();
 
   if (!res.empty()) {
-    ob->sqlUpdated=res.at(0)["Modified"];
-    ob->counter = res.at(0)["Counter"];
+    ob->sqlUpdated = (string)res.at(0)["Modified"];
+    ob->counter = (int)res.at(0)["Counter"];
     ob->changed=false; //Mark as saved.
     // Mark all data as stored in memory
     if (ob->getDISize() >= 0)
@@ -3394,8 +3394,8 @@ OpFailStatus MeosSQL::SyncEvent(oEvent *oe) {
 
     if (res && res.num_rows()>0) {
       auto row=res.at(0);
-      string Modified=row["Modified"];
-      int counter = row["Counter"];
+      string Modified = (string)row["Modified"];
+      int counter = (int)row["Counter"];
 
       oldVersion = checkOldVersion(oe, row);
   /*    int dbv=int(row["BuildVersion"]);
@@ -3408,7 +3408,7 @@ OpFailStatus MeosSQL::SyncEvent(oEvent *oe) {
         oe->Name=fromUTF(string(row["Name"]));
         oe->Annotation = fromUTF(string(row["Annotation"]));
         oe->Date=fromUTF(string(row["Date"]));
-        oe->ZeroTime=row["ZeroTime"];
+        oe->ZeroTime = (int)row["ZeroTime"];
         oe->sqlUpdated=Modified;
         const string &lRaw = row.raw_string(res.field_num("Lists"));
         try {
@@ -3550,9 +3550,9 @@ bool MeosSQL::syncListRunner(oEvent *oe)
         OpFailStatus st = OpFailStatus::opUnreachable;
 
         auto row=res.at(i);
-        int Id = row["Id"];
-        int counter = row["Counter"];
-        string modified = row["Modified"];
+        int Id = (int)row["Id"];
+        int counter = (int)row["Counter"];
+        string modified = (string)row["Modified"];
 
         if (int(row["Removed"])==1){
           st = OpFailStatus::opStatusOK;
@@ -3619,10 +3619,10 @@ bool MeosSQL::syncListClass(oEvent *oe) {
       for (int i = 0; i < nr; i++) {
         OpFailStatus st = OpFailStatus::opUnreachable;
         auto row = res.at(i);
-        int counter = row["Counter"];
-        string modified = row["Modified"];
+        int counter = (int)row["Counter"];
+        string modified = (string)row["Modified"];
 
-        int Id = row["Id"];
+        int Id = (int)row["Id"];
 
         if (int(row["Removed"])) {
           st = OpFailStatus::opStatusOK;
@@ -3686,9 +3686,9 @@ bool MeosSQL::syncListClub(oEvent *oe)
         OpFailStatus st = OpFailStatus::opUnreachable;
         auto row = res.at(i);
 
-        int counter = row["Counter"];
-        string modified = row["Modified"];
-        int Id = row["Id"];
+        int counter = (int)row["Counter"];
+        string modified = (string)row["Modified"];
+        int Id = (int)row["Id"];
 
         if (int(row["Removed"])) {
           st = opStatusOK;
@@ -3745,10 +3745,10 @@ bool MeosSQL::syncListCourse(oEvent *oe) {
       for (int i = 0; i < nr; i++) {
         OpFailStatus st = OpFailStatus::opUnreachable;
         auto row = res.at(i);
-        int counter = row["Counter"];
+        int counter = (int)row["Counter"];
         string modified(row["Modified"]);
 
-        int Id = row["Id"];
+        int Id = (int)row["Id"];
 
         if (int(row["Removed"])) {
           st = opStatusOK;
@@ -3805,9 +3805,9 @@ bool MeosSQL::syncListCard(oEvent *oe)
       for (int i = 0; i < nr; i++) {
         OpFailStatus st = OpFailStatus::opUnreachable;
         auto row = res.at(i);
-        int counter = row["Counter"];
+        int counter = (int)row["Counter"];
         string modified(row["Modified"]);
-        int Id = row["Id"];
+        int Id = (int)row["Id"];
 
         if (int(row["Removed"])) {
           st = opStatusOK;
@@ -3866,9 +3866,9 @@ bool MeosSQL::syncListControl(oEvent *oe) {
       for (int i = 0; i < nr; i++) {
         OpFailStatus st = OpFailStatus::opUnreachable;
         auto row = res.at(i);
-        int counter = row["Counter"];
+        int counter = (int)row["Counter"];
         string modified(row["Modified"]);
-        int Id = row["Id"];
+        int Id = (int)row["Id"];
 
         if (int(row["Removed"])) {
           st = opStatusOK;
@@ -3928,9 +3928,9 @@ bool MeosSQL::syncListPunch(oEvent *oe)
         OpFailStatus st = opUnreachable;
 
         auto row=res.at(i);
-        int counter = row["Counter"];
+        int counter = (int)row["Counter"];
         string modified(row["Modified"]);
-        int Id=row["Id"];
+        int Id = (int)row["Id"];
 
         if (int(row["Removed"])) {
           st = OpFailStatus::opStatusOK;
@@ -3996,9 +3996,9 @@ bool MeosSQL::syncListTeam(oEvent *oe) {
         OpFailStatus st = OpFailStatus::opUnreachable;
 
         auto row = res.at(i);
-        int counter = row["Counter"];
+        int counter = (int)row["Counter"];
         string modified(row["Modified"]);
-        int Id = row["Id"];
+        int Id = (int)row["Id"];
 
         if (int(row["Removed"])) {
           st = OpFailStatus::opStatusOK;
@@ -4419,7 +4419,7 @@ OpFailStatus MeosSQL::syncRead(bool forceRead, oBase *obj) {
     ret = SyncRead((oEvent *)obj);
   }
   else 
-    throw std::exception("Database error");
+    throw std::runtime_error("Database error");
 
   processMissingObjects();
 
@@ -4453,16 +4453,16 @@ void  MeosSQL::checkAgainstDB(const char *oTable, map<int, oBase *> &existing, v
   if (res) {
     for (int i = 0; i < res.num_rows(); i++) {
       auto row = res.at(i);
-      int id = row["Id"];
-      bool removed = row["Removed"];
+      int id = (int)row["Id"];
+      bool removed = (int)row["Removed"];
       auto e = existing.find(id);
       if (e == existing.end()) {
         if (!removed)
           idsToUpdate.emplace_back(id, nullptr);
       }
       else {
-        string modified = row["Modified"];
-        int c = row["Counter"];
+        string modified = (string)row["Modified"];
+        int c = (int)row["Counter"];
         if (modified != e->second->sqlUpdated || c != e->second->counter)
           idsToUpdate.emplace_back(id, e->second);
 

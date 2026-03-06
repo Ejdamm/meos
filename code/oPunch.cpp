@@ -62,13 +62,13 @@ string oPunch::codeString() const
 void oPunch::appendCodeString(string &dst) const {
   char ubf[16];
   if (punchUnit > 0)
-    snprintf(ubf, "@%d", punchUnit);
+    snprintf(ubf, sizeof(ubf), "@%d", punchUnit);
   else
     ubf[0] = 0;
 
   char ubo[16];
   if (origin != 0)
-    snprintf(ubo, "#%d", origin);
+    snprintf(ubo, sizeof(ubo), "#%d", origin);
   else
     ubo[0] = 0;
 
@@ -184,15 +184,15 @@ wstring oPunch::getString() const {
 
   if (type == oPunch::PunchStart || type == oPunch::PunchCheck || type == oPunch::PunchFinish) {
     if (false && punchUnit > 0)
-      swprintf(bf, L"%s/%d\t%s", tp, punchUnit, ct);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s/%d\t%s", tp, punchUnit, ct);
     else
-      swprintf(bf, L"%s\t%s", tp, ct);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s\t%s", tp, ct);
   }
   else {
     if (isUsed)
-      swprintf(bf, L"%d\t%s", type, ct);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%d\t%s", type, ct);
     else
-      swprintf(bf, L"  %d*\t%s", type, ct);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"  %d*\t%s", type, ct);
   }
 
   return bf;
@@ -271,7 +271,7 @@ void oPunch::setPunchUnit(int unit) {
 }
 
 oDataContainer &oPunch::getDataBuffers(pvoid &data, pvoid &olddata, pvectorstr &strData) const {
-  throw std::exception("Unsupported");
+  throw std::runtime_error("Unsupported");
 }
 
 wstring oPunch::getRunningTime(int startTime) const

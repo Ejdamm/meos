@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 /************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -24,11 +24,31 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <memory>
+#include <string>
+#include <list>
+#include <tuple>
+#include <functional>
 #include "oBase.h"
 #include "gdifonts.h"
 #include "gdioutput.h"
-#include "oEvent.h"
+#include "oRunner.h"
+
+using std::vector;
+using std::set;
+using std::map;
+using std::list;
+using std::shared_ptr;
+using std::wstring;
+using std::pair;
+using std::string;
+using std::make_pair;
+using std::make_tuple;
+using std::tuple;
+
 class oClass;
+class oEvent;
+class GeneralResult;
 
 typedef oEvent *pEvent;
 typedef oClass *pClass;
@@ -270,7 +290,7 @@ enum EStdListType {
   EGeneralResultList,
   ERogainingInd,
   EStdTeamResultListAll,
-  unused_EStdTeamResultListLeg,//EStdTeamResultListLeg,
+  unused_EStdTeamResultListLeg,
   EStdTeamResultList,
   EStdTeamStartList,
   EStdTeamStartListLeg,
@@ -281,10 +301,10 @@ enum EStdListType {
   EStdPatrolResultList,
   EStdRentedCard,
   EStdResultListLARGE,
-  unused_EStdTeamResultListLegLARGE,//EStdTeamResultListLegLARGE,
+  unused_EStdTeamResultListLegLARGE,
   EStdPatrolResultListLARGE,
   EStdIndMultiResultListLegLARGE,
-  unused_EStdRaidResultListLARGE,//EStdRaidResultListLARGE, //Obsolete
+  unused_EStdRaidResultListLARGE,
   ETeamCourseList,
   EIndCourseList,
   EStdClubStartList,
@@ -320,13 +340,13 @@ enum EFilterList
   EFilterExcludeCANCEL,
   EFilterVacant,
   EFilterOnlyVacant,  
-  EFilterAnyResult, // With any (radio) punch on a leg
-  EFilterAPIEntry, // Entry via API
+  EFilterAnyResult,
+  EFilterAPIEntry,
   EFilterWrongFee,
   EFilterIncludeNotParticipating,
   EFilterModifiedCard,
-  EFilterTimeNoResult, // Finish time, but not card yet
-  EFilterUnexpectedPunchOrder, // Order of punches does not match time
+  EFilterTimeNoResult,
+  EFilterUnexpectedPunchOrder,
   _EFilterMax
 };
 
@@ -342,8 +362,6 @@ enum ESubFilterList
   ESubFilterNamedControl,
   _ESubFilterMax
 };
-
-enum gdiFonts;
 
 struct oPrintPost {
   oPrintPost();
@@ -378,15 +396,12 @@ struct oPrintPost {
   }
   int fixedWidth = 0;
   int fixedHeight = 0;
-  bool useStrictWidth = false; // Crop text
+  bool useStrictWidth = false;
   bool doMergeNext = false;
   bool imageNoUpdatePos = false;
-  mutable const oPrintPost *mergeWithTmp = nullptr; // Merge text with this output
+  mutable const oPrintPost *mergeWithTmp = nullptr;
 };
 
-class gdioutput;
-class BaseInfo;
-enum gdiFonts;
 class xmlparser;
 class xmlobject;
 class MetaListContainer;
@@ -412,6 +427,18 @@ struct SplitPrintListInfo {
 
 struct oListParam {
   oListParam();
+
+  EStdListType listCode;
+  GUICALLBACK cb;
+  set<int> selection;
+  
+  bool lockUpdate; 
+
+  int useControlIdResultTo;
+  int useControlIdResultFrom;
+  
+  int filterMaxPer;
+  const oAbstractRunner *alwaysInclude = nullptr;
 
   bool operator==(const oListParam& a) const {
     return a.listCode == listCode &&
@@ -443,18 +470,6 @@ struct oListParam {
 
   wstring getContentsDescriptor(const oEvent &oe) const;
 
-  EStdListType listCode;
-  GUICALLBACK cb;
-  set<int> selection;
-  
-  bool lockUpdate; // Temporary prevent animation update
-
-  int useControlIdResultTo;
-  int useControlIdResultFrom;
-  
-  // Max number shown per class/class etc
-  int filterMaxPer;
-  const oAbstractRunner *alwaysInclude = nullptr;
   bool filterInclude(int count, const oAbstractRunner *r) const;
 
   bool pageBreak;
@@ -466,8 +481,8 @@ struct oListParam {
   wstring title;
   wstring name;
   int inputNumber;
-  int nextList; // 1-based index of next list (in the container, MetaListParam::listParam) for linked lists
-  int previousList; // 1-based index of previous list (in the container, MetaListParam::listParam) for linked lists. Not serialized
+  int nextList;
+  int previousList;
 
   enum class AgeFilter {
     All,
@@ -478,9 +493,8 @@ struct oListParam {
   AgeFilter ageFilter = AgeFilter::All;
 
   mutable bool lineBreakControlList = false;
-  mutable int relayLegIndex; // Current index of leg (or -1 for entire team)
-  mutable wstring defaultName; // Initialized when generating list
-  // generate a large-size list (supported as input when supportLarge is true)
+  mutable int relayLegIndex;
+  mutable wstring defaultName;
   bool useLargeSize;
   bool saved;
 
@@ -494,11 +508,11 @@ struct oListParam {
   bool animate;
   int timePerPage;
   int margin;
-  int screenMode;// 0 normal window, 1 = page by page, 2 = scroll
+  int screenMode;
 
   int htmlRows;
   double htmlScale;
-  string htmlTypeTag; // free, table, or template tag.
+  string htmlTypeTag;
 
   void updateDefaultName(const wstring &pname) const {defaultName = pname;}
   void setCustomTitle(const wstring &t) {title = t;}
@@ -549,9 +563,9 @@ public:
                   EBaseTypeCoursePunches,
                   EBaseTypeAllPunches,
                   EBaseTypeNone,
-                  EBaseTypeRunnerGlobal,  // Used only in metalist (meaning global, not classwise)
-                  EBaseTypeRunnerLeg,  // Used only in metalist, meaning legwise
-                  EBaseTypeTeamGlobal, // Used only in metalist (meaning global, not classwise)
+                  EBaseTypeRunnerGlobal,
+                  EBaseTypeRunnerLeg,
+                  EBaseTypeTeamGlobal,
                   EBaseTypeCourse,
                   EBaseTypeControl,
                   EBaseTypeRGLeg,
@@ -561,7 +575,6 @@ public:
   bool isTeamList() const {return listType == EBaseTypeTeam;}
   bool isSplitPrintList() const { return splitPrintInfo != nullptr; }
 
-  /** Return true, if includeHeader is set, also considers the header. */
   bool empty(bool includeHeader = true) const {
     if (includeHeader)
       return head.empty() && subHead.empty() && listPost.empty() && subListPost.empty();
@@ -585,7 +598,6 @@ public:
   static bool addTeams(EBaseType t) {return t == EBaseTypeTeam || t == EBaseTypeClubRunner || t == EBaseType::EBaseTypeClubTeam;}
   static bool addPatrols(EBaseType t) {return t == EBaseTypeTeam || t == EBaseTypeClubRunner || t == EBaseType::EBaseTypeClubTeam;}
 
-  // Return true if the runner should be skipped
   bool filterRunner(const oRunner &r) const;
   bool filterRunnerResult(GeneralResult *gResult, const oRunner &r) const;
 
@@ -639,15 +651,12 @@ protected:
 public:
   ResultType getResultType() const;
 
-  /** Set no transformation of types (ignore prefs) */
   void setNoTransform();
   
   bool supportClasses;
   bool supportLegs;
   bool supportParameter;
-  // True if large (and non-large) is supported
   bool supportLarge;
-  // True if a large-size list only
   bool largeSize;
 
   bool supportSplitAnalysis;
@@ -656,11 +665,8 @@ public:
   bool supportClassLimit;
   bool supportCustomTitle;
 
-  // True if supports timing from control
   bool supportTo;
-  // True if supports timing to control
   bool supportFrom;
-  // Result type 
   ResultType resType;
 
   void replaceType(EPostType find, EPostType replace, bool onlyFirst);
@@ -733,10 +739,7 @@ public:
                       gdiFonts font,
                       const wchar_t *fontFace = nullptr,
                       bool large = false, 
-                      int minSize = 0) const {
-    vector<tuple<EPostType, int, wstring>> typeFormats(1, make_tuple(type, legIndex, formats));
-    return getMaxCharWidth(oe, oe.gdiBase(), clsSel, typeFormats, font, fontFace, largeSize, minSize);
-  }
+                      int minSize = 0) const;
 
   const oListParam &getParam() const {return lp;}
   oListParam &getParam() {return lp;}
@@ -745,7 +748,6 @@ public:
     return next;
   }
 
-  // Returns true if the list needs to be regenerated due to competition changes
   bool needRegenerate(const oEvent &oe) const;
 
 };

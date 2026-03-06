@@ -104,8 +104,8 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Minimal executable meos builds on Linux with vcpkg and CMake."
     },
     {
       "id": "US-002",

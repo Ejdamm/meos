@@ -1,0 +1,429 @@
+[  5%] Built target gui_stubs
+[  7%] Building CXX object CMakeFiles/meos.dir/code/meos_util.cpp.o
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2043:23: warning: multi-character character constant [-Wmultichar]
+ 2043 |         else if (b == 'ö')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2045:23: warning: multi-character character constant [-Wmultichar]
+ 2045 |         else if (b == 'ä' || b == 'å' || b == 'à' || b == 'á' || b == 'â' || b == 'ã' || b == 'æ')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2045:35: warning: multi-character character constant [-Wmultichar]
+ 2045 |         else if (b == 'ä' || b == 'å' || b == 'à' || b == 'á' || b == 'â' || b == 'ã' || b == 'æ')
+      |                                   ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2045:47: warning: multi-character character constant [-Wmultichar]
+ 2045 |         else if (b == 'ä' || b == 'å' || b == 'à' || b == 'á' || b == 'â' || b == 'ã' || b == 'æ')
+      |                                               ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2045:59: warning: multi-character character constant [-Wmultichar]
+ 2045 |         else if (b == 'ä' || b == 'å' || b == 'à' || b == 'á' || b == 'â' || b == 'ã' || b == 'æ')
+      |                                                           ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2045:71: warning: multi-character character constant [-Wmultichar]
+ 2045 |         else if (b == 'ä' || b == 'å' || b == 'à' || b == 'á' || b == 'â' || b == 'ã' || b == 'æ')
+      |                                                                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2045:83: warning: multi-character character constant [-Wmultichar]
+ 2045 |         else if (b == 'ä' || b == 'å' || b == 'à' || b == 'á' || b == 'â' || b == 'ã' || b == 'æ')
+      |                                                                                   ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2045:95: warning: multi-character character constant [-Wmultichar]
+ 2045 |         else if (b == 'ä' || b == 'å' || b == 'à' || b == 'á' || b == 'â' || b == 'ã' || b == 'æ')
+      |                                                                                               ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2047:23: warning: multi-character character constant [-Wmultichar]
+ 2047 |         else if (b == 'ç')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2049:23: warning: multi-character character constant [-Wmultichar]
+ 2049 |         else if (b == 'è' || b == 'é' || b == 'ê' || b == 'ë')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2049:35: warning: multi-character character constant [-Wmultichar]
+ 2049 |         else if (b == 'è' || b == 'é' || b == 'ê' || b == 'ë')
+      |                                   ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2049:47: warning: multi-character character constant [-Wmultichar]
+ 2049 |         else if (b == 'è' || b == 'é' || b == 'ê' || b == 'ë')
+      |                                               ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2049:59: warning: multi-character character constant [-Wmultichar]
+ 2049 |         else if (b == 'è' || b == 'é' || b == 'ê' || b == 'ë')
+      |                                                           ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2051:23: warning: multi-character character constant [-Wmultichar]
+ 2051 |         else if (b == 'ð')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2053:23: warning: multi-character character constant [-Wmultichar]
+ 2053 |         else if (b == 'ï' || b == 'ì' || b == 'ï' || b == 'î' || b == 'í')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2053:35: warning: multi-character character constant [-Wmultichar]
+ 2053 |         else if (b == 'ï' || b == 'ì' || b == 'ï' || b == 'î' || b == 'í')
+      |                                   ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2053:47: warning: multi-character character constant [-Wmultichar]
+ 2053 |         else if (b == 'ï' || b == 'ì' || b == 'ï' || b == 'î' || b == 'í')
+      |                                               ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2053:59: warning: multi-character character constant [-Wmultichar]
+ 2053 |         else if (b == 'ï' || b == 'ì' || b == 'ï' || b == 'î' || b == 'í')
+      |                                                           ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2053:71: warning: multi-character character constant [-Wmultichar]
+ 2053 |         else if (b == 'ï' || b == 'ì' || b == 'ï' || b == 'î' || b == 'í')
+      |                                                                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2055:23: warning: multi-character character constant [-Wmultichar]
+ 2055 |         else if (b == 'ò' || b == 'ó' || b == 'ô' || b == 'õ' || b == 'ø')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2055:35: warning: multi-character character constant [-Wmultichar]
+ 2055 |         else if (b == 'ò' || b == 'ó' || b == 'ô' || b == 'õ' || b == 'ø')
+      |                                   ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2055:47: warning: multi-character character constant [-Wmultichar]
+ 2055 |         else if (b == 'ò' || b == 'ó' || b == 'ô' || b == 'õ' || b == 'ø')
+      |                                               ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2055:59: warning: multi-character character constant [-Wmultichar]
+ 2055 |         else if (b == 'ò' || b == 'ó' || b == 'ô' || b == 'õ' || b == 'ø')
+      |                                                           ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2055:71: warning: multi-character character constant [-Wmultichar]
+ 2055 |         else if (b == 'ò' || b == 'ó' || b == 'ô' || b == 'õ' || b == 'ø')
+      |                                                                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2057:23: warning: multi-character character constant [-Wmultichar]
+ 2057 |         else if (b == 'ù' || b == 'ú' || b == 'û' || b == 'ü')
+      |                       ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2057:35: warning: multi-character character constant [-Wmultichar]
+ 2057 |         else if (b == 'ù' || b == 'ú' || b == 'û' || b == 'ü')
+      |                                   ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2057:47: warning: multi-character character constant [-Wmultichar]
+ 2057 |         else if (b == 'ù' || b == 'ú' || b == 'û' || b == 'ü')
+      |                                               ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2057:59: warning: multi-character character constant [-Wmultichar]
+ 2057 |         else if (b == 'ù' || b == 'ú' || b == 'û' || b == 'ü')
+      |                                                           ^~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2059:23: warning: multi-character character constant [-Wmultichar]
+ 2059 |         else if (b == 'ý')
+      |                       ^~~
+In file included from /home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:28,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/code/oEvent.h:34,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/code/oFreeImport.h:30,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:35:
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:26:6: error: multiple definition of ‘enum gdiFonts’
+   26 | enum gdiFonts {
+      |      ^~~~~~~~
+In file included from /home/adam.georgsson@fnox.it/workspace/meos/code/gdiconstants.h:26,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/code/StdAfx.h:25,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/build_new/CMakeFiles/meos.dir/cmake_pch.hxx:5,
+                 from <command-line>:
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:26:6: note: previous definition here
+   26 | enum gdiFonts {
+      |      ^~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:47:15: error: redefinition of ‘constexpr const int pageNewPage’
+   47 | constexpr int pageNewPage=100;
+      |               ^~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:47:15: note: ‘constexpr const int pageNewPage’ previously defined here
+   47 | constexpr int pageNewPage=100;
+      |               ^~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:48:15: error: redefinition of ‘constexpr const int pagePageInfo’
+   48 | constexpr int pagePageInfo=102;
+      |               ^~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:48:15: note: ‘constexpr const int pagePageInfo’ previously defined here
+   48 | constexpr int pagePageInfo=102;
+      |               ^~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:49:15: error: redefinition of ‘constexpr const int pageNewChapter’
+   49 | constexpr int pageNewChapter = 103;
+      |               ^~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:49:15: note: ‘constexpr const int pageNewChapter’ previously defined here
+   49 | constexpr int pageNewChapter = 103;
+      |               ^~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:51:15: error: redefinition of ‘constexpr const int textLeft’
+   51 | constexpr int textLeft = 0; // Default
+      |               ^~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:51:15: note: ‘constexpr const int textLeft’ previously defined here
+   51 | constexpr int textLeft = 0; // Default
+      |               ^~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:52:15: error: redefinition of ‘constexpr const int textRight’
+   52 | constexpr int textRight=256;
+      |               ^~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:52:15: note: ‘constexpr const int textRight’ previously defined here
+   52 | constexpr int textRight=256;
+      |               ^~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:53:15: error: redefinition of ‘constexpr const int textCenter’
+   53 | constexpr int textCenter=512;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:53:15: note: ‘constexpr const int textCenter’ previously defined here
+   53 | constexpr int textCenter=512;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:54:15: error: redefinition of ‘constexpr const int timerCanBeNegative’
+   54 | constexpr int timerCanBeNegative=1024;
+      |               ^~~~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:54:15: note: ‘constexpr const int timerCanBeNegative’ previously defined here
+   54 | constexpr int timerCanBeNegative=1024;
+      |               ^~~~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:55:15: error: redefinition of ‘constexpr const int breakLines’
+   55 | constexpr int breakLines=2048;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:55:15: note: ‘constexpr const int breakLines’ previously defined here
+   55 | constexpr int breakLines=2048;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:56:15: error: redefinition of ‘constexpr const int fullTimeHMS’
+   56 | constexpr int fullTimeHMS = 4096;
+      |               ^~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:56:15: note: ‘constexpr const int fullTimeHMS’ previously defined here
+   56 | constexpr int fullTimeHMS = 4096;
+      |               ^~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:57:15: error: redefinition of ‘constexpr const int timeWithTenth’
+   57 | constexpr int timeWithTenth = 1<<13;
+      |               ^~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:57:15: note: ‘constexpr const int timeWithTenth’ previously defined here
+   57 | constexpr int timeWithTenth = 1<<13;
+      |               ^~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:58:15: error: redefinition of ‘constexpr const int timeSeconds’
+   58 | constexpr int timeSeconds = 1<<14;
+      |               ^~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:58:15: note: ‘constexpr const int timeSeconds’ previously defined here
+   58 | constexpr int timeSeconds = 1<<14;
+      |               ^~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:59:15: error: redefinition of ‘constexpr const int timerIgnoreSign’
+   59 | constexpr int timerIgnoreSign = 1<<15;
+      |               ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:59:15: note: ‘constexpr const int timerIgnoreSign’ previously defined here
+   59 | constexpr int timerIgnoreSign = 1<<15;
+      |               ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:60:15: error: redefinition of ‘constexpr const int Capitalize’
+   60 | constexpr int Capitalize = 1<<16;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:60:15: note: ‘constexpr const int Capitalize’ previously defined here
+   60 | constexpr int Capitalize = 1<<16;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:61:15: error: redefinition of ‘constexpr const int absolutePosition’
+   61 | constexpr int absolutePosition = 1 << 17;
+      |               ^~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:61:15: note: ‘constexpr const int absolutePosition’ previously defined here
+   61 | constexpr int absolutePosition = 1 << 17;
+      |               ^~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:62:15: error: redefinition of ‘constexpr const int skipBoundingBox’
+   62 | constexpr int skipBoundingBox = 1 << 18;
+      |               ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:62:15: note: ‘constexpr const int skipBoundingBox’ previously defined here
+   62 | constexpr int skipBoundingBox = 1 << 18;
+      |               ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:63:15: error: redefinition of ‘constexpr const int hiddenText’
+   63 | constexpr int hiddenText = 1 << 19;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:63:15: note: ‘constexpr const int hiddenText’ previously defined here
+   63 | constexpr int hiddenText = 1 << 19;
+      |               ^~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:64:15: error: redefinition of ‘constexpr const int textLimitEllipsis’
+   64 | constexpr int textLimitEllipsis = 1 << 20;
+      |               ^~~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:64:15: note: ‘constexpr const int textLimitEllipsis’ previously defined here
+   64 | constexpr int textLimitEllipsis = 1 << 20;
+      |               ^~~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:65:15: error: redefinition of ‘constexpr const int imageNoUpdatePos’
+   65 | constexpr int imageNoUpdatePos = 1 << 21;
+      |               ^~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:65:15: note: ‘constexpr const int imageNoUpdatePos’ previously defined here
+   65 | constexpr int imageNoUpdatePos = 1 << 21;
+      |               ^~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:66:15: error: redefinition of ‘constexpr const int time24HourClock’
+   66 | constexpr int time24HourClock = 1 << 22;
+      |               ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:66:15: note: ‘constexpr const int time24HourClock’ previously defined here
+   66 | constexpr int time24HourClock = 1 << 22;
+      |               ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:67:15: error: redefinition of ‘constexpr const int timeHHMM’
+   67 | constexpr int timeHHMM = 1 << 23;
+      |               ^~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:67:15: note: ‘constexpr const int timeHHMM’ previously defined here
+   67 | constexpr int timeHHMM = 1 << 23;
+      |               ^~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:69:6: error: multiple definition of ‘enum GDICOLOR’
+   69 | enum GDICOLOR {
+      |      ^~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/gdifonts.h:69:6: note: previous definition here
+   69 | enum GDICOLOR {
+      |      ^~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:457:9: error: ‘oAbstractRunner’ does not name a type
+  457 |   const oAbstractRunner *alwaysInclude = nullptr;
+      |         ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:458:39: error: ‘oAbstractRunner’ does not name a type
+  458 |   bool filterInclude(int count, const oAbstractRunner *r) const;
+      |                                       ^~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h: In member function ‘bool oListParam::operator==(const oListParam&) const’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:423:9: error: ‘const struct oListParam’ has no member named ‘alwaysInclude’
+  423 |       a.alwaysInclude == alwaysInclude &&
+      |         ^~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:423:26: error: ‘alwaysInclude’ was not declared in this scope
+  423 |       a.alwaysInclude == alwaysInclude &&
+      |                          ^~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h: At global scope:
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:589:27: error: ‘oRunner’ does not name a type
+  589 |   bool filterRunner(const oRunner &r) const;
+      |                           ^~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:590:27: error: ‘GeneralResult’ has not been declared
+  590 |   bool filterRunnerResult(GeneralResult *gResult, const oRunner &r) const;
+      |                           ^~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:590:57: error: ‘oRunner’ does not name a type
+  590 |   bool filterRunnerResult(GeneralResult *gResult, const oRunner &r) const;
+      |                                                         ^~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:592:3: error: ‘GeneralResult’ does not name a type
+  592 |   GeneralResult *applyResultModule(oEvent &oe, vector<pRunner> &rlist) const;
+      |   ^~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:601:3: error: ‘SortOrder’ does not name a type
+  601 |   SortOrder sortOrder;
+      |   ^~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h: In member function ‘int oListInfo::getMaxCharWidth(oEvent&, const std::set<int>&, EPostType, int, std::wstring, gdiFonts, const wchar_t*, bool, int) const’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/oListInfo.h:738:32: error: invalid use of incomplete type ‘class oEvent’
+  738 |     return getMaxCharWidth(oe, oe.gdiBase(), clsSel, typeFormats, font, fontFace, largeSize, minSize);
+      |                                ^~
+In file included from /home/adam.georgsson@fnox.it/workspace/meos/code/oDataContainer.h:29,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/code/oEvent.h:32:
+/home/adam.georgsson@fnox.it/workspace/meos/code/oBase.h:33:7: note: forward declaration of ‘class oEvent’
+   33 | class oEvent;
+      |       ^~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/oEvent.h: In member function ‘oEvent::NameMode oEvent::setNameMode(NameMode)’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/oEvent.h:605:79: warning: no return statement in function returning non-void [-Wreturn-type]
+  605 |   NameMode setNameMode(NameMode newNameMode) { currentNameMode = newNameMode; }
+      |                                                                               ^
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: In static member function ‘static StringCache& StringCache::getInstance()’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:57:17: error: ‘GetCurrentThreadId’ was not declared in this scope
+   57 |   uint32_t id = GetCurrentThreadId();
+      |                 ^~~~~~~~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: At global scope:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:954:9: error: redefinition of ‘std::wstring itow(uint64_t)’
+  954 | wstring itow(uint64_t i) {
+      |         ^~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:935:9: note: ‘std::wstring itow(long unsigned int)’ previously defined here
+  935 | wstring itow(unsigned long i) {
+      |         ^~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: In function ‘std::string itos(long unsigned int)’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:979:30: warning: format ‘%u’ expects argument of type ‘unsigned int’, but argument 4 has type ‘long unsigned int’ [-Wformat=]
+  979 |   snprintf(bf, sizeof(bf), "%u", i);
+      |                             ~^   ~
+      |                              |   |
+      |                              |   long unsigned int
+      |                              unsigned int
+      |                             %lu
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: In function ‘std::string itos(int64_t)’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:986:32: warning: format ‘%lld’ expects argument of type ‘long long int’, but argument 4 has type ‘int64_t’ {aka ‘long int’} [-Wformat=]
+  986 |   snprintf(bf, sizeof(bf), "%lld", i);
+      |                             ~~~^   ~
+      |                                |   |
+      |                                |   int64_t {aka long int}
+      |                                long long int
+      |                             %ld
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: At global scope:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:990:8: error: redefinition of ‘std::string itos(uint64_t)’
+  990 | string itos(uint64_t i)
+      |        ^~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:976:8: note: ‘std::string itos(long unsigned int)’ previously defined here
+  976 | string itos(unsigned long i)
+      |        ^~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: In function ‘std::string itos(uint64_t)’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:993:32: warning: format ‘%llu’ expects argument of type ‘long long unsigned int’, but argument 4 has type ‘uint64_t’ {aka ‘long unsigned int’} [-Wformat=]
+  993 |   snprintf(bf, sizeof(bf), "%llu", i);
+      |                             ~~~^   ~
+      |                                |   |
+      |                                |   uint64_t {aka long unsigned int}
+      |                                long long unsigned int
+      |                             %lu
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: In function ‘std::wstring getErrorMessage(int)’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:1670:17: error: conversion from ‘LPCTSTR’ {aka ‘const char*’} to non-scalar type ‘std::wstring’ {aka ‘std::__cxx11::basic_string<wchar_t>’} requested
+ 1670 |   wstring str = LPCTSTR(msg);
+      |                 ^~~~~~~~~~~~
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp: In member function ‘void MeOSFileLock::lockFile(const std::wstring&)’:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:56: error: no match for ‘operator+’ (operand types are ‘std::__cxx11::basic_string<wchar_t>’ and ‘TCHAR [256]’ {aka ‘char [256]’})
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^ ~~~~
+      |                                                 |        |
+      |                                                 |        TCHAR [256] {aka char [256]}
+      |                                                 std::__cxx11::basic_string<wchar_t>
+In file included from /usr/include/c++/13/string:48,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/code/win_types.h:7,
+                 from /home/adam.georgsson@fnox.it/workspace/meos/code/StdAfx.h:17:
+/usr/include/c++/13/bits/stl_iterator.h:634:5: note: candidate: ‘template<class _Iterator> constexpr std::reverse_iterator<_Iterator> std::operator+(typename reverse_iterator<_Iterator>::difference_type, const reverse_iterator<_Iterator>&)’
+  634 |     operator+(typename reverse_iterator<_Iterator>::difference_type __n,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/stl_iterator.h:634:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘const std::reverse_iterator<_Iterator>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/stl_iterator.h:1808:5: note: candidate: ‘template<class _Iterator> constexpr std::move_iterator<_IteratorL> std::operator+(typename move_iterator<_IteratorL>::difference_type, const move_iterator<_IteratorL>&)’
+ 1808 |     operator+(typename move_iterator<_Iterator>::difference_type __n,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/stl_iterator.h:1808:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘const std::move_iterator<_IteratorL>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+In file included from /usr/include/c++/13/string:54:
+/usr/include/c++/13/bits/basic_string.h:3553:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(const __cxx11::basic_string<_CharT, _Traits, _Allocator>&, const __cxx11::basic_string<_CharT, _Traits, _Allocator>&)’
+ 3553 |     operator+(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3553:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3571:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(const _CharT*, const __cxx11::basic_string<_CharT, _Traits, _Allocator>&)’
+ 3571 |     operator+(const _CharT* __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3571:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘const _CharT*’ and ‘std::__cxx11::basic_string<wchar_t>’
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3590:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(_CharT, const __cxx11::basic_string<_CharT, _Traits, _Allocator>&)’
+ 3590 |     operator+(_CharT __lhs, const basic_string<_CharT,_Traits,_Alloc>& __rhs)
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3590:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3607:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(const __cxx11::basic_string<_CharT, _Traits, _Allocator>&, const _CharT*)’
+ 3607 |     operator+(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3607:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   deduced conflicting types for parameter ‘const _CharT’ (‘wchar_t’ and ‘TCHAR’ {aka ‘char’})
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3625:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(const __cxx11::basic_string<_CharT, _Traits, _Allocator>&, _CharT)’
+ 3625 |     operator+(const basic_string<_CharT, _Traits, _Alloc>& __lhs, _CharT __rhs)
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3625:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   deduced conflicting types for parameter ‘_CharT’ (‘wchar_t’ and ‘TCHAR*’ {aka ‘char*’})
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3637:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(__cxx11::basic_string<_CharT, _Traits, _Allocator>&&, const __cxx11::basic_string<_CharT, _Traits, _Allocator>&)’
+ 3637 |     operator+(basic_string<_CharT, _Traits, _Alloc>&& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3637:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘const std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3644:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(const __cxx11::basic_string<_CharT, _Traits, _Allocator>&, __cxx11::basic_string<_CharT, _Traits, _Allocator>&&)’
+ 3644 |     operator+(const basic_string<_CharT, _Traits, _Alloc>& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3644:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3651:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(__cxx11::basic_string<_CharT, _Traits, _Allocator>&&, __cxx11::basic_string<_CharT, _Traits, _Allocator>&&)’
+ 3651 |     operator+(basic_string<_CharT, _Traits, _Alloc>&& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3651:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3674:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(const _CharT*, __cxx11::basic_string<_CharT, _Traits, _Allocator>&&)’
+ 3674 |     operator+(const _CharT* __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3674:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘const _CharT*’ and ‘std::__cxx11::basic_string<wchar_t>’
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3681:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(_CharT, __cxx11::basic_string<_CharT, _Traits, _Allocator>&&)’
+ 3681 |     operator+(_CharT __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3681:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   mismatched types ‘std::__cxx11::basic_string<_CharT, _Traits, _Allocator>’ and ‘TCHAR [256]’ {aka ‘char [256]’}
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3688:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(__cxx11::basic_string<_CharT, _Traits, _Allocator>&&, const _CharT*)’
+ 3688 |     operator+(basic_string<_CharT, _Traits, _Alloc>&& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3688:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   deduced conflicting types for parameter ‘const _CharT’ (‘wchar_t’ and ‘TCHAR’ {aka ‘char’})
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+/usr/include/c++/13/bits/basic_string.h:3695:5: note: candidate: ‘template<class _CharT, class _Traits, class _Alloc> std::__cxx11::basic_string<_CharT, _Traits, _Allocator> std::operator+(__cxx11::basic_string<_CharT, _Traits, _Allocator>&&, _CharT)’
+ 3695 |     operator+(basic_string<_CharT, _Traits, _Alloc>&& __lhs,
+      |     ^~~~~~~~
+/usr/include/c++/13/bits/basic_string.h:3695:5: note:   template argument deduction/substitution failed:
+/home/adam.georgsson@fnox.it/workspace/meos/code/meos_util.cpp:2310:58: note:   deduced conflicting types for parameter ‘_CharT’ (‘wchar_t’ and ‘TCHAR*’ {aka ‘char*’})
+ 2310 |       throw meosException(L"open_error#" + file + L"#" + buff);
+      |                                                          ^~~~
+make[2]: *** [CMakeFiles/meos.dir/build.make:109: CMakeFiles/meos.dir/code/meos_util.cpp.o] Error 1
+make[1]: *** [CMakeFiles/Makefile2:85: CMakeFiles/meos.dir/all] Error 2
+make: *** [Makefile:101: all] Error 2

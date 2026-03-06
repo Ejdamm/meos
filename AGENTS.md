@@ -93,7 +93,9 @@ Custom exception `meosException` (with `wwhat()` for wide-string messages) and `
 
 ## Modernization
 
-The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite. No modern codebase (`src/`) exists yet — the migration has not started.
+The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite.
+
+**The CMake build system (`CMakeLists.txt` in project root) is now implemented and supports building a minimal executable on Linux using vcpkg.**
 
 ### Iterative Migration Approach
 

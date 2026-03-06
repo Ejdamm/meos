@@ -4,7 +4,11 @@ MeOS (Much Easier Orienteering System) is a Windows desktop application for mana
 
 ## Build
 
-MSBuild with Visual Studio 2022 (MSVC v143). Open `MeOS.sln` in Visual Studio.
+- **Windows:** MSBuild with Visual Studio 2022 (MSVC v143). Open `MeOS.sln` in Visual Studio.
+- **Cross-platform (Linux/Windows):** CMake 3.16+ with vcpkg dependency manager.
+  - Generate: `cmake .. -DCMAKE_TOOLCHAIN_FILE=[vcpkg_root]/scripts/buildsystems/vcpkg.cmake`
+  - Build: `cmake --build .`
+  - Targets: `meos` (minimal executable/domain).
 
 Platforms: Win32 (x86) and x64. Precompiled header: `StdAfx.h`.
 

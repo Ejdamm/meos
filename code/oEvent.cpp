@@ -88,7 +88,7 @@ oEvent::oEvent(gdioutput &gdi) : oBase(nullptr), gdibase(gdi) {
 #ifndef MEOSDB
   listContainer = new MetaListContainer(this);
 #else
-  throw std::exception();
+  throw std::runtime_error("Unhandled exception");
 #endif
 
 
@@ -738,7 +738,7 @@ void oEvent::duplicate(const wstring &annotationIn, bool keepTags) {
 
   getUserFile(file, filename);
 
-  wcscpy_s(nameid, path(filename).stem().c_str());
+  swprintf(nameid, sizeof(nameid)/sizeof(wchar_t), L"%s", widen(path(filename).stem().string()).c_str());
 
   wchar_t oldFile[260];
   wstring oldId;
@@ -793,7 +793,7 @@ bool oEvent::save()
   autoSynchronizeLists(true);
 
   if (!CurrentFile[0])
-    throw std::exception("Felaktigt filnamn");
+    throw std::runtime_error("Felaktigt filnamn");
 
   int f=0;
   _wsopen_s(&f, CurrentFile, _O_RDONLY, _SH_DENYNO, _S_IWRITE);
@@ -813,7 +813,7 @@ bool oEvent::save()
 
     for(int k = 0; k <= maxBackup; k++) {
       swprintf(fn1, MAX_PATH, L"%s.bu%d", CurrentFile, k);
-      struct _stat st;
+      struct stat st;
       int ret = _wstat(fn1, &st);
       if (ret==0) {
         time_t age = currentTime - st.st_mtime;
@@ -1127,7 +1127,7 @@ namespace {
     getUserFile(file, filename);
 
     wchar_t CurrentNameId[64];
-    wcscpy_s(CurrentNameId, path(file).stem().c_str());
+    swprintf(CurrentNameId, sizeof(CurrentNameId)/sizeof(wchar_t), L"%s", widen(path(file).stem().string()).c_str());
 
     fn = file;
     nameId = CurrentNameId;
@@ -1177,7 +1177,7 @@ bool oEvent::open(const wstring &file, bool doImport, bool forMerge, bool forceN
     wcscpy_s(CurrentFile, MAX_PATH, file.c_str()); //Keep new file name, if imported
 
     wchar_t CurrentNameId[64];
-    wcscpy_s(CurrentNameId, path(CurrentFile).stem().c_str());
+    swprintf(CurrentNameId, sizeof(CurrentNameId)/sizeof(wchar_t), L"%s", widen(path(CurrentFile).stem().string()).c_str());
     currentNameId = CurrentNameId;
   }
   bool res = open(xml, file);
@@ -2048,7 +2048,7 @@ int oEvent::getFreeControlId()
 wstring oEvent::getAutoCourseName() const
 {
   wchar_t bf[32];
-  swprintf(bf, lang.tl("Bana %d").c_str(), Courses.size()+1);
+  swprintf(bf, sizeof(bf)/sizeof(wchar_t), lang.tl("Bana %d").c_str(), (int)Courses.size()+1);
   return bf;
 }
 
@@ -3606,11 +3606,11 @@ void oEvent::generateMinuteStartlist(gdioutput &gdi) {
 
     gdi.addStringUT(boldLarge|Capitalize, lang.tl(L"Minutstartlista", true) +  makeDash(L" - ") + getName());
     if (!starts[k].empty()) {
-      swprintf(bf, lang.tl("%s, block: %d").c_str(), starts[k].c_str(), blocks[k]);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), lang.tl("%s, block: %d").c_str(), starts[k].c_str(), blocks[k]);
       gdi.addStringUT(fontMedium, bf);
     }
     else if (blocks[k]!=0) {
-      swprintf(bf, lang.tl("Startblock: %d").c_str(),  blocks[k]);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), lang.tl("Startblock: %d").c_str(), blocks[k]);
       gdi.addStringUT(fontMedium, bf);
     }
 
@@ -5826,7 +5826,7 @@ pCourse oEvent::generateTestCourse(int nCtrl)
 {
   wchar_t bf[64];
   static int sk=0;
-  swprintf(bf, lang.tl("Bana %d").c_str(), ++sk);
+  swprintf(bf, sizeof(bf)/sizeof(wchar_t), lang.tl("Bana %d").c_str(), ++sk);
   pCourse pc=addCourse(bf, 4000+(rand()%1000)*10);
 
   int i=0;
@@ -6249,7 +6249,7 @@ void oEvent::generateTableData(const string &tname, Table &table, TableUpdateInf
     }
     return;
   }
-  throw std::exception("Wrong table name");
+  throw std::runtime_error("Wrong table name");
 }
 
 void oEvent::applyEventFees(bool updateClassFromEvent,
@@ -6371,7 +6371,7 @@ bool oEvent::checkCardUsed(gdioutput &gdi, oRunner &runnerToAssignCard, int card
   wchar_t bf[1024];
 
   if (pold) {
-    swprintf(bf, (L"#" + lang.tl("Bricka %d används redan av %s och kan inte tilldelas.")).c_str(),
+    swprintf(bf, sizeof(bf)/sizeof(wchar_t), (L"#" + lang.tl("Bricka %d används redan av %s och kan inte tilldelas.")).c_str(),
                   cardNo, pold->getCompleteIdentification(oRunner::IDType::OnlyThis).c_str());
     gdi.alert(bf);
     return true;
@@ -6646,7 +6646,7 @@ void oEvent::setCurrency(int factor, const wstring &symbol, const wstring &separ
 
 MetaListContainer &oEvent::getListContainer() const {
   if (!listContainer)
-    throw std::exception("Nullpointer exception");
+    throw std::runtime_error("Nullpointer exception");
   return *listContainer;
 }
 

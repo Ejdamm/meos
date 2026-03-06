@@ -25,7 +25,6 @@
 class oListInfo;
 enum EPostType;
 #include "oListInfo.h"
-#include "oEvent.h"
 #include <map>
 class xmlparser;
 class xmlobject;
@@ -43,7 +42,7 @@ class Position
     int width;   // Original block width
     bool aligned;// True if aligned
     const int originalPos; // Original position
-    void operator=(const PosInfo &) {throw std::exception("Unsupported");}
+    void operator=(const PosInfo &) {throw std::runtime_error("Unsupported");}
   };
   map<string, int> pmap;
   vector< PosInfo > pos; // Pair of position, specified (minimal) width
@@ -194,6 +193,8 @@ public:
 
   friend class MetaList;
 };
+
+class MetaList;
 
 struct DynamicResultRef {
   DynamicResultRef(const shared_ptr<DynamicResult> &resIn, MetaList *ctrIn) : res(resIn), ctr(ctrIn) {}

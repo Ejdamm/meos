@@ -35,7 +35,9 @@
 #include "oFreeImport.h"
 #include "meosexception.h"
 #include <sstream>
+#ifdef _WIN32
 #include <WinInet.h>
+#endif
 
 using namespace std;
 
@@ -48,7 +50,8 @@ namespace MeOSUtil {
 string convertSystemTimeN(const SYSTEMTIME &st);
 string convertSystemDateN(const SYSTEMTIME &st);
 string convertSystemTimeOnlyN(const SYSTEMTIME &st);
-extern int defaultCodePage;
+int defaultCodePage = 1252;
+
 
 uint32_t mainThreadId = -1;
 StringCache &StringCache::getInstance() {
@@ -56,7 +59,7 @@ StringCache &StringCache::getInstance() {
   if (mainThreadId == -1)
     mainThreadId = id;
   else if (mainThreadId != id)
-    throw std::exception("Thread access error");
+    throw std::runtime_error("Thread access error");
   return globalStringCache;
 }
 
@@ -930,24 +933,6 @@ const wstring &itow(int i) {
   return res;
 }
 
-wstring itow(unsigned long i) {
-  wchar_t bf[32];
-  swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%u", i);
-  return bf;
-}
-
-
-wstring itow(unsigned int i) {
-  wchar_t bf[32];
-  swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%u", i);
-  return bf;
-}
-
-wstring itow(int64_t i) {
-  wchar_t bf[32];
-  swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%lld", i);
-  return bf;
-}
 
 wstring itow(uint64_t i) {
   wchar_t bf[32];
@@ -956,6 +941,7 @@ wstring itow(uint64_t i) {
 }
 
 const string &itos(int i)
+
 {
   char bf[32];
   snprintf(bf, sizeof(bf), "%d", i);
@@ -971,26 +957,13 @@ string itos(unsigned int i)
   return bf;
 }
 
-string itos(unsigned long i)
-{
-  char bf[32];
-  snprintf(bf, sizeof(bf), "%u", i);
-  return bf;
-}
-
-string itos(int64_t i)
-{
-  char bf[32];
-  snprintf(bf, sizeof(bf), "%lld", i);
-  return bf;
-}
-
 string itos(uint64_t i)
 {
   char bf[32];
-  snprintf(bf, sizeof(bf), "%llu", i);
+  snprintf(bf, sizeof(bf), "%llu", (unsigned long long)i);
   return bf;
 }
+
 
 void prepareMatchString(wchar_t* data_c, int size) {
   CharLowerBuff(data_c, size);
@@ -1665,7 +1638,7 @@ wstring getErrorMessage(int code) {
     return L"";
   }
 
-  wstring str = LPCTSTR(msg);
+  wstring str = widen((LPCSTR)msg);
   if (str.empty() && code>0) {
     wchar_t ch[128];
     swprintf(ch, sizeof(ch)/sizeof(wchar_t), L"Error code: %d", code);
@@ -1834,7 +1807,7 @@ bool isNumber(const wstring &s) {
   return len > 0;
 }
 
-int convertDynamicBase(const wstring &s, long long &out) {
+int convertDynamicBase(const wstring &s, int64_t &out) {
   out = 0;
   if (s.empty())
     return 0;
@@ -1856,7 +1829,7 @@ int convertDynamicBase(const wstring &s, long long &out) {
   }
 
   int base = general ? 256-32 : (alpha ? 36 : 10);
-  long long factor = 1;
+  int64_t factor = 1;
   for (int k = len-1; k >= 0; k--) {
     unsigned c = s[k]&0xFF;
     if (general)
@@ -1876,7 +1849,7 @@ int convertDynamicBase(const wstring &s, long long &out) {
   return base;
 }
 
-void convertDynamicBase(long long val, int base, wchar_t out[16]) {
+void convertDynamicBase(int64_t val, int base, wchar_t out[16]) {
   int len = 0;
   while (val != 0) {
     unsigned int c = val % base;
@@ -2305,7 +2278,7 @@ void MeOSFileLock::lockFile(const wstring &file) {
     else {
       TCHAR buff[256];
       FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, 0, err, 0, buff, sizeof(buff), 0);
-      throw meosException(L"open_error#" + file + L"#" + buff);
+      throw meosException(L"open_error#" + file + L"#" + widen(buff));
     }
   }
 }
@@ -2521,7 +2494,7 @@ const string &recodeToNarrow(const wstring &input) {
   int res = input.size() * 3 + 2;
   output.reserve(res);
   output.resize(input.size(), 0);
-  bool usedDef = false;
+  BOOL usedDef = FALSE;
   int ok = WideCharToMultiByte(cp, 0, input.c_str(), input.size(), &output[0], res, "?", &usedDef);
 
   return output;

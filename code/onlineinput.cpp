@@ -80,7 +80,7 @@ int OnlineInput::processListBox(gdioutput& gdi, ListBoxInfo& lbi) {
 
 int OnlineInput::processButton(gdioutput &gdi, ButtonInfo &bi) {
   if (oe == nullptr)
-    throw std::exception("Internal error");
+    throw std::runtime_error("Internal error");
 
   if (bi.id == "SaveMapping") {
     int ctrl = gdi.getTextNo("Code");
@@ -270,7 +270,7 @@ void OnlineInput::save(oEvent &oe, gdioutput &gdi, bool doProcess) {
     split(unitId, L" ,;", out);
     wstring modems;
     for (auto& m : out) {
-      int mId = (int)std::wcstol(m.c_str(, nullptr, 10));
+      int mId = (int)std::wcstol(m.c_str(), nullptr, 10);
       if (mId > 0) {
         if (!modems.empty())
           modems += L",";
@@ -332,7 +332,7 @@ void OnlineInput::saveMachine(oEvent &oe, const wstring &guiInterval) {
   
   cnt.set("useId", useUnitId);
 
-  int iv = (int)std::wcstol(guiInterval.c_str(, nullptr, 10));
+  int iv = (int)std::wcstol(guiInterval.c_str(), nullptr, 10);
   cnt.set("interval", iv);
 
   /*vector<int> pm;
@@ -547,9 +547,9 @@ void OnlineInput::processPunches(oEvent &oe, list<vector<wstring>> &rocData) {
   for (list< vector<wstring> >::iterator it = rocData.begin(); it != rocData.end(); ++it) {
     vector<wstring> &line = *it;
     if (line.size() == 4) {
-      int punchId = (int)std::wcstol(line[0].c_str(, nullptr, 10));
-      int code = (int)std::wcstol(line[1].c_str(, nullptr, 10));
-      int card = (int)std::wcstol(line[2].c_str(, nullptr, 10));
+      int punchId = (int)std::wcstol(line[0].c_str(), nullptr, 10);
+      int code = (int)std::wcstol(line[1].c_str(), nullptr, 10);
+      int card = (int)std::wcstol(line[2].c_str(), nullptr, 10);
       wstring timeS = line[3].substr(11);
       int time = oe.getRelativeTime(timeS);
       if (!oe.supportSubSeconds())

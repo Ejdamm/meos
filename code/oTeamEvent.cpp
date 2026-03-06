@@ -250,7 +250,7 @@ pTeam oEvent::findTeam(const wstring &s, int lastId, unordered_set<int> &filter)
   wcscpy_s(s_lc, trm.c_str());
   prepareMatchString(s_lc, len);
 
-  int sn = (int)std::wcstol(s.c_str(, nullptr, 10));
+  int sn = (int)std::wcstol(s.c_str(), nullptr, 10);
   oTeamList::const_iterator it;
 /*
   if (sn>0) {
@@ -415,7 +415,7 @@ void oEvent::setupRelayInfo(PredefinedTypes type, bool &useNLeg, bool &useStart)
       break;
 
     default:
-      throw std::exception("Bad setup number");
+      throw std::runtime_error("Bad setup number");
   }
 }
 
@@ -663,7 +663,7 @@ void oEvent::setupRelay(oClass &cls, PredefinedTypes type, int nleg, const wstri
       break;
     }
     default:
-      throw std::exception("Bad setup number");
+      throw std::runtime_error("Bad setup number");
   }
   cls.apply();
   cls.synchronize(true);
@@ -1008,8 +1008,8 @@ static bool oTeam::compareGeneral(const oTeam& a, const oTeam& b) {
     const wstring& xb = a.getBib();
     const wstring& xbc = b.getBib();
     if (xb != xbc) {
-      int bn = (int)std::wcstol(xb.c_str(, nullptr, 10));
-      int bcn = (int)std::wcstol(xbc.c_str(, nullptr, 10));
+      int bn = (int)std::wcstol(xb.c_str(), nullptr, 10);
+      int bcn = (int)std::wcstol(xbc.c_str(), nullptr, 10);
       if (bn != 0 && bcn != 0 && bn != bcn)
         return bn < bcn;
       else

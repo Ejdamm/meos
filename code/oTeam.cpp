@@ -242,7 +242,7 @@ void oTeam::setRunner(unsigned i, pRunner r, bool sync)
     if (i>=0 && i<100)
       Runners.resize(i+1);
     else
-      throw std::exception("Bad runner index");
+      throw std::runtime_error("Bad runner index");
   }
 
   if (Runners[i] == r)
@@ -1159,7 +1159,7 @@ void oTeam::apply(ChangeType changeType, pRunner source) {
 
         if ((lt == LTParallel || lt == LTParallelOptional) && i == 0) {
           pc->setLegType(0, LTNormal);
-          throw std::exception("Första sträckan kan inte vara parallell.");
+          throw std::runtime_error("Första sträckan kan inte vara parallell.");
         }
         if (lt == LTIgnore || lt == LTExtra) {
           if (st != STDrawn)
@@ -1421,7 +1421,7 @@ void oTeam::applyBibs() {
         else if (bibMode == BibAdd) {
           wchar_t pattern[32], bf[32];
           int ibib = oClass::extractBibPattern(bib, pattern) + i;
-          swprintf(bf, pattern, ibib);
+          swprintf(bf, sizeof(bf)/sizeof(wchar_t), pattern, ibib);
           tr->setBib(bf, 0, false);
         }
         else if (bibMode == BibLeg) {
@@ -2185,7 +2185,7 @@ pair<int, bool> oTeam::inputData(int id, const wstring &input,
           }
         }
         else {
-          Runners[ix]->setCardNo((int)std::wcstol(input.c_str(, nullptr, 10)), true);
+          Runners[ix]->setCardNo((int)std::wcstol(input.c_str(), nullptr, 10), true);
           Runners[ix]->synchronize(true);
           output = itow(Runners[ix]->getCardNo());
         }
@@ -2216,7 +2216,7 @@ pair<int, bool> oTeam::inputData(int id, const wstring &input,
       apply(ChangeType::Update, nullptr);
       s = getStartTime();
       if (s != t)
-        throw std::exception("Starttiden är definerad genom klassen eller löparens startstämpling.");
+        throw std::runtime_error("Starttiden är definerad genom klassen eller löparens startstämpling.");
       synchronize(true);
       output = getStartTimeS();
     break;
@@ -2267,7 +2267,7 @@ pair<int, bool> oTeam::inputData(int id, const wstring &input,
     break;
 
     case TID_STARTNO:
-      setStartNo((int)std::wcstol(input.c_str(, nullptr, 10)), ChangeType::Update);
+      setStartNo((int)std::wcstol(input.c_str(), nullptr, 10), ChangeType::Update);
       evaluate(oBase::ChangeType::Update);
       output = itow(getStartNo());
       break;
@@ -2292,7 +2292,7 @@ pair<int, bool> oTeam::inputData(int id, const wstring &input,
       break;
 
     case TID_INPUTPLACE:
-      setInputPlace((int)std::wcstol(input.c_str(, nullptr, 10)));
+      setInputPlace((int)std::wcstol(input.c_str(), nullptr, 10));
       synchronize(true);
       output = itow(getInputPlace());
       break;

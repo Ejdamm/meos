@@ -58,7 +58,7 @@ const char *oWordDB::deserialize(const char *bf, const char *end)
     bf+=(ns.size()+1)*sizeof(wchar_t);
 
     if (bf>end)
-      throw std::exception("Internal error deserializing wordlist.");
+      throw std::runtime_error("Internal error deserializing wordlist.");
 
     str.insert(ns);
   }
@@ -151,7 +151,7 @@ const char *oWordIndexHash::deserialize(const char *bf, const char *end)
       else if (b==2)
         db = new oWordIndexHash(false);
       else
-        throw std::exception("Internal error deserilizing wordlist.");
+        throw std::runtime_error("Internal error deserilizing wordlist.");
 
       bf = db->deserialize(bf, end);
     }
@@ -159,7 +159,7 @@ const char *oWordIndexHash::deserialize(const char *bf, const char *end)
     uint32_t i=a-indexMapStart;
     if (i<=(indexMapEnd-indexMapStart)) {
       if (hashTable[i])
-        throw std::exception("Internal error deserilizing wordlist.");
+        throw std::runtime_error("Internal error deserilizing wordlist.");
       else hashTable[i]=db;
     }
     else
@@ -341,7 +341,7 @@ void oWordList::save(const wstring &file) const
 
     _close(f);
   }
-  else throw std::exception("Could not save word database.");
+  else throw std::runtime_error("Could not save word database.");
 }
 
 void oWordList::load(const wstring &file)
@@ -806,7 +806,7 @@ bool oFreeImport::isTime(const wstring &m) const
     if (!isdigit(uint8_t(m[k])) && !(m[k]==':' || m[k]=='.'))
       return false;
 
-  int hour=(int)std::wcstol(m.c_str(, nullptr, 10));
+  int hour=(int)std::wcstol(m.c_str(), nullptr, 10);
   if (hour<0 || hour>23)
     return false;
 
@@ -816,7 +816,7 @@ bool oFreeImport::isTime(const wstring &m) const
 
   if (kp>0) {
     wstring mtext=m.substr(kp+1);
-    minute=(int)std::wcstol(mtext.c_str(, nullptr, 10));
+    minute=(int)std::wcstol(mtext.c_str(), nullptr, 10);
 
     if (minute<0 || minute>60)
       return false;
@@ -824,7 +824,7 @@ bool oFreeImport::isTime(const wstring &m) const
     kp=mtext.find_last_of(':');
 
     if (kp>0) {
-      second=(int)std::wcstol(mtext.substr(kp+1, nullptr, 10).c_str());
+      second=(int)std::wcstol(mtext.substr(kp+1).c_str(), nullptr, 10);
       if (second<0 || second>60)
         return false;
     }

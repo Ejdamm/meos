@@ -44,7 +44,7 @@ void Recorder::record(const string &cmd) {
 }
 
 void Recorder::saveRecordings(const string &file) {
-  std::ofstream fout(file.c_str(), std::ios::trunc|std::ios::out);
+  std::ofstream fout(string(file.begin(), file.end()).c_str(), std::ios::trunc|std::ios::out);
   fout << "void run() {" << std::endl;
   for (list<string>::iterator it = records.begin(); it != records.end(); ++it) {
     if (it->find_first_of("\n") == string::npos)

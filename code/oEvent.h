@@ -42,6 +42,7 @@
 
 #include "intkeymap.hpp"
 #include "meos_util.h"
+#include "oListInfo.h"
 
 #include <set>
 #include <map>
@@ -234,6 +235,11 @@ struct RogainingLegInfo {
   int bestTime = -1;
   int numCompetitors = 0;
 };
+
+// Callbacks for UI decoupling
+using BaseButtonsCallback = std::function<void(gdioutput&, int, bool)>;
+using TabAutoKillMachinesCallback = std::function<void()>;
+using SetSubSecondModeCallback = std::function<void(bool)>;
 
 class oEvent : public oBase
 {
@@ -597,7 +603,7 @@ public:
   bool hasAnyRestartTime() const;
 
   NameMode getNameMode() const {return currentNameMode;}
-  NameMode setNameMode(NameMode newNameMode) { currentNameMode = newNameMode; }
+  NameMode setNameMode(NameMode newNameMode) { currentNameMode = newNameMode; return newNameMode; }
 
   /// Get new punches since firstTime
   void getLatestPunches(int firstTime, vector<const oFreePunch *> &punches) const;
@@ -1436,11 +1442,6 @@ public:
   bool open(const xmlparser &xml, const wstring& fileArg);
 
   void clearData(bool runnerTeam, bool courses);
-
-  // Callbacks for UI decoupling
-  using BaseButtonsCallback = std::function<void(gdioutput&, int, bool)>;
-  using TabAutoKillMachinesCallback = std::function<void()>;
-  using SetSubSecondModeCallback = std::function<void(bool)>;
 
   void setBaseButtonsCallback(BaseButtonsCallback cb) { baseButtonsCallback = cb; }
   void setTabAutoKillMachinesCallback(TabAutoKillMachinesCallback cb) { tabAutoKillMachinesCallback = cb; }

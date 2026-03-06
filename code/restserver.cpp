@@ -432,7 +432,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
         wstring par = wideParam(imageId) + L".png";
         getUserFile(fn, par.c_str());
         ifstream fin;
-        fin.open(fn, ios::binary);
+        fin.open(string(fn.begin(), fn.end()).c_str(), ios::binary);
         if (fin.good()) {
           fin.seekg(0, ios::end);
           int p2 = (int)fin.tellg();
@@ -464,7 +464,7 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
       ostringstream fout;
       HTMLWriter::write(gdiPrint, fout, ref.getName(), 30, res->second.first, ref);
       rq->answer = fout.str();
-      //ifstream fin(exportFile.c_str());
+      //ifstream fin(string(exportFile.begin(), exportFile.end()).c_str());
       /*string rbf;
       while (std::getline(fin, rbf)) {
         rq->answer += rbf;
@@ -545,7 +545,7 @@ void RestServer::getData(oEvent &oe, const string &what, const multimap<string, 
 
     oe.exportIOFSplits(oEvent::IOF30, exportFile.c_str(), false, useUTC, cls, preferredIdTypes, L"",
                        - 1, true, false, false, true, false, false);
-    ifstream fin(exportFile.c_str());
+    ifstream fin(string(exportFile.begin(), exportFile.end()).c_str());
     string rbf;
     while (std::getline(fin, rbf)) {
       answer += rbf;
@@ -562,7 +562,7 @@ void RestServer::getData(oEvent &oe, const string &what, const multimap<string, 
     pair<string, string> preferredIdTypes;
 
     oe.exportIOFStartlist(oEvent::IOF30, exportFile.c_str(), useUTC, cls, preferredIdTypes, false, true, false, false);
-    ifstream fin(exportFile.c_str());
+    ifstream fin(string(exportFile.begin(), exportFile.end()).c_str());
     string rbf;
     while (std::getline(fin, rbf)) {
       answer += rbf;

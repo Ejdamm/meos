@@ -1,0 +1,14 @@
+{
+  "name": "meos",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "libharu",
+    "libpng",
+    "zlib",
+    "nlohmann-json",
+    "restbed",
+    "sqlite3",
+    "gtest",
+    "minizip"
+  ]
+}

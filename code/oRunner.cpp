@@ -126,7 +126,7 @@ const wstring &oAbstractRunner::encodeStatus(RunnerStatus st, bool allowError) {
      if (allowError)
        res = L"ERROR";
      else
-      throw std::exception("Unknown status");
+      throw std::runtime_error("Unknown status");
    }
 
    return res;
@@ -149,7 +149,7 @@ const wstring &oRunner::RaceIdFormatter::formatData(const oBase *ob, int index) 
 }
 
 pair<int, bool> oRunner::RaceIdFormatter::setData(oBase *ob, int index, const wstring &input, wstring &output, int inputId) const {
-  int rid = (int)std::wcstol(input.c_str(, nullptr, 10));
+  int rid = (int)std::wcstol(input.c_str(), nullptr, 10);
   if (input == L"0")
     ob->getDI().setInt("RaceId", 0);
   else if (rid>0 && rid != dynamic_cast<oRunner *>(ob)->getRaceIdentifier())
@@ -2368,8 +2368,8 @@ bool oRunner::operator<(const oRunner &c) const {
     const wstring &b = getBib();
     const wstring &bc = c.getBib();
     if (b != bc) {
-      int bn = (int)std::wcstol(b.c_str(, nullptr, 10));
-      int bcn = (int)std::wcstol(bc.c_str(, nullptr, 10));
+      int bn = (int)std::wcstol(b.c_str(), nullptr, 10);
+      int bcn = (int)std::wcstol(bc.c_str(), nullptr, 10);
       if (bn != 0 && bcn != 0 && bn != bcn)
         return bn < bcn;
       else
@@ -2939,7 +2939,7 @@ void oAbstractRunner::setName(const wstring &n, bool manualUpdate)
 {
   wstring tn = trim(n);
   if (tn.empty())
-    throw std::exception("Tomt namn är inte tillåtet.");
+    throw std::runtime_error("Tomt namn är inte tillåtet.");
   if (tn != sName){
     sName.swap(tn);
     if (manualUpdate)
@@ -2970,7 +2970,7 @@ void oRunner::setName(const wstring &in, bool manualUpdate)
   n.resize(kx);
 
   if (n.empty())
-    throw std::exception("Tomt namn är inte tillåtet.");
+    throw std::runtime_error("Tomt namn är inte tillåtet.");
 
   if (n.length() <= 4 || n == lang.tl("N.N."))
     manualUpdate = false; // Never consider default names manual
@@ -3555,7 +3555,7 @@ pRunner oEvent::getRunnerByBibOrStartNo(const wstring &bib, bool findWithoutCard
     }
   }
 
-  int sno = (int)std::wcstol(bib.c_str(, nullptr, 10));
+  int sno = (int)std::wcstol(bib.c_str(), nullptr, 10);
 
   pair<BSRTIterator, BSRTIterator> res;
   if (sno > 0) {
@@ -4114,10 +4114,10 @@ void oRunner::addTableRow(Table &table) const
       int place = 0;
 
       if (k + 3 < spvec.size()) {
-        rawStat = (int)std::wcstol(spvec[k].c_str(, nullptr, 10));
+        rawStat = (int)std::wcstol(spvec[k].c_str(), nullptr, 10);
         rawTime = parseRelativeTime(spvec[k + 1].c_str());
-        rawPoints = (int)std::wcstol(spvec[k + 2].c_str(, nullptr, 10));
-        place = (int)std::wcstol(spvec[k + 3].c_str(, nullptr, 10));
+        rawPoints = (int)std::wcstol(spvec[k + 2].c_str(), nullptr, 10);
+        place = (int)std::wcstol(spvec[k + 3].c_str(), nullptr, 10);
       }
       table.set(row++, it, 200 + j, formatTime(rawTime));
       table.set(row++, it, 300 + j, oEvent::formatStatus(RunnerStatus(rawStat), false), true, cellSelection);
@@ -4187,7 +4187,7 @@ pair<int, bool> oRunner::inputData(int id, const wstring &input,
     break;
     case 5:
     {
-      int place = (int)std::wcstol(input.c_str(, nullptr, 10));
+      int place = (int)std::wcstol(input.c_str(), nullptr, 10);
       output = spvec[4 * stage + 3] = itow(place);
     }
     break;
@@ -4202,13 +4202,13 @@ pair<int, bool> oRunner::inputData(int id, const wstring &input,
 
   switch(id) {
     case TID_CARD:
-      setCardNo((int)std::wcstol(input.c_str(, nullptr, 10)), true);
+      setCardNo((int)std::wcstol(input.c_str(), nullptr, 10), true);
       synchronizeAll();
       output = itow(getCardNo());
       break;
     case TID_RUNNER:
       if (trim(input).empty())
-        throw std::exception("Tomt namn inte tillåtet.");
+        throw std::runtime_error("Tomt namn inte tillåtet.");
 
       if (sName != input && tRealName != input) {
         updateFromDB(input, getClubId(), getClassId(false), getCardNo(), getBirthYear(), false);
@@ -4225,7 +4225,7 @@ pair<int, bool> oRunner::inputData(int id, const wstring &input,
       evaluateCard(true, mp, 0, ChangeType::Update);
       s=getStartTime();
       if (s!=t)
-        throw std::exception("Starttiden är definerad genom klassen eller löparens startstämpling.");
+        throw std::runtime_error("Starttiden är definerad genom klassen eller löparens startstämpling.");
       synchronize(true);
       output = getStartTimeS();
       break;
@@ -4237,7 +4237,7 @@ pair<int, bool> oRunner::inputData(int id, const wstring &input,
       evaluateCard(true, mp, 0, ChangeType::Update);
       s=getFinishTime();
       if (s!=t)
-        throw std::exception("För att ändra måltiden måste löparens målstämplingstid ändras.");
+        throw std::runtime_error("För att ändra måltiden måste löparens målstämplingstid ändras.");
       synchronize(true);
       output = getStartTimeS();
       break;
@@ -4288,14 +4288,14 @@ pair<int, bool> oRunner::inputData(int id, const wstring &input,
       int s = getStatus();
       evaluateCard(true, mp, 0, ChangeType::Update);
       if (s!=getStatus())
-        throw std::exception("Status matchar inte data i löparbrickan.");
+        throw std::runtime_error("Status matchar inte data i löparbrickan.");
       synchronize(true);
       output = getStatusS(false, true);
     }
     break;
 
     case TID_STARTNO:
-      setStartNo((int)std::wcstol(input.c_str(, nullptr, 10)), ChangeType::Update);
+      setStartNo((int)std::wcstol(input.c_str(), nullptr, 10), ChangeType::Update);
       synchronize(true);
       output = itow(getStartNo());
       break;
@@ -4320,7 +4320,7 @@ pair<int, bool> oRunner::inputData(int id, const wstring &input,
       break;
 
     case TID_INPUTPLACE:
-      setInputPlace((int)std::wcstol(input.c_str(, nullptr, 10)));
+      setInputPlace((int)std::wcstol(input.c_str(), nullptr, 10));
       synchronize(true);
       output = itow(getInputPlace());
       break;
@@ -4621,7 +4621,7 @@ pRunner oEvent::findRunner(const wstring &s, int lastId,
   matchFilter.clear();
   wstring trm = trim(s);
   int len = trm.length();
-  int sn = (int)std::wcstol(trm.c_str(, nullptr, 10));
+  int sn = (int)std::wcstol(trm.c_str(), nullptr, 10);
   wchar_t s_lc[1024];
   wcscpy_s(s_lc, s.c_str());  
   prepareMatchString(s_lc, len);
@@ -6735,7 +6735,7 @@ void oEvent::selectRunners(const wstring &classType, int lowAge,
   oRunnerList::const_iterator it;
   int cid = 0;
   if (classType.length() > 2 && classType.substr(0,2) == L"::")
-    cid = (int)std::wcstol(classType.c_str(, nullptr, 10) + 2);
+    cid = (int)std::wcstol(classType.c_str(), nullptr, 10) + 2;
 
   output.clear();
 
@@ -7143,10 +7143,10 @@ void oAbstractRunner::getInputResults(vector<RunnerStatus> &st,
   points.resize(nStageNow);
   places.resize(nStageNow);
   for (int j = 0; j < nStageNow; j++) {
-    st[j] = RunnerStatus((int)std::wcstol(spvec[j * 4 + 0].c_str(, nullptr, 10)));
+    st[j] = RunnerStatus((int)std::wcstol(spvec[j * 4 + 0].c_str(), nullptr, 10));
     times[j] = parseRelativeTime(spvec[j * 4 + 1].c_str());
-    points[j] = (int)std::wcstol(spvec[j * 4 + 2].c_str(, nullptr, 10));
-    places[j] = (int)std::wcstol(spvec[j * 4 + 3].c_str(, nullptr, 10));
+    points[j] = (int)std::wcstol(spvec[j * 4 + 2].c_str(), nullptr, 10);
+    places[j] = (int)std::wcstol(spvec[j * 4 + 3].c_str(), nullptr, 10);
   }
 }
 
@@ -7741,7 +7741,7 @@ void oRunner::setExtraPersonData(const wstring &sex, const wstring &nationality,
     rf.setData(this, 0, rank, out, 0);
   }
   di.setString("Phone", phone);
-  setBib(bib, (int)std::wcstol(bib.c_str(, nullptr, 10)), true);
+  setBib(bib, (int)std::wcstol(bib.c_str(), nullptr, 10), true);
   di.setString("TextA", text);
   di.setInt("DataA", dataA);
   di.setInt("DataB", dataB);
