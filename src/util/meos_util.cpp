@@ -1874,30 +1874,36 @@ void convertDynamicBase(int64_t val, int base, wchar_t out[16]) {
 
 bool expandDirectory(const wchar_t *file, const wchar_t *filetype, vector<wstring> &res)
 {
-  path p(file);
+  namespace fs = std::filesystem;
+  fs::path p(file);
   if (p.is_relative() && !p.empty() && p.native()[0] == '.') {
-    p = std::filesystem::absolute(p);
+    p = fs::absolute(p);
   }
 
-  WIN32_FIND_DATA fd;
-  wstring searchPattern = (p / filetype).wstring();
-
-  HANDLE h=FindFirstFile(searchPattern.c_str(), &fd);
-
-  if (h == INVALID_HANDLE_VALUE)
+  if (!fs::exists(p) || !fs::is_directory(p))
     return false;
 
-  bool more = true;
+  wstring pattern = filetype ? filetype : L"*";
+  if (pattern == L"*.*") pattern = L"*";
 
-  while (more) {
-    if (fd.cFileName[0] != '.') {
-      //Avoid .. and .
-      res.push_back((p / fd.cFileName).wstring());
+  for (const auto& entry : fs::directory_iterator(p)) {
+    if (!entry.is_regular_file()) continue;
+    
+    wstring filename = entry.path().filename().wstring();
+    if (filename[0] == '.') continue; // Avoid hidden files
+
+    if (pattern == L"*") {
+      res.push_back(entry.path().wstring());
+    } else if (pattern.size() > 2 && pattern[0] == '*' && pattern[1] == '.') {
+      wstring ext = pattern.substr(1); // e.g. ".png"
+      if (filename.size() >= ext.size() && filename.compare(filename.size() - ext.size(), ext.size(), ext) == 0) {
+        res.push_back(entry.path().wstring());
+      }
+    } else if (filename == pattern) {
+      res.push_back(entry.path().wstring());
     }
-    more=FindNextFile(h, &fd)!=0;
   }
 
-  FindClose(h);
   return true;
 }
 
@@ -2451,21 +2457,33 @@ const string &narrow(const wstring &input) {
 
 const wstring &fromUTF8(const string &input) {
   wstring &output = StringCache::getInstance().wget();
-  size_t alloc = input.length() + 1;
-  output.resize(alloc);
-  wchar_t *ptr = &output[0];
-  int wlen = MultiByteToWideChar(CP_UTF8, 0, input.c_str(), input.length(), ptr, alloc);
-  ptr[wlen] = 0;
-  output.resize(wlen);
+  if (input.empty()) {
+    output = L"";
+    return output;
+  }
+  try {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    output = converter.from_bytes(input);
+  } catch (...) {
+    // Fallback: simple copy
+    output.assign(input.begin(), input.end());
+  }
   return output;
 }
 
 const string &toUTF8(const wstring &winput) {
   string &output = StringCache::getInstance().get();
-  size_t alloc = winput.length() * 4 + 32;
-  output.resize(alloc);
-  WideCharToMultiByte(CP_UTF8, 0, winput.c_str(), winput.length() + 1, (char *)output.c_str(), alloc, 0, 0);
-  output.resize(strlen(output.c_str()));
+  if (winput.empty()) {
+    output = "";
+    return output;
+  }
+  try {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+    output = converter.to_bytes(winput);
+  } catch (...) {
+    // Fallback: simple copy (will be broken for non-ASCII)
+    output.assign(winput.begin(), winput.end());
+  }
   return output;
 }
 
@@ -2523,11 +2541,15 @@ void checkWriteAccess(const wstring &file) {
 }
 
 void moveFile(const wstring& src, const wstring& dst) {
-  DeleteFile(dst.c_str());
-  if (!CopyFile(src.c_str(), dst.c_str(), false)) {
+  try {
+    if (std::filesystem::exists(dst)) {
+      std::filesystem::remove(dst);
+    }
+    std::filesystem::copy(src, dst);
+    std::filesystem::remove(src);
+  } catch (...) {
     throw meosException(L"Kunde inte skriva till 'X'.#" + dst);
   }
-  DeleteFile(src.c_str());
 }
 
 int compareStringIgnoreCase(const wstring &a, const wstring &b) {

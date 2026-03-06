@@ -1,7 +1,13 @@
 #pragma once
 
+#ifndef _WIN32
+#define _POSIX_C_SOURCE 200809L
+#endif
+
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/time.h>
+#include <time.h>
 
 #ifndef _WIN32
 
@@ -13,8 +19,8 @@
 #include <algorithm>
 #include <cstdarg>
 #include <cmath>
-#include <unistd.h>
 #include <fcntl.h>
+#include <ctime>
 
 typedef uint32_t DWORD;
 typedef uint32_t* LPDWORD;
@@ -224,20 +230,139 @@ typedef struct _COMMTIMEOUTS {
 
 // Win32 API stubs for Linux
 inline void InvalidateRect(HWND hWnd, const RECT* lpRect, BOOL bErase) {}
-inline uint32_t GetTickCount() { return 0; }
-inline uint64_t GetTickCount64() { return 0; }
-inline void GetCurrentDirectory(DWORD nBufferLength, LPTSTR lpBuffer) { if (lpBuffer) lpBuffer[0] = 0; }
-inline DWORD GetModuleFileName(HINSTANCE hModule, LPTSTR lpFilename, DWORD nSize) { if (lpFilename) lpFilename[0] = 0; return 0; }
-inline void GetLocalTime(SYSTEMTIME* lpSystemTime) { if (lpSystemTime) memset(lpSystemTime, 0, sizeof(SYSTEMTIME)); }
-inline void GetSystemTime(SYSTEMTIME* lpSystemTime) { if (lpSystemTime) memset(lpSystemTime, 0, sizeof(SYSTEMTIME)); }
+inline uint32_t GetTickCount() { 
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+inline uint64_t GetTickCount64() { 
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (uint64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+inline void GetCurrentDirectory(DWORD nBufferLength, LPTSTR lpBuffer) { 
+    if (lpBuffer && nBufferLength > 0) {
+        if (getcwd(lpBuffer, nBufferLength) == NULL) lpBuffer[0] = 0;
+    }
+}
+inline DWORD GetModuleFileName(HINSTANCE hModule, LPTSTR lpFilename, DWORD nSize) { 
+    if (lpFilename && nSize > 0) {
+        ssize_t len = readlink("/proc/self/exe", lpFilename, nSize - 1);
+        if (len != -1) {
+            lpFilename[len] = '\0';
+            return len;
+        }
+        lpFilename[0] = 0;
+    }
+    return 0; 
+}
+inline void GetLocalTime(SYSTEMTIME* lpSystemTime) { 
+    if (!lpSystemTime) return;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    struct tm tm_info;
+    localtime_r(&tv.tv_sec, &tm_info);
+    lpSystemTime->wYear = tm_info.tm_year + 1900;
+    lpSystemTime->wMonth = tm_info.tm_mon + 1;
+    lpSystemTime->wDay = tm_info.tm_mday;
+    lpSystemTime->wDayOfWeek = tm_info.tm_wday;
+    lpSystemTime->wHour = tm_info.tm_hour;
+    lpSystemTime->wMinute = tm_info.tm_min;
+    lpSystemTime->wSecond = tm_info.tm_sec;
+    lpSystemTime->wMilliseconds = tv.tv_usec / 1000;
+}
+inline void GetSystemTime(SYSTEMTIME* lpSystemTime) { 
+    if (!lpSystemTime) return;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    struct tm tm_info;
+    gmtime_r(&tv.tv_sec, &tm_info);
+    lpSystemTime->wYear = tm_info.tm_year + 1900;
+    lpSystemTime->wMonth = tm_info.tm_mon + 1;
+    lpSystemTime->wDay = tm_info.tm_mday;
+    lpSystemTime->wDayOfWeek = tm_info.tm_wday;
+    lpSystemTime->wHour = tm_info.tm_hour;
+    lpSystemTime->wMinute = tm_info.tm_min;
+    lpSystemTime->wSecond = tm_info.tm_sec;
+    lpSystemTime->wMilliseconds = tv.tv_usec / 1000;
+}
 inline HWND CreateDialog(HINSTANCE hInstance, LPCSTR lpTemplateName, HWND hWndParent, void* lpDialogFunc) { return nullptr; }
 inline void UpdateWindow(HWND hWnd) {}
 inline void* MAKEINTRESOURCE(int i) { return (void*)(intptr_t)i; }
-inline BOOL SystemTimeToFileTime(const SYSTEMTIME* lpSystemTime, LPFILETIME lpFileTime) { return TRUE; }
-inline BOOL FileTimeToSystemTime(const FILETIME* lpFileTime, LPSYSTEMTIME lpSystemTime) { return TRUE; }
-inline BOOL FileTimeToLocalFileTime(const FILETIME* lpFileTime, LPFILETIME lpLocalFileTime) { return TRUE; }
-inline int MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCSTR lpMultiByteStr, int cbMultiByte, LPWSTR lpWideCharStr, int cchWideChar) { return 0; }
-inline int WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWSTR lpWideCharStr, int cchWideChar, LPSTR lpMultiByteStr, int cbMultiByte, LPCSTR lpDefaultChar, BOOL* lpUsedDefaultChar) { return 0; }
+
+// Windows file time starts at 1601-01-01. Unix epoch starts at 1970-01-01.
+// The difference is 134774 days, or 11644473600 seconds.
+#define UNIX_EPOCH_IN_TICKS 116444736000000000LL
+
+inline BOOL SystemTimeToFileTime(const SYSTEMTIME* lpSystemTime, LPFILETIME lpFileTime) { 
+    if (!lpSystemTime || !lpFileTime) return FALSE;
+    struct tm tm_info;
+    tm_info.tm_year = lpSystemTime->wYear - 1900;
+    tm_info.tm_mon = lpSystemTime->wMonth - 1;
+    tm_info.tm_mday = lpSystemTime->wDay;
+    tm_info.tm_hour = lpSystemTime->wHour;
+    tm_info.tm_min = lpSystemTime->wMinute;
+    tm_info.tm_sec = lpSystemTime->wSecond;
+    tm_info.tm_isdst = -1;
+    time_t t = mktime(&tm_info);
+    if (t == -1) return FALSE;
+    
+    uint64_t ticks = (uint64_t)t * 10000000 + (uint64_t)lpSystemTime->wMilliseconds * 10000 + UNIX_EPOCH_IN_TICKS;
+    lpFileTime->dwLowDateTime = (DWORD)(ticks & 0xFFFFFFFF);
+    lpFileTime->dwHighDateTime = (DWORD)(ticks >> 32);
+    return TRUE; 
+}
+inline BOOL FileTimeToSystemTime(const FILETIME* lpFileTime, LPSYSTEMTIME lpSystemTime) { 
+    if (!lpFileTime || !lpSystemTime) return FALSE;
+    uint64_t ticks = ((uint64_t)lpFileTime->dwHighDateTime << 32) | lpFileTime->dwLowDateTime;
+    if (ticks < UNIX_EPOCH_IN_TICKS) return FALSE;
+    
+    time_t t = (time_t)((ticks - UNIX_EPOCH_IN_TICKS) / 10000000);
+    struct tm tm_info;
+    gmtime_r(&t, &tm_info);
+    
+    lpSystemTime->wYear = tm_info.tm_year + 1900;
+    lpSystemTime->wMonth = tm_info.tm_mon + 1;
+    lpSystemTime->wDay = tm_info.tm_mday;
+    lpSystemTime->wDayOfWeek = tm_info.tm_wday;
+    lpSystemTime->wHour = tm_info.tm_hour;
+    lpSystemTime->wMinute = tm_info.tm_min;
+    lpSystemTime->wSecond = tm_info.tm_sec;
+    lpSystemTime->wMilliseconds = (ticks / 10000) % 1000;
+    return TRUE; 
+}
+inline BOOL FileTimeToLocalFileTime(const FILETIME* lpFileTime, LPFILETIME lpLocalFileTime) { 
+    // Simplified: assuming UTC and Local are same for now or just copying
+    if (!lpFileTime || !lpLocalFileTime) return FALSE;
+    *lpLocalFileTime = *lpFileTime;
+    return TRUE; 
+}
+
+// Minimal implementation using std::string conversion (only supports UTF-8 for CP_UTF8)
+inline int MultiByteToWideChar(UINT CodePage, DWORD dwFlags, LPCSTR lpMultiByteStr, int cbMultiByte, LPWSTR lpWideCharStr, int cchWideChar) { 
+    if (!lpMultiByteStr) return 0;
+    int len = (cbMultiByte == -1) ? strlen(lpMultiByteStr) : cbMultiByte;
+    if (cchWideChar == 0) return len;
+    
+    int toCopy = std::min(len, cchWideChar);
+    for (int i = 0; i < toCopy; ++i) {
+        lpWideCharStr[i] = (unsigned char)lpMultiByteStr[i]; // Simple cast for ASCII/1252
+    }
+    if (toCopy < cchWideChar) lpWideCharStr[toCopy] = 0;
+    return toCopy;
+}
+inline int WideCharToMultiByte(UINT CodePage, DWORD dwFlags, LPCWSTR lpWideCharStr, int cchWideChar, LPSTR lpMultiByteStr, int cbMultiByte, LPCSTR lpDefaultChar, BOOL* lpUsedDefaultChar) { 
+    if (!lpWideCharStr) return 0;
+    int len = (cchWideChar == -1) ? wcslen(lpWideCharStr) : cchWideChar;
+    if (cbMultiByte == 0) return len;
+    
+    int toCopy = std::min(len, cbMultiByte);
+    for (int i = 0; i < toCopy; ++i) {
+        lpMultiByteStr[i] = (lpWideCharStr[i] > 255) ? '?' : (char)lpWideCharStr[i];
+    }
+    if (toCopy < cbMultiByte) lpMultiByteStr[toCopy] = 0;
+    return toCopy;
+}
 inline int CompareString(DWORD Locale, DWORD dwCmpFlags, LPCWSTR lpString1, int cchCount1, LPCWSTR lpString2, int cchCount2) { return 2; }
 inline int CompareString(DWORD Locale, DWORD dwCmpFlags, LPCSTR lpString1, int cchCount1, LPCSTR lpString2, int cchCount2) { return 2; }
 inline BOOL DeleteFile(LPCWSTR lpFileName) { return TRUE; }
@@ -261,7 +386,8 @@ inline BOOL GetComputerName(LPWSTR lpBuffer, LPDWORD nSize) { if (nSize && *nSiz
 inline void OutputDebugString(LPCWSTR lpOutputString) {}
 inline void OutputDebugStringA(LPCSTR lpOutputString) {}
 inline void OutputDebugStringW(LPCWSTR lpOutputString) {}
-inline DWORD GetCurrentThreadId() { return 0; }
+#include <pthread.h>
+inline DWORD GetCurrentThreadId() { return (DWORD)pthread_self(); }
 inline HRSRC FindResource(HINSTANCE hModule, LPCWSTR lpName, LPCWSTR lpType) { return nullptr; }
 inline HGLOBAL LoadResource(HINSTANCE hModule, HRSRC hResInfo) { return nullptr; }
 inline void* LockResource(HGLOBAL hResData) { return nullptr; }
@@ -294,7 +420,10 @@ class GDIImplFontSet {};
 #define _atoi64(s) std::stoll(s)
 #define _wtoi(s) std::stoi(s)
 #define _wtof(s) std::stod(s)
-#define _waccess(f, m) 0
+inline int _waccess(const wchar_t* f, int m) {
+    std::string fn = path2str(f);
+    return access(fn.c_str(), m);
+}
 #define _wfullpath(a, f, l) nullptr
 #define _stricmp strcasecmp
 #define _strcmpi strcasecmp

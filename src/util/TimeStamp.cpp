@@ -89,7 +89,7 @@ const string &TimeStamp::getStamp() const
   SYSTEMTIME st;
   FileTimeToSystemTime(&ft, &st);
   char bf[64];
-  sprintf_s(bf, 32, "%d%02d%02d%02d%02d%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+  snprintf(bf, 64, "%d%02d%02d%02d%02d%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
   stampCode = bf;
 
   return stampCode;
@@ -111,7 +111,7 @@ const wstring TimeStamp::getUpdateTime() const {
   SYSTEMTIME st;
   FileTimeToSystemTime(&ft, &st);
   wchar_t bf[32];
-  swprintf_s(bf, L"%02d:%02d", st.wHour, st.wMinute);
+  swprintf(bf, 32, L"%02d:%02d", st.wHour, st.wMinute);
   return bf;
 }
 
@@ -124,7 +124,7 @@ wstring TimeStamp::getStampString() const
   FileTimeToSystemTime(&ft, &st);
 
   wchar_t bf[32];
-  swprintf_s(bf, L"%d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+  swprintf(bf, 32, L"%d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 
   return bf;
 }
@@ -145,8 +145,8 @@ string TimeStamp::getStampStringN() const
     st.wSecond = 0;
   }
   
-  char bf[32];
-  sprintf_s(bf, "%d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
+  char bf[64];
+  snprintf(bf, 64, "%d-%02d-%02d %02d:%02d:%02d", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 
   return bf;
 }

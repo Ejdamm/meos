@@ -6,6 +6,7 @@
 - Be careful with BOOL in SQL strings; it might be a database-specific type (like in MySQL/SQLite) that should remain as is.
 - Use CMake and vcpkg for cross-platform builds. The `CMakeLists.txt` in the root builds the project on Linux.
 - GCC on Linux is stricter than MSVC about incomplete types in standard containers; always provide a definition for classes used in `std::vector` even if they are just stubs.
+- Set locale to "C.UTF-8" in tests or main to ensure case-insensitive string comparisons (`wcscasecmp`) work for non-ASCII characters on Linux.
 
 ## 2026-03-05 - US-P0a
 - Fixed 147 include case mismatches in the `code/` directory.
@@ -98,6 +99,7 @@
   - Standard C++ `std::wstring_convert` (though deprecated) is useful for implementing `widen`/`narrow` stubs quickly.
   - The legacy codebase is extremely coupled; a "minimal" build requires either bringing in dozens of files or providing strategic stubs. A dedicated `meos_stubs.cpp` is effective for this.
   - GCC on Linux is stricter than MSVC about incomplete types in standard containers; always provide a definition for classes used in `std::vector` even if they are just stubs.
+- Set locale to "C.UTF-8" in tests or main to ensure case-insensitive string comparisons (`wcscasecmp`) work for non-ASCII characters on Linux.
 ---
 
 ## US-001 — COMPLETED (57m18s)
@@ -133,3 +135,24 @@
 ---
 
 ## US-015 (30m12s)
+
+## 2026-03-06 - US-013a - Core utils migration
+- Modernized meos_util.cpp and TimeStamp.cpp in src/util/.
+- Implemented functional Win32 API stubs for time (GetLocalTime, SystemTimeToFileTime) and string conversion in win_types.h for Linux.
+- Updated moveFile and expandDirectory to use std::filesystem.
+- Replaced sprintf_s and swprintf_s with snprintf and swprintf in TimeStamp.cpp.
+- Updated toUTF8 and fromUTF8 to use std::wstring_convert for correctness on Linux.
+- Added comprehensive unit tests for string conversion and time formatting in tests/util_test.cpp.
+- Verified all tests pass.
+- **Learnings for future iterations:**
+  - Standardizing time and string conversion early is critical for cross-platform stability.
+  - Functional Win32 stubs in win_types.h allow keeping much of the legacy logic while enabling Linux compilation.
+  - std::wstring_convert (though deprecated) is the easiest way to handle UTF-8 conversion without external dependencies.
+  - Locale-dependent functions like wcscasecmp require setting a UTF-8 locale (e.g., "C.UTF-8") to work correctly for non-ASCII characters.
+---
+
+## US-013a (31m04s)
+
+## iteration-1 (27m53s)
+
+## iteration-1 (13m51s)
