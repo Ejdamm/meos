@@ -196,9 +196,10 @@
         "Typecheck passes"
       ],
       "priority": 13,
-      "passes": false,
-      "notes": ""
-    },
+      "passes": true,
+      "notes": "localizer migrated to src/util/ with owordlist dependency"
+      }
+,
     {
       "id": "US-003a",
       "title": "Domain foundation — oBase, oDataContainer",

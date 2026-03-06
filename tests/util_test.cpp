@@ -1,6 +1,13 @@
 #include <gtest/gtest.h>
+#include <fstream>
 #include "TimeStamp.h"
 #include "meos_util.h"
+#include "localizer.h"
+#include "owordlist.h"
+#include "xmlparser.h"
+#include "csvparser.h"
+
+using namespace std;
 
 class UtilTest : public ::testing::Test {
 protected:
@@ -95,9 +102,6 @@ TEST_F(UtilTest, CompareStringIgnoreCase) {
     EXPECT_NE(0, compareStringIgnoreCase(L"Hello", L"World"));
 }
 
-#include "xmlparser.h"
-#include "csvparser.h"
-
 TEST_F(UtilTest, XMLParserBasic) {
     xmlparser parser;
     string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><item id=\"1\">Value 1</item><item id=\"2\">Value 2</item></root>";
@@ -142,4 +146,49 @@ TEST_F(UtilTest, CSVParserBasic) {
     std::filesystem::remove(path2str(filename));
 }
 
+TEST_F(UtilTest, OWordListBasic) {
+    oWordList wl;
+    wl.insert(L"Hello");
+    wl.insert(L"World");
 
+    EXPECT_TRUE(wl.lookup(L"hello")); // Should be case-insensitive
+    EXPECT_TRUE(wl.lookup(L"HELLO"));
+    EXPECT_TRUE(wl.lookup(L"World"));
+    EXPECT_FALSE(wl.lookup(L"Other"));
+
+    wstring filename = L"test.mwd";
+    wl.save(filename);
+
+    oWordList wl2;
+    wl2.load(filename);
+    EXPECT_TRUE(wl2.lookup(L"hello"));
+    EXPECT_TRUE(wl2.lookup(L"world"));
+    EXPECT_FALSE(wl2.lookup(L"other"));
+
+    std::filesystem::remove(path2str(filename));
+}
+
+TEST_F(UtilTest, LocalizerBasic) {
+    lang.init();
+    
+    // We need to point to a valid lang file.
+    // For this test, we can create a temporary .lng file.
+    wstring lngFile = L"test_lang.lng";
+    {
+        ofstream fout(narrow(lngFile).c_str(), ios::trunc|ios::out);
+        fout << toUTF8(L"Hello") << " = " << toUTF8(L"Hej") << endl;
+        fout << toUTF8(L"Welcome") << " = " << toUTF8(L"Välkommen X") << endl;
+    }
+
+    lang.get().addLangResource(L"Test", lngFile);
+    lang.get().loadLangResource(L"Test");
+
+    EXPECT_EQ(L"Hej", lang.tl(L"Hello"));
+    EXPECT_EQ(L"Hej:", lang.tl(L"Hello:")); // Suffix preservation
+    EXPECT_EQ(L"Välkommen Sven", lang.tl(L"Welcome#Sven")); // Substitution
+
+    EXPECT_EQ(L"Untranslated", lang.tl(L"Untranslated")); // Fallback
+
+    lang.unload();
+    std::filesystem::remove(path2str(lngFile));
+}

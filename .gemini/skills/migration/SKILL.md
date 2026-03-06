@@ -87,6 +87,9 @@ Replace Win32-specific:
 | `_wtof` | `std::wcstod(str, nullptr)` |
 | `_wtoi64` | `(long long)std::wcstoll(str, nullptr, 10)` |
 | `MultiByteToWideChar` | `codecvt` / `widen()` |
+| `CharLowerBuff` | `towlower(wchar_t)` in a loop |
+| `FindResource` / `LoadResource` | `std::ifstream` + predefined search paths |
+| `_wsopen_s` / `_read` / `_write` | `std::ifstream` / `std::ofstream` (binary mode) |
 | `OffsetRect` | `inline BOOL OffsetRect(LPRECT lprc, int dx, int dy)` |
 
 ### 4. Circular Dependency Management
@@ -269,7 +272,7 @@ cmake --build --preset default 2>&1 | grep -E 'error:' | sed 's/.*error://' | so
 - **Resources** (images, lang) moved to `src/app/resources` and `src/app/lang`.
 
 ### Building on Linux (Minimal)
-- **util**: StdAfx, gdioutput_stub, meos_stubs, random, TimeStamp, binencoder, utm.
+- **util**: StdAfx, gdioutput_stub, meos_stubs, random, TimeStamp, binencoder, utm, meos_util, xmlparser, csvparser, localizer, owordlist.
 - **app**: main_linux.
 - **Other modules**: Currently use dummy source files to satisfy CMake while waiting for full migration of their content.
 

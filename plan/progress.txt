@@ -181,3 +181,19 @@
 ---
 
 ## US-013c (20m57s)
+
+## fre  6 mar 2026 18:36:58 CET - US-013d
+- Migrated Localizer and oWordList to src/util/
+- Modernized localizer.cpp and owordlist.cpp for Linux/cross-platform.
+- Replaced Win32 resource loading with std::ifstream and path searching.
+- Replaced Win32 file I/O with standard C++ file streams in oWordList.
+- Updated oFreeImport.h/cpp to use the new owordlist.h.
+- Added comprehensive unit tests in tests/util_test.cpp.
+- **Learnings for future iterations:**
+  - oWordList is a general utility used by both Localizer and IO.
+  - Localization substitution logic depends on # delimiter and X, Y, Z, W markers in translated values.
+  - Multi-character constants like '×' and '–' in legacy code must be replaced with wide literals L'×' and L'–'.
+  - towlower(wchar_t) is the standard replacement for CharLowerBuff.
+---
+
+## US-013d (46m36s)

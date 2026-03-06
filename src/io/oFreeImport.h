@@ -28,77 +28,9 @@
 #include <string>
 
 #include "oEvent.h"
-
-class oWordDatabase;
-typedef oWordDatabase* pWordDatabase;
-typedef map<wchar_t, pWordDatabase> MapTable;
-
-const wchar_t indexMapStart='a';
-const wchar_t indexMapEnd='z';
-const int hashSplitSize=16;
-const int hashTableSize=indexMapEnd-indexMapStart+1;
-
+#include "owordlist.h"
 
 class oFreeImport;
-
-class oWordDatabase {
-public:
-  virtual char getType() const = 0;
-  virtual const char *deserialize(const char *bf, const char *end) = 0;
-  virtual char *serialize(char *bf) const = 0;
-  virtual int serialSize() const = 0;
-  virtual pWordDatabase split() {return this;}
-  virtual void insert(const wchar_t *s) = 0;
-  virtual bool lookup(const wchar_t *s) const = 0;
-  virtual ~oWordDatabase() {}
-};
-
-class oWordDB : public oWordDatabase {
-protected:
-  char getType() const {return 1;}
-  set<wstring> str;
-public:
-  const char *deserialize(const char *bf, const char *end);
-  char *serialize(char *bf) const;
-  int serialSize() const;
-  pWordDatabase split();
-  void insert(const wchar_t *s);
-  bool lookup(const wchar_t *s) const;
-  size_t size();
-};
-
-class oWordIndexHash : public oWordDatabase {
-protected:
-  char getType() const {return 2;}
-  pWordDatabase hashTable[hashTableSize];
-  MapTable unMapped;
-  bool hashAll;
-public:
-  const char *deserialize(const char *bf, const char *end);
-  char *serialize(char *bf) const;
-  int serialSize() const;
-  void insert(const wchar_t *s);
-  bool lookup(const wchar_t *s) const;
-  void clear();
-  ~oWordIndexHash();
-  oWordIndexHash(bool hashAll_);
-};
-
-class oWordList {
-protected:
-  oWordIndexHash wh;
-public:
-  void serialize(vector<char> &serial) const;
-  void deserialize(const vector<char> &serial);
-
-  void save(const wstring &file) const;
-  void load(const wstring &file);
-
-  void insert(const wchar_t *s);
-  bool lookup(const wchar_t *s) const;
-  ~oWordList();
-  oWordList();
-};
 
 struct oEntryPerson {
   wstring name1;

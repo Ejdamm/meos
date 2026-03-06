@@ -37,6 +37,8 @@ add_library(util STATIC
     src/util/meos_util.cpp
     src/util/xmlparser.cpp
     src/util/csvparser.cpp
+    src/util/localizer.cpp
+    src/util/owordlist.cpp
 )
 target_include_directories(util PUBLIC ${MEOS_INCLUDE_DIRS})
 target_precompile_headers(util PUBLIC src/util/StdAfx.h)
