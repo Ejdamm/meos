@@ -2,41 +2,50 @@
 #include <codecvt>
 #include <locale>
 
-// String conversion stubs using standard C++
-const wstring& widen(const string& input) {
-    static wstring out;
-    if (input.empty()) { out = L""; return out; }
-    try {
-        out = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(input);
-    } catch (...) {
-        out = L"";
+// Localizer and oWordList stubs
+#include "localizer.h"
+#include "oFreeImport.h"
+
+class LocalizerStub : public Localizer {
+public:
+    LocalizerStub() {
+        // We don't call init() here because it allocates LocalizerInternal
+        // which we would also need to stub.
     }
-    return out;
+};
+
+Localizer lang;
+
+Localizer::LocalizerInternal::LocalizerInternal() : impl(nullptr), implBase(nullptr), owning(false), user(nullptr) {}
+Localizer::LocalizerInternal::~LocalizerInternal() {}
+const oWordList& Localizer::LocalizerInternal::getGivenNames() const {
+    static oWordList empty;
+    return empty;
+}
+const wstring& Localizer::LocalizerInternal::tl(const wstring& str) const {
+    return str;
 }
 
-const string& narrow(const wstring& input) {
-    static string out;
-    if (input.empty()) { out = ""; return out; }
-    try {
-        out = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(input);
-    } catch (...) {
-        out = "";
-    }
-    return out;
+oWordList::oWordList() : wh(false) {}
+oWordList::~oWordList() {}
+bool oWordList::lookup(const wchar_t* s) const {
+    return false;
 }
+void oWordList::insert(const wchar_t* s) {}
+void oWordList::save(const wstring& file) const {}
+void oWordList::load(const wstring& file) {}
+void oWordList::serialize(vector<char>& serial) const {}
+void oWordList::deserialize(const vector<char>& serial) {}
 
-const string& toUTF8(const wstring& input) {
-    return narrow(input);
+oWordIndexHash::oWordIndexHash(bool hashAll_) : hashAll(hashAll_) {
+    for (int i = 0; i < hashTableSize; ++i) hashTable[i] = nullptr;
 }
-
-const wstring& fromUTF8(const string& input) {
-    return widen(input);
+oWordIndexHash::~oWordIndexHash() {}
+bool oWordIndexHash::lookup(const wchar_t* s) const {
+    return false;
 }
-
-const wstring& recodeToWide(const string& input) {
-    return fromUTF8(input);
-}
-
-const string& recodeToNarrow(const wstring& input) {
-    return toUTF8(input);
-}
+void oWordIndexHash::insert(const wchar_t* s) {}
+void oWordIndexHash::clear() {}
+const char* oWordIndexHash::deserialize(const char* bf, const char* end) { return bf; }
+char* oWordIndexHash::serialize(char* bf) const { return bf; }
+int oWordIndexHash::serialSize() const { return 0; }

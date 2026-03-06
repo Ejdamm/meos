@@ -34,6 +34,7 @@ add_library(util STATIC
     src/util/TimeStamp.cpp
     src/util/binencoder.cpp
     src/util/utm.cpp
+    src/util/meos_util.cpp
 )
 target_include_directories(util PUBLIC ${MEOS_INCLUDE_DIRS})
 target_precompile_headers(util PUBLIC src/util/StdAfx.h)
@@ -94,6 +95,42 @@ target_link_libraries(meos PRIVATE
     ZLIB::ZLIB
     unofficial::minizip::minizip
 )
+
+# --- Test Infrastructure ---
+enable_testing()
+
+option(COVERAGE "Enable code coverage reporting" OFF)
+
+if(COVERAGE)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    endif()
+endif()
+
+add_executable(smoke_test tests/smoke_test.cpp)
+target_link_libraries(smoke_test PRIVATE GTest::gtest GTest::gtest_main)
+add_test(NAME SmokeTest COMMAND smoke_test)
+
+add_executable(util_test tests/util_test.cpp)
+target_link_libraries(util_test PRIVATE util GTest::gtest GTest::gtest_main)
+add_test(NAME UtilTest COMMAND util_test)
+
+add_executable(domain_test tests/domain_test.cpp)
+target_link_libraries(domain_test PRIVATE domain GTest::gtest GTest::gtest_main)
+add_test(NAME DomainTest COMMAND domain_test)
+
+add_executable(db_test tests/db_test.cpp)
+target_link_libraries(db_test PRIVATE db GTest::gtest GTest::gtest_main)
+add_test(NAME DBTest COMMAND db_test)
+
+add_executable(net_test tests/net_test.cpp)
+target_link_libraries(net_test PRIVATE net GTest::gtest GTest::gtest_main)
+add_test(NAME NetTest COMMAND net_test)
+
+add_executable(io_test tests/io_test.cpp)
+target_link_libraries(io_test PRIVATE io GTest::gtest GTest::gtest_main)
+add_test(NAME IOTest COMMAND io_test)
 
 # Note: As modules are fully migrated, they will be populated with all files.
 # Currently, most modules are stubs to maintain cross-platform build success.
