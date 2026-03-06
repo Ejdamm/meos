@@ -186,7 +186,15 @@ For domain object unit tests, ensure `oe->oControlData` (or relevant data contai
 - Use `IF NOT EXISTS` for all migration SQL.
 - Schema versioning via `_migrations` table.
 
-## Useful One-Liners & Scripts
+### 9. Test Infrastructure
+
+- **GTest**: `find_package(GTest CONFIG REQUIRED)` + link `GTest::gtest GTest::gtest_main`.
+- **Vitest**: Use for React frontend in `src/ui/web`. Requires jsdom and specific TS configuration for ESM.
+- **Coverage**: Pass `-DCOVERAGE=ON` to CMake to enable `--coverage` flags for GCC/Clang.
+- **Stubs**: Heavy coupling often requires stubs in `src/util/meos_stubs.cpp` to make modules like `util` or `domain` compile in isolation.
+
+### 10. Win32 Type Shimming Gotchas
+
 
 ### Find all Win32 API calls in migrated code
 ```bash

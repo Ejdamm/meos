@@ -76,6 +76,9 @@ Custom exception `meosException` (with `wwhat()` for wide-string messages) and `
 - Heavy use of forward declarations to minimize include dependencies
 - Smart pointers for ownership; raw pointers for parent/back-references
 - No namespaces — flat namespace with `using std::` in `StdAfx.h`
+- **Testing:** Use `ctest` for C++ tests (`tests/` directory) and `npm test` for frontend (`src/ui/web/`).
+- **Code Coverage:** Enable for C++ by passing `-DCOVERAGE=ON` to CMake.
+- **Stubs:** Use `src/util/meos_stubs.cpp` for minimal stubs for circular or heavy dependencies during early migration.
 
 ## Modernization
 

@@ -117,3 +117,19 @@
 ---
 
 ## US-002 (27m12s)
+## 2026-03-06 15:30 - US-015
+- Implemented test infrastructure for C++ (Google Test) and frontend (Vitest).
+- Added 'tests/' directory with smoke tests and module-specific tests.
+- Configured CMake to enable testing and add test targets.
+- Added code coverage support in CMake via 'COVERAGE' option.
+- Initialized 'src/ui/web' with TypeScript and Vitest configuration.
+- Fixed 'util' module build issues by adding 'meos_util.cpp' and required stubs to 'meos_stubs.cpp'.
+- Updated '.gitignore' to exclude build artifacts and node_modules.
+- **Learnings for future iterations:**
+  - 'meos_util.cpp' depends on 'Localizer' (via 'lang' global), creating a circular dependency if not stubbed or moved.
+  - 'oWordList' and 'oWordIndexHash' need stubs if they are used in headers that 'util' depends on.
+  - GCC/Linux is stricter about vtables; all virtual methods of a class must be implemented (even if as stubs) to avoid linker errors.
+  - Vitest with jsdom and testing-library requires specific configuration for ESM/TypeScript compatibility.
+---
+
+## US-015 (30m12s)

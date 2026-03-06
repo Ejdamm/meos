@@ -42,3 +42,10 @@ Use `std::filesystem::path` (aliased as `path` in `StdAfx.h`) for all path manip
 ### UI Decoupling
 
 Domain classes MUST NOT depend on UI classes. Use `std::function` callbacks registered in `src/app/meos.cpp` to communicate from domain to UI.
+
+## Testing
+
+- **C++ Tests:** Located in `tests/` at the project root. Use Google Test.
+- **Frontend Tests:** Located in `src/ui/web/src/tests/`. Use Vitest and React Testing Library.
+- **Run Tests:** `ctest` for C++, `npm test` in `src/ui/web` for frontend.
+- **Coverage:** Pass `-DCOVERAGE=ON` to CMake to enable C++ code coverage.
