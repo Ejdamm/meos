@@ -198,6 +198,9 @@ const string &encodeXML(const string &in);
 const wstring &encodeXML(const wstring &in);
 const wstring &encodeHTML(const wstring &in);
 
+void inplaceDecodeXML(char *in);
+void inplaceDecodeXML(wchar_t *in);
+
 /** Extend a year from 03 -> 2003, 97 -> 1997 etc */
 int extendYear(int year);
 

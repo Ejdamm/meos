@@ -1255,6 +1255,34 @@ void inplaceDecodeXML(char *in)
   bf[outp] = 0;
 }
 
+void inplaceDecodeXML(wchar_t *in)
+{
+  wchar_t *bf = in;
+  int outp = 0;
+
+  for (int k=0;bf[k] ;k++) {
+    if (bf[k] != '&')
+      bf[outp++] = bf[k];
+    else {
+      if ( wcsncmp(&bf[k], L"&amp;", 5)==0 )
+        bf[outp++] = '&', k+=4;
+      else if  ( wcsncmp(&bf[k], L"&lt;", 4)==0 )
+        bf[outp++] = '<', k+=3;
+      else if  ( wcsncmp(&bf[k], L"&gt;", 4)==0 )
+        bf[outp++] = '>', k+=3;
+      else if  ( wcsncmp(&bf[k], L"&quot;", 6)==0 )
+        bf[outp++] = '"', k+=5;
+      else if  ( wcsncmp(&bf[k], L"&#10;", 5)==0 )
+        bf[outp++] = '\n', k+=4;
+      else if  ( wcsncmp(&bf[k], L"&#13;", 5)==0 )
+        bf[outp++] = '\r', k+=4;
+      else
+        bf[outp++] = bf[k];
+    }
+  }
+  bf[outp] = 0;
+}
+
 const char *decodeXML(const char *in)
 {
   const char *bf = in;

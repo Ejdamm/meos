@@ -35,6 +35,8 @@ add_library(util STATIC
     src/util/binencoder.cpp
     src/util/utm.cpp
     src/util/meos_util.cpp
+    src/util/xmlparser.cpp
+    src/util/csvparser.cpp
 )
 target_include_directories(util PUBLIC ${MEOS_INCLUDE_DIRS})
 target_precompile_headers(util PUBLIC src/util/StdAfx.h)

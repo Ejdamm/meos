@@ -57,4 +57,51 @@ TEST_F(UtilTest, CompareStringIgnoreCase) {
     EXPECT_NE(0, compareStringIgnoreCase(L"Hello", L"World"));
 }
 
+#include "xmlparser.h"
+#include "csvparser.h"
+
+TEST_F(UtilTest, XMLParserBasic) {
+    xmlparser parser;
+    string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><item id=\"1\">Value 1</item><item id=\"2\">Value 2</item></root>";
+    parser.readMemory(xml, 0);
+
+    xmlobject root = parser.getObject("root");
+    EXPECT_TRUE(root);
+
+    xmlList items;
+    root.getObjects("item", items);
+    EXPECT_EQ(2, items.size());
+
+    EXPECT_EQ("1", items[0].getAttrib("id").getStr());
+    EXPECT_EQ("Value 1", items[0].getStr());
+    EXPECT_EQ("2", items[1].getAttrib("id").getStr());
+    EXPECT_EQ("Value 2", items[1].getStr());
+}
+
+TEST_F(UtilTest, CSVParserBasic) {
+    // Create a temporary CSV file
+    wstring filename = L"test.csv";
+    {
+        csvparser writer;
+        writer.openOutput(filename);
+        writer.outputRow(vector<string>{"Col1", "Col2"});
+        writer.outputRow(vector<string>{"Val1", "Val2"});
+        writer.closeOutput();
+    }
+
+    csvparser reader;
+    list<vector<wstring>> data;
+    reader.parse(filename, data);
+
+    EXPECT_EQ(2, data.size());
+    auto it = data.begin();
+    EXPECT_EQ(L"Col1", (*it)[0]);
+    EXPECT_EQ(L"Col2", (*it)[1]);
+    ++it;
+    EXPECT_EQ(L"Val1", (*it)[0]);
+    EXPECT_EQ(L"Val2", (*it)[1]);
+
+    std::filesystem::remove(path2str(filename));
+}
+
 

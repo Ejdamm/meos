@@ -27,11 +27,14 @@
 
 #include <vector>
 #include <sstream>
+#include <fstream>
+#include <functional>
+#include <string>
+
 class xmlobject;
 
-typedef vector<xmlobject> xmlList;
+typedef std::vector<xmlobject> xmlList;
 class xmlparser;
-class gdioutput;
 
 const int buff_pre_alloc = 1024 * 10;
 
@@ -53,7 +56,7 @@ struct xmlattrib {
   int getInt() const {if (data) return atoi(data); else return 0;}
 
   int64_t getInt64() const {
-    return data ? _atoi64(data) : 0;
+    return data ? atoll(data) : 0;
   }
 
   uint64_t getInt64u() const {
@@ -67,14 +70,14 @@ struct xmlattrib {
   const char *getPtr() const;
   const wchar_t *getWPtr() const;
 
-  string getStr() const {
+  std::string getStr() const {
     const char* ptr = getPtr();
     if (ptr == nullptr)
       ptr = "";
     return ptr;
   }
 
-  wstring getWStr() const {
+  std::wstring getWStr() const {
     const wchar_t* ptr = getWPtr();
     if (ptr == nullptr)
       ptr = L"";
@@ -85,15 +88,13 @@ private:
   const xmlparser *parser;
 };
 
-class ProgressWindow;
-
 class xmlparser
 {
 protected:
   static char *ltrim(char *s);
   static const char *ltrim(const char *s);
 
-  string tagStack[32];
+  std::string tagStack[32];
   int tagStackPointer = 0;
 
   bool toString = false;
@@ -110,11 +111,11 @@ protected:
   }
 
   int lineNumber = 0;
-  string doctype;
+  std::string doctype;
 
-  vector<int> parseStack;
-  vector<xmldata> xmlinfo;
-  vector<char> xbf;
+  std::vector<int> parseStack;
+  std::vector<xmldata> xmlinfo;
+  std::vector<char> xbf;
 
   bool processTag(char *start, char *end);
 
@@ -128,53 +129,51 @@ protected:
   bool cutMode;
 
   bool isUTF;
-  vector<char> strbuff; // Temporary buffer for processing (no threading allowed)
-  vector<wchar_t> strbuffw; // Temporary buffer for processing (no threading allowed)
+  std::vector<char> strbuff; // Temporary buffer for processing (no threading allowed)
+  std::vector<wchar_t> strbuffw; // Temporary buffer for processing (no threading allowed)
 
-  ProgressWindow *progress;
+  std::function<void(int)> progressCallback;
   int lastIndex;
 
-  gdioutput *utfConverter;
-
-  mutable wstring encodeString;
+  mutable std::wstring encodeString;
 public:
   void access(int index);
 
-  void setProgress(HWND hWnd);
+  void setProgressCallback(std::function<void(int)> callback) { progressCallback = callback; }
 
 //	bool failed(){return errorMessage.length()>0;}
 
   const xmlobject getObject(const char *pname) const;
 //	const char *getError();
 
-  void read(const wstring &file, int maxobj = 0);
-  void readMemory(const string &mem, int maxobj);
+  void read(const std::wstring &file, int maxobj = 0);
+  void readMemory(const std::string &mem, int maxobj);
 
   void write(const char *tag, const char *prop,
-              const string &value);
+              const std::string &value);
   void write(const char *tag, const char *prop,
-              const wstring &value);
+              const std::wstring &value);
   void write(const char *tag); // Empty case
   void write(const char *tag, const char *prop,
              const wchar_t *value);
   void writeBool(const char *tag, const char *prop,
              const bool value);
 
-  void writeAscii(const char *tag, const vector<pair<string, wstring>> &propValue, const string &valueAscii);
+  void writeAscii(const char *tag, const std::vector<std::pair<std::string, std::wstring>> &propValue, const std::string &valueAscii);
   void write(const char *tag, const char *prop,
-             const wstring &propValue, const wstring &value);
+             const std::wstring &propValue, const std::wstring &value);
 
   void writeBool(const char *tag, const char *prop,
-                 bool propValue, const wstring &value);
+                 bool propValue, const std::wstring &value);
 
   void write(const char *tag, const char *prop,
-             const wchar_t *propValue, const wstring &value);
-  void write(const char *tag, const vector< pair<string, wstring> > &propValue, const wstring &value);
+             const wchar_t *propValue, const std::wstring &value);
+  void write(const char *tag, const std::vector< std::pair<std::string, std::wstring> > &propValue, const std::wstring &value);
 
-  void write(const char *tag, const string &value);
+  void write(const char *tag, const std::string &value);
   void write(const char *tag, const char *value);
 
-  void write(const char *tag, const wstring &value);
+  void write(const char *tag, const std::wstring &value);
   
   void write(const char *tag, double value);
   void write(const char *tag, int value);
@@ -190,24 +189,24 @@ public:
 
   void startTag(const char *tag);
   void startTag(const char *tag, const char *Property,
-                const string &Value);
+                const std::string &Value);
 
   void startTag(const char *tag, const char *Property,
-                const wstring &Value);
-  void startTag(const char *tag, const vector<wstring> &propvalue);
+                const std::wstring &Value);
+  void startTag(const char *tag, const std::vector<std::wstring> &propvalue);
 
 
   void endTag();
   int closeOut();
   void openOutput(const wchar_t *file, bool useCutMode);
-  void openOutputT(const wchar_t *file, bool useCutMode, const string &type);
+  void openOutputT(const wchar_t *file, bool useCutMode, const std::string &type);
 
   void openMemoryOutput(bool useCutMode);
-  void getMemoryOutput(string &res);
+  void getMemoryOutput(std::string &res);
 
 
-  const string &encodeXML(const string &input);
-  const string &encodeXML(const wstring &input);
+  const std::string &encodeXML(const std::string &input);
+  const std::string &encodeXML(const std::wstring &input);
 
   xmlparser();
   virtual ~xmlparser();
@@ -263,10 +262,10 @@ public:
 
   bool getObjectBool(const char *pname) const;
 
-  string &getObjectString(const char *pname, string &out) const;
+  std::string &getObjectString(const char *pname, std::string &out) const;
   char *getObjectString(const char *pname, char *out, int maxlen) const;
 
-  wstring &getObjectString(const char *pname, wstring &out) const;
+  std::wstring &getObjectString(const char *pname, std::wstring &out) const;
   wchar_t *getObjectString(const char *pname, wchar_t *out, int maxlen) const;
 
 
@@ -280,7 +279,7 @@ public:
 
   const char *getRawPtr() const {return parser->xmlinfo[index].data;}
   
-  string getRawStr() const {
+  std::string getRawStr() const {
     const char* ptr = getRawPtr();
     if (ptr == nullptr)
       ptr = "";
@@ -290,14 +289,14 @@ public:
   const char *getPtr() const;
   const wchar_t *getWPtr() const;
 
-  string getStr() const {
+  std::string getStr() const {
     const char* ptr = getPtr();
     if (ptr == nullptr)
       ptr = "";
     return ptr;
   }
 
-  wstring getWStr() const {
+  std::wstring getWStr() const {
     const wchar_t* ptr = getWPtr();
     if (ptr == nullptr)
       ptr = L"";
@@ -311,7 +310,7 @@ public:
 
   int64_t getInt64() const {
     const char* d = parser->xmlinfo[index].data;
-    return d ? _atoi64(d) : 0;
+    return d ? atoll(d) : 0;
   }
 
   uint64_t getInt64u() const {

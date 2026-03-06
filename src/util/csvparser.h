@@ -1,4 +1,4 @@
-﻿/************************************************************************
+/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
 
@@ -20,46 +20,12 @@
 
 ************************************************************************/
 
-// csvparser.h: interface for the csvparser class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #pragma once
 
 #include <vector>
-#include <map>
+#include <string>
 #include <list>
-
-using std::list;
-using std::vector;
-class oEvent;
-struct SICard;
-class  ImportFormats;
-
-class CSVLineWrapper;
-
-struct PunchInfo {
-  int code;
-  int card;
-  int time;
-  char date[28];
-};
-
-
-struct TeamLineup {
-  struct TeamMember {
-    wstring name;
-    wstring club;
-    int cardNo;
-    wstring course;
-    wstring cls;
-  };
-
-  wstring teamName;
-  wstring teamClass;
-  wstring teamClub;
-  vector<TeamMember> members;
-};
+#include <fstream>
 
 class csvparser
 {
@@ -68,77 +34,24 @@ protected:
   std::ifstream fin;
 
   int LineNumber;
-  string ErrorMessage;
+  std::string ErrorMessage;
 
-  // Returns true if a SI-manager line is identified
-  bool checkSimanLine(const oEvent &oe, const CSVLineWrapper &sp, SICard &cards);
-
-  // Check and setup header for SIConfig import
-  void checkSIConfigHeader(const CSVLineWrapper &sp);
-
-  // Return true if SIConfig line was detected 
-  bool checkSIConfigLine(const oEvent &oe, const CSVLineWrapper &sp, SICard &card);
-
-  enum SIConfigFields {
-    sicSIID,
-    sicCheck,
-    sicCheckTime,
-    sicCheckDOW,
-    sicStart,
-    sicStartTime,
-    sicStartDOW,
-    sicFinish,
-    sicFinishTime,
-    sicFinishDOW,
-    sicNumPunch,
-    sicRecordStart,
-    sicFirstName,
-    sicLastName,
-  };
-
-  map<SIConfigFields, int> siconfigmap;
-  const wchar_t *getSIC(SIConfigFields sic, const CSVLineWrapper&sp) const;
-
-  void parseUnicode(const wstring &file, list<vector<wstring>> &data);
-
-  // Check and process a punch line
-  static int selectPunchIndex(const wstring &competitionDate, const CSVLineWrapper &sp,
-                              int &cardIndex, int &timeIndex, int &dateIndex,
-                              wstring &processedTime, wstring &date);
+  void parseUnicode(const std::wstring &file, std::list<std::vector<std::wstring>> &data);
 
 public:
+  static void convertUTF(const std::wstring &file);
 
-  static void convertUTF(const wstring &file);
+  void parse(const std::wstring &file, std::list<std::vector<std::wstring>> &dataOutput);
 
-  void parse(const wstring &file, list<vector<wstring>> &dataOutput);
-
-  void importTeamLineup(const wstring &file,
-                        const map<wstring, int> &classNameToNumber,
-                        vector<TeamLineup> &teams);
-
-  bool openOutput(const wstring &file, bool writeUTF = false);
+  bool openOutput(const std::wstring &file, bool writeUTF = false);
   bool closeOutput();
 
-  bool outputRow(const vector<string> &out);
-  bool outputRow(const vector<wstring>& out);
-  bool outputRow(const string &row);
+  bool outputRow(const std::vector<std::string> &out);
+  bool outputRow(const std::vector<std::wstring>& out);
+  bool outputRow(const std::string &row);
 
-  int nimport;
-  bool importOCAD_CSV(oEvent &oe, const wstring &file, bool addClasses);
-  bool importOS_CSV(oEvent &oe, const wstring &file);
-  bool importRAID(oEvent &oe, const wstring &file);
-  bool importOE_CSV(oEvent &oe, const wstring &file);
-
-  bool importPunches(const oEvent &oe, const wstring &file,
-                     vector<PunchInfo> &punches);
-
-  bool importCards(const oEvent &oe, const wstring &file,
-                   vector<SICard> &punches);
-
-  int importRanking(oEvent &oe, const wstring &file, vector<wstring> & problems);
-
-  static int split(char *line, vector<char *> &split);
-  static int split(wchar_t *line, vector<wchar_t *> &split);
+  static int split(char *line, std::vector<char *> &split);
+  static int split(wchar_t *line, std::vector<wchar_t *> &split);
 
   enum class CSV {
     NoCSV,
@@ -148,9 +61,8 @@ public:
     OS,
   };
 
-  static CSV iscsv(const wstring &file);
+  static CSV iscsv(const std::wstring &file);
 
   csvparser();
   virtual ~csvparser();
-
 };

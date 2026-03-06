@@ -156,3 +156,16 @@
 ## iteration-1 (27m53s)
 
 ## iteration-1 (13m51s)
+
+## 2026-03-06 17:33 - US-013b
+- Migrated xmlparser.h/cpp and csvparser.h/cpp to src/util/.
+- Replaced Win32-specific string functions and types with standard C++ and snprintf.
+- Added unit tests for xmlparser and csvparser in tests/util_test.cpp.
+- Verified all tests pass on Linux.
+- **Learnings for future iterations:**
+  - Standardizing parsers early is essential for handling various data formats (IOF XML, CSV) across platforms.
+  - Semicolon is the default CSV delimiter in MeOS, which is important for cross-European data exchange.
+  - encodeXML/decodeXML in meos_util should eventually be made thread-safe, though currently they use static buffers.
+---
+
+## US-013b (20m39s)

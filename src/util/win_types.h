@@ -417,6 +417,9 @@ class GDIImplFontEnum {};
 class GDIImplFontSet {};
 
 // MSVC CRT shims
+inline std::string path2str(const std::wstring& w) { return std::string(w.begin(), w.end()); }
+inline std::string path2str(const wchar_t* w) { std::wstring ws(w); return std::string(ws.begin(), ws.end()); }
+
 #define _atoi64(s) std::stoll(s)
 #define _wtoi(s) std::stoi(s)
 #define _wtof(s) std::stod(s)
@@ -424,35 +427,21 @@ inline int _waccess(const wchar_t* f, int m) {
     std::string fn = path2str(f);
     return access(fn.c_str(), m);
 }
-#define _wfullpath(a, f, l) nullptr
+
+inline wchar_t* _wfullpath(wchar_t* absPath, const wchar_t* relPath, size_t maxLength) {
+    if (!relPath) return nullptr;
+    wcsncpy(absPath, relPath, maxLength - 1);
+    absPath[maxLength - 1] = 0;
+    return absPath;
+}
+
+#define _wfullpath(a, f, l) _wfullpath(a, f, l)
+#define _wfullpath(a, f, l) _wfullpath(a, f, l)
 #define _stricmp strcasecmp
 #define _strcmpi strcasecmp
 #define _wcsicmp wcscasecmp
 #define _wcstoui64 std::wcstoull
 #define _memicmp strncasecmp
-
-inline void wcscpy_s_impl(wchar_t* d, const wchar_t* s) { wcscpy(d, s); }
-inline void wcscpy_s_impl(wchar_t* d, size_t n, const wchar_t* s) { wcscpy(d, s); }
-#define wcscpy_s(d, ...) wcscpy_s_impl(d, __VA_ARGS__)
-
-inline void wcscat_s_impl(wchar_t* d, const wchar_t* s) { wcscat(d, s); }
-inline void wcscat_s_impl(wchar_t* d, size_t n, const wchar_t* s) { wcscat(d, s); }
-#define wcscat_s(d, ...) wcscat_s_impl(d, __VA_ARGS__)
-
-inline void wcsncpy_s_impl(wchar_t* d, const wchar_t* s, size_t n) { wcsncpy(d, s, n); }
-inline void wcsncpy_s_impl(wchar_t* d, size_t size, const wchar_t* s, size_t n) { wcsncpy(d, s, n); }
-#define wcsncpy_s(d, ...) wcsncpy_s_impl(d, __VA_ARGS__)
-
-inline void strncpy_s_impl(char* d, const char* s, size_t n) { strncpy(d, s, n); }
-inline void strncpy_s_impl(char* d, size_t size, const char* s, size_t n) { strncpy(d, s, n); }
-#define strncpy_s(d, ...) strncpy_s_impl(d, __VA_ARGS__)
-
-inline void strcpy_s_impl(char* d, const char* s) { strcpy(d, s); }
-inline void strcpy_s_impl(char* d, size_t n, const char* s) { strcpy(d, s); }
-#define strcpy_s(d, ...) strcpy_s_impl(d, __VA_ARGS__)
-
-inline std::string path2str(const std::wstring& w) { return std::string(w.begin(), w.end()); }
-inline std::string path2str(const wchar_t* w) { std::wstring ws(w); return std::string(ws.begin(), ws.end()); }
 
 inline int _wfopen_s(FILE** pFile, const wchar_t* filename, const wchar_t* mode) {
     std::string fn = path2str(filename);
