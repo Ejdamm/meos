@@ -120,8 +120,8 @@
         "Typecheck passes"
       ],
       "priority": 8,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Reorganized code/ into src/ subdirectories (app, domain, db, net, io, util, ui). Defined static libraries in CMakeLists.txt for each module. Established common include paths for bare includes."
     },
     {
       "id": "US-015",

@@ -101,3 +101,19 @@
 ---
 
 ## US-001 — COMPLETED (57m18s)
+
+## 2026-03-06 - US-002 - Modular source layout
+- Reorganized 'code/' directory into logical modules in 'src/': 'app', 'domain', 'db', 'net', 'io', 'util', and 'ui'.
+- Updated root 'CMakeLists.txt' to define static libraries for each module.
+- Configured common include paths in CMake so legacy bare includes (e.g., '#include "oBase.h"') still work.
+- Moved resources (images, localization) to 'src/app/resources' and 'src/app/lang'.
+- Established 'src/AGENTS.md' with module definitions and updated root 'AGENTS.md'.
+- Verified the build on Linux using the new modular structure.
+- **Learnings for future iterations:**
+  - Categorizing ~190 files into modules is best done by identifying key aggregate roots (domain) and then their dependencies.
+  - CMake static libraries require at least one source file; dummy 'module_module.cpp' files are useful placeholders while modules are being populated with portable code.
+  - Legacy MSBuild/Win32 projects often have a flat structure; moving to a modular layout early helps identify and fix circular dependencies.
+  - Precompiled headers ('StdAfx.h') need special care when moving to ensure they are still applied to all modules.
+---
+
+## US-002 (27m12s)

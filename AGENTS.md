@@ -8,34 +8,24 @@ MeOS (Much Easier Orienteering System) is a Windows desktop application for mana
 
 | Directory | Purpose |
 |-----------|---------|
-| `code/` | Legacy Windows-only codebase (MSBuild, Win32/GDI, MySQL). Has its own `AGENTS.md` with detailed architecture docs. |
+| `src/` | Modular source code organized by layer (app, domain, db, net, io, util, ui). See `src/AGENTS.md` for architecture details. |
+| `legacy/` | Legacy build files and original architecture documentation (`legacy/AGENTS.md`). |
 | `plan/` | PRD and planning artifacts for the modernization effort. |
+| `thirdparty/` | Vendored dependencies and platform-specific binaries. |
 
-## Legacy Codebase (`code/`)
+## Source Code (`src/`)
 
-See `code/AGENTS.md` for full details. In summary:
+The codebase has been reorganized into a modular layout in the `src/` directory.
 
-- ~190 source files in a flat directory
-- C++17, Win32/GDI UI, MySQL backend
-- MSBuild with Visual Studio 2022 (`MeOS.sln`)
-- Vendored dependencies (restbed, libharu, minizip, mysql, png)
+- **App:** `src/app/` (entry points, resources)
+- **Domain:** `src/domain/` (core entities)
+- **DB:** `src/db/` (persistence)
+- **Net:** `src/net/` (network/REST)
+- **IO:** `src/io/` (file formats, hardware)
+- **Util:** `src/util/` (utilities, stubs)
+- **UI:** `src/ui/` (legacy Win32/GDI code)
 
-### Domain Model
-
-`oEvent` is the aggregate root owning all domain objects:
-
-```
-oBase (abstract base: ID, change tracking, data interface)
-├── oRunner  ─┐
-├── oTeam     ├─ both extend oAbstractRunner (shared result logic)
-├── oClass
-├── oClub
-├── oCourse
-├── oControl
-├── oCard
-├── oFreePunch
-└── oPunch
-```
+See [src/AGENTS.md](src/AGENTS.md) for detailed conventions and architectural guidelines.
 
 ## Conventions
 
@@ -48,7 +38,7 @@ oBase (abstract base: ID, change tracking, data interface)
 
 ### Includes & Casing
 
-**Every `#include "..."` directive MUST match the exact filename casing on disk.** This is required for compatibility with Linux and other case-sensitive filesystems. All legacy code in `code/` has been fixed to follow this convention. Run `python3 verify_includes.py` to confirm.
+**Every `#include "..."` directive MUST match the exact filename casing on disk.** This is required for compatibility with Linux and other case-sensitive filesystems. All code in `src/` follows this convention.
 
 ### Strings
 
@@ -65,8 +55,6 @@ Wide strings (`wstring`) are the primary string type (Swedish/internationalized 
 - `recodeToWide(const string&)`: `defaultCodePage` to `wstring` (for external data)
 - `recodeToNarrow(const wstring&)`: `wstring` to `defaultCodePage`
 
-**Legacy `gdioutput` static methods still exist but are thin wrappers.** Avoid adding new dependencies on `gdioutput.h` if you only need string utilities.
-
 ### Portable String Functions
 
 **Always use standard C++ or portable wrappers from `meos_util.h` instead of Win32-specific string functions:**
@@ -77,8 +65,6 @@ Wide strings (`wstring`) are the primary string type (Swedish/internationalized 
 - Use `std::wcstod` instead of `_wtof`.
 - Use `std::wcstoll` instead of `_wtoi64`.
 - Use `itow(int)` or `itos(int)` for simple integer to string conversions (returns `wstring`/`string`).
-
-Legacy string functions have been replaced in all domain files to ensure cross-platform compatibility.
 
 ### Error handling
 
@@ -95,13 +81,13 @@ Custom exception `meosException` (with `wwhat()` for wide-string messages) and `
 
 The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite.
 
-**The CMake build system (`CMakeLists.txt` in project root) is now implemented and supports building a minimal executable on Linux using vcpkg.**
+**The CMake build system (`CMakeLists.txt` in project root) supports building modules as static libraries on Linux using vcpkg.**
 
 ### Iterative Migration Approach
 
 The migration is **run from scratch repeatedly** by Ralph (an autonomous agent loop in `plan/ralph.sh`). Each full attempt is analyzed, the PRD/skills/prompts are improved, and the migration is run again. The generated code is disposable — only the learnings persist across runs.
 
-**This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos).** We sync with upstream before each migration run. The legacy code in `code/` is therefore **not static** — do not make assumptions about exact file contents, line numbers, or function signatures. Always read and discover code structure dynamically.
+**This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos).** We sync with upstream before each migration run. The source code in `src/` is therefore **not static** — do not make assumptions about exact file contents, line numbers, or function signatures. Always read and discover code structure dynamically.
 
 **Key files for the migration loop:**
 

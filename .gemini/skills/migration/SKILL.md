@@ -19,14 +19,15 @@ This skill contains accumulated knowledge, patterns, gotchas, and useful scripts
 
 | Legacy | Modern | Purpose |
 |--------|--------|---------|
-| `code/` (flat) | `src/app/` | Application entry point |
+| `code/` (flat) | `src/app/` | Application entry point, resources, lang |
 | `code/` | `src/domain/` | Core domain entities (`oRunner`, `oClass`, etc.) |
 | `code/` | `src/net/` | Networking, REST API |
-| `code/` | `src/db/` | Database (SQLite) |
-| `code/` | `src/util/` | Utilities, parsers, cross-platform helpers |
-| `code/` | `src/io/` | File I/O, import/export |
+| `code/` | `src/db/` | Database (SQLite/MySQL wrapper) |
+| `code/` | `src/util/` | Utilities, stubs, platform shims |
+| `code/` | `src/io/` | File I/O, import/export, printing |
+| `code/` | `src/ui/` | Legacy Win32/GDI code |
 
-Each module is a **static library**. Bare `#include` works within modules via `target_include_directories(... PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})`.
+Each module is a **static library**. Bare `#include` works within modules via common include paths in `CMakeLists.txt`.
 
 ### Domain Model
 
@@ -242,17 +243,15 @@ cmake --build --preset default 2>&1 | grep -E 'error:' | sed 's/.*error://' | so
 
 ## Migration Status
 
-### Migrated to `src/`
-- **util**: meos_util, meosexception, xmlparser, csvparser, TimeStamp, timeconstants, localizer, inthashmap, intkeymap, random, win_types, common_enums, SICard (stub)
-- **domain**: oBase, oDataContainer, oControl, oPunch, oClub, oRunner, oClass, oCourse, oTeam, oCard, oFreePunch, oEvent (skeleton), RunnerDB, MeosSQL, generalresult, metalist, oListInfo, classconfiginfo, datadefiners, domain_header
-- **db**: SQLiteDatabase (with migration system)
+### Layout established in `src/`
+- **All files** moved from `code/` to respective `src/` modules.
+- **Root CMakeLists.txt** defines all modules as static libraries.
+- **Resources** (images, lang) moved to `src/app/resources` and `src/app/lang`.
 
-### Not Yet Migrated
-- **net**: RestService, RestServer
-- **io**: IOF XML, CSV export, PDF generation
-- **hw**: SportIdent reader protocol
-- **ui**: gdioutput, all Tab* classes, speaker system
-- **print**: PDF/print subsystem (libharu)
+### Building on Linux (Minimal)
+- **util**: StdAfx, gdioutput_stub, meos_stubs, random, TimeStamp, binencoder, utm.
+- **app**: main_linux.
+- **Other modules**: Currently use dummy source files to satisfy CMake while waiting for full migration of their content.
 
 ## Known Gotchas
 
