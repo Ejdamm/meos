@@ -85,6 +85,18 @@ oControl::oControl(oEvent* poe, int id) : oBase(poe)
   tNumberDuplicates = 0;
 }
 
+void oControl::merge(const oBase &input, const oBase *base) {
+  const oControl &src = dynamic_cast<const oControl&>(input);
+  if (src.Name.length() > 0)
+    setName(src.Name);
+  setNumbers(src.codeNumbers());
+  setStatus(src.getStatus());
+  if (getDI().merge(input, base))
+    updateChanged();
+
+  synchronize(true);
+}
+
 oControl::~oControl()
 {
 }
@@ -276,8 +288,7 @@ wstring oControl::codeNumbers(char sep) const
   wchar_t bf[16];
 
   for(int i=0;i<nNumbers;i++){
-    swprintf(bf, 16, L"%d", Numbers[i]);
-    n+=bf;
+    n += itow(Numbers[i]);
     if (i+1<nNumbers)
       n+=sep;
   }
@@ -340,10 +351,8 @@ const wstring &oControl::getName() const {
 
 /// Get name or [id]
 const wstring &oControl::getDefaultName() const {
-  wchar_t bf[16];
-  swprintf(bf, sizeof(bf) / sizeof(wchar_t), L"[%d]", Id);
   wstring &res = StringCache::getInstance().wget();
-  res = bf;
+  res = L"[" + itow(Id) + L"]";
   return res;
 }
 
@@ -353,9 +362,7 @@ wstring oControl::getIdS() const
 	if (!Name.empty())
 		return Name;
 	else {
-		wchar_t bf[16];
-		swprintf(bf, sizeof(bf) / sizeof(wchar_t), L"%d", Id);
-		return bf;
+		return itow(Id);
 	}
 }
 

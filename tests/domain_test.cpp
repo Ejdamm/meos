@@ -1,8 +1,15 @@
 #include <gtest/gtest.h>
+
+#define protected public
+#define private public
 #include "oBase.h"
 #include "oDataContainer.h"
 #include "oEvent.h"
+#include "oControl.h"
+#include "oPunch.h"
 #include "gdioutput.h"
+#undef protected
+#undef private
 
 // Minimal oBase implementation for testing
 class TestObject : public oBase {
@@ -58,4 +65,41 @@ TEST(oDataContainerTest, StringAccess) {
     TestObject obj(nullptr, dc);
     obj.getDI().setString("TestString", L"Hello MeOS");
     EXPECT_EQ(obj.getDCI().getString("TestString"), L"Hello MeOS");
+}
+
+TEST(oControlTest, BasicProperties) {
+    gdioutput gdi("test", 1.0);
+    oEvent oe(gdi);
+    
+    // oControlData needs to be initialized with variables used by oControl
+    oe.oControlData->addVariableInt("TimeAdjust", oDataContainer::oIS32, "Time Adjustment");
+    oe.oControlData->addVariableInt("MinTime", oDataContainer::oIS32, "Minimum Time");
+    oe.oControlData->addVariableInt("Rogaining", oDataContainer::oIS32, "Rogaining Points");
+    oe.oControlData->addVariableInt("Radio", oDataContainer::oIS32, "Radio Control");
+
+    oControl ctrl(&oe, 101);
+    ctrl.setName(L"Control 101");
+    EXPECT_EQ(ctrl.getName(), L"Control 101");
+    EXPECT_EQ(ctrl.getId(), 101);
+    
+    ctrl.setNumbers(L"101,102");
+    vector<int> numbers;
+    ctrl.getNumbers(numbers);
+    ASSERT_EQ(numbers.size(), 2);
+    EXPECT_EQ(numbers[0], 101);
+    EXPECT_EQ(numbers[1], 102);
+}
+
+TEST(oPunchTest, BasicProperties) {
+    gdioutput gdi("test", 1.0);
+    oEvent oe(gdi);
+    
+    oPunch punch(&oe);
+    punch.setPunchUnit(31);
+    punch.type = oPunch::PunchStart;
+    punch.setTimeInt(1000, false);
+    
+    EXPECT_EQ(punch.getPunchUnit(), 31);
+    EXPECT_EQ(punch.getTypeCode(), oPunch::PunchStart);
+    EXPECT_EQ(punch.getTimeInt(), 1000);
 }

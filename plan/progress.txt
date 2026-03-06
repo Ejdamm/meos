@@ -218,3 +218,28 @@
 ---
 
 ## US-003a (41m14s)
+
+## fre  6 mar 2026 20:30:00 CET - US-003b
+- Migrated oControl and oPunch to the domain module build.
+- Moved SpecialPunch enum to domain_header.h.
+- Replaced swprintf with itow in oControl.cpp.
+- Added comprehensive stubs in domain_module.cpp.
+- Implemented merge methods in entity files.
+- Added unit tests in tests/domain_test.cpp.
+- **Learnings for future iterations:**
+  - oEvent methods are scattered; grep everything.
+  - Stubbing needs full virtual method coverage for vtables.
+  - Protected access hack works for legacy tests.
+---
+
+## US-003b (67m58s)
+
+## iteration-6 (12m55s)
+
+## iteration-7 (0m12s)
+
+## iteration-8 (2m57s)
+
+## iteration-9 (1m11s)
+
+## iteration-10 (0m08s)

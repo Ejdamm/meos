@@ -16,6 +16,8 @@ class xmlparser;
 class xmlobject;
 
 // Common enums
+enum SpecialPunch { PunchUnused = 0, PunchStart = 1, PunchFinish = 2, PunchCheck = 3, HiredCard = 11111 };
+
 enum class ChangeType {
   Quiet,
   Update

@@ -45,6 +45,10 @@ oPunch::oPunch(oEvent* poe) : oBase(poe) {
   tIndex = -1;
 }
 
+void oPunch::merge(const oBase &input, const oBase *base) {
+  // Not implemented
+}
+
 oPunch::~oPunch() = default;
 
 wstring oPunch::getInfo() const

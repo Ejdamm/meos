@@ -275,13 +275,18 @@ cmake --build --preset default 2>&1 | grep -E 'error:' | sed 's/.*error://' | so
 
 ### Building on Linux (Minimal)
 - **util**: StdAfx, gdioutput_stub, meos_stubs, random, TimeStamp, binencoder, utm, meos_util, xmlparser, csvparser, localizer, owordlist.
+- **domain**: domain_module, oBase, oDataContainer, oControl, oPunch.
 - **app**: main_linux.
 - **Other modules**: Currently use dummy source files to satisfy CMake while waiting for full migration of their content.
 
 ## Known Gotchas
 
 0. **Legacy code is not static.** This is a fork that syncs with upstream. File contents, line numbers, function signatures, and even file names may change between migration runs. Always discover code structure dynamically rather than hardcoding assumptions.
-1. **CMake static libs need at least one source file** — use `*_dummy.cpp` placeholder.
+1. **oEvent Method Scattering**: `oEvent` method implementations are often scattered across other domain entity files (e.g., `oEvent::fillControls` is in `oControl.cpp`). Always search the entire domain directory when looking for a method definition.
+2. **Heavy Virtual Stubbing**: When stubbing heavily coupled classes like `oRunner` or `oTeam` to link a subset of the domain, you must implement ALL non-inline virtual methods declared in their headers to avoid missing vtable errors.
+3. **Protected Member Access in Tests**: For unit testing legacy classes, using `#define protected public` before including headers can be an effective way to access internal state without modifying the original code too much.
+4. **SpecialPunch Enum**: Moved to `domain_header.h` to break circular dependencies between `oPunch`, `oControl`, and other domain entities.
+5. **CMake static libs need at least one source file** — use `*_dummy.cpp` placeholder.
 2. **GTest integration**: Need `find_package(GTest CONFIG REQUIRED)` + link `GTest::gtest GTest::gtest_main`.
 3. **`enable_testing()`** must be in top-level `CMakeLists.txt`.
 4. **StringCache** needs constructor for proper initialization (caused SegFault without it).

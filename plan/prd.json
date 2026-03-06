@@ -222,7 +222,7 @@
       "id": "US-003b",
       "title": "Simple entities — oControl, oPunch",
       "description": "As a developer, I want the simplest domain entities with fewest external dependencies migrated to src/domain/.",
-      "acceptanceCriteria": [
+      "acceptance_criteria": [
         "oControl.h/cpp and oPunch.h/cpp migrated to src/domain/",
         "SpecialPunch enum moved to domain_header.h to avoid circular deps",
         "Win32 string functions replaced with meos_util equivalents",
@@ -231,8 +231,9 @@
         "Typecheck passes"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": ""
+
     },
     {
       "id": "US-003c",
