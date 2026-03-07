@@ -1,0 +1,96 @@
+{
+  "project": "MeOS Legacy Code Preparation",
+  "description": "Preparatory refactoring of the legacy code/ directory to fix cross-platform blockers, reduce GUI coupling, and replace Win32-specific APIs before migrating to the new src/ modular layout.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Fix Include Case Sensitivity",
+      "description": "Normalize all #include directives so the quoted filename matches the actual filename on disk. Windows is case-insensitive; Linux is not — mismatches cause build failures on Linux.",
+      "acceptanceCriteria": [
+        "Every #include \"...\" directive in code/ uses exactly the same casing as the file on disk",
+        "A verification pass (grep + ls comparison) confirms zero case mismatches",
+        "Only .h and .cpp files in code/ are modified",
+        "No behavioral changes — refactoring only"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Extract Utility Functions from gdioutput",
+      "description": "Move non-GUI utility functions (widen, narrow, toUTF8, fromUTF8) out of gdioutput.h/cpp to meos_util.h/cpp so domain files can drop the GUI dependency.",
+      "acceptanceCriteria": [
+        "widen(), narrow(), toUTF8(), fromUTF8() are defined in meos_util.h/cpp (or a new string_util.h/cpp)",
+        "gdioutput.h retains thin wrappers, using declarations, or re-includes so existing callers don't break",
+        "Domain files that only needed these string utilities no longer directly include gdioutput.h",
+        "No behavioral changes — refactoring only"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Replace Win32-Specific String Functions in Domain Code",
+      "description": "Replace Windows-only string functions (_wtoi, sprintf_s, swprintf_s, _itow_s) with standard C++ equivalents in domain files.",
+      "acceptanceCriteria": [
+        "No direct calls to _wtoi, sprintf_s, swprintf_s, or _itow_s in domain .cpp/.h files (oEvent*, oRunner, oClass, oClub, oCourse, oControl, oCard, oTeam, oDataContainer, oBase, oFreePunch, and similar domain files)",
+        "Replacements use standard C++ (<cstdlib>, <string>, <cwchar>): _wtoi -> std::stoi or wcstol; sprintf_s -> snprintf; swprintf_s -> swprintf; _itow_s -> std::to_wstring or swprintf",
+        "UI files (Tab*, gdioutput) are NOT modified",
+        "No behavioral changes — refactoring only"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Replace Win32 Types with Standard Types in Domain Code",
+      "description": "Replace Win32-specific type aliases (DWORD, BOOL) with standard C++ types in domain code.",
+      "acceptanceCriteria": [
+        "No DWORD usage in domain .cpp/.h files — replaced with uint32_t (or unsigned int/int depending on context)",
+        "No Win32 BOOL usage in domain .cpp/.h files — replaced with bool (check for TRUE/FALSE comparisons)",
+        "#include <cstdint> added where needed for uint32_t",
+        "UI files (Tab*, gdioutput) are NOT modified",
+        "No behavioral changes — refactoring only"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Normalize Path Separators in Domain Code",
+      "description": "Replace hardcoded backslash path separators with cross-platform alternatives using std::filesystem::path in domain code.",
+      "acceptanceCriteria": [
+        "Domain files use std::filesystem::path or portable path construction instead of hardcoded backslash separators",
+        "Hardcoded backslash path separators (non-escape-sequence uses) are replaced in domain files",
+        "#include <filesystem> added where needed",
+        "Escape sequences in strings (e.g. \\n, \\t) are NOT modified — only path separators",
+        "UI files (Tab*, gdioutput) are NOT modified",
+        "No behavioral changes — refactoring only"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Decouple oEvent from Tab UI Classes",
+      "description": "Remove oEvent.cpp's direct coupling to Tab UI classes (TabList, TabAuto, TabSI) by replacing direct calls with std::function callbacks.",
+      "acceptanceCriteria": [
+        "oEvent.cpp no longer includes TabList.h, TabAuto.h, or TabSI.h",
+        "TabList::baseButtons() call in oEvent replaced with a std::function callback",
+        "TabAuto::tabAutoKillMachines() call in oEvent replaced with a std::function callback",
+        "TabSI::getSI().setSubSecondMode() call in oEvent replaced with a std::function callback",
+        "Tab classes register their callbacks during application initialization (e.g. in main() or startup code)",
+        "Callbacks stored as std::function members in oEvent",
+        "No behavioral changes — refactoring only"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
