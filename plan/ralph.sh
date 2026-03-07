@@ -12,6 +12,9 @@
 
 set -e
 
+# Clean exit on interrupt — don't write garbage to progress/metrics
+trap 'echo ""; echo "Ralph interrupted. No partial data written."; exit 130' INT TERM
+
 # Parse arguments
 TOOL="gemini"
 MAX_ITERATIONS=10
@@ -72,13 +75,14 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   # Snapshot stories that haven't passed yet (to detect which one gets completed)
   BEFORE_FAILING=$(jq -r '.userStories[] | select(.passes != true) | .id' "$PRD_FILE" 2>/dev/null | sort)
 
-  # Run the selected tool with the ralph prompt
+  # Run the selected tool with the ralph prompt (60 min timeout per iteration)
+  TIMEOUT=3600
   if [[ "$TOOL" == "claude" ]]; then
-    OUTPUT=$(claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/prompt.md" 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(timeout $TIMEOUT claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/prompt.md" 2>&1 | tee /dev/stderr) || true
   elif [[ "$TOOL" == "copilot" ]]; then
-    OUTPUT=$(copilot -p "$(cat "$SCRIPT_DIR/prompt.md")" --allow-all 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(timeout $TIMEOUT copilot -p "$(cat "$SCRIPT_DIR/prompt.md")" --allow-all 2>&1 | tee /dev/stderr) || true
   elif [[ "$TOOL" == "gemini" ]]; then
-    OUTPUT=$(gemini -p "$(cat "$SCRIPT_DIR/prompt.md")" -y 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(timeout $TIMEOUT gemini -p "$(cat "$SCRIPT_DIR/prompt.md")" -y 2>&1 | tee /dev/stderr) || true
   fi
 
   STEP_END=$(date +%s)

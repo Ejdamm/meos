@@ -4,7 +4,7 @@ You are an autonomous coding agent working on a software project.
 
 ## Migration Philosophy
 
-This migration is **iterative and disposable**. The entire migration will be run from scratch many times. After each full attempt, we analyze results to improve the PRD, skills, prompt.md, and ralph.sh — then run it again. Your output from this run **will be discarded**, but your **learnings will persist** across iterations via progress.txt, AGENTS.md, and skill files.
+This migration is **iterative and disposable**. The entire migration will be run from scratch many times. After each full attempt, we analyze results to improve the PRD, skills, prompt.md, and ralph.sh — then run it again. Your output from this run **will be discarded**, but your **learnings will persist** across iterations via plan/progress.txt, AGENTS.md, and skill files.
 
 **This means:**
 
@@ -15,19 +15,19 @@ This migration is **iterative and disposable**. The entire migration will be run
 
 ## Your Task
 
-1. Read the PRD at `prd.json` (in the same directory as this file)
-2. Read the progress log at `progress.txt` (check Codebase Patterns section first)
+1. Read the PRD at `plan/prd.json`
+2. Read the progress log at `plan/progress.txt` (check Codebase Patterns section first)
 3. Pick the **highest priority** user story where `passes: false`
 4. Implement that single user story
 5. Run quality checks (e.g., typecheck, lint, test - use whatever your project requires)
 6. Update AGENTS.md files if you discover reusable patterns (see below)
 7. If checks pass, commit ALL changes with message: `feat: [Story ID] - [Story Title]`
 8. Update the PRD to set `passes: true` for the completed story
-9. Append your progress to `progress.txt`
+9. Append your progress to `plan/progress.txt`
 
 ## Progress Report Format
 
-APPEND to progress.txt (never replace, always append):
+APPEND to plan/progress.txt (never replace, always append):
 ```
 ## [Date/Time] - [Story ID]
 - What was implemented
@@ -45,7 +45,7 @@ The learnings section is **the most valuable part of your output**. Remember: th
 
 ## Consolidate Patterns
 
-If you discover a **reusable pattern** that future iterations should know, add it to the `## Codebase Patterns` section at the TOP of progress.txt (create it if it doesn't exist). This section should consolidate the most important learnings:
+If you discover a **reusable pattern** that future iterations should know, add it to the `## Codebase Patterns` section at the TOP of plan/progress.txt (create it if it doesn't exist). This section should consolidate the most important learnings:
 
 ```
 ## Codebase Patterns
@@ -78,7 +78,7 @@ Before committing, check if any edited files have learnings worth preserving in 
 **Do NOT add:**
 - Story-specific implementation details
 - Temporary debugging notes
-- Information already in progress.txt
+- Information already in plan/progress.txt
 
 Only update AGENTS.md if you have **genuinely reusable knowledge** that would help future work in that directory.
 
@@ -88,7 +88,7 @@ Only update AGENTS.md if you have **genuinely reusable knowledge** that would he
 - Do NOT commit broken code
 - Keep changes focused and minimal
 - Follow existing code patterns
-- Keep `.gitignore` updated so that build artifacts, generated files, and other unnecessary files are not committed
+- **IMPORTANT:** Keep `.gitignore` updated so that build artifacts, generated files, and other unnecessary files are not committed. Check this BEFORE every commit.
 
 ## Stop Condition
 
@@ -99,23 +99,20 @@ If ALL stories are complete and passing, reply with:
 
 If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
 
-## Update Gemini Migration Skill
+## Update Gemini Skills
 
-After each completed story, update `.gemini/skills/migration.md` with any new migration knowledge:
+After each completed story, save reusable learnings and scripts to `.gemini/skills/`:
 
-1. **New patterns or gotchas** discovered during migration (add to relevant section)
-2. **Useful one-liners or scripts** you used or created (add to "Useful One-Liners & Scripts")
-3. **Migration status changes** — move items between "Migrated" and "Not Yet Migrated" sections
-4. **New Win32 → standard C++ replacements** (add to the replacement table)
-5. **Script results** — if a diagnostic script revealed useful info, include the output summary
-
-Keep the skill concise and actionable. This file is consumed by Gemini as a skill to assist with future migration work.
+- **Create or update skill files** (e.g., `.gemini/skills/migration.md`, `.gemini/skills/win32-replacements.md`) with patterns, gotchas, and migration knowledge
+- **Save reusable scripts** (e.g., `.gemini/skills/fix-includes.sh`, `.gemini/skills/check-platform-deps.py`) that automate repetitive or time-consuming tasks discovered during migration
+- **Keep skills focused** — one topic per file, concise and actionable
+- **Skills must be self-contained** — they survive across migration runs where all previously generated code is discarded. A skill must work without depending on files or changes from a previous run. Scripts should operate on the raw legacy codebase, not on migrated output.
 
 ## Important
 
 - Work on ONE story per iteration
 - Commit frequently
 - Keep CI green
-- Read the Codebase Patterns section in progress.txt before starting
-- Update `.gemini/skills/migration.md` with migration learnings after each story
+- Read the Codebase Patterns section in plan/progress.txt before starting
+- Update `.gemini/skills/` with migration learnings and reusable scripts after each story
 - **Never assume legacy code is static** — always read and parse it dynamically, as upstream changes may alter structure, signatures, or file contents between migration runs

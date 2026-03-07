@@ -19,14 +19,15 @@ This skill contains accumulated knowledge, patterns, gotchas, and useful scripts
 
 | Legacy | Modern | Purpose |
 |--------|--------|---------|
-| `code/` (flat) | `src/app/` | Application entry point |
+| `code/` (flat) | `src/app/` | Application entry point, resources, lang |
 | `code/` | `src/domain/` | Core domain entities (`oRunner`, `oClass`, etc.) |
 | `code/` | `src/net/` | Networking, REST API |
-| `code/` | `src/db/` | Database (SQLite) |
-| `code/` | `src/util/` | Utilities, parsers, cross-platform helpers |
-| `code/` | `src/io/` | File I/O, import/export |
+| `code/` | `src/db/` | Database (SQLite/MySQL wrapper) |
+| `code/` | `src/util/` | Utilities, stubs, platform shims |
+| `code/` | `src/io/` | File I/O, import/export, printing |
+| `code/` | `src/ui/` | Legacy Win32/GDI code |
 
-Each module is a **static library**. Bare `#include` works within modules via `target_include_directories(... PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})`.
+Each module is a **static library**. Bare `#include` works within modules via common include paths in `CMakeLists.txt`.
 
 ### Domain Model
 
@@ -55,65 +56,71 @@ Redefine common Win32 types in `src/util/win_types.h` for Linux compatibility:
 - String safe functions: `swprintf_s`, `snprintf_s`
 - Basic GUI types for stubs
 
+**Gotchas:**
+- **Incomplete Types**: Classes like `GDIImplFontEnum` and `GDIImplFontSet` must be defined (even if empty) rather than just forward-declared when used as value types in `std::vector` or `std::map` members on Linux/GCC.
+- **Missing Typedefs**: Ensure `INT`, `LPSIZE`, `LPOPENFILENAME`, and `LPBROWSEINFO` are defined in `win_types.h`.
+- **Macro Redefinitions**: Wrap Win32 resource IDs (like `IDD_SPLASH`) in `#ifndef` to avoid conflicts with `resource.h`.
+- **Macro vs Inline**: Prefer inline functions for Win32 API shims (like `OffsetRect`) to avoid issues with `return` statements and expression evaluation.
+
 ### 2. Header & Include Fixes
 
-- **Case sensitivity**: Windows is case-insensitive; Linux is not. Filenames like `StdAfx.h` vs `stdafx.h` break on Linux.
-
-**Known case mismatches in `code/` (146 total, fix before migration):**
-
-| Include as written | Actual filename | Count |
-|---|---|---|
-| `stdafx.h` | `StdAfx.h` | 89 |
-| `meosException.h` | `meosexception.h` | 15 |
-| `Localizer.h` | `localizer.h` | 15 |
-| `tabbase.h` | `TabBase.h` | 14 |
-| `table.h` | `Table.h` | 3 |
-| `Download.h` | `download.h` | 3 |
-| `oSpeaker.h` | `ospeaker.h` | 2 |
-| `oclub.h` | `oClub.h` | 1 |
-| `runnerdb.h` | `RunnerDB.h` | 1 |
-| `MetaList.h` | `metalist.h` | 1 |
-| `IOF30Interface.h` | `iof30interface.h` | 1 |
-| `ClassConfigInfo.h` | `classconfiginfo.h` | 1 |
-
-- **Batch fix** includes with sed:
-  ```bash
-  # Fix stdafx.h includes across migrated files
-  find src/ -name '*.cpp' -o -name '*.h' | xargs sed -i 's/#include "stdafx.h"/#include "win_types.h"/gI'
-
-  # Find case-mismatched includes
-  grep -rn '#include "' src/ | while read line; do
-    file=$(echo "$line" | sed 's/.*#include "\([^"]*\)".*/\1/')
-    dir=$(dirname "$(echo "$line" | cut -d: -f1)")
-    if [ ! -f "$dir/$file" ]; then echo "MISSING: $line"; fi
-  done
-  ```
+- **Case sensitivity**: Windows is case-insensitive; Linux is not. Filenames like `StdAfx.h` vs `stdafx.h` break on Linux. Fix all case mismatches in `code/` before migrating (there are ~147 known mismatches).
+- **Verification**: After fixing, verify zero case mismatches for `#include "..."` directives by scanning `code/` and comparing against actual filenames on disk.
 
 ### 3. String Conversions
 
 - Wide strings (`wstring`) are primary (Swedish/internationalized UI).
 - Narrow `string` for internal/config data.
-- Use `narrow()` and `widen()` from `meos_util.h` for conversions.
-- `string2Wide()` / `wide2String()` support UTF-8 via `codecvt`.
+- **Use global string utility functions from `meos_util.h` for conversions:**
+  - `widen(const string&)`: Windows-1252 to `wstring` (standard MeOS conversion)
+  - `narrow(const wstring&)`: `wstring` to `string` (simple truncation)
+  - `toUTF8(const wstring&)`: `wstring` to UTF-8 `string`
+  - `fromUTF8(const string&)`: UTF-8 `string` to `wstring`
+  - `recodeToWide(const string&)`: `defaultCodePage` to `wstring` (for external data)
+  - `recodeToNarrow(const wstring&)`: `wstring` to `defaultCodePage`
+- These return references to strings in `StringCache` for efficiency/brevity.
+- **Note**: In legacy code, these functions exist as static methods on `gdioutput`. Extract them to global functions in `meos_util.h` and replace all static/member calls across the legacy codebase. `gdioutput` methods become thin wrappers for backward compatibility.
 
-Replace Win32-specific:
+### 4. Win32 API Replacement Table
+
 | Win32 | Standard C++ replacement |
 |-------|--------------------------|
-| `_itow_s` | `std::to_wstring` |
+| `_itow_s` | `swprintf(buf, size, L"%d", val)` |
 | `sprintf_s` | `snprintf` |
-| `swprintf_s` | `swprintf` (shimmed) |
-| `_stricmp` | `strcasecmp` (POSIX) |
-| `_wcsicmp` | `wcscasecmp` (POSIX) |
+| `swprintf_s` | `swprintf` |
+| `_stricmp` / `_wcsicmp` | `compareStringIgnoreCase(a, b)` |
+| `lstrcmpi` | `compareStringIgnoreCase(a, b)` |
+| `_wtoi` | `(int)std::wcstol(str, nullptr, 10)` |
+| `_wtof` | `std::wcstod(str, nullptr)` |
+| `_wtoi64` | `(long long)std::wcstoll(str, nullptr, 10)` |
 | `MultiByteToWideChar` | `codecvt` / `widen()` |
+| `CharLowerBuff` | `towlower(wchar_t)` in a loop |
+| `FindResource` / `LoadResource` | `std::ifstream` + predefined search paths |
+| `_wsopen_s` / `_read` / `_write` | `std::ifstream` / `std::ofstream` (binary mode) |
+| `OffsetRect` | `inline BOOL OffsetRect(LPRECT lprc, int dx, int dy)` |
+| `_wsplitpath_s` / `_splitpath_s` | `std::filesystem::path` methods: `.stem()`, `.extension()`, `.filename()`, `.parent_path()` |
+| `GetFileAttributes` | `std::filesystem::exists` |
 
-### 4. Circular Dependency Management
+Replace all Win32-specific function calls (`_wtoi`, `sprintf_s`, `swprintf_s`, `_itow_s`, `_wtoi64`, `_wtof`, `_stricmp`, `_wcsicmp`, `lstrcmpi`) with standard C++ equivalents in domain files (`o*.cpp/h`, `generalresult.cpp/h`, `metalist.cpp/h`, `datadefiners.h`).
 
-- Move shared enums to `domain_header.h` or `src/util/common_enums.h`.
-- Use forward declarations heavily.
-- Template implementation files (`*impl.hpp`) must be included at the end of their headers.
-- `SpecialPunch` enum was moved to `domain_header.h` to break circular deps.
+Replace all Win32 types (`DWORD`, `BOOL`, `WORD`, `BYTE`, `LPWSTR`, `LPCWSTR`) with standard C++ types (`uint32_t`, `bool`, `uint16_t`, `uint8_t`, `wchar_t*`, `const wchar_t*`) in domain files. Add `#include <cstdint>` to headers using these types.
 
-### 5. Heavy Stubbing Strategy
+### 5. Path Separators
+
+- **Use `std::filesystem::path`** for all path manipulations and construction. Alias as `path` in `StdAfx.h`.
+- Replace `path += L"\\file.ext"` with `(std::filesystem::path(path) / L"file.ext").wstring()`.
+- Replace `GetFileAttributes` with `std::filesystem::exists`.
+- Use forward slashes (`/`) in hardcoded path string literals: `L"./../Lists/"`.
+- Check for both separators where needed: `if (c == '/' || c == '\\')`.
+- Normalize the ~47 hardcoded backslash (`\\`) path strings found in files like `meos.cpp`, `zip.cpp`, `oClub.cpp`, `oEvent.cpp`, `oEventSpeaker.cpp`.
+
+### 6. Circular Dependency Management
+
+- Move shared enums (e.g., `SpecialPunch`) to `domain_header.h` or `src/util/common_enums.h` to break circular deps between domain entities.
+- Use forward declarations heavily in `domain_header.h` to reduce circular dependencies between `oBase`, `oDataContainer`, `oEvent`, and UI classes.
+- Template implementation files (`*impl.hpp`) must be included at the end of their headers (e.g., `intkeymap.hpp` includes `intkeymapimpl.hpp`).
+
+### 7. Heavy Stubbing Strategy
 
 The codebase is **extremely coupled**. Migrating one class often requires stubbing many others:
 
@@ -121,72 +128,82 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 - Stub unmigrated domain entities in `src/domain/` (minimal `.h` with just enough API)
 - `oEvent.h` needs extensive stubbing — it touches everything
 - `oRunner` is ~230KB; use simplified implementation initially
+- **Foundation Stubs**: Provide minimal implementations for heavily used methods of `oEvent`, `gdioutput`, and `Table` in `domain_module.cpp` to allow the domain library and its tests to link without pulling in the entire UI/Server layer.
 
-### 5b. GUI Coupling in Domain Files (fix before migration)
+### 8. GUI Coupling in Domain Files
 
 9 of 11 domain files include `gdioutput.h` directly. Some only need it for non-GUI utility functions:
 
-**Domain files including GUI headers:**
-
 | File | gdioutput.h | Table.h | Tab*.h |
 |---|---|---|---|
-| oRunner.cpp | ✅ | ✅ | — |
-| oEvent.cpp | ✅ | ✅ | TabBase, TabAuto, TabSI, TabList |
-| oClass.cpp | ✅ | ✅ | — |
-| oControl.cpp | ✅ | ✅ | — |
-| oCard.cpp | ✅ | ✅ | — |
-| oClub.cpp | ✅ | ✅ | — |
-| oCourse.cpp | ✅ | ✅ | — |
-| oTeam.cpp | ✅ | ✅ | — |
-| oFreePunch.cpp | ✅ | ✅ | — |
+| oRunner.cpp | yes | yes | — |
+| oEvent.cpp | yes | yes | TabBase, TabAuto, TabSI, TabList |
+| oClass.cpp | yes | yes | — |
+| oControl.cpp | yes | yes | — |
+| oCard.cpp | yes | yes | — |
+| oClub.cpp | yes | yes | — |
+| oCourse.cpp | yes | yes | — |
+| oTeam.cpp | yes | yes | — |
+| oFreePunch.cpp | yes | yes | — |
 | oBase.cpp | — | — | — |
 | oPunch.cpp | — | — | — |
 
-**Non-GUI utility functions living in gdioutput (extract to meos_util before migration):**
-- `gdioutput::widen()` — used in oEvent.cpp, oEventResult.cpp
-- `gdioutput::narrow()` — used in oRunner.cpp
-- `gdioutput::toUTF8()` — used in oEvent.cpp
-- `gdioutput::fromUTF8()` — used in oEvent.cpp
+**Strategy**: Extract non-GUI utility functions (string conversions) from `gdioutput` to `meos_util.h` as globals. Files that only used those functions (e.g., `machinecontainer.cpp`, `infoserver.cpp`) can then drop the `gdioutput.h` include.
 
-**Win32-specific functions in domain files (~58 calls):**
-- `oDataContainer.cpp`: 38 uses (`swprintf_s`, `_itow_s`)
-- `oClass.cpp`: 24 uses (mixed string operations)
-- `oEventSQL.cpp`: 13 uses (`swprintf_s`)
-- `oRunner.cpp`: 10 uses (`_wtoi`)
-- `oEvent.cpp`: 7 uses (`_wtoi`)
+### 9. oEvent → Tab* Direct Coupling
 
-**Win32 types in domain code (~90 uses):**
-- `DWORD` (~50 uses) — replace with `uint32_t`
-- `BOOL` (~30 uses) — replace with `bool`
+`oEvent.cpp` has direct calls into UI Tab classes that must be decoupled:
 
-**Path separators:** ~47 hardcoded backslash (`\\`) in file path strings (meos.cpp, zip.cpp, oClub.cpp, oEvent.cpp).
+| Call | Purpose | Replacement strategy |
+|---|---|---|
+| `TabList::baseButtons(gdi, 1, false)` | Renders UI buttons in list view | Callback `std::function<void(gdioutput&, int, bool)>` registered by TabList |
+| `TabAuto::tabAutoKillMachines()` | Kills automatic timing machines | Callback `std::function<void()>` registered by TabAuto |
+| `TabSI::getSI(gdiBase()).setSubSecondMode(use)` | Sets SportIdent sub-second mode | Callback `std::function<void(bool)>` registered by TabSI |
 
-**oEvent → Tab* direct coupling (3 calls to remove before migration):**
+Expose callback typedefs (e.g., `BaseButtonsCallback`) on `oEvent.h` via `std::function`. UI classes register their callbacks during application initialization. This decouples the domain aggregate root from the UI layer.
 
-| Line (approx) | Call | Purpose | Replacement strategy |
-|---|---|---|---|
-| ~7670 | `TabList::baseButtons(gdi, 1, false)` | Renders UI buttons in list view | Callback `std::function<void(gdioutput&, int, bool)>` registered by TabList |
-| ~2700 | `TabAuto::tabAutoKillMachines()` | Kills automatic timing machines | Callback `std::function<void()>` registered by TabAuto |
-| ~5200 | `TabSI::getSI(gdiBase()).setSubSecondMode(use)` | Sets SportIdent sub-second mode | Callback `std::function<void(bool)>` registered by TabSI |
+### 10. Time Handling
 
-oEvent.h should expose registration methods (e.g., `setOnKillMachines(std::function<void()>)`) and Tab classes register during init.
+- **TimeStamp.h/cpp**: Modernize to use standard `snprintf`/`swprintf` and standard C++ types.
+- **timeconstants.hpp**: Centralize time-related constants (`timeUnitsPerSecond`, `timeConstSecPerHour`).
+- **Win32 Time Shims**:
+  - Shim `GetLocalTime`, `GetSystemTime` using `gettimeofday` and `localtime_r`/`gmtime_r`.
+  - **CRITICAL**: `SystemTimeToFileTime` and `FileTimeToSystemTime` must be timezone-independent to match Win32 behavior. Use `timegm` instead of `mktime` to avoid local timezone shifts during round-trips.
+- **Decoupling**: Utility classes like `TimeStamp` should not include heavy application headers like `meos.h`. Ensure they only depend on `StdAfx.h` and other necessary utilities.
+- **Custom Epoch**: MeOS uses a custom 32-bit unsigned epoch relative to 2014-01-01 for `TimeStamp::Time`. This fits ~136 years of seconds in a 32-bit integer.
 
-### 6. Redundant Overload Avoidance
+### 11. Redundant Overload Avoidance
 
 On 64-bit Linux, `unsigned long` == `uint64_t`. Avoid redundant overloads for:
 - `itos()` / `itow()` — don't provide both `unsigned long` and `uint64_t` versions
 
-### 7. Data Container Initialization
+### 12. Dependency Management (vcpkg)
 
-For domain object unit tests, ensure `oe->oControlData` (or relevant data container) is initialized before testing. The `oDataContainer` system requires explicit setup.
+- **libmysql**: Building `libmysql` from source via vcpkg can be fragile on Linux environments due to heavy dependencies and build tool requirements (e.g., specific `ninja` versions). If it fails, consider using `libmariadb` or system-provided MySQL client libraries, or stubbing MySQL functionality for minimal builds.
+- **Package Names**: Some vcpkg packages use `unofficial-` prefix for CMake targets (e.g., `unofficial-libharu`, `unofficial-minizip`).
+- **vcpkg toolchain**: `CMAKE_TOOLCHAIN_FILE` must point to `vcpkg/scripts/buildsystems/vcpkg.cmake`.
 
-### 8. Database Migration
+## Test Infrastructure
 
-- Always call `migrate()` after opening the database.
-- Use `IF NOT EXISTS` for all migration SQL.
-- Schema versioning via `_migrations` table.
+- **GTest**: `find_package(GTest CONFIG REQUIRED)` + link `GTest::gtest GTest::gtest_main`.
+- **Coverage**: Pass `-DCOVERAGE=ON` to CMake to enable `--coverage` flags for GCC/Clang.
+- **Stubs**: Heavy coupling often requires stubs in `src/util/meos_stubs.cpp` to make modules like `util` or `domain` compile in isolation.
+- **Data Container Initialization**: For domain object unit tests, ensure `oe->oControlData` (or relevant data container) is initialized before testing. The `oDataContainer` system requires explicit setup.
+- **`StringCache` Initialization**: Ensure `StringCache` (used by `meos_util` string functions) is initialized via its constructor; otherwise, `wget()`/`get()` will segfault on empty vectors.
+- **Protected Member Access**: For unit testing legacy classes, using `#define protected public` before including headers can be an effective way to access internal state without modifying the original code too much.
+- **`enable_testing()`** must be in top-level `CMakeLists.txt`.
 
-## Useful One-Liners & Scripts
+## Known Gotchas
+
+0. **Legacy code is not static.** This is a fork that syncs with upstream. File contents, line numbers, function signatures, and even file names may change between migration runs. Always discover code structure dynamically rather than hardcoding assumptions.
+1. **oEvent Method Scattering**: `oEvent` method implementations are often scattered across other domain entity files (e.g., `oEvent::fillControls` is in `oControl.cpp`). Always search the entire domain directory when looking for a method definition.
+2. **Heavy Virtual Stubbing**: When stubbing heavily coupled classes like `oRunner` or `oTeam` to link a subset of the domain, you must implement ALL non-inline virtual methods declared in their headers to avoid missing vtable errors.
+3. **CMake static libs need at least one source file** — use `*_dummy.cpp` placeholder.
+4. **Localization** uses `#` as separator for substitutions. Placeholders `X, Y, Z, W` must be in both key and translation.
+5. **Static members and globals** (like `lang`) need careful handling in modular builds.
+6. **oEvent.cpp** is massive — don't try full migration in one step. Use a minimal skeleton initially.
+
+## Useful Diagnostic Scripts
 
 ### Find all Win32 API calls in migrated code
 ```bash
@@ -223,7 +240,6 @@ find code/ -name '*.cpp' -o -name '*.h' | wc -l
 
 ### Compare class presence (legacy vs modern)
 ```bash
-# Find domain classes in legacy that haven't been migrated
 for cls in oRunner oTeam oClass oClub oCourse oControl oCard oFreePunch oPunch oEvent oBase; do
   legacy=$(find code/ -name "${cls}.*" 2>/dev/null | wc -l)
   modern=$(find src/ -name "${cls}.*" 2>/dev/null | wc -l)
@@ -240,29 +256,3 @@ cmake --build --preset default 2>&1 | tail -20 && ctest --preset default
 ```bash
 cmake --build --preset default 2>&1 | grep -E 'error:' | sed 's/.*error://' | sort | uniq -c | sort -rn | head -20
 ```
-
-## Migration Status
-
-### Migrated to `src/`
-- **util**: meos_util, meosexception, xmlparser, csvparser, TimeStamp, timeconstants, localizer, inthashmap, intkeymap, random, win_types, common_enums, SICard (stub)
-- **domain**: oBase, oDataContainer, oControl, oPunch, oClub, oRunner, oClass, oCourse, oTeam, oCard, oFreePunch, oEvent (skeleton), RunnerDB, MeosSQL, generalresult, metalist, oListInfo, classconfiginfo, datadefiners, domain_header
-- **db**: SQLiteDatabase (with migration system)
-
-### Not Yet Migrated
-- **net**: RestService, RestServer
-- **io**: IOF XML, CSV export, PDF generation
-- **hw**: SportIdent reader protocol
-- **ui**: gdioutput, all Tab* classes, speaker system
-- **print**: PDF/print subsystem (libharu)
-
-## Known Gotchas
-
-0. **Legacy code is not static.** This is a fork that syncs with upstream. File contents, line numbers, function signatures, and even file names may change between migration runs. Always discover code structure dynamically rather than hardcoding assumptions.
-1. **CMake static libs need at least one source file** — use `*_dummy.cpp` placeholder.
-2. **GTest integration**: Need `find_package(GTest CONFIG REQUIRED)` + link `GTest::gtest GTest::gtest_main`.
-3. **`enable_testing()`** must be in top-level `CMakeLists.txt`.
-4. **StringCache** needs constructor for proper initialization (caused SegFault without it).
-5. **Localization** uses `#` as separator for substitutions. Placeholders `X, Y, Z, W` must be in both key and translation.
-6. **Static members and globals** (like `lang`) need careful handling in modular builds.
-7. **oEvent.cpp** was replaced with minimal skeleton — don't try full migration in one step.
-8. **vcpkg toolchain**: `CMAKE_TOOLCHAIN_FILE` must point to `vcpkg/scripts/buildsystems/vcpkg.cmake`.
