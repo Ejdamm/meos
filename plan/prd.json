@@ -1,0 +1,307 @@
+{
+  "project": "MeOS Web Frontend",
+  "description": "React + TypeScript SPA that replaces MeOS's Win32/GDI desktop GUI. Communicates exclusively through the JSON REST API. Standalone project in src/ui/web/ with zero dependency on the legacy code/ directory.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Project scaffolding with Vite, React 18, and TypeScript",
+      "description": "As a developer, I need the project skeleton so that all subsequent stories have a working build environment.",
+      "acceptanceCriteria": [
+        "src/ui/web/ contains a working Vite + React 18 + TypeScript project",
+        "package.json includes react, react-dom, react-router-dom, typescript, vite, vitest, @testing-library/react, tailwindcss, and shadcn/ui (or @radix-ui) dependencies",
+        "tsconfig.json has strict mode enabled",
+        "vite.config.ts configures API proxy to http://localhost:2009 for /api paths",
+        "vite.config.ts sets production build output to dist/ directory",
+        ".gitignore excludes node_modules, dist, and build artifacts",
+        "index.html exists with root mount point",
+        "src/main.tsx renders a minimal React app",
+        "Tailwind CSS is configured and working",
+        "npm run build succeeds without errors",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "App shell with sidebar navigation and routing",
+      "description": "As a user, I want a navigation sidebar and tab-based routing so that I can switch between competition management views.",
+      "acceptanceCriteria": [
+        "App.tsx renders a layout with a persistent sidebar/navigation and a content area",
+        "React Router is configured with routes: /competition, /classes, /courses, /controls, /clubs, /runners, /teams, /results, /startlist",
+        "Each route renders a placeholder page component (separate file per page in src/pages/)",
+        "Navigation highlights the active route",
+        "Root path / redirects to /competition",
+        "Layout is responsive: sidebar collapses to a hamburger menu at widths below 768px",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "API client layer with TypeScript types and React hooks",
+      "description": "As a developer, I need typed API client functions and React hooks so that pages can fetch and mutate data through the REST API.",
+      "acceptanceCriteria": [
+        "src/api/types.ts defines TypeScript interfaces for: Competition, Class, Course, Control, Club, Runner, Team, Result, StartListEntry",
+        "src/api/client.ts exports typed fetch-based functions for all CRUD endpoints: GET/POST /api/v1/{entity}, GET/PUT/DELETE /api/v1/{entity}/{id}",
+        "src/api/client.ts also exports functions for: GET /api/v1/results, GET /api/v1/startlist, POST /api/v1/cards, POST /api/v1/runners/{id}/status",
+        "src/hooks/ contains custom React hooks (e.g., useClubs, useRunners) that wrap the API client with state management (loading, error, data)",
+        "API client handles errors consistently and returns typed responses",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Mock API with MSW for frontend-only development",
+      "description": "As a developer, I need mock API handlers so that I can develop and test the frontend without a running C++ backend.",
+      "acceptanceCriteria": [
+        "MSW (Mock Service Worker) is installed and configured",
+        "Mock handlers exist for all CRUD endpoints (clubs, controls, courses, classes, runners, teams)",
+        "Mock handlers exist for: GET /api/v1/competitions, PUT /api/v1/competitions, GET /api/v1/results, GET /api/v1/startlist",
+        "Each entity has realistic seed data (at least 5 items per entity type)",
+        "Mock handlers support GET (list + single), POST (create), PUT (update), DELETE operations with in-memory storage",
+        "MSW is activated in development mode via src/mocks/browser.ts",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "Reusable data table component with sorting, filtering, and pagination",
+      "description": "As a developer, I need a reusable table component so that all entity list views share consistent behavior.",
+      "acceptanceCriteria": [
+        "src/components/DataTable.tsx accepts typed column definitions and data array as props",
+        "Table supports column sorting (click header to toggle asc/desc)",
+        "Table supports text filtering/search across columns",
+        "Table supports pagination with configurable page size",
+        "Table renders responsively (horizontal scroll on small screens)",
+        "Table rows support an onClick handler for row selection",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Reusable form and dialog components with validation",
+      "description": "As a developer, I need reusable form components so that all CRUD forms have consistent validation and layout.",
+      "acceptanceCriteria": [
+        "src/components/ contains form primitives: FormField, FormInput, FormSelect, SearchableSelect",
+        "FormField displays label, input, and validation error message",
+        "SearchableSelect supports typeahead filtering of options",
+        "src/components/FormDialog.tsx renders a modal dialog for create/edit forms with save and cancel buttons",
+        "src/components/ConfirmDialog.tsx renders a confirmation dialog for delete operations",
+        "Form validation displays inline error messages for required fields",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Competition page",
+      "description": "As a competition organizer, I want to view and edit competition settings so that I can configure the event.",
+      "acceptanceCriteria": [
+        "Competition page at /competition displays competition details in a form",
+        "Form fields include: name, date, organizer, and other competition properties",
+        "Save button sends PUT /api/v1/competitions to update settings",
+        "Form validation shows errors for required fields",
+        "Success/error feedback is shown after save",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Classes page with CRUD",
+      "description": "As a competition organizer, I want to manage classes so that runners can be grouped by category.",
+      "acceptanceCriteria": [
+        "Classes page at /classes displays all classes in a DataTable",
+        "Table columns include: name, course assignment, start method",
+        "Create button opens a FormDialog to add a new class (POST /api/v1/classes)",
+        "Clicking a row opens the edit form (PUT /api/v1/classes/{id})",
+        "Delete button with ConfirmDialog removes a class (DELETE /api/v1/classes/{id})",
+        "Course assignment uses a dropdown populated from GET /api/v1/courses",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "Courses page with CRUD and control sequence",
+      "description": "As a competition organizer, I want to manage courses with their control sequences so that I can define the route runners must follow.",
+      "acceptanceCriteria": [
+        "Courses page at /courses displays all courses in a DataTable",
+        "Table columns include: name, length, number of controls",
+        "Create/edit form includes fields: name, length, and a control sequence builder",
+        "Control sequence builder allows adding, removing, and reordering controls from the available controls list",
+        "CRUD operations use the /api/v1/courses endpoints",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Controls page with CRUD",
+      "description": "As a competition organizer, I want to manage controls so that I can define the checkpoints on courses.",
+      "acceptanceCriteria": [
+        "Controls page at /controls displays all controls in a DataTable",
+        "Table columns include: code/number, type/status",
+        "Create button opens a FormDialog to add a new control",
+        "Edit and delete operations work via /api/v1/controls endpoints",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Clubs page with CRUD",
+      "description": "As a competition organizer, I want to manage clubs so that runners can be associated with their organizations.",
+      "acceptanceCriteria": [
+        "Clubs page at /clubs displays all clubs in a DataTable",
+        "Table columns include: name and any other club properties",
+        "Create button opens a FormDialog to add a new club",
+        "Edit and delete operations work via /api/v1/clubs endpoints",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Runners page with CRUD, search, and filtering",
+      "description": "As a competition organizer, I want to manage runners with search and filtering so that I can efficiently handle large competitor lists.",
+      "acceptanceCriteria": [
+        "Runners page at /runners displays all runners in a DataTable",
+        "Table columns include: name, club, class, start time, card number, status",
+        "Search/filter supports filtering by name, club, and class",
+        "Club and class fields in create/edit form use SearchableSelect dropdowns",
+        "CRUD operations use the /api/v1/runners endpoints",
+        "Table uses virtualized scrolling or pagination to handle 1000+ runners efficiently",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Teams page with CRUD and member management",
+      "description": "As a competition organizer, I want to manage teams and their members so that I can organize relay and team competitions.",
+      "acceptanceCriteria": [
+        "Teams page at /teams displays all teams in a DataTable",
+        "Table columns include: name, club, class, number of members",
+        "Create/edit form includes fields: name, club, class, and a member list",
+        "Member list allows adding and removing runners from the team",
+        "CRUD operations use the /api/v1/teams endpoints",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Runner import from CSV and IOF XML",
+      "description": "As a competition organizer, I want to import runners from CSV and IOF XML files so that I can quickly populate the competitor list.",
+      "acceptanceCriteria": [
+        "Import button on the Runners page opens an import dialog",
+        "Dialog supports file upload for CSV and IOF XML formats",
+        "CSV parsing happens client-side (using Papa Parse or similar)",
+        "IOF XML files are uploaded to the backend for server-side parsing",
+        "Preview step shows imported runners before confirmation with conflict detection (new vs. existing)",
+        "Invalid data rows are highlighted with error messages",
+        "Confirming the import sends the data to POST /api/v1/runners",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Bulk operations on runners",
+      "description": "As a competition organizer, I want to select multiple runners and perform bulk actions so that I can efficiently manage large competitions.",
+      "acceptanceCriteria": [
+        "Runner table has checkbox selection for individual and select-all",
+        "Bulk action toolbar appears when runners are selected, showing the count of selected runners",
+        "Bulk assign class: dropdown to pick a class, applies to all selected runners",
+        "Bulk assign start times: triggers a draw/assignment for selected runners",
+        "Bulk status change: dropdown to set status for all selected runners",
+        "Each bulk operation shows a confirmation dialog before executing",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Results and start list views",
+      "description": "As a competition organizer, I want to view results and start lists per class so that I can monitor competition progress.",
+      "acceptanceCriteria": [
+        "Results page at /results displays results grouped by class",
+        "Results include split times with standard orienteering formatting (time behind leader)",
+        "Start list page at /startlist displays start lists grouped by class",
+        "Class selector allows filtering results/start list to a specific class",
+        "Print-friendly CSS styles via @media print produce clean output",
+        "Data is fetched from GET /api/v1/results and GET /api/v1/startlist",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Live results with auto-refresh",
+      "description": "As a competition organizer, I want results to auto-update so that I can monitor the competition in real time.",
+      "acceptanceCriteria": [
+        "Results page has a 'Live' toggle button to enable auto-refresh",
+        "When enabled, results are re-fetched via polling at a configurable interval (default 10 seconds)",
+        "Recently changed rows are highlighted with a fade animation",
+        "Refresh interval is configurable via a settings control on the results page",
+        "A visual indicator shows when live mode is active and the time since last refresh",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Results and start list export",
+      "description": "As a competition organizer, I want to export results and start lists so that I can share them externally.",
+      "acceptanceCriteria": [
+        "Results page has export buttons for CSV and IOF XML formats",
+        "Start list page has export buttons for CSV and IOF XML formats",
+        "CSV export is generated client-side and triggers a file download",
+        "IOF XML export calls a backend endpoint and triggers a file download",
+        "Export filenames include the competition name and date",
+        "Typecheck passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
