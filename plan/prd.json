@@ -1,0 +1,116 @@
+{
+  "project": "MeOS Build Infrastructure",
+  "description": "Build system, test infrastructure, and CI/CD pipeline for the MeOS modernization. Sets up CMake, vcpkg, Google Test, Vitest, and GitHub Actions on an empty project skeleton with no dependency on legacy code/.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "CMake Build System with vcpkg Integration",
+      "description": "As a developer, I want a CMake build system skeleton with vcpkg dependency management so that the project compiles on any platform.",
+      "acceptanceCriteria": [
+        "Top-level CMakeLists.txt exists with cmake_minimum_required(VERSION 3.25) and project(meos) declaration",
+        "CMakePresets.json exists with configure and build presets for both Debug and Release configurations",
+        "vcpkg.json manifest exists at project root declaring external dependencies (at minimum an empty dependencies array)",
+        "vcpkg toolchain file is integrated via CMAKE_TOOLCHAIN_FILE in CMakePresets.json",
+        "Minimal src/main.cpp exists (int main() { return 0; }) and is built as an executable target named 'meos'",
+        "Empty module library targets exist with CMakeLists.txt in src/domain/ and src/util/ (each with at least a placeholder .cpp file so they compile)",
+        "Top-level CMakeLists.txt uses add_subdirectory() to include src/domain/ and src/util/",
+        "Precompiled headers configured via target_precompile_headers() with common STL headers (string, vector, map, memory)",
+        ".gitignore includes build/, out/, vcpkg_installed/, and CMake generated files",
+        "cmake --preset default configures without errors",
+        "cmake --build --preset default compiles without errors"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "C++ Test Infrastructure with Google Test",
+      "description": "As a developer, I want Google Test integrated into the CMake build so that migration stories can immediately add C++ unit tests.",
+      "acceptanceCriteria": [
+        "gtest is declared as a dependency in vcpkg.json",
+        "CMake option BUILD_TESTING is available and defaults to ON",
+        "enable_testing() is called in the top-level CMakeLists.txt",
+        "Test executable targets exist per module: test_domain (in tests/domain/) and test_util (in tests/util/)",
+        "Each test target links against GTest::gtest_main and its corresponding module library",
+        "At least one smoke test per module exists (e.g. TEST(Smoke, Compiles) { EXPECT_TRUE(true); })",
+        "ctest discovers and runs all test executables successfully",
+        "cmake --build --preset default compiles without errors",
+        "ctest --test-dir build --output-on-failure reports all tests passing"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Frontend Test Infrastructure with Vitest",
+      "description": "As a developer, I want Vitest configured for the React frontend so that frontend tests can be added by migration stories.",
+      "acceptanceCriteria": [
+        "src/ui/web/package.json exists with react, typescript, vitest, and @testing-library/react as dependencies",
+        "src/ui/web/tsconfig.json exists with strict TypeScript configuration and JSX support",
+        "src/ui/web/vitest.config.ts exists with React/JSX transform configured",
+        "At least one smoke test file exists (e.g. src/ui/web/src/__tests__/smoke.test.tsx) that passes",
+        "npm run test script in package.json runs vitest and exits successfully",
+        "Coverage reporting is configured via vitest config (provider: v8 or istanbul)",
+        "npm run build script exists (using vite or tsc) and succeeds",
+        "Typecheck passes (npx tsc --noEmit exits with code 0)"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Linting Configuration",
+      "description": "As a developer, I want linting configured for both C++ and TypeScript so that code quality is enforced consistently.",
+      "acceptanceCriteria": [
+        ".clang-tidy config file exists at project root with at least readability and modernize checks enabled",
+        ".clang-format config file exists at project root with a consistent style (e.g. BasedOnStyle: Google or LLVM)",
+        "src/ui/web/eslint.config.js (or .eslintrc.*) exists with TypeScript and React rules configured",
+        "src/ui/web/.prettierrc exists with consistent formatting rules",
+        "npm run lint script exists in src/ui/web/package.json and passes on existing code",
+        "npm run format:check script exists in src/ui/web/package.json for CI use",
+        "Typecheck passes (npx tsc --noEmit exits with code 0)"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "CI/CD Pipeline - C++ Build and Test",
+      "description": "As a developer, I want automated C++ builds and tests via GitHub Actions on every push and PR so that regressions are caught early.",
+      "acceptanceCriteria": [
+        ".github/workflows/cpp.yml exists and is valid YAML",
+        "Workflow triggers on push to main/master and on pull_request events",
+        "Matrix strategy builds on both ubuntu-latest and windows-latest",
+        "Workflow steps include: checkout, vcpkg bootstrap (via lukka/run-vcpkg or manual), cmake configure, build, and test",
+        "vcpkg dependencies are cached via actions/cache or lukka/run-vcpkg built-in caching",
+        "clang-tidy runs as a step (at least on the Linux matrix entry)",
+        "Build artifacts (compiled executables) are uploaded via actions/upload-artifact",
+        "Workflow YAML is syntactically valid (no duplicate keys, proper indentation)"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "CI/CD Pipeline - Frontend Build and Test",
+      "description": "As a developer, I want automated frontend builds, tests, and linting via GitHub Actions on every push and PR.",
+      "acceptanceCriteria": [
+        ".github/workflows/frontend.yml exists and is valid YAML",
+        "Workflow triggers on push to main/master and on pull_request events",
+        "Workflow runs in src/ui/web/ directory: npm ci, npm run lint, npm test, npm run build",
+        "Workflow uses a Node.js setup step (actions/setup-node) with a specified version",
+        "npm dependencies are cached (via actions/cache or actions/setup-node cache option)",
+        "Workflow fails if lint, test, or build steps fail",
+        "Workflow YAML is syntactically valid (no duplicate keys, proper indentation)"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
