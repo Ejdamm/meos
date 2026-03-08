@@ -1,0 +1,16 @@
+# Ralph Progress Log
+Started: sön  8 mar 2026 00:14:40 CET
+---
+## 2026-03-08 - US-001: Project scaffolding with Vite, React 18, and TypeScript
+- What was implemented:
+  - Created src/ui/web/ directory and initialized Vite + React 18 + TypeScript project.
+  - Installed dependencies: react@18, react-dom@18, react-router-dom, vitest, tailwindcss@4, radix-ui, lucide-react, etc.
+  - Configured vite.config.ts with API proxy to http://localhost:2009.
+  - Configured Tailwind 4 in src/index.css.
+  - Verified build and typecheck with npm run build.
+- **Learnings for future iterations:**
+  - Vite 7 + React 18 requires manual downgrading if the template defaults to React 19.
+  - Tailwind 4 simplifies configuration by using CSS imports and variables instead of tailwind.config.ts.
+  - npx create-vite@7 --template react-ts is a reliable way to scaffold the project without interactive prompts.
+  - shadcn/ui components can be built manually using Radix UI primitives and Tailwind 4 CSS variables to avoid complicated setup scripts.
+---

@@ -1,2 +1,9 @@
 build/
 build-release/
+node_modules/
+dist/
+src/ui/web/node_modules/
+src/ui/web/dist/
+.env
+.env.*
+!.env.example
