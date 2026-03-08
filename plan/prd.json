@@ -20,8 +20,8 @@
         "cmake --build --preset default compiles without errors"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "VCPKG_ROOT must be set to the vcpkg installation directory"
     },
     {
       "id": "US-002",

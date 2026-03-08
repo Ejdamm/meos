@@ -1,0 +1,30 @@
+# Ralph Progress Log
+Started: sön  8 mar 2026 00:14:24 CET
+---
+
+## Codebase Patterns
+- VCPKG_ROOT is at ~/vcpkg on this machine (not /usr/local/share/vcpkg)
+- CMakePresets.json uses `$env{VCPKG_ROOT}` for toolchain file path — set VCPKG_ROOT before invoking cmake
+- Use cmake preset version 6 (cmake 3.28 available)
+- g++ 13.3 and ninja are available as build tools
+- Placeholder .cpp files are needed in library targets (CMake won't create a target with no sources)
+
+---
+
+## 2026-03-08 - US-001
+- Implemented CMake build system with vcpkg integration
+- Files created:
+  - CMakeLists.txt (top-level with project declaration, add_subdirectory, PCH, testing option)
+  - CMakePresets.json (default=Debug, release=Release configure/build presets)
+  - vcpkg.json (manifest with empty dependencies)
+  - src/main.cpp (minimal int main)
+  - src/domain/CMakeLists.txt + placeholder.cpp (static library)
+  - src/util/CMakeLists.txt + placeholder.cpp (static library)
+  - .gitignore updated with build/, out/, vcpkg_installed/, CMakeUserPresets.json
+- **Learnings for future iterations:**
+  - vcpkg is installed at ~/vcpkg, not at /usr/local/share/vcpkg — the earlier `ls` output was misleading due to permissions
+  - CMakePresets.json version 6 works with cmake 3.28
+  - Placeholder .cpp files with just comments are sufficient to satisfy CMake source requirements
+  - The build produces static libraries (libdomain.a, libutil.a) and a meos executable
+  - No need for find_package() calls at this stage since vcpkg.json has no dependencies yet
+---
