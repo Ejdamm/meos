@@ -71,3 +71,19 @@ Started: sön  8 mar 2026 00:14:34 CET
 ---
 
 ## US-005 (17m29s)
+
+## sön  8 mar 2026 13:32:32 CET - US-006
+- Decoupled oEvent from Tab UI classes (TabList, TabAuto, TabSI).
+- Added std::function callback members and setters to oEvent class in oEvent.h.
+- Replaced direct calls in oEvent.cpp with these callbacks.
+- Removed TabList.h, TabAuto.h, TabSI.h, and TabBase.h includes from oEvent.cpp.
+- Registered the actual Tab UI methods as callbacks in meos.cpp after gEvent is initialized.
+- Files changed: code/oEvent.h, code/oEvent.cpp, code/meos.cpp.
+- **Learnings for future iterations:**
+  - oEvent.cpp had direct dependencies on UI "Tab" classes which are now decoupled via callbacks.
+  - meos.cpp acts as the composition root where these UI-domain connections are established.
+  - oEvent still has some coupling to meos.cpp via external declarations of createTabs and hideTabs; these could also be turned into callbacks in a future iteration if full library extraction is desired.
+  - Fixed a minor typo in setter name (setSetSubSecondModeCallback -> setSubSecondModeCallback).
+---
+
+## US-006 — COMPLETED (6m24s)

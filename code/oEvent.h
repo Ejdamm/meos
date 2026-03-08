@@ -47,6 +47,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cstdint>
+#include <functional>
 
 #define cVacantId 888888888
 #define cNoClubId 999999999
@@ -1612,6 +1613,16 @@ public:
   friend class TestMeOS;
 
   gdioutput &gdiBase() const {return gdibase;}
+
+  // UI Callbacks
+  void setBaseButtonsCallback(std::function<int(gdioutput&, int, bool)> cb) { baseButtonsCallback = cb; }
+  void setTabAutoKillMachinesCallback(std::function<void()> cb) { tabAutoKillMachinesCallback = cb; }
+  void setSubSecondModeCallback(std::function<void(bool)> cb) { setSubSecondModeCallback = cb; }
+
+protected:
+  std::function<int(gdioutput&, int, bool)> baseButtonsCallback;
+  std::function<void()> tabAutoKillMachinesCallback;
+  std::function<void(bool)> setSubSecondModeCallback;
 };
 
 template<typename T>

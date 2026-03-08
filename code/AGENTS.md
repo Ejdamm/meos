@@ -59,6 +59,15 @@ MeOS is transitioning to cross-platform path handling.
 - When appending a trailing separator, use `(p / "").wstring()`.
 - Libraries (minizip, mysql, libharu) and UI files (`Tab*`, `gdioutput`) may still use Win32-specific path logic; prioritize domain files (`o*`, `meos_util`, `MeosSQL`) for normalization.
 
+### Decoupling Domain from UI
+
+Domain model classes (especially `oEvent`) are being decoupled from specific UI implementations (`Tab*` classes) via `std::function` callbacks.
+
+- Use `std::function` members in domain classes to trigger UI actions.
+- Register these callbacks in the application initialization layer (`meos.cpp`).
+- Avoid direct `#include "Tab*.h"` in domain files (`oEvent.cpp`, etc.).
+- When adding a new UI dependency to `oEvent`, consider if it should be a callback instead.
+
 ## Conventions
 
 ### Naming

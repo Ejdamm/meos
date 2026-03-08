@@ -257,6 +257,11 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   try {
     gEvent = new oEvent(*gdi_main);
     gEvent->setMainEvent();
+    gEvent->setBaseButtonsCallback(TabList::baseButtons);
+    gEvent->setTabAutoKillMachinesCallback(TabAuto::tabAutoKillMachines);
+    gEvent->setSetSubSecondModeCallback([](bool use) {
+      TabSI::getSI(*gdi_main).setSubSecondMode(use);
+    });
   }
   catch (meosException &ex) {
     gdi_main->alert(wstring(L"Failed to create base event: ") + ex.wwhat());
