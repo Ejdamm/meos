@@ -1,5 +1,13 @@
 # Ralph Progress Log
 Started: sön  8 mar 2026 00:14:40 CET
+
+## Codebase Patterns
+- Use `const object + type` pattern for enums (Vite 7 compatibility)
+- Use `import type` for all TypeScript interfaces/types
+- Backend: XML API at `/meos`, Frontend: JSON REST API at `/api/v1`
+- Use `NavLink` for active route highlighting
+- Tailwind 4 for styling (CSS-first approach)
+
 ---
 ## 2026-03-08 - US-001: Project scaffolding with Vite, React 18, and TypeScript
 - What was implemented:
@@ -26,5 +34,18 @@ Started: sön  8 mar 2026 00:14:40 CET
   - Tailwind 4 makes responsive utilities very clean (`lg:translate-x-0`).
   - Keep components modular (e.g., `Layout` and `utils`) from the beginning to avoid refactoring.
 ---
+## 2026-03-08 - US-003: API client layer with TypeScript types and React hooks
+- What was implemented:
+  - Created src/api/types.ts with TypeScript interfaces for all major entities (Competition, Class, Runner, etc.).
+  - Implemented src/api/client.ts with typed fetch-based functions for all CRUD endpoints.
+  - Created src/hooks/useApi.ts with generic useQuery and useMutation hooks.
+  - Implemented entity-specific hooks: useRunners, useClubs, useClasses.
+  - Fixed TypeScript errors related to Vite 7 default strict settings (erasableSyntaxOnly, verbatimModuleSyntax).
+- **Learnings for future iterations:**
+  - The legacy C++ backend (restserver.cpp) implements an XML API at /meos, but the frontend architecture requires a JSON REST API at /api/v1.
+  - Avoid TypeScript enums as they are not compatible with 'erasableSyntaxOnly' enabled by default in Vite 7 templates. Use 'const object + type' pattern instead.
+  - Always use 'import type' when importing interfaces/types to satisfy 'verbatimModuleSyntax'.
+  - Mapping C++ entity fields (from oEvent.h, oRunner.h, etc.) to TypeScript is straightforward but requires careful checking of header files for status codes and optional fields.
+---
 
-## US-002 (3m12s)
+## US-003 (5m46s)

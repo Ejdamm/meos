@@ -19,7 +19,20 @@
 - Routes are configured in `App.tsx`.
 - Use `NavLink` for sidebar links to get automatic "active" state styling.
 
-## Responsive Design
-- Sidebar is fixed on desktop (`lg:static`) and off-canvas on mobile.
-- Mobile sidebar is controlled by a hamburger menu in the header.
-- Breakpoint for sidebar transition is `lg` (1024px in Tailwind 4 default, but can be adjusted).
+## API and Data Fetching
+- **Client**: Use the singleton `api` object from `@/api/client` for all backend communication.
+- **Hooks**: Prefer custom hooks in `@/hooks/` (e.g., `useRunners`, `useClubs`) instead of calling the API directly in components.
+- **Endpoints**: All endpoints are under `/api/v1/`.
+- **Mocking**: Use MSW (Mock Service Worker) for local development if the C++ backend is not available.
+
+## TypeScript and Types
+- **Interfaces**: Defined in `@/api/types.ts`.
+- **Enums**: Do NOT use TypeScript `enum`. Use `const object + type` pattern to comply with `erasableSyntaxOnly` settings.
+  ```typescript
+  export const MyStatus = { OK: 1, Error: 0 } as const;
+  export type MyStatus = typeof MyStatus[keyof typeof MyStatus];
+  ```
+- **Imports**: Always use `import type` when importing interfaces or types to comply with `verbatimModuleSyntax`.
+  ```typescript
+  import type { MyType } from './types';
+  ```

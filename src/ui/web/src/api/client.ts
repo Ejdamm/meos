@@ -1,0 +1,108 @@
+import * as T from './types';
+
+const API_BASE = '/api/v1';
+
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status} ${response.statusText}`);
+  }
+
+  // Handle empty responses
+  if (response.status === 204) {
+    return {} as T;
+  }
+
+  return response.json();
+}
+
+export const api = {
+  // Competitions
+  getCompetitions: () => request<T.Competition[]>('/competitions'),
+  getCompetition: (id: number) => request<T.Competition>(`/competitions/${id}`),
+  createCompetition: (data: Partial<T.Competition>) => request<T.Competition>('/competitions', { method: 'POST', body: JSON.stringify(data) }),
+  updateCompetition: (id: number, data: Partial<T.Competition>) => request<T.Competition>(`/competitions/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCompetition: (id: number) => request<void>(`/competitions/${id}`, { method: 'DELETE' }),
+
+  // Classes
+  getClasses: () => request<T.Class[]>('/classes'),
+  getClass: (id: number) => request<T.Class>(`/classes/${id}`),
+  createClass: (data: Partial<T.Class>) => request<T.Class>('/classes', { method: 'POST', body: JSON.stringify(data) }),
+  updateClass: (id: number, data: Partial<T.Class>) => request<T.Class>(`/classes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteClass: (id: number) => request<void>(`/classes/${id}`, { method: 'DELETE' }),
+
+  // Courses
+  getCourses: () => request<T.Course[]>('/courses'),
+  getCourse: (id: number) => request<T.Course>(`/courses/${id}`),
+  createCourse: (data: Partial<T.Course>) => request<T.Course>('/courses', { method: 'POST', body: JSON.stringify(data) }),
+  updateCourse: (id: number, data: Partial<T.Course>) => request<T.Course>(`/courses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCourse: (id: number) => request<void>(`/courses/${id}`, { method: 'DELETE' }),
+
+  // Controls
+  getControls: () => request<T.Control[]>('/controls'),
+  getControl: (id: number) => request<T.Control>(`/controls/${id}`),
+  createControl: (data: Partial<T.Control>) => request<T.Control>('/controls', { method: 'POST', body: JSON.stringify(data) }),
+  updateControl: (id: number, data: Partial<T.Control>) => request<T.Control>(`/controls/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteControl: (id: number) => request<void>(`/controls/${id}`, { method: 'DELETE' }),
+
+  // Clubs
+  getClubs: () => request<T.Club[]>('/clubs'),
+  getClub: (id: number) => request<T.Club>(`/clubs/${id}`),
+  createClub: (data: Partial<T.Club>) => request<T.Club>('/clubs', { method: 'POST', body: JSON.stringify(data) }),
+  updateClub: (id: number, data: Partial<T.Club>) => request<T.Club>(`/clubs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteClub: (id: number) => request<void>(`/clubs/${id}`, { method: 'DELETE' }),
+
+  // Runners
+  getRunners: (params?: { classId?: number; clubId?: number; search?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.classId) query.append('classId', params.classId.toString());
+    if (params?.clubId) query.append('clubId', params.clubId.toString());
+    if (params?.search) query.append('search', params.search);
+    const queryString = query.toString();
+    return request<T.Runner[]>(`/runners${queryString ? `?${queryString}` : ''}`);
+  },
+  getRunner: (id: number) => request<T.Runner>(`/runners/${id}`),
+  createRunner: (data: Partial<T.Runner>) => request<T.Runner>('/runners', { method: 'POST', body: JSON.stringify(data) }),
+  updateRunner: (id: number, data: Partial<T.Runner>) => request<T.Runner>(`/runners/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteRunner: (id: number) => request<void>(`/runners/${id}`, { method: 'DELETE' }),
+  setRunnerStatus: (id: number, status: T.RunnerStatus) => request<T.Runner>(`/runners/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) }),
+
+  // Teams
+  getTeams: (params?: { classId?: number; clubId?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.classId) query.append('classId', params.classId.toString());
+    if (params?.clubId) query.append('clubId', params.clubId.toString());
+    const queryString = query.toString();
+    return request<T.Team[]>(`/teams${queryString ? `?${queryString}` : ''}`);
+  },
+  getTeam: (id: number) => request<T.Team>(`/teams/${id}`),
+  createTeam: (data: Partial<T.Team>) => request<T.Team>('/teams', { method: 'POST', body: JSON.stringify(data) }),
+  updateTeam: (id: number, data: Partial<T.Team>) => request<T.Team>(`/teams/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteTeam: (id: number) => request<void>(`/teams/${id}`, { method: 'DELETE' }),
+
+  // Results
+  getResults: (params?: { classId?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.classId) query.append('classId', params.classId.toString());
+    const queryString = query.toString();
+    return request<T.Result[]>(`/results${queryString ? `?${queryString}` : ''}`);
+  },
+
+  // StartList
+  getStartList: (params?: { classId?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.classId) query.append('classId', params.classId.toString());
+    const queryString = query.toString();
+    return request<T.StartListEntry[]>(`/startlist${queryString ? `?${queryString}` : ''}`);
+  },
+
+  // Cards
+  registerCard: (data: { cardNumber: number; runnerId?: number }) => request<void>('/cards', { method: 'POST', body: JSON.stringify(data) }),
+};
