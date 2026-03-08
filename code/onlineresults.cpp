@@ -23,6 +23,7 @@
 ************************************************************************/
 
 #include "StdAfx.h"
+#include <filesystem>
 
 #include <sys/stat.h>
 #include <shellapi.h>
@@ -315,8 +316,8 @@ void OnlineResults::save(oEvent &oe, gdioutput &gdi, bool doProcess) {
       throw meosException("Mappnamnet får inte vara tomt.");
     }
 
-    if (*folder.rbegin() == '/' || *folder.rbegin() == '\\')
-      folder = folder.substr(0, folder.size() - 1);
+    if (!folder.empty() && (*folder.rbegin() == '/' || *folder.rbegin() == '\\'))
+      folder.pop_back();
 
     file = folder;
     if (doProcess) {
@@ -619,13 +620,13 @@ InfoCompetition &OnlineResults::getInfoServer() const {
 }
 
 wstring OnlineResults::getExportFileName() const {
-  wchar_t bf[260];
+  wchar_t name[128];
   if (prefix.empty())
-    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s\\exp_%04d.xml", file.c_str(), exportCounter + sessionNumberOffset);
+    swprintf(name, sizeof(name)/sizeof(wchar_t), L"exp_%04d.xml", exportCounter + sessionNumberOffset);
   else
-    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s\\%s%04d.xml", file.c_str(), prefix.c_str(), exportCounter + sessionNumberOffset);
+    swprintf(name, sizeof(name)/sizeof(wchar_t), L"%s%04d.xml", prefix.c_str(), exportCounter + sessionNumberOffset);
 
-  return bf;
+  return (std::filesystem::path(file) / name).wstring();
 }
 
 pair<wstring, bool> OnlineResults::getCompetitionName(const oEvent& oe) const {

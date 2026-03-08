@@ -23,6 +23,7 @@
 #include "StdAfx.h"
 
 #include <vector>
+#include <filesystem>
 #include <set>
 #include <cassert>
 #include <algorithm>
@@ -979,13 +980,7 @@ bool oEvent::save(const wstring &fileArg, bool internalFormat, bool isAutoSave) 
       props.emplace_back("id", itow(imgId));
       bool added = false;
       if (internalFormat) {        
-        int lp = 0;
-        for (int i = 0; i < fileArg.length(); i++) {
-          if (fileArg[i] == '\\' || fileArg[i] == '/')
-            lp = i;
-        }
-
-        wstring imgFile = fileArg.substr(0, lp + 1)  + itow(imgId) + L".png";
+        wstring imgFile = (std::filesystem::path(fileArg).parent_path() / (itow(imgId) + L".png")).wstring();
         FILE *fout = nullptr;
         _wfopen_s(&fout, imgFile.c_str(), L"wb");
         if (fout == nullptr) 
@@ -1568,13 +1563,7 @@ bool oEvent::open(const xmlparser &xml, const wstring &fileArg) {
           image.provideFromMemory(imgId, fileName, bytes);
         }
         else {
-          int lp = 0;
-          for (int i = 0; i < fileArg.length(); i++) {
-            if (fileArg[i] == '\\' || fileArg[i] == '/')
-              lp = i;
-          }
-
-          wstring imgFile = fileArg.substr(0, lp + 1) + itow(imgId) + L".png";
+          wstring imgFile = (std::filesystem::path(fileArg).parent_path() / (itow(imgId) + L".png")).wstring();
 
           FILE* pFile = nullptr;
           _wfopen_s(&pFile, imgFile.c_str(), L"rb");
@@ -3831,10 +3820,8 @@ bool oEvent::enumerateCompetitions(const wchar_t *file, const wchar_t *filetype)
   wchar_t dir[MAX_PATH];
   wchar_t FullPath[MAX_PATH];
 
-  wcscpy_s(dir, MAX_PATH, file);
-
-  if (dir[wcslen(file)-1]!='\\')
-    wcscat_s(dir, MAX_PATH, L"\\");
+  std::filesystem::path dirPath(file);
+  wcscpy_s(dir, MAX_PATH, (dirPath / "").wstring().c_str());
 
   wcscpy_s(FullPath, MAX_PATH, dir);
 
@@ -4060,10 +4047,8 @@ bool oEvent::enumerateBackups(const wstring &file, const wstring &filetype, int 
   wchar_t dir[MAX_PATH];
   wchar_t FullPath[MAX_PATH];
 
-  wcscpy_s(dir, MAX_PATH, file.c_str());
-
-  if (dir[file.length()-1]!='\\')//WCS
-    wcscat_s(dir, MAX_PATH, L"\\");
+  std::filesystem::path dirPath(file);
+  wcscpy_s(dir, MAX_PATH, (dirPath / "").wstring().c_str());
 
   wcscpy_s(FullPath, MAX_PATH, dir);
   wcscat_s(dir, MAX_PATH, filetype.c_str());
@@ -7344,7 +7329,7 @@ const CardSystem& oEvent::getCardSystem() const {
 
 #ifdef _DEBUG
     if (!fileExists(path))
-      path = L".\\..\\Lists\\sportident.cardsystem";
+      path = (std::filesystem::path(".") / ".." / "Lists" / "sportident.cardsystem").wstring();
 #endif
     cardSystem->load(path);
   }

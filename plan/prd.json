@@ -72,8 +72,8 @@
         "No behavioral changes — refactoring only"
       ],
       "priority": 5,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Replaced hardcoded path separators in oClub.cpp, oEvent.cpp, oEventSpeaker.cpp, onlineresults.cpp, meos_util.cpp, meos.cpp, zip.cpp, HTMLWriter.cpp, testmeos.cpp with std::filesystem::path."
     },
     {
       "id": "US-006",

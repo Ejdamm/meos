@@ -1,6 +1,7 @@
 #include <cwchar>
 #include <cstdint>
 #include <cstdio>
+#include <filesystem>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -1901,15 +1902,18 @@ bool expandDirectory(const wchar_t *file, const wchar_t *filetype, vector<wstrin
   wchar_t dir[MAX_PATH];
   wchar_t fullPath[MAX_PATH];
 
+  std::filesystem::path p;
   if (file[0] == '.') {
-    GetCurrentDirectory(MAX_PATH, dir);
-    wcscat_s(dir, file+1);
+    wchar_t current[MAX_PATH];
+    GetCurrentDirectory(MAX_PATH, current);
+    p = std::filesystem::path(current) / (file + 1);
   }
-  else
-    wcscpy_s(dir, MAX_PATH, file);
+  else {
+    p = std::filesystem::path(file);
+  }
 
-  if (dir[wcslen(dir)-1]!='\\')
-    wcscat_s(dir, MAX_PATH, L"\\");
+  std::wstring dirStr = (p / "").wstring();
+  wcscpy_s(dir, MAX_PATH, dirStr.c_str());
 
   wcscpy_s(fullPath, MAX_PATH, dir);
   wcscat_s(dir, MAX_PATH, filetype);

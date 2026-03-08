@@ -1,4 +1,5 @@
 #include <cwchar>
+#include <filesystem>
 ﻿/*
 Code is based on mini unzip, demo of unzip package.
 
@@ -131,18 +132,19 @@ wstring do_extract_currentfile(unzFile uf, const wstring &baseDir, const char* p
     if (createSubdir) {
       string x(filename_inzip);
       wstring wx(x.begin(), x.end());
-      mymkdir(wx.c_str());
+      mymkdir((std::filesystem::path(baseDir) / wx).wstring().c_str());
     }
   }
   else {
-    write_filename = baseDir;
     if (createSubdir) {
       string x(filename_inzip);
-      write_filename.insert(write_filename.begin() + write_filename.length(), x.begin(), x.end());
+      wstring wx(x.begin(), x.end());
+      write_filename = (std::filesystem::path(baseDir) / wx).wstring();
     }
     else {
       string x(filename_withoutpath);
-      write_filename.insert(write_filename.begin() + write_filename.length(), x.begin(), x.end());
+      wstring wx(x.begin(), x.end());
+      write_filename = (std::filesystem::path(baseDir) / wx).wstring();
     }
     err = unzOpenCurrentFilePassword(uf,password);
     if (err!=UNZ_OK)
@@ -229,24 +231,21 @@ void unzip(const wchar_t *wzipfilename, const char *password, vector<wstring> &e
   if (uf==NULL)
     throw std::exception("Cannot open zip file");
 
-  wstring base = getTempPath();
-  wchar_t end = base[base.length()-1];
-  if (end != '\\' && end != '/')
-    base += L"\\";
+  std::filesystem::path base(getTempPath());
 
   int id = rand();
-  wstring target;
+  std::filesystem::path target;
   do {
-    target = base + L"zip" + itow(id) + L"\\";
+    target = base / (L"zip" + itow(id));
     id++;
   }
-  while ( _waccess( target.c_str(), 0 ) == 0 );
+  while ( _waccess( target.wstring().c_str(), 0 ) == 0 );
 
-  if (CreateDirectory(target.c_str(), NULL) == 0)
+  if (CreateDirectory(target.wstring().c_str(), NULL) == 0)
     throw std::exception("Failed to create temporary folder");
 
-  registerTempFile(target);
-  do_extract(uf, target.c_str(), password, extractedFiles);
+  registerTempFile(target.wstring());
+  do_extract(uf, (target / "").wstring().c_str(), password, extractedFiles);
 
   unzClose(uf);
 }

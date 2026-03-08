@@ -24,6 +24,7 @@
 //
 
 #include "StdAfx.h"
+#include <filesystem>
 #include <cstdint>
 #include "resource.h"
 #include <shlobj.h>
@@ -321,8 +322,9 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   try {
     vector<wstring> res;
 #ifdef _DEBUG
-    expandDirectory(L".\\..\\Lists\\", L"*.lxml", res);
-    expandDirectory(L".\\..\\Lists\\", L"*.listdef", res);
+    std::wstring debugLists = (std::filesystem::path(".") / ".." / "Lists" / "").wstring();
+    expandDirectory(debugLists.c_str(), L"*.lxml", res);
+    expandDirectory(debugLists.c_str(), L"*.listdef", res);
 #endif
     
     if (exePath[0]) {
@@ -1810,34 +1812,20 @@ void exportSetup()
 }
 
 wstring getMeOSFile(const wchar_t *fileName) {
-  wstring out = programPath;
-  int i = out.length();
-
-  if (i > 0 && out[i - 1] != '\\')
-    out.push_back('\\');
-
-  out += fileName;
-  return out;
+  return (std::filesystem::path(programPath) / fileName).wstring();
 }
 
 bool getUserFile(wchar_t* FileNamePath, const wchar_t* FileName) {
   wchar_t Path[MAX_PATH];
-  wchar_t AppPath[MAX_PATH];
 
   if (SHGetSpecialFolderPath(hWndMain, Path, CSIDL_APPDATA, 1) != NOERROR) {
-    int i = wcslen(Path);
-    if (Path[i - 1] != '\\')
-      wcscat_s(Path, MAX_PATH, L"\\");
+    std::filesystem::path appPath = std::filesystem::path(Path) / "Meos";
 
-    wcscpy_s(AppPath, MAX_PATH, Path);
-    wcscat_s(AppPath, MAX_PATH, L"Meos\\");
-
-    CreateDirectory(AppPath, NULL);
+    CreateDirectory(appPath.wstring().c_str(), NULL);
 
     Setup(false, false);
 
-    wcscpy_s(FileNamePath, MAX_PATH, AppPath);
-    wcscat_s(FileNamePath, MAX_PATH, FileName);
+    wcscpy_s(FileNamePath, MAX_PATH, (appPath / FileName).wstring().c_str());
 
     //return true;
   }
@@ -1850,26 +1838,18 @@ bool getUserFile(wchar_t* FileNamePath, const wchar_t* FileName) {
 bool getDesktopFile(wchar_t *fileNamePath, const wchar_t *fileName, const wchar_t *subFolder)
 {
   wchar_t Path[MAX_PATH];
-  wchar_t AppPath[MAX_PATH];
 
   if (SHGetSpecialFolderPath(hWndMain, Path, CSIDL_DESKTOPDIRECTORY, 1)!=NOERROR) {
-    int i=wcslen(Path);
-    if (Path[i-1]!='\\')
-      wcscat_s(Path, MAX_PATH, L"\\");
+    std::filesystem::path appPath = std::filesystem::path(Path) / "Meos";
 
-    wcscpy_s(AppPath, MAX_PATH, Path);
-    wcscat_s(AppPath, MAX_PATH, L"Meos\\");
-
-    CreateDirectory(AppPath, NULL);
+    CreateDirectory(appPath.wstring().c_str(), NULL);
 
     if (subFolder) {
-      wcscat_s(AppPath, MAX_PATH, subFolder);
-      wcscat_s(AppPath, MAX_PATH, L"\\");
-      CreateDirectory(AppPath, NULL);
+      appPath /= subFolder;
+      CreateDirectory(appPath.wstring().c_str(), NULL);
     }
 
-    wcscpy_s(fileNamePath, MAX_PATH, AppPath);
-    wcscat_s(fileNamePath, MAX_PATH, fileName);
+    wcscpy_s(fileNamePath, MAX_PATH, (appPath / fileName).wstring().c_str());
   }
   else wcscpy_s(fileNamePath, MAX_PATH, fileName);
 

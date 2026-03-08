@@ -25,6 +25,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
+#include <filesystem>
 #include "oClub.h"
 #include "meos_util.h"
 
@@ -69,13 +70,12 @@ void oClub::loadNameMap() {
   wstring path = ccpath;
 
   if (!fileExists(path) && exePath[0]) {
-    path = exePath;
-    path += L"\\clubnamemap.csv";
+    path = (std::filesystem::path(exePath) / "clubnamemap.csv").wstring();
   }
 
 #ifdef _DEBUG
   if (!fileExists(path))
-    path = L".\\..\\Lists\\clubnamemap.csv";
+    path = (std::filesystem::path(".") / ".." / "Lists" / "clubnamemap.csv").wstring();
 #endif
 
   bool good = false;
@@ -925,15 +925,13 @@ void oEvent::printInvoices(gdioutput &gdi, InvoicePrintType type,
 
   bool toFile = type > 10;
 
-  wstring path = basePath;
-  if (basePath.size() > 0 && *basePath.rbegin() != '\\' && *basePath.rbegin() != '/')
-    path.push_back('\\');
+  std::filesystem::path path(basePath);
 
   if (toFile) {
     std::ofstream fout;
 
     if (type == IPTElectronincHTML)
-      fout.open((path + L"invoices.txt").c_str());
+      fout.open((path / "invoices.txt").wstring().c_str());
 
 
     for (it=Clubs.begin(); it != Clubs.end(); ++it) {
@@ -965,10 +963,10 @@ void oEvent::printInvoices(gdioutput &gdi, InvoicePrintType type,
 
         if (type == IPTAllPDF) {
           pdfwriter pdf;
-          pdf.generatePDF(gdi, path + filename, lang.tl("Faktura"), L"", gdi.getTL(), true);
+          pdf.generatePDF(gdi, (path / filename).wstring(), lang.tl("Faktura"), L"", gdi.getTL(), true);
         }
         else
-          HTMLWriter::writeHTML(gdi, path + filename, lang.tl(L"Faktura"), 0, 1.0);
+          HTMLWriter::writeHTML(gdi, (path / filename).wstring(), lang.tl(L"Faktura"), 0, 1.0);
 
         clubId.insert(it->getId());
         fees.push_back(pay);

@@ -48,6 +48,17 @@ Tab-based GUI built on `gdioutput` (custom Win32/GDI wrapper). Each feature area
 
 Libraries are vendored directly in subdirectories: `restbed/`, `libharu/`, `minizip/`, `mysql/`, `png/`, `sound/`. Platform-specific DLLs and libs in `dll/`, `dll64/`, `dll_debug/`, `lib/`, `lib64/`, `lib_db/`, `lib64_db/`.
 
+### Path Normalization
+
+MeOS is transitioning to cross-platform path handling.
+
+- Use `std::filesystem::path` for all path manipulations and concatenations.
+- Always include `<filesystem>` when working with paths.
+- Prefer `(path / filename).wstring()` for generating wide-string paths.
+- Avoid hardcoded backslashes (`\\`) in strings; use forward slashes (`/`) or `std::filesystem::path` components.
+- When appending a trailing separator, use `(p / "").wstring()`.
+- Libraries (minizip, mysql, libharu) and UI files (`Tab*`, `gdioutput`) may still use Win32-specific path logic; prioritize domain files (`o*`, `meos_util`, `MeosSQL`) for normalization.
+
 ## Conventions
 
 ### Naming

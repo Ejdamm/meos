@@ -6,6 +6,7 @@ Started: sön  8 mar 2026 00:14:34 CET
 - Case Sensitivity: File names are generally lowercase (`localizer.h`, `meosexception.h`), but UI components use PascalCase (`TabBase.h`).
 - String Utilities: String conversion functions (widen/narrow) are now in `meos_util.h` (US-002).
 - Type Aliases: Replaced `DWORD` with `uint32_t` and `BOOL` with `bool` in domain code. (US-004).
+- Path Normalization: Use `std::filesystem::path` for all path manipulations and concatenations. (US-005).
 ---
 
 ## sön  8 mar 2026 11:52:10 CET - US-001
@@ -57,3 +58,16 @@ Started: sön  8 mar 2026 00:14:34 CET
 ## US-004 (20m31s)
 
 ## US-004 (11m58s)
+
+## sön  8 mar 2026 13:26:33 CET - US-005
+- Replaced hardcoded backslash path separators with std::filesystem::path in domain files.
+- Files changed: oClub.cpp, oEvent.cpp, oEventSpeaker.cpp, onlineresults.cpp, meos_util.cpp, meos.cpp, zip.cpp, HTMLWriter.cpp, testmeos.cpp.
+- **Learnings for future iterations:**
+  - std::filesystem::path is effective for making paths cross-platform.
+  - Be careful with parent_path() vs manual trailing slash removal; parent_path() of "dir" is "parent", not "dir".
+  - Use (p / "").wstring() to ensure a trailing separator.
+  - Libraries and SQL quoting use backslashes for non-path purposes; skip them.
+  - Created a skill for path normalization in .gemini/skills/path-normalization.md.
+---
+
+## US-005 (17m29s)
