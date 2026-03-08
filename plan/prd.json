@@ -92,7 +92,7 @@
         "Workflow YAML is syntactically valid (no duplicate keys, proper indentation)"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {

@@ -1,0 +1,60 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    name: ${{ matrix.os }} - Build & Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ninja
+        uses: getsentry/action-setup-ninja@v1
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: 'vcpkg.json'
+
+      - name: Configure CMake
+        run: |
+          cmake --preset default -G Ninja -DCMAKE_MAKE_PROGRAM=ninja
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Build
+        run: cmake --build --preset default
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Run clang-tidy
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # Ensure compile_commands.json is generated
+          cmake --preset default -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          # Run clang-tidy on all .cpp files in src and tests
+          find src tests -name "*.cpp" | xargs clang-tidy -p build --quiet
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: meos-${{ matrix.os }}
+          path: |
+            build/meos
+            build/meos.exe
+            build/tests/domain/test_domain
+            build/tests/domain/test_domain.exe
+            build/tests/util/test_util
+            build/tests/util/test_util.exe
+          if-no-files-found: ignore
