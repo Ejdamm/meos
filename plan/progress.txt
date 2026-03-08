@@ -28,3 +28,19 @@ Started: sön  8 mar 2026 00:14:24 CET
   - The build produces static libraries (libdomain.a, libutil.a) and a meos executable
   - No need for find_package() calls at this stage since vcpkg.json has no dependencies yet
 ---
+
+## 2026-03-08 - US-002
+- Implemented C++ test infrastructure with Google Test
+- Files created/modified:
+  - vcpkg.json (added gtest)
+  - CMakeLists.txt (added add_subdirectory(tests))
+  - tests/CMakeLists.txt (find_package GTest and subdirectories)
+  - tests/domain/CMakeLists.txt + smoke_test.cpp
+  - tests/util/CMakeLists.txt + smoke_test.cpp
+- **Learnings for future iterations:**
+  - GTest::gtest_main is the easiest way to get a main() for tests without writing one.
+  - find_package(GTest REQUIRED) should be in the tests/CMakeLists.txt or top-level.
+  - ctest --test-dir build is useful when building in a separate directory.
+---
+
+## US-002 (4m58s)

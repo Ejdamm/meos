@@ -39,7 +39,7 @@
         "ctest --test-dir build --output-on-failure reports all tests passing"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": ""
     },
     {
