@@ -8,6 +8,8 @@ Started: sön  8 mar 2026 00:14:24 CET
 - Use cmake preset version 6 (cmake 3.28 available)
 - g++ 13.3 and ninja are available as build tools
 - Placeholder .cpp files are needed in library targets (CMake won't create a target with no sources)
+- Use `eslint.config.js` (flat config) for ESLint 9+
+- Prettier should be integrated with ESLint via `eslint-plugin-prettier`
 
 ---
 
@@ -62,3 +64,19 @@ Started: sön  8 mar 2026 00:14:24 CET
 ---
 
 ## US-003 (14m44s)
+
+## 2026-03-08 - US-004
+- Implemented linting and formatting configuration for C++ and TypeScript
+- Files created:
+  - .clang-tidy (readability-*, modernize-*)
+  - .clang-format (LLVM style)
+  - src/ui/web/.prettierrc
+  - src/ui/web/eslint.config.js (ESLint 9 flat config)
+- Files modified:
+  - src/ui/web/package.json (added lint and format scripts, added devDependencies)
+- **Learnings for future iterations:**
+  - ESLint 10 (or whatever latest is) may have peer dependency conflicts with older plugins like `eslint-plugin-react-hooks`. Sticking to ESLint 9 is safer for now.
+  - Using `tseslint.config()` helper from `typescript-eslint` makes flat config easier to manage.
+  - `eslint-config-prettier` and `eslint-plugin-prettier` are both needed to run Prettier through ESLint and disable conflicting rules.
+  - `npx tsc --noEmit` is a reliable way to check types without generating build artifacts.
+---
