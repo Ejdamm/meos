@@ -1,0 +1,20 @@
+# Ralph Progress Log
+Started: sön  8 mar 2026 00:14:34 CET
+
+## Codebase Patterns
+- Case Sensitivity: Always use `#include "StdAfx.h"` (not `stdafx.h`).
+- Case Sensitivity: File names are generally lowercase (`localizer.h`, `meosexception.h`), but UI components use PascalCase (`TabBase.h`).
+- String Utilities: String conversion functions (widen/narrow) are currently in `gdioutput.h` (US-002 will move them).
+---
+
+## sön  8 mar 2026 11:52:10 CET - US-001
+- Normalized all #include "..." directives in code/ to match disk casing.
+- Files changed: Numerous .h and .cpp files in code/.
+- **Learnings for future iterations:**
+  - Standardized on StdAfx.h (from stdafx.h).
+  - localizer.h, meosexception.h, and TabBase.h had frequent casing mismatches in includes.
+  - Using a recursive script that builds a casing database is highly effective for this task.
+  - Created a skill for include normalization in .gemini/skills/include-normalization.md.
+---
+
+## US-001 (4m18s)
