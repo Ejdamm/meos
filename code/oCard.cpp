@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdint>
 #include <cwchar>
 ﻿/************************************************************************
     MeOS - Orienteering Software
@@ -505,7 +506,7 @@ bool oCard::setPunchTime(const pPunch punch, const wstring& time)
   oPunch* op = getPunch(punch);
   if (!op) return false;
 
-  DWORD ot = op->punchTime;
+  uint32_t ot = op->punchTime;
   op->setTime(time);
 
   if (ot != op->punchTime)

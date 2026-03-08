@@ -25,6 +25,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "StdAfx.h"
+#include <cstdint>
 #define DODECLARETYPESYMBOLS
 
 #include <cstdio>
@@ -882,7 +883,7 @@ bool oClass::removeStageCourse(int iStage, int CourseId, int position)
 
   vector<pCourse> &Stage=MultiCourse[iStage];
 
-  if ( !(DWORD(position)<Stage.size()))
+  if ( !(uint32_t(position)<Stage.size()))
     return false;
 
   if (Stage[position]->getId()==CourseId){

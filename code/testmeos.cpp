@@ -20,6 +20,7 @@
 
 ************************************************************************/
 #include "StdAfx.h"
+#include <cstdint>
 
 #include <cassert>
 #include "testmeos.h"
@@ -254,7 +255,7 @@ TestMeOS &TestMeOS::registerTest(const TestMeOS &test) {
   return *subTests.back();
 }
 
-void mainMessageLoop(HACCEL hAccelTable, DWORD time);
+void mainMessageLoop(HACCEL hAccelTable, uint32_t time);
 
 void TestMeOS::showTab(TabType type) const {
   if (gdi_main->canClear()) {

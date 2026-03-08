@@ -1,4 +1,5 @@
 #include <cwchar>
+#include <cstdint>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -4272,10 +4273,10 @@ void MeosSQL::synchronized(oBase &entity) {
 
 bool MeosSQL::skipSynchronize(const oBase &entity) const {
   int id = getTypeId(entity);
-  map<pair<int, int>, DWORD>::const_iterator res = readTimes.find(make_pair(id, entity.getId()));
+  map<pair<int, int>, uint32_t>::const_iterator res = readTimes.find(make_pair(id, entity.getId()));
 
   if (res != readTimes.end()) {
-    DWORD t = GetTickCount();
+    uint32_t t = GetTickCount();
     if (t > res->second && (t - res->second) < 1000) {
       skipped++;
       return true;

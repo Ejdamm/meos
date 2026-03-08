@@ -3,6 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <cstdint>
+
 #include <set>
 #include <vector>
 #include "oPunch.h"
@@ -45,15 +47,15 @@ struct SICard5Detect
   BYTE code;//Code;
   BYTE len;
   SHORT station;
-  DWORD number;
+  uint32_t number;
   WORD crc;
 };
 
 struct SIPunch {
-  DWORD Code;
-  DWORD Time;
+  uint32_t Code;
+  uint32_t Time;
 
-  void analyseHour12Time(DWORD zeroTime);
+  void analyseHour12Time(uint32_t zeroTime);
 };
 
 enum class ConvertedTimeStatus {
@@ -75,14 +77,14 @@ struct SICard
       memset(this, 0, sizeof(SICard));
   }
 
-  void analyseHour12Time(DWORD zeroTime);
+  void analyseHour12Time(uint32_t zeroTime);
 
   bool empty() const {return CardNumber==0;}
-  DWORD CardNumber;
+  uint32_t CardNumber;
   SIPunch StartPunch;
   SIPunch FinishPunch;
   SIPunch CheckPunch;
-  DWORD nPunch;
+  uint32_t nPunch;
   SIPunch Punch[192];
   wchar_t firstName[21];
   wchar_t lastName[21];
@@ -166,12 +168,12 @@ protected:
   CRITICAL_SECTION SyncObj;
 
   int readByte_delay(BYTE &byte,  HANDLE hComm);
-  int readBytes_delay(BYTE *byte, DWORD buffSize, DWORD len,  HANDLE hComm);
-  int readBytesDLE_delay(BYTE *byte, DWORD buffSize, DWORD len,  HANDLE hComm);
+  int readBytes_delay(BYTE *byte, uint32_t buffSize, uint32_t len,  HANDLE hComm);
+  int readBytesDLE_delay(BYTE *byte, uint32_t buffSize, uint32_t len,  HANDLE hComm);
 
   int readByte(BYTE &byte,  HANDLE hComm);
-  int readBytes(BYTE *byte, DWORD len,  HANDLE hComm);
-  int readBytesDLE(BYTE *byte, DWORD len,  HANDLE hComm);
+  int readBytes(BYTE *byte, uint32_t len,  HANDLE hComm);
+  int readBytesDLE(BYTE *byte, uint32_t len,  HANDLE hComm);
 
   // Returns zero on failure, number of bytes used on success. 
   int analyzeStation(BYTE *db, SI_StationData &si);
@@ -180,15 +182,15 @@ protected:
   int n_SI_Info; //Number of structures..
   SI_StationInfo *Current_SI_Info; //Current SI_Info in use (for thread startup);
 
-  WORD calcCRC(BYTE *data, DWORD length);
-  bool checkCRC(BYTE *bf, DWORD maxLen);
+  WORD calcCRC(BYTE *data, uint32_t length);
+  bool checkCRC(BYTE *bf, uint32_t maxLen);
   void setCRC(BYTE *bf);
 
   bool getCard5Data(BYTE *data, SICard &card);
   bool getCard6Data(BYTE *data, SICard &card);
   bool getCard9Data(BYTE *data, SICard &card);
 
-  DWORD GetExtCardNumber(const BYTE *data) const;
+  uint32_t GetExtCardNumber(const BYTE *data) const;
 
   void getSI5Data(HANDLE hComm);
   void getSI5DataExt(HANDLE hComm);
@@ -197,14 +199,14 @@ protected:
   void getSI6DataExt(HANDLE hComm);
   void getSI9DataExt(HANDLE hComm);
 
-  void analyseSI5Time(BYTE *data, DWORD &time, DWORD &control);
-  bool analysePunch(BYTE *data, DWORD &time, DWORD &control, bool subSecond);
-  void analyseTPunch(BYTE *data, DWORD &time, DWORD &control);
+  void analyseSI5Time(BYTE *data, uint32_t &time, uint32_t &control);
+  bool analysePunch(BYTE *data, uint32_t &time, uint32_t &control, bool subSecond);
+  void analyseTPunch(BYTE *data, uint32_t &time, uint32_t &control);
 
   //Card read waiting to be processed.
   list<SICard> ReadCards;
   HWND hWndNotify;
-  DWORD ClassId;
+  uint32_t ClassId;
 
   volatile int tcpPortOpen;
   volatile size_t serverSocket;
@@ -257,7 +259,7 @@ public:
   void startMonitorThread(const wchar_t *com);
   bool getCard(SICard &sic);
   void addCard(const SICard &sic);
-  void addPunch(DWORD Time, int Station, int Card, int Mode=0);
+  void addPunch(uint32_t Time, int Station, int Card, int Mode=0);
 
   void addTestCard(int cardNo, const vector<int> &punches);
 
@@ -265,10 +267,10 @@ public:
 
   void closeCom(const wchar_t *com);
   bool openCom(const wchar_t *com);
-  bool tcpAddPort(int port, DWORD zeroTime);
-  bool openComListen(const wchar_t *com, DWORD BaudRate);
+  bool tcpAddPort(int port, uint32_t zeroTime);
+  bool openComListen(const wchar_t *com, uint32_t BaudRate);
 
-  SportIdent(HWND hWnd, DWORD Id, bool readVoltage);
+  SportIdent(HWND hWnd, uint32_t Id, bool readVoltage);
 
   void readRawData(const wstring& file);
 

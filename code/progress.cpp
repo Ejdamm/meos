@@ -21,6 +21,7 @@
 ************************************************************************/
 
 #include "StdAfx.h"
+#include <cstdint>
 
 #include "progress.h"
 
@@ -88,7 +89,7 @@ void ProgressWindow::draw(int count, int prgBase) const
   int prg = min((prgBase * p_width)/1000, p_width-1);
   int center = int(prg*((cos(count*0.1)+1)*0.8) / 2);
 
-  DWORD c=GetSysColor(COLOR_ACTIVECAPTION);
+  uint32_t c=GetSysColor(COLOR_ACTIVECAPTION);
   double red=GetRValue(c);
   double green=GetGValue(c);
   double blue=GetBValue(c);
@@ -116,30 +117,30 @@ void ProgressWindow::draw(int count, int prgBase) const
   TRIVERTEX vert[4];
   vert [0] .x      = 1;
   vert [0] .y      = 1;
-  vert [0] .Red    = 0xff00&DWORD(red*256);
-  vert [0] .Green  = 0xff00&DWORD(green*256);
-  vert [0] .Blue   = 0xff00&DWORD(blue*256);
+  vert [0] .Red    = 0xff00&uint32_t(red*256);
+  vert [0] .Green  = 0xff00&uint32_t(green*256);
+  vert [0] .Blue   = 0xff00&uint32_t(blue*256);
   vert [0] .Alpha  = 0x0000;
 
   vert [1] .x      = center;
   vert [1] .y      = p_height-2;
-  vert [1] .Red    = 0xff00&DWORD(red1*256);
-  vert [1] .Green  = 0xff00&DWORD(green1*256);
-  vert [1] .Blue   = 0xff00&DWORD(blue1*256);
+  vert [1] .Red    = 0xff00&uint32_t(red1*256);
+  vert [1] .Green  = 0xff00&uint32_t(green1*256);
+  vert [1] .Blue   = 0xff00&uint32_t(blue1*256);
   vert [1] .Alpha  = 0x0000;
 
   vert [2] .x      = center;
   vert [2] .y      = 1;
-  vert [2] .Red    = 0xff00&DWORD(red1*256);
-  vert [2] .Green  = 0xff00&DWORD(green1*256);
-  vert [2] .Blue   = 0xff00&DWORD(blue1*256);
+  vert [2] .Red    = 0xff00&uint32_t(red1*256);
+  vert [2] .Green  = 0xff00&uint32_t(green1*256);
+  vert [2] .Blue   = 0xff00&uint32_t(blue1*256);
   vert [2] .Alpha  = 0x0000;
 
   vert [3] .x      = prg;
   vert [3] .y      = p_height-2;
-  vert [3] .Red    = 0xff00&DWORD(red*256);
-  vert [3] .Green  = 0xff00&DWORD(green*256);
-  vert [3] .Blue   = 0xff00&DWORD(blue*256);
+  vert [3] .Red    = 0xff00&uint32_t(red*256);
+  vert [3] .Green  = 0xff00&uint32_t(green*256);
+  vert [3] .Blue   = 0xff00&uint32_t(blue*256);
   vert [3] .Alpha  = 0x0000;
 
   GRADIENT_RECT gr[2];

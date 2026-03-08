@@ -21,6 +21,8 @@
 ************************************************************************/
 
 #pragma once
+
+#include <cstdint>
 #include <vector>
 #include <map>
 #include "meos_util.h"
@@ -239,8 +241,8 @@ public:
   void lighten(double f);
   void saturate(double s);
   void colorDegree(double d);
-  HLS &RGBtoHLS(DWORD lRGBColor);
-  DWORD HLStoRGB() const;
+  HLS &RGBtoHLS(uint32_t lRGBColor);
+  uint32_t HLStoRGB() const;
 };
 
 void unzip(const wchar_t *zipfilename, const char *password, vector<wstring> &extractedFiles);

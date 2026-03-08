@@ -5,6 +5,7 @@ Started: sön  8 mar 2026 00:14:34 CET
 - Case Sensitivity: Always use `#include "StdAfx.h"` (not `stdafx.h`).
 - Case Sensitivity: File names are generally lowercase (`localizer.h`, `meosexception.h`), but UI components use PascalCase (`TabBase.h`).
 - String Utilities: String conversion functions (widen/narrow) are now in `meos_util.h` (US-002).
+- Type Aliases: Replaced `DWORD` with `uint32_t` and `BOOL` with `bool` in domain code. (US-004).
 ---
 
 ## sön  8 mar 2026 11:52:10 CET - US-001
@@ -41,3 +42,18 @@ Started: sön  8 mar 2026 00:14:34 CET
   - Created a skill for string migration in .gemini/skills/string-migration.md.
 
 ## US-003 (45m24s)
+
+## sön  8 mar 2026 14:15:22 CET - US-004
+- Replaced Win32 types (DWORD, BOOL) with standard C++ types (uint32_t, bool) in domain files.
+- Replaced Win32 constants (TRUE, FALSE) with true/false in domain files.
+- Added #include <cstdint> where uint32_t is used.
+- Files changed: oEvent.h/cpp, oEventSQL.cpp, oEventSpeaker.cpp, oCard.cpp, oClass.cpp, oFreeImport.cpp, MeosSQL.h/cpp, autotask.h/cpp, meos_util.h/cpp, download.h/cpp, onlineinput.h, SportIdent.h/cpp, animationdata.h, random.cpp, image.cpp, meos.cpp, printer.cpp, progress.cpp, testmeos.cpp, mysqldaemon.cpp, xmlparser.cpp.
+- **Learnings for future iterations:**
+  - Win32 types (DWORD, BOOL) are heavily used in domain logic.
+  - Automated replacement with a script is efficient but requires careful filtering to avoid SQL strings (like in MeosSQL.cpp).
+  - UI files (Tab*, gdioutput, Table*) still use Win32 types and should be handled separately or left as is if they are to be replaced by a new UI.
+  - Created a skill for type migration in .gemini/skills/win32-replacements.md.
+
+## US-004 (20m31s)
+
+## US-004 (11m58s)

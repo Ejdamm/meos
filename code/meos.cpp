@@ -24,6 +24,7 @@
 //
 
 #include "StdAfx.h"
+#include <cstdint>
 #include "resource.h"
 #include <shlobj.h>
 
@@ -97,7 +98,7 @@ TCHAR szWorkSpaceClass[MAX_LOADSTRING]; // The title bar text
 
 // Foward declarations of functions included in this code module:
 ATOM MyRegisterClass(HINSTANCE hInstance);
-BOOL initInstance(HINSTANCE, int);
+bool initInstance(HINSTANCE, int);
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK WorkSpaceWndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK About(HWND, UINT, WPARAM, LPARAM);
@@ -139,9 +140,9 @@ wchar_t programPath[MAX_PATH];
 wchar_t exePath[MAX_PATH];
 
 
-void mainMessageLoop(HACCEL hAccelTable, DWORD time) {
+void mainMessageLoop(HACCEL hAccelTable, uint32_t time) {
   MSG msg;
-  BOOL bRet;
+  bool bRet;
   uint64_t timeLimit = 0;
   if (time > 0) {
     timeLimit = time + GetTickCount64();
@@ -409,7 +410,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
                     gEvent->getPropertyString("UIFont", L"Segoe UI"));
 
   if (hSplash != nullptr) {
-    DWORD startupToc = GetTickCount64() - splashStart;
+    uint32_t startupToc = GetTickCount64() - splashStart;
     Sleep(min<int>(1000, max<int>(0, 700 - startupToc)));
   }
 
@@ -577,7 +578,7 @@ LRESULT CALLBACK GetMsgProc(int nCode, WPARAM wParam, LPARAM lParam) {
   return CallNextHookEx(g_hhk, nCode, wParam, lParam);
 }
 
-void flushEvent(const string &id, const string &origin, DWORD data, int extraData)
+void flushEvent(const string &id, const string &origin, uint32_t data, int extraData)
 {
   for (size_t k = 0; k<gdi_extra.size(); k++) {
     if (gdi_extra[k]) {
@@ -746,7 +747,7 @@ LRESULT CALLBACK KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-BOOL initInstance(HINSTANCE hInstance, int nCmdShow) {
+bool initInstance(HINSTANCE hInstance, int nCmdShow) {
   try {
     HWND hWnd;
 
@@ -773,7 +774,7 @@ BOOL initInstance(HINSTANCE hInstance, int nCmdShow) {
       NULL, NULL, hInstance, NULL);
 
     if (!hWnd)
-      return FALSE;
+      return false;
 
     hWndMain = hWnd;
 
@@ -785,7 +786,7 @@ BOOL initInstance(HINSTANCE hInstance, int nCmdShow) {
       50, 200, 200, 100, hWndMain, NULL, hInstance, NULL);
 
     if (!hWnd)
-      return FALSE;
+      return false;
 
     hWndWorkspace = hWnd;
     ShowWindow(hWnd, nCmdShow);
@@ -803,7 +804,7 @@ BOOL initInstance(HINSTANCE hInstance, int nCmdShow) {
     MessageBox(NULL, L"Unknown error", L"MeOS", MB_OK);
     return false;
   }
-  return TRUE;
+  return true;
 }
 
 void saveMainWindowPos() {
@@ -1367,7 +1368,7 @@ void scrollVertical(gdioutput *gdi, int yInc, HWND hWnd) {
     si.fMask  = SIF_POS;
     si.nPos   = yPos;
 
-    SetScrollInfo(hWnd, SB_VERT, &si, TRUE);
+    SetScrollInfo(hWnd, SB_VERT, &si, true);
 
     if (inv)
       UpdateWindow(hWnd);
@@ -1623,7 +1624,7 @@ LRESULT CALLBACK WorkSpaceWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         si.fMask  = SIF_POS;
         si.nPos   = xPos;
 
-        SetScrollInfo(hWnd, SB_HORZ, &si, TRUE);
+        SetScrollInfo(hWnd, SB_HORZ, &si, true);
         UpdateWindow (hWnd);
       }
       break;
@@ -1663,7 +1664,7 @@ LRESULT CALLBACK WorkSpaceWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
           double nextPos = pos + autoScroll;
           dy = int(nextPos - si.nPos);
           gdi->storeAutoPos(nextPos);
-          //gdi->setData("Discrete", DWORD(nextPos*1e3));
+          //gdi->setData("Discrete", uint32_t(nextPos*1e3));
         }
 
         scrollVertical(gdi, dy, hWnd);
@@ -1739,17 +1740,17 @@ LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
   switch (message)
   {
     case WM_INITDIALOG:
-        return TRUE;
+        return true;
 
     case WM_COMMAND:
       if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
       {
         EndDialog(hDlg, LOWORD(wParam));
-        return TRUE;
+        return true;
       }
       break;
   }
-    return FALSE;
+    return false;
 }
 
 

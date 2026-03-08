@@ -21,6 +21,7 @@
 ************************************************************************/
 
 #include "StdAfx.h"
+#include <cstdint>
 #include "image.h"
 #include "png/png.h"
 #include <vector>
@@ -75,7 +76,7 @@ vector<uint8_t> Image::loadResourceToMemory(LPCTSTR lpName, LPCTSTR lpType)  {
     return result;
 
   // load the resource
-  DWORD dwResourceSize = SizeofResource(NULL, hrsrc);
+  uint32_t dwResourceSize = SizeofResource(NULL, hrsrc);
   HGLOBAL hglbImage = LoadResource(NULL, hrsrc);
   if (hglbImage == NULL)
     return result;

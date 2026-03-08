@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <cstdint>
+
 /************************************************************************
 MeOS - Orienteering Software
 Copyright (C) 2009-2026 Melin Software HB
@@ -37,7 +39,7 @@ class AnimationData : public GuiHandler {
   int page;
   uint64_t lastTime;
   uint64_t nextTime;
-  DWORD timeOut;
+  uint32_t timeOut;
   bool doAnimation;
   std::atomic_bool errorState;
   gdioutput *gdiRef;

@@ -1,4 +1,5 @@
 #include <cwchar>
+#include <cstdint>
 #include <cstdio>
 ﻿/************************************************************************
     MeOS - Orienteering Software
@@ -44,9 +45,9 @@ string convertSystemDateN(const SYSTEMTIME &st);
 string convertSystemTimeOnlyN(const SYSTEMTIME &st);
 extern int defaultCodePage;
 
-DWORD mainThreadId = -1;
+uint32_t mainThreadId = -1;
 StringCache &StringCache::getInstance() {
-  DWORD id = GetCurrentThreadId();
+  uint32_t id = GetCurrentThreadId();
   if (mainThreadId == -1)
     mainThreadId = id;
   else if (mainThreadId != id)
@@ -1678,13 +1679,13 @@ wstring getErrorMessage(int code) {
 /* Hue is undefined if Saturation is 0 (grey-scale) */
 #define UNDEFINED (HLSMAX*2/3)
 
-HLS &HLS::RGBtoHLS(DWORD lRGBColor)
+HLS &HLS::RGBtoHLS(uint32_t lRGBColor)
 {
   WORD R,G,B;          /* input RGB values */
   BYTE cMax,cMin;      /* max and min RGB values */
   WORD  Rdelta,Gdelta,Bdelta; /* intermediate value: % of spread from max
                               */
-  /* get R, G, and B out of DWORD */
+  /* get R, G, and B out of uint32_t */
   R = GetRValue(lRGBColor);
   G = GetGValue(lRGBColor);
   B = GetBValue(lRGBColor);
@@ -1752,7 +1753,7 @@ WORD HLS::HueToRGB(WORD n1, WORD n2, WORD hue) const
     return ( n1 );
 }
 
-DWORD HLS::HLStoRGB() const
+uint32_t HLS::HLStoRGB() const
 {
   const WORD &lum = lightness;
   const WORD &sat = saturation;
@@ -2508,7 +2509,7 @@ const string &recodeToNarrow(const wstring &input) {
   int res = (int)input.size() * 3 + 2;
   output.reserve(res);
   output.resize(input.size(), 0);
-  BOOL usedDef = false;
+  bool usedDef = false;
   int ok = WideCharToMultiByte(cp, 0, input.c_str(), (int)input.size(), &output[0], res, "?", &usedDef);
 
   return output;
@@ -2545,7 +2546,7 @@ void checkWriteAccess(const wstring &file) {
     wchar_t absPath[260];
     _wfullpath(absPath, file.c_str(), 260);
 
-    DWORD err = GetLastError();
+    uint32_t err = GetLastError();
     
     if (err == ERROR_ACCESS_DENIED)
       throw meosException(wstring(L"Behörighet saknas för att skriva till 'X'.#") + absPath);

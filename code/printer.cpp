@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdint>
 #include <cwchar>
 ﻿/************************************************************************
     MeOS - Orienteering Software
@@ -39,7 +40,7 @@ extern gdioutput *gdi_main;
 static bool bPrint;
 const double inchmmk=2.54;
 
-BOOL CALLBACK AbortProc(HDC,	int  iError)
+bool CALLBACK AbortProc(HDC,	int  iError)
 {
   if (iError==0)
     return bPrint;
@@ -52,7 +53,7 @@ BOOL CALLBACK AbortProc(HDC,	int  iError)
 
 #define WM_SETPAGE WM_USER+423
 
-BOOL CALLBACK  AbortPrintJob(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
+bool CALLBACK  AbortPrintJob(HWND hDlg, UINT message, WPARAM wParam, LPARAM) {
   return false;
 }
 
@@ -610,9 +611,9 @@ void RenderedPage::calculateCS(const TextInfo &text)
   if (gdioutput::skipTextRender(text.format) ||
      text.text.empty())
     return;
-  DWORD localCS=0;
-  DWORD localCS2=0;
-  for(DWORD i=0; i<text.text.size(); i++){
+  uint32_t localCS=0;
+  uint32_t localCS2=0;
+  for(uint32_t i=0; i<text.text.size(); i++){
     localCS+=(BYTE(text.text[i])<<(i%24))*(i*i+text.yp);
     localCS2+=(BYTE(text.text[i])<<(i%23))*(i+17)*(i+text.xp);
   }
