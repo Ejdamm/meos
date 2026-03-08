@@ -44,3 +44,21 @@ Started: sön  8 mar 2026 00:14:24 CET
 ---
 
 ## US-002 (4m58s)
+
+## 2026-03-08 17:17:48 - US-003
+- Implemented Frontend Test Infrastructure with Vitest
+- Files created:
+  - src/ui/web/package.json (dependencies and scripts)
+  - src/ui/web/tsconfig.json + tsconfig.node.json
+  - src/ui/web/vite.config.ts + vitest.config.ts
+  - src/ui/web/src/setupTests.ts (jest-dom setup)
+  - src/ui/web/src/App.tsx + main.tsx + index.html
+  - src/ui/web/src/__tests__/smoke.test.tsx
+- **Learnings for future iterations:**
+  - npm create vite@latest is interactive and can hang; manual file creation or --no-interactive flags are better for automation.
+  - React 17+ doesn't need 'import React from "react"' in every JSX file; keeping it may trigger unused variable errors in strict TS mode.
+  - v8 is a reliable coverage provider for Vitest.
+  - jsdom is necessary for testing React components that interact with the DOM.
+---
+
+## US-003 (14m44s)

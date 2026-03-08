@@ -5,3 +5,7 @@ vcpkg_installed/
 CMakeUserPresets.json
 compile_commands.json
 .cache/
+node_modules/
+dist/
+coverage/
+*.log
