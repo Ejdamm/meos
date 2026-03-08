@@ -7,6 +7,7 @@ Started: sön  8 mar 2026 00:14:40 CET
 - Backend: XML API at `/meos`, Frontend: JSON REST API at `/api/v1`
 - Use `NavLink` for active route highlighting
 - Tailwind 4 for styling (CSS-first approach)
+- Use generic `DataTable` component for entity lists with sorting, filtering, and pagination.
 
 ---
 ## 2026-03-08 - US-001: Project scaffolding with Vite, React 18, and TypeScript
@@ -63,4 +64,51 @@ Started: sön  8 mar 2026 00:14:40 CET
   - The `import.meta.env.MODE` check in `main.tsx` is the standard way to conditionally enable mocking in Vite projects.
 ---
 
-## US-004 (4m02s)
+## 2026-03-08 - US-005: Reusable data table component with sorting, filtering, and pagination
+- What was implemented:
+  - Created src/components/DataTable.tsx as a reusable component.
+  - Implemented sorting (asc/desc) by clicking headers.
+  - Implemented global text filtering across all columns.
+  - Implemented pagination with configurable page size.
+  - Added row selection via onClick handler.
+  - Ensured responsive rendering with horizontal scroll.
+  - Verified with npm run build (typecheck).
+- **Learnings for future iterations:**
+  - A generic DataTable component with typed columns makes implementing entity lists (runners, clubs, etc.) much faster.
+  - `useMemo` is essential for performance when filtering and sorting large datasets client-side.
+  - Tailwind's `overflow-x-auto` is the simplest way to handle table responsiveness.
+---
+
+## US-005 (2m32s)
+
+## iteration-5 (5m29s)
+
+## iteration-6 (2m58s)
+
+## iteration-7 (3m34s)
+
+## iteration-8 (0m26s)
+
+## iteration-9 (1m56s)
+
+## iteration-10 (3m54s)
+
+## iteration-11 (0m09s)
+
+## iteration-12 (1m45s)
+
+## iteration-13 (0m08s)
+
+## iteration-14 (2m57s)
+
+## iteration-15 (3m51s)
+
+## iteration-16 (0m08s)
+
+## iteration-17 (0m07s)
+
+## iteration-18 (0m07s)
+
+## iteration-19 (0m07s)
+
+## iteration-20 (0m08s)

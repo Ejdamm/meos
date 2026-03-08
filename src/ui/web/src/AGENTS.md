@@ -29,6 +29,17 @@
   - Mocking is enabled in `src/main.tsx` if `import.meta.env.MODE === 'development'`.
   - Always run `npx msw init public/` if the service worker script is missing.
 
+## Data Table
+- Use the `DataTable` component from `src/components/DataTable` for all entity lists.
+- It supports sorting, global filtering, and pagination out of the box.
+- Columns are defined as an array of objects:
+  ```typescript
+  const columns: Column<MyEntity>[] = [
+    { header: 'Name', accessorKey: 'name', sortable: true },
+    { header: 'Status', accessorKey: 'status', cell: (item) => <StatusBadge status={item.status} /> }
+  ];
+  ```
+
 ## TypeScript and Types
 - **Interfaces**: Defined in `@/api/types.ts`.
 - **Enums**: Do NOT use TypeScript `enum`. Use `const object + type` pattern to comply with `erasableSyntaxOnly` settings.
