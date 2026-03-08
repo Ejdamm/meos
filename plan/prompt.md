@@ -21,9 +21,9 @@ This migration is **iterative and disposable**. The entire migration will be run
 4. Implement that single user story
 5. Run quality checks (e.g., typecheck, lint, test - use whatever your project requires)
 6. Update AGENTS.md files if you discover reusable patterns (see below)
-7. If checks pass, commit ALL changes with message: `feat: [Story ID] - [Story Title]`
+7. **Write your full progress report** to `plan/progress.txt` BEFORE committing (see format below). Never use placeholders like "..." or "TODO" — write the real content now.
 8. Update the PRD to set `passes: true` for the completed story
-9. Append your progress to `plan/progress.txt`
+9. Commit ALL changes (including the progress report and PRD update) with message: `feat: [Story ID] - [Story Title]`
 
 ## Progress Report Format
 
@@ -90,14 +90,14 @@ Only update AGENTS.md if you have **genuinely reusable knowledge** that would he
 - Follow existing code patterns
 - **IMPORTANT:** Keep `.gitignore` updated so that build artifacts, generated files, and other unnecessary files are not committed. Check this BEFORE every commit.
 
-## Stop Condition
+## Stop Condition — CRITICAL
 
-After completing a user story, check if ALL stories have `passes: true`.
+**You must implement exactly ONE user story per iteration, then STOP.** Do not continue to the next story — end your response so the outer loop can start a fresh iteration.
 
-If ALL stories are complete and passing, reply with:
-<promise>COMPLETE</promise>
+After completing and committing your single story:
 
-If there are still stories with `passes: false`, end your response normally (another iteration will pick up the next story).
+- If ALL stories now have `passes: true`, reply with `<promise>COMPLETE</promise>`
+- Otherwise, **end your response immediately**. Do NOT start the next story. The outer loop will invoke you again for the next iteration.
 
 ## Update Gemini Skills
 
@@ -110,9 +110,10 @@ After each completed story, save reusable learnings and scripts to `.gemini/skil
 
 ## Important
 
-- Work on ONE story per iteration
+- **Work on exactly ONE story per iteration, then STOP.** This is the single most important rule. Do not start a second story.
 - Commit frequently
 - Keep CI green
 - Read the Codebase Patterns section in plan/progress.txt before starting
 - Update `.gemini/skills/` with migration learnings and reusable scripts after each story
 - **Never assume legacy code is static** — always read and parse it dynamically, as upstream changes may alter structure, signatures, or file contents between migration runs
+- **Never write placeholder progress entries.** Every progress entry must contain the actual files changed and real learnings.

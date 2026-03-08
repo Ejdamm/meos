@@ -1,3 +1,4 @@
 task_id,tool,start_time,duration_seconds,status
 US-002,gemini,2026-03-08T16:59:12+01:00,298,continuing
 US-003,gemini,2026-03-08T17:04:12+01:00,884,continuing
+US-004,gemini,2026-03-08T17:18:58+01:00,470,completed
