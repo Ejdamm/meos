@@ -1,3 +1,4 @@
+#include <cwchar>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -27,6 +28,8 @@
 #include "StdAfx.h"
 
 #include <vector>
+#include <string>
+#include <cstdio>
 #include "oEvent.h"
 #include "gdioutput.h"
 #include "oDataContainer.h"
@@ -84,9 +87,9 @@ const vector< pair<wstring, size_t> > &oEvent::fillTeams(vector< pair<wstring, s
         if (nb > 0 && nb == it->getStartNo()) {
           char bf[24];
           if (maxSno>999)
-            sprintf_s(bf, "%04d ", nb);
+            snprintf(bf, sizeof(bf), "%04d ", nb);
           else
-            sprintf_s(bf, "%03d ", nb);
+            snprintf(bf, sizeof(bf), "%03d ", nb);
 
           tn = bf + it->Name;
         }
@@ -250,7 +253,7 @@ pTeam oEvent::findTeam(const wstring &s, int lastId, unordered_set<int> &filter)
   wcscpy_s(s_lc, trm.c_str());
   prepareMatchString(s_lc, len);
 
-  int sn = _wtoi(s.c_str());
+  int sn = std::stoi(s);
   oTeamList::const_iterator it;
 /*
   if (sn>0) {
@@ -1008,8 +1011,8 @@ static bool oTeam::compareGeneral(const oTeam& a, const oTeam& b) {
     const wstring& xb = a.getBib();
     const wstring& xbc = b.getBib();
     if (xb != xbc) {
-      int bn = _wtoi(xb.c_str());
-      int bcn = _wtoi(xbc.c_str());
+      int bn = std::stoi(xb);
+      int bcn = std::stoi(xbc);
       if (bn != 0 && bcn != 0 && bn != bcn)
         return bn < bcn;
       else

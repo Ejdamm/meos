@@ -1,3 +1,4 @@
+#include <cstdio>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -222,7 +223,7 @@ string MethodEditor::uniqueTag(const string &tag) const {
   srand(GetTickCount());
   int b = rand() % 65536;
   char un[64];
-  sprintf_s(un, "-%04X-%04X-", a, b);
+  snprintf(un, sizeof(un), "-%04X-%04X-", a, b);
   int iter = 0;
   while (tags.count(tag + un + itos(++iter)));
   return tag + un + itos(iter);

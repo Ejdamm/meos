@@ -30,3 +30,14 @@ Started: sön  8 mar 2026 00:14:34 CET
 ---
 
 ## US-002 (18m49s)
+
+## sön  8 mar 2026 12:56:53 CET - US-003
+- Replaced Win32-specific string functions (_wtoi, sprintf_s, swprintf_s, _itow_s) with standard C++ equivalents (std::stoi, snprintf, swprintf) in domain files.
+- Files changed: Numerous domain files (oEvent*, oRunner, oClass, etc.) and utility files.
+- **Learnings for future iterations:**
+  - Automated replacement with regex/Python is much faster than manual or agent-driven turns for large files.
+  - lang.tl returns const wstring&, which is compatible with swprintf and std::stoi.
+  - Always verify buffer types (fixed array vs pointer) before applying sizeof() replacements.
+  - Created a skill for string migration in .gemini/skills/string-migration.md.
+
+## US-003 (45m24s)

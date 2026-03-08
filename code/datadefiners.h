@@ -163,7 +163,7 @@ public:
       r->setRankingScore(_wtof(input.c_str()));
     }
     else {
-      int rank = _wtoi(input.c_str());
+      int rank = std::stoi(input);
       if (rank >= 0 && rank < MaxOrderRank)
         ob->getDI().setInt("Rank", rank);
     }
@@ -227,7 +227,7 @@ public:
       vector<wstring> sIn;
       split(input, L" ", sIn);
       for (wstring& in : sIn) {
-        int num = _wtoi(in.c_str());
+        int num = std::stoi(in);
         if (in.find_first_of(':') != input.npos) {
           int t = ob->getEvent()->convertAbsoluteTime(input);
           if (t > 0) {
@@ -309,7 +309,7 @@ public:
     return lang.tl(v ? "true[boolean]" : "false[boolean]");
   }
   pair<int, bool> setData(oBase* obj, int index, const wstring& input, wstring& output, int inputId) const override {
-    bool v = compareStringIgnoreCase(L"true", input) == 0 || _wtoi64(input.c_str()) > 0;
+    bool v = compareStringIgnoreCase(L"true", input) == 0 || std::stoll(input) > 0;
     if (!v) {
       const wstring& T = lang.tl("true[boolean]");
       v = compareStringIgnoreCase(T, input) == 0;
@@ -507,7 +507,7 @@ public:
   pair<int, bool> setData(oBase* obj, int index, const wstring& input, wstring& output, int inputId) const final {
     oAbstractRunner* r = static_cast<oAbstractRunner*>(obj);
     bool flag = false;
-    if (lstrcmpi(L"true", input.c_str()) == 0 || _wtoi(input.c_str()) != 0)
+    if (lstrcmpi(L"true", input.c_str()) == 0 || std::stoi(input) != 0)
       flag = true;
     r->setFlag(fieldOrder[index].first, flag);
     output = formatData(obj, index);

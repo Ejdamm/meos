@@ -1,3 +1,5 @@
+#include <cwchar>
+#include <cstdio>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -23,6 +25,7 @@
 #include "StdAfx.h"
 
 #include <sys/stat.h>
+#include <string>
 #include "oEvent.h"
 #include "gdioutput.h"
 
@@ -270,7 +273,7 @@ void OnlineInput::save(oEvent &oe, gdioutput &gdi, bool doProcess) {
     split(unitId, L" ,;", out);
     wstring modems;
     for (auto& m : out) {
-      int mId = _wtoi(m.c_str());
+      int mId = std::stoi(m);
       if (mId > 0) {
         if (!modems.empty())
           modems += L",";
@@ -332,7 +335,7 @@ void OnlineInput::saveMachine(oEvent &oe, const wstring &guiInterval) {
   
   cnt.set("useId", useUnitId);
 
-  int iv = _wtoi(guiInterval.c_str());
+  int iv = std::stoi(guiInterval);
   cnt.set("interval", iv);
 
   /*vector<int> pm;
@@ -547,9 +550,9 @@ void OnlineInput::processPunches(oEvent &oe, list<vector<wstring>> &rocData) {
   for (list< vector<wstring> >::iterator it = rocData.begin(); it != rocData.end(); ++it) {
     vector<wstring> &line = *it;
     if (line.size() == 4) {
-      int punchId = _wtoi(line[0].c_str());
-      int code = _wtoi(line[1].c_str());
-      int card = _wtoi(line[2].c_str());
+      int punchId = std::stoi(line[0]);
+      int code = std::stoi(line[1]);
+      int card = std::stoi(line[2]);
       wstring timeS = line[3].substr(11);
       int time = oe.getRelativeTime(timeS);
       if (!oe.supportSubSeconds())

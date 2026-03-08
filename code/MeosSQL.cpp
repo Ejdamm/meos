@@ -1,3 +1,4 @@
+#include <cwchar>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -25,6 +26,8 @@
 
 #include <cassert>
 #include <typeinfo>
+#include <cstdio>
+#include <string>
 
 #include "MeosSQL.h"
 
@@ -103,7 +106,7 @@ string C_UINT64(string name)
 string C_STRING(string name, int len=64)
 {
   char bf[16];
-  sprintf_s(bf, "%d", len);
+  snprintf(bf, sizeof(bf), "%d", len);
   return " "+name+" VARCHAR("+ bf +") NOT NULL DEFAULT '', ";
 }
 

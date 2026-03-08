@@ -30,9 +30,9 @@ void CardSystem::load(const wstring& fn) {
     if (sp.size() != 2)
       throw meosException(L"Invalid file format: " + fn);
 
-    int a = _wtoi(sp[0].c_str());
-    int b = _wtoi(sp[1].c_str());
-    int numPunch = _wtoi((*it)[1].c_str());
+    int a = std::stoi(sp[0]);
+    int b = std::stoi(sp[1]);
+    int numPunch = std::stoi((*it)[1].c_str());
     if (b<a || a<=0 || b <= 0 || numPunch<1 || numPunch>=1000)
       throw meosException(L"Invalid card specification: " + fn);
 

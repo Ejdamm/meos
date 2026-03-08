@@ -41,8 +41,8 @@
         "No behavioral changes — refactoring only"
       ],
       "priority": 3,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Replaced _wtoi, sprintf_s, swprintf_s, _itow_s with std::stoi, snprintf, swprintf in all domain files."
     },
     {
       "id": "US-004",

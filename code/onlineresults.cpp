@@ -1,3 +1,5 @@
+#include <cwchar>
+#include <cstdio>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -619,9 +621,9 @@ InfoCompetition &OnlineResults::getInfoServer() const {
 wstring OnlineResults::getExportFileName() const {
   wchar_t bf[260];
   if (prefix.empty())
-    swprintf_s(bf, L"%s\\exp_%04d.xml", file.c_str(), exportCounter + sessionNumberOffset);
+    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s\\exp_%04d.xml", file.c_str(), exportCounter + sessionNumberOffset);
   else
-    swprintf_s(bf, L"%s\\%s%04d.xml", file.c_str(), prefix.c_str(), exportCounter + sessionNumberOffset);
+    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%s\\%s%04d.xml", file.c_str(), prefix.c_str(), exportCounter + sessionNumberOffset);
 
   return bf;
 }
@@ -639,7 +641,7 @@ void OnlineResults::saveMachine(oEvent &oe, const wstring &guiInterval) {
   cnt.set("file", file);
   cnt.set("url", url);
   cnt.set("prefix", prefix);
-  int iv = _wtoi(guiInterval.c_str());
+  int iv = std::stoi(guiInterval);
   cnt.set("interval", iv);
 
   string pwProp = "@respwd" + narrow(getMachineName());

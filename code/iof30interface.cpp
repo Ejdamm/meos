@@ -1,3 +1,5 @@
+#include <cstdio>
+#include <cwchar>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -640,7 +642,7 @@ void IOF30Interface::teamCourseAssignment(gdioutput &gdi, xmlList &xAssignment,
 
     if (!bib.empty()) {
       teamText = bib;
-      iBib = _wtoi(bib.c_str());
+      iBib = std::stoi(bib);
       t = bib2Team[bib];
       if (t == nullptr) {
         if (iBib > 0) {
@@ -680,7 +682,7 @@ void IOF30Interface::teamCourseAssignment(gdioutput &gdi, xmlList &xAssignment,
         };
 
         for (pTeam t : allT) {
-          int b = _wtoi(t->getBib().c_str());
+          int b = std::stoi(t->getBib().c_str());
           if (b <= 0)
             continue;
           int cls = t->getClassId(false);
@@ -690,7 +692,7 @@ void IOF30Interface::teamCourseAssignment(gdioutput &gdi, xmlList &xAssignment,
         vector<pClass> allC;
         oe.getClasses(allC, false);
         for (pClass c : allC) {
-          int b = _wtoi(c->getDCI().getString("Bib").c_str());
+          int b = std::stoi(c->getDCI().getString("Bib").c_str());
           if (b > 0) 
             insertClsBib(c->getId(), b);
         }
@@ -1824,7 +1826,7 @@ void IOF30Interface::readEvent(gdioutput &gdi, const xmlobject &xo,
 
     if (!factors.empty()) {
       wchar_t lf[16];
-      swprintf_s(lf, L"%d %%", *factors.rbegin());
+      swprintf(lf, sizeof(lf)/sizeof(wchar_t), L"%d %%", *factors.rbegin());
       DI.setString("LateEntryFactor", lf);
     }
   }
@@ -3194,12 +3196,12 @@ wstring IOF30Interface::formatRelTime(int rt) {
   wchar_t bf[32];
   if (oe.useSubSecond()) {
     if (timeConstSecond == 10)
-      swprintf_s(bf, L"%d.%d", rt / timeConstSecond, rt % timeConstSecond);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%d.%d", rt / timeConstSecond, rt % timeConstSecond);
     else
-      swprintf_s(bf, L"%d.%02d", rt / timeConstSecond, rt % timeConstSecond);
+      swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%d.%02d", rt / timeConstSecond, rt % timeConstSecond);
   }
   else
-    swprintf_s(bf, L"%d", rt / timeConstSecond);
+    swprintf(bf, sizeof(bf)/sizeof(wchar_t), L"%d", rt / timeConstSecond);
 
   return bf;
 }
@@ -3279,9 +3281,9 @@ void IOF30Interface::getLocalDateTime(const string &date, const string &time,
       SystemTimeToTzSpecificLocalTime(0, &st, &localTime);
 
       char bf[64];
-      sprintf_s(bf, "%02d:%02d:%02d", localTime.wHour, localTime.wMinute, localTime.wSecond);
+      snprintf(bf, sizeof(bf), "%02d:%02d:%02d", localTime.wHour, localTime.wMinute, localTime.wSecond);
       timeOut = bf;
-      sprintf_s(bf, "%d-%02d-%02d", localTime.wYear, localTime.wMonth, localTime.wDay);
+      snprintf(bf, sizeof(bf), "%d-%02d-%02d", localTime.wYear, localTime.wMonth, localTime.wDay);
       dateOut = bf;
     }
     else {
@@ -4481,7 +4483,7 @@ bool IOF30Interface::readControl(const xmlobject &xControl) {
     type = 2;
   else {
     type = 0;
-    code = _wtoi(idStr.c_str());
+    code = std::stoi(idStr);
     if (code <= 0)
       return false;
   }

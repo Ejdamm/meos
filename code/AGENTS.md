@@ -69,6 +69,13 @@ Wide strings (`wstring`) are the primary string type (Swedish/internationalized 
 
 Avoid calling these through `gdioutput` as they have been moved to global scope in `meos_util.h`.
 
+**Standard String Functions:**
+- Use `std::stoi` / `std::stoll` instead of `_wtoi` / `_wtoi64`.
+- Use `snprintf` instead of `sprintf_s`.
+- Use `swprintf` instead of `swprintf_s`.
+- Use `std::to_wstring` or `swprintf` instead of `_itow_s`.
+- Always include `<string>`, `<cstdio>`, or `<cwchar>` as needed.
+
 ### Error handling
 
 Custom exception `meosException` (with `wwhat()` for wide-string messages) and `meosCancel` for cancellation. Most functions prefer returning bool/error codes; exceptions are for critical failures.

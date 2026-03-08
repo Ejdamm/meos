@@ -22,6 +22,7 @@
 #include "StdAfx.h"
 
 #include <cassert>
+#include <string>
 #include "prefseditor.h"
 
 #include "gdioutput.h"
@@ -157,7 +158,7 @@ void PrefsEditor::handle(gdioutput &gdi, BaseInfo &data, GuiEventType type) {
 
 wstring PrefsEditor::codeValue(const wstring &val, PropertyType p) const {
   if (p == Boolean) {
-    if (_wtoi(val.c_str()) != 0) {
+    if (std::stoi(val) != 0) {
       return lang.tl(L"true[boolean]");
     }
     else {
@@ -165,14 +166,14 @@ wstring PrefsEditor::codeValue(const wstring &val, PropertyType p) const {
     }
   }
   else if (p == Integer)
-    return itow(_wtoi(val.c_str()));
+    return itow(std::stoi(val));
   else
     return val;
 }
 
 GDICOLOR PrefsEditor::selectColor(const wstring &val, PropertyType p) const {
   if (p == Boolean) {
-    if (_wtoi(val.c_str()) != 0) {
+    if (std::stoi(val) != 0) {
       return colorDarkGreen;
     }
     else {

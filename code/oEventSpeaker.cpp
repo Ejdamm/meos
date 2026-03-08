@@ -1,3 +1,4 @@
+#include <cstdio>
 ﻿/************************************************************************
     MeOS - Orienteering Software
     Copyright (C) 2009-2026 Melin Software HB
@@ -23,6 +24,7 @@
 #include "StdAfx.h"
 
 #include <vector>
+#include <cwchar>
 #include <io.h>
 #include <algorithm>
 
@@ -1414,7 +1416,7 @@ void oEvent::clearPrewarningSounds()
 void oEvent::tryPrewarningSounds(const wstring &basedir, int number)
 {
   wchar_t wave[20];
-  swprintf_s(wave, L"%d.wav", number);
+  swprintf(wave, sizeof(wave)/sizeof(wchar_t), L"%d.wav", number);
 
   wstring file=basedir+L"\\"+wave;
 
@@ -1434,7 +1436,7 @@ void oEvent::playPrewarningSounds(const wstring &basedir, set<int> &controls)
 
       if (r){
         wchar_t wave[20];
-        swprintf_s(wave, L"%d.wav", r->getStartNo());
+        swprintf(wave, sizeof(wave)/sizeof(wchar_t), L"%d.wav", r->getStartNo());
 
         wstring file=basedir+L"\\"+ r->getDI().getString("Nationality") +L"\\"+wave;
 
