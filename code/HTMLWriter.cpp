@@ -165,7 +165,7 @@ static void generateStyles(const gdioutput &gdi, std::ostream &fout, double scal
         iscale = getLocalScale(it->font, faceName);
 
       fout << element << "." <<  style
-           << "{font-family:" << gdi.narrow(faceName) << ";font-size:"
+           << "{font-family:" << narrow(faceName) << ";font-size:"
            << fixed << std::setprecision(2) << (scale * iscale * baseSize) 
            << "px;font-weight:normal;white-space:nowrap" << tcolor << "}\n";
 
@@ -243,7 +243,7 @@ void HTMLWriter::formatTL(ostream &fout,
     getStyle(styles, it, estyle, starttag, endtag);
 
     if (!it.text.empty())
-      fout << starttag << gdioutput::toUTF8(encodeXML(it.text)) << endtag << endl;
+      fout << starttag << toUTF8(encodeXML(it.text)) << endtag << endl;
 
     if (it.format == boldLarge) {
       auto next = itt;
@@ -562,7 +562,7 @@ void HTMLWriter::formatTable(std::ostream &fout,
         string starttag, endtag;
         getStyle(styles, *row[k], "", starttag, endtag);
 
-        fout << starttag << gdioutput::toUTF8(html_table_code(row[k]->text)) << endtag << "</td>" << endl;
+        fout << starttag << toUTF8(html_table_code(row[k]->text)) << endtag << "</td>" << endl;
       }
     }
     fout << "</tr>\n";
@@ -608,7 +608,7 @@ void HTMLWriter::writeHTML(gdioutput& gdi, ostream& fout,
   if (refreshTimeOut > 0)
     fout << "<meta http-equiv=\"refresh\" content=\"" << refreshTimeOut << "\">\n";
 
-  fout << "<title>" << gdioutput::toUTF8(title) << "</title>\n";
+  fout << "<title>" << toUTF8(title) << "</title>\n";
 
   map<pair<gdiFonts, wstring>, pair<string, string>> styles;
   generateStyles(gdi, fout, scale, false, gdi.getTL(), styles);
@@ -628,7 +628,7 @@ void HTMLWriter::writeHTML(gdioutput& gdi, ostream& fout,
   GetTimeFormatA(LOCALE_USER_DEFAULT, 0, NULL, NULL, bf2, 256);
   GetDateFormatA(LOCALE_USER_DEFAULT, 0, NULL, NULL, bf1, 256);
   //fout << "Skapad av <i>MeOS</i>: " << bf1 << " "<< bf2 << "\n";
-  fout << gdioutput::toUTF8(lang.tl("Skapad av ")) + "<a href=\"https://www.melin.nu/meos\" target=\"_blank\"><i>MeOS</i></a>: " << bf1 << " " << bf2 << "\n";
+  fout << toUTF8(lang.tl("Skapad av ")) + "<a href=\"https://www.melin.nu/meos\" target=\"_blank\"><i>MeOS</i></a>: " << bf1 << " " << bf2 << "\n";
   fout << "</p>\n";
 
   fout << "</body>\n";
@@ -674,7 +674,7 @@ void HTMLWriter::writeTableHTML(gdioutput& gdi,
   fout << "<meta charset=\"UTF-8\"/>\n";
   if (refreshTimeOut > 0)
     fout << "<meta http-equiv=\"refresh\" content=\"" << refreshTimeOut << "\">\n";
-  fout << "<title>" << gdioutput::toUTF8(title) << "</title>\n";
+  fout << "<title>" << toUTF8(title) << "</title>\n";
 
   map< pair<gdiFonts, wstring>, pair<string, string> > styles;
   generateStyles(gdi, fout, scale, true, gdi.getTL(), styles);
@@ -694,8 +694,8 @@ void HTMLWriter::writeTableHTML(gdioutput& gdi,
     GetTimeFormatA(LOCALE_USER_DEFAULT, 0, NULL, NULL, bf2, 256);
     GetDateFormatA(LOCALE_USER_DEFAULT, 0, NULL, NULL, bf1, 256);
     wstring meos = getMeosCompectVersion();
-    fout << gdioutput::toUTF8(lang.tl("Skapad av ")) + "<a href=\"https://www.melin.nu/meos\" target=\"_blank\"><i>MeOS "
-      << gdioutput::toUTF8(meos) << "</i></a>: " << bf1 << " " << bf2 << "\n";
+    fout << toUTF8(lang.tl("Skapad av ")) + "<a href=\"https://www.melin.nu/meos\" target=\"_blank\"><i>MeOS "
+      << toUTF8(meos) << "</i></a>: " << bf1 << " " << bf2 << "\n";
     fout << "</p><br>\n";
   }
   fout << "</body>" << endl;
@@ -866,7 +866,7 @@ const HTMLWriter& HTMLWriter::getWriter(TemplateType type, const string &tag,
                                         const vector<pair<string, wstring>> &options) {
   string cacheTag = tag;
   for (auto& op : options)
-    cacheTag += "|" + op.first + gdioutput::narrow(op.second);
+    cacheTag += "|" + op.first + narrow(op.second);
 
   if (auto res = tCache.find(cacheTag); res != tCache.end()) {
     return *res->second;
@@ -906,7 +906,7 @@ string HTMLWriter::localize(const string &in) {
 
       wstring wkey;
       if (!specialTranslate(key, wkey)) {
-        wkey = gdioutput::fromUTF8(key);
+        wkey = fromUTF8(key);
 
         if (wkey[0] != '!')
           wkey = lang.tl(wkey);
@@ -914,9 +914,9 @@ string HTMLWriter::localize(const string &in) {
           wkey = lang.tl(wkey.substr(1), true);
       }
 
-      out += gdioutput::toUTF8(wkey);
+      out += toUTF8(wkey);
       
-      //wstring key = gdioutput::fromUTF8(in.substr(pos + 1, end - pos - 1));
+      //wstring key = fromUTF8(in.substr(pos + 1, end - pos - 1));
       
       
       offset = end + 1;
@@ -1072,7 +1072,7 @@ void HTMLWriter::generate(gdioutput &gdi,
 
   ImageWriter imgWriter(L"", false);
   
-  string meos = "<a href=\"https://www.melin.nu/meos\" target=\"_blank\"><i>MeOS</i></a>: "  + gdioutput::toUTF8(getMeosCompectVersion());
+  string meos = "<a href=\"https://www.melin.nu/meos\" target=\"_blank\"><i>MeOS</i></a>: "  + toUTF8(getMeosCompectVersion());
 
   int margin = (w * marginPercent) / 100;
   int height = nRows * gdi.getLineHeight();
@@ -1139,8 +1139,8 @@ void HTMLWriter::generate(gdioutput &gdi,
   if (findAny(output, { "@C", "@CONTENTS" }))
     throw meosException("Cannot place @CONTENTS in @HEAD section");
 
-  replaceAll(output, { "@D", "@DESCRIPTION"}, gdioutput::toUTF8(encodeXML(contentDescription)));
-  replaceAll(output, { "@T", "@TITLE"}, gdioutput::toUTF8(encodeXML(title)));
+  replaceAll(output, { "@D", "@DESCRIPTION"}, toUTF8(encodeXML(contentDescription)));
+  replaceAll(output, { "@T", "@TITLE"}, toUTF8(encodeXML(title)));
   replaceAll(output, { "@M", "@MEOSVERSION", "@MEOS"}, meos);
   map<pair<gdiFonts, wstring>, pair<string, string>> styles;
 

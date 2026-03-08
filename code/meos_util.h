@@ -23,6 +23,7 @@
 #pragma once
 #include <vector>
 #include <map>
+#include "meos_util.h"
 
 class StringCache {
 private:
@@ -306,6 +307,13 @@ namespace MeOSUtil {
 
 void string2Wide(const string &in, wstring &out);
 void wide2String(const wstring &in, string &out);
+
+const wstring& widen(const string& input);
+const string& narrow(const wstring& input);
+const string& toUTF8(const wstring& input);
+const wstring& fromUTF8(const string& input);
+const wstring& recodeToWide(const string& input);
+const string& recodeToNarrow(const wstring& input);
 
 void checkWriteAccess(const wstring &file);
 

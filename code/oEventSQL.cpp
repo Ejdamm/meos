@@ -69,7 +69,7 @@ void oEvent::startReconnectDaemon()
   isConnectedToServer = false;
   if (!isReadOnly()) {
     // Do not show in read only-mode
-    gdibase.delayAlert(L"warning:dbproblem#" + gdibase.widen(err));
+    gdibase.delayAlert(L"warning:dbproblem#" + widen(err));
   }
 }
 
@@ -82,7 +82,7 @@ bool oEvent::msSynchronize(oBase *ob)
 
   string err;
   if (sqlConnection->getErrorMessage(err))
-    gdibase.addInfoBox("sqlerror", gdibase.widen(err), L"Databasvarning", BoxStyle::HeaderWarning, 15000);
+    gdibase.addInfoBox("sqlerror", widen(err), L"Databasvarning", BoxStyle::HeaderWarning, 15000);
 
   if (ret==0) {
     verifyConnection();
@@ -866,8 +866,8 @@ void oEvent::closeDBConnection()
 
   if (!oe->empty() && hadDB) {
     save();
-    Name += L" (" + lang.tl(L"Lokal kopia från: X#" + gdibase.widen(serverName)) + L")";
-    wstring cn = currentNameId + L"." + gdibase.widen(serverName) + L".meos";
+    Name += L" (" + lang.tl(L"Lokal kopia från: X#" + widen(serverName)) + L")";
+    wstring cn = currentNameId + L"." + widen(serverName) + L".meos";
     getUserFile(CurrentFile, cn.c_str());
     serverName.clear();
     save();

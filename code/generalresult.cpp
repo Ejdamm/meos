@@ -95,7 +95,7 @@ void GRINSTANCE() {
 }
 
 const string &GeneralResult::getTimeStamp() const {
-  return gdioutput::narrow(getMeosDate());
+  return narrow(getMeosDate());
 }
 
 bool GeneralResult::isRogaining() const {
@@ -868,7 +868,7 @@ extern oEvent *gEvent;
 void DynamicResult::save(xmlparser &xml) const {
   xml.startTag("MeOSResultCalculationSet");
   xml.write("Name", name);
-  xml.write("Tag", gdioutput::widen(tag));
+  xml.write("Tag", widen(tag));
   xml.write("Description", description);
   if (origin.empty())
     origin = gEvent->getName() + L" (" + getLocalDate() + L")";
@@ -948,7 +948,7 @@ void DynamicResult::compile(bool forceRecompile) const {
       }
       catch (const meosException &ex) {
         if (err.first.empty()) {
-          err.first = gdioutput::widen(method2SymbName[DynamicMethods(k)].second);
+          err.first = widen(method2SymbName[DynamicMethods(k)].second);
           err.second = lang.tl(ex.wwhat());
         }
       }

@@ -220,7 +220,7 @@ int TabSI::siCB(gdioutput& gdi, GuiEventType type, BaseInfo * data) {
 
       auto addSoundWidget = [&gdi, this](const wchar_t* name, SND type, const wstring& label) {
         int itype = int(type);
-        string nname = gdioutput::narrow(name);
+        string nname = narrow(name);
         wstring fn = oe->getPropertyString(nname.c_str(), L"");
         bool doPlay = true;
         if (fn == L"none") {
@@ -640,7 +640,7 @@ int TabSI::siCB(gdioutput& gdi, GuiEventType type, BaseInfo * data) {
             filterDate.clear();
             filterDate.push_back(lang.tl("Inget filter"));
             for (set<string>::iterator it = dates.begin(); it != dates.end(); ++it)
-              filterDate.push_back(gdi.widen(*it));
+              filterDate.push_back(widen(*it));
 
             gdi.dropLine(2);
             gdi.scrollToBottom();
@@ -700,7 +700,7 @@ int TabSI::siCB(gdioutput& gdi, GuiEventType type, BaseInfo * data) {
       int type = lbi.data;
       gdi.getSelectedItem("Filter", lbi);
       bool dofilter = signed(lbi.data) > 0;
-      string filter = lbi.data < filterDate.size() ? gdi.narrow(filterDate[lbi.data]) : "";
+      string filter = lbi.data < filterDate.size() ? narrow(filterDate[lbi.data]) : "";
 
       gdi.restore("Help");
       for (size_t k = 0; k < punches.size(); k++) {
@@ -2517,7 +2517,7 @@ void TabSI::insertSICard(gdioutput& gdi, SICard& sic)
     msg = ex.wwhat();
   }
   catch (std::exception& ex) {
-    msg = gdi.widen(ex.what());
+    msg = widen(ex.what());
   }
   catch (...) {
     msg = L"Ett okänt fel inträffade.";

@@ -2453,12 +2453,83 @@ void string2Wide(const string &in, wstring &out) {
   }
   out.reserve(in.size() + 1);
   out.resize(in.size(), 0);
-  MultiByteToWideChar(cp, MB_PRECOMPOSED, in.c_str(), in.size(), &out[0], out.size() * sizeof(wchar_t));
+  MultiByteToWideChar(cp, MB_PRECOMPOSED, in.c_str(), (int)in.size(), &out[0], (int)out.size() * sizeof(wchar_t));
 }
 
 void wide2String(const wstring &in, string &out) {
   out.clear();
   out.insert(out.begin(), in.begin(), in.end());// XXX Simple extend
+}
+
+const string &narrow(const wstring &input) {
+  string &output = StringCache::getInstance().get();
+  output.clear();
+  output.insert(output.begin(), input.begin(), input.end());
+  return output; 
+}
+
+const wstring &widen(const string &input) {
+  wstring &output = StringCache::getInstance().wget();
+  int cp = 1252;
+  if (input.empty()) {
+    output = L"";
+    return output;
+  }
+  output.reserve(input.size()+1);
+  output.resize(input.size(), 0);
+  MultiByteToWideChar(cp, MB_PRECOMPOSED, input.c_str(), (int)input.size(), &output[0], (int)output.size());
+  return output;
+}
+
+const wstring &recodeToWide(const string &input) {
+  wstring &output = StringCache::getInstance().wget();
+  int cp = defaultCodePage;
+
+  if (input.empty()) {
+    output = L"";
+    return output;
+  }
+  output.reserve(input.size()+1);
+  output.resize(input.size(), 0);
+  MultiByteToWideChar(cp, MB_PRECOMPOSED, input.c_str(), (int)input.size(), &output[0], (int)output.size());
+  return output;
+}
+
+const string &recodeToNarrow(const wstring &input) {
+  string &output = StringCache::getInstance().get();
+  int cp = defaultCodePage;
+
+  if (input.empty()) {
+    output = "";
+    return output;
+  }
+  int res = (int)input.size() * 3 + 2;
+  output.reserve(res);
+  output.resize(input.size(), 0);
+  BOOL usedDef = false;
+  int ok = WideCharToMultiByte(cp, 0, input.c_str(), (int)input.size(), &output[0], res, "?", &usedDef);
+
+  return output;
+}
+
+const wstring &fromUTF8(const string &input) {
+  wstring &output = StringCache::getInstance().wget();
+  size_t alloc = input.length() + 1;
+  output.resize(alloc);
+  wchar_t *ptr = &output[0];
+  int wlen = MultiByteToWideChar(CP_UTF8, 0, input.c_str(), (int)input.length(), ptr, (int)alloc);
+  ptr[wlen] = 0;
+  output.resize(wlen);
+  return output;
+}
+
+const string &toUTF8(const wstring &winput)  {
+  string &output = StringCache::getInstance().get();
+  size_t alloc = winput.length()*4+32;
+  output.resize(alloc);
+  WideCharToMultiByte(CP_UTF8, 0, winput.c_str(), (int)winput.length()+1, (char *)output.c_str(), (int)alloc, 0, 0);
+  output.resize(strlen(output.c_str()));
+  return output;
 }
 
 void checkWriteAccess(const wstring &file) {

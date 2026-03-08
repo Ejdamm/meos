@@ -90,12 +90,12 @@ xmlobject::~xmlobject()
 
 
 const string &xmlparser::encodeXML(const wstring &input) {
-  return ::encodeXML(gdi_main->toUTF8(input));
+  return ::encodeXML(toUTF8(input));
 }
 
 const string &xmlparser::encodeXML(const string &input) {
   if (utfConverter)
-    return ::encodeXML(utfConverter->toUTF8(gdi_main->widen(input))); //XXX WCS
+    return ::encodeXML(toUTF8(widen(input))); //XXX WCS
   else
     return ::encodeXML(input);
 }

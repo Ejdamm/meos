@@ -1360,11 +1360,11 @@ void Parser::getSymbols(vector< pair<wstring, size_t> > &symbOut) const {
       continue;
 
     if (it->second.isMatrix)
-      symbOut.push_back(make_pair(gdi_main->widen(it->first) + L"[][]\t" + lang.tl(it->second.desc), iter++));
+      symbOut.push_back(make_pair(widen(it->first) + L"[][]\t" + lang.tl(it->second.desc), iter++));
     else if (it->second.isVector)
-      symbOut.push_back(make_pair(gdi_main->widen(it->first) + L"[]\t" + lang.tl(it->second.desc), iter++));
+      symbOut.push_back(make_pair(widen(it->first) + L"[]\t" + lang.tl(it->second.desc), iter++));
     else
-      symbOut.push_back(make_pair(gdi_main->widen(it->first) + L"\t" + lang.tl(it->second.desc), iter++));
+      symbOut.push_back(make_pair(widen(it->first) + L"\t" + lang.tl(it->second.desc), iter++));
   }
 }
 
@@ -1376,12 +1376,12 @@ void Parser::getSymbolInfo(int ix, wstring &name, wstring &desc) const {
 
     if (ix == iter++) {
       if (it->second.isMatrix)
-        name = gdi_main->widen(it->first) + L"[][]";
+        name = widen(it->first) + L"[][]";
       else if (it->second.isVector)
-        name = gdi_main->widen(it->first) + L"[]";
+        name = widen(it->first) + L"[]";
       else
-        name = gdi_main->widen(it->first);
-      desc = gdi_main->widen(it->second.desc);
+        name = widen(it->first);
+      desc = widen(it->second.desc);
 
       return;
     }

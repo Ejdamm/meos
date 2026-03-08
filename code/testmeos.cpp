@@ -143,7 +143,7 @@ void TestMeOS::runProtected(bool protect) const {
   tsi->clearQueue();
   tsi->getSI(*gdi_main).resetPunchMap();
 
-  OutputDebugString((L"Running test" + gdi_main->widen(test) + L"\n").c_str());
+  OutputDebugString((L"Running test" + widen(test) + L"\n").c_str());
   try {
     status = RUNNING;
     run();
@@ -181,7 +181,7 @@ void TestMeOS::runProtected(bool protect) const {
     gdi_main->isTestMode = false;
     subWindows.clear();
     //oe_main->setProperty("PayModes", pmOrig);
-    message = gdi_main->widen(ex.what());
+    message = widen(ex.what());
     if (!protect)
       throw;
   }
@@ -241,7 +241,7 @@ bool TestMeOS::runSpecific(int id) const {
 }
 
 void TestMeOS::getTests(vector< pair<wstring, size_t> > &tl) const {
-  tl.push_back(make_pair(gdi_main->widen(test), testId));
+  tl.push_back(make_pair(widen(test), testId));
   for (size_t k = 0; k < subTests.size(); k++) {
     subTests[k]->getTests(tl);    
   }
@@ -325,7 +325,7 @@ void TestMeOS::click(const char *id, int extra) const {
 
 
 string TestMeOS::getText(const char *ctrl) const {
-  return gdi_main->narrow(gdi_main->getText(ctrl, false));
+  return narrow(gdi_main->getText(ctrl, false));
 }
 
 bool TestMeOS::isChecked(const char *ctrl) const {
@@ -385,7 +385,7 @@ void TestMeOS::checkSubString(const char *str, int count) const {
 
 
 void TestMeOS::checkStringRes(const char *str, int count) const {
-  int c = gdi_main->dbGetStringCount(gdi_main->narrow(lang.tl(str)), false);
+  int c = gdi_main->dbGetStringCount(narrow(lang.tl(str)), false);
   assertEquals("String " + string(str) + " not found", itos(count), itos(c));
 }
 
@@ -407,7 +407,7 @@ void TestMeOS::setFile(const string &file) const {
 }
 
 void TestMeOS::setFile(const wstring& file) const {
-  gdi_main->dbPushDialogAnswer("*" + gdioutput::narrow(file));
+  gdi_main->dbPushDialogAnswer("*" + narrow(file));
 }
 
 void TestMeOS::cleanup() const {
@@ -480,13 +480,13 @@ void TestMeOS::tableCmd(const char *id) const {
 
 void TestMeOS::setTableText(int editRow, int editCol, const string &text) const {
   Table &t = gdi_main->getTable();
-  t.setTableText(*gdi_main, editRow, editCol, gdi_main->widen(text));
+  t.setTableText(*gdi_main, editRow, editCol, widen(text));
   mainMessageLoop(0, 50);
 }
 
 string TestMeOS::getTableText(int editRow, int editCol) const {
   Table &t = gdi_main->getTable();
-  return gdi_main->narrow(t.getTableText(*gdi_main, editRow, editCol));
+  return narrow(t.getTableText(*gdi_main, editRow, editCol));
 }
 
 void TestMeOS::registerSubCommand(const string &cmd) const {

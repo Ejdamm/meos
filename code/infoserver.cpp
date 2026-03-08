@@ -881,8 +881,8 @@ void xmlbuffer::write(const char *tag,
   blocks.push_back(block());
   blocks.back().tag = tag;
   for (size_t k = 0; k < prop.size(); k++)
-    blocks.back().prop.push_back(make_pair(prop[k].first, gdi_main->widen(prop[k].second)));
-  blocks.back().value = gdi_main->widen(value);
+    blocks.back().prop.push_back(make_pair(prop[k].first, widen(prop[k].second)));
+  blocks.back().value = widen(value);
 }
 
 void xmlbuffer::write(const char *tag,
@@ -916,7 +916,7 @@ bool xmlbuffer::commit(xmlparser &xml, int count) {
       if (block.prop.size() > 1) {
         p2.resize(block.prop.size() * 2);
         for (size_t k = 0; k < block.prop.size(); k++) {
-          p2[k * 2] = gdi_main->widen(block.prop[k].first);
+          p2[k * 2] = widen(block.prop[k].first);
           p2[k * 2 + 1] = std::move(block.prop[k].second);
         }
         xml.startTag(block.tag.c_str(), p2);
@@ -951,7 +951,7 @@ void xmlbuffer::commitCopy(xmlparser &xml) {
       if (block.prop.size() > 1) {
         p2.resize(block.prop.size() * 2);
         for (size_t k = 0; k < block.prop.size(); k++) {
-          p2[k * 2] = gdi_main->widen(block.prop[k].first);
+          p2[k * 2] = widen(block.prop[k].first);
           p2[k * 2 + 1] = block.prop[k].second;
         }
         xml.startTag(block.tag.c_str(), p2);

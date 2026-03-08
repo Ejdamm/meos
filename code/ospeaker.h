@@ -23,8 +23,6 @@
 ************************************************************************/
 class oRunner;
 #include "gdifonts.h"
-#include "gdioutput.h"
-
 struct SpeakerString {
   wstring str;
   int format;

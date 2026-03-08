@@ -59,7 +59,15 @@ Libraries are vendored directly in subdirectories: `restbed/`, `libharu/`, `mini
 
 ### Strings
 
-Wide strings (`wstring`) are the primary string type (Swedish/internationalized UI). Narrow `string` is used for internal/config data. Conversion via `string2Wide()` in `meos_util.h`.
+Wide strings (`wstring`) are the primary string type (Swedish/internationalized UI). Narrow `string` is used for internal/config data.
+
+**String Utilities (`meos_util.h`):**
+- `widen(string)` / `narrow(wstring)`: Standard conversions (cached).
+- `toUTF8(wstring)` / `fromUTF8(string)`: UTF-8 conversions (cached).
+- `recodeToWide(string)` / `recodeToNarrow(wstring)`: Conversions using `defaultCodePage`.
+- `string2Wide(string, wstring&)` / `wide2String(wstring, string&)`: Direct conversions into output parameters.
+
+Avoid calling these through `gdioutput` as they have been moved to global scope in `meos_util.h`.
 
 ### Error handling
 

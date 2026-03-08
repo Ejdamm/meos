@@ -71,7 +71,7 @@ void AutoTask::autoSave() {
       msg = ex.wwhat();
     }
     catch(std::exception &ex) {
-      msg = gdi.widen(ex.what());
+      msg = widen(ex.what());
     }
     catch(...) {
       msg = L"Ett okänt fel inträffade.";
@@ -124,7 +124,7 @@ void AutoTask::interfaceTimeout(const vector<gdioutput *> &windows) {
     msg = ex.wwhat();
   }
   catch(std::exception &ex) {
-    msg = gdi.widen(ex.what());
+    msg = widen(ex.what());
   }
   catch(...) {
     msg = L"Ett okänt fel inträffade.";
@@ -276,7 +276,7 @@ bool AutoTask::synchronizeImpl(const vector<gdioutput *> &windows) {
                 msg = ex.wwhat();
               }
               catch(std::exception &ex) {
-                msg = gdi.widen(ex.what());
+                msg = widen(ex.what());
               }
               catch(...) {
                 msg = L"Ett okänt fel inträffade.";
@@ -295,7 +295,7 @@ bool AutoTask::synchronizeImpl(const vector<gdioutput *> &windows) {
     msg = ex.wwhat();
   }
   catch (std::exception &ex) {
-    msg = gdi.widen(ex.what());
+    msg = widen(ex.what());
   }
   catch (...) {
     msg = L"Ett okänt fel inträffade.";

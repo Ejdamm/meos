@@ -76,13 +76,15 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   BEFORE_FAILING=$(jq -r '.userStories[] | select(.passes != true) | .id' "$PRD_FILE" 2>/dev/null | sort)
 
   # Run the selected tool with the ralph prompt (60 min timeout per iteration)
+  # --kill-after=10: send SIGKILL 10s after SIGTERM if process won't die
   TIMEOUT=3600
   if [[ "$TOOL" == "claude" ]]; then
-    OUTPUT=$(timeout $TIMEOUT claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/prompt.md" 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(timeout --kill-after=10 $TIMEOUT claude --dangerously-skip-permissions --print < "$SCRIPT_DIR/prompt.md" 2>&1 | tee /dev/stderr) || true
   elif [[ "$TOOL" == "copilot" ]]; then
-    OUTPUT=$(timeout $TIMEOUT copilot -p "$(cat "$SCRIPT_DIR/prompt.md")" --allow-all 2>&1 | tee /dev/stderr) || true
+    OUTPUT=$(timeout --kill-after=10 $TIMEOUT copilot -p "$(cat "$SCRIPT_DIR/prompt.md")" --allow-all 2>&1 | tee /dev/stderr) || true
   elif [[ "$TOOL" == "gemini" ]]; then
-    OUTPUT=$(timeout $TIMEOUT gemini -p "$(cat "$SCRIPT_DIR/prompt.md")" -y 2>&1 | tee /dev/stderr) || true
+    # Use stdin redirect instead of -p to avoid shell interpretation of backticks/special chars in prompt
+    OUTPUT=$(timeout --kill-after=10 $TIMEOUT gemini -y < "$SCRIPT_DIR/prompt.md" 2>&1 | tee /dev/stderr) || true
   fi
 
   STEP_END=$(date +%s)

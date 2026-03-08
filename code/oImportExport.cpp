@@ -171,9 +171,9 @@ bool oEvent::exportOECSV(const wchar_t *file, const set<int>& classes, int langu
     row[OEstno] = conv_is(it->getId());
     row[OEcard] = conv_is(it->getCardNo());
     if (it->getExtIdentifier() != 0)
-      row[OEid] = gdibase.recodeToNarrow(it->getExtIdentifierString());
-    row[OEsurname] = gdibase.recodeToNarrow(it->getFamilyName());
-    row[OEfirstname] = gdibase.recodeToNarrow(it->getGivenName());
+      row[OEid] = recodeToNarrow(it->getExtIdentifierString());
+    row[OEsurname] = recodeToNarrow(it->getFamilyName());
+    row[OEfirstname] = recodeToNarrow(it->getGivenName());
     row[OEbirth] = conv_is(di.getInt("BirthYear") % 100);
 
     // Specialized per language
@@ -188,7 +188,7 @@ bool oEvent::exportOECSV(const wchar_t *file, const set<int>& classes, int langu
     case sBoth:
     case sUnknown:
     default:
-      row[OEsex] = gdibase.recodeToNarrow(di.getString("Sex"));
+      row[OEsex] = recodeToNarrow(di.getString("Sex"));
       break;
     }
 
@@ -200,31 +200,31 @@ bool oEvent::exportOECSV(const wchar_t *file, const set<int>& classes, int langu
 
     // Excel format HH:MM:SS
     if (it->getStartTime() > 0)
-      row[OEstart] = gdibase.recodeToNarrow(it->getStartTimeS());
+      row[OEstart] = recodeToNarrow(it->getStartTimeS());
     
     // Excel format HH:MM:SS
     if (it->getFinishTime() > 0)
-      row[OEfinish] = gdibase.recodeToNarrow(it->getFinishTimeS(false, SubSecond::Auto));
+      row[OEfinish] = recodeToNarrow(it->getFinishTimeS(false, SubSecond::Auto));
     
     // Excel format HH:MM:SS
     
     if (it->getRunningTime(true) > 0)
-      row[OEtime] = gdibase.recodeToNarrow(formatTimeHMS(it->getRunningTime(true)));
+      row[OEtime] = recodeToNarrow(formatTimeHMS(it->getRunningTime(true)));
 
     row[OEstatus] = conv_is(ConvertStatusToOE(it->getStatusComputed(true)));
     row[OEclubno] = conv_is(it->getClubId());
 
     if (it->getClubRef()) {
-      row[OEclub] = gdibase.recodeToNarrow(it->getClubRef()->getCompactName());
-      row[OEclubcity] = gdibase.recodeToNarrow(it->getClub());
+      row[OEclub] = recodeToNarrow(it->getClubRef()->getCompactName());
+      row[OEclubcity] = recodeToNarrow(it->getClub());
     }
-    row[OEnat] = gdibase.recodeToNarrow(di.getString("Nationality"));
+    row[OEnat] = recodeToNarrow(di.getString("Nationality"));
     {
       pClass pc = it->getClassRef(true);
-      row[OEclassno] = pc ? gdibase.recodeToNarrow(pc->getExtIdentifierString()) : "0";
+      row[OEclassno] = pc ? recodeToNarrow(pc->getExtIdentifierString()) : "0";
     }
-    row[OEclassshortname] = gdibase.recodeToNarrow(it->getClass(true));
-    row[OEclassname] = gdibase.recodeToNarrow(it->getClass(true));
+    row[OEclassshortname] = recodeToNarrow(it->getClass(true));
+    row[OEclassname] = recodeToNarrow(it->getClass(true));
 
     row[OErent] = conv_is(di.getInt("CardFee"));
     row[OEfee] = conv_is(di.getInt("Fee"));
@@ -233,7 +233,7 @@ bool oEvent::exportOECSV(const wchar_t *file, const set<int>& classes, int langu
     pCourse pc = it->getCourse(true);
     if (pc) {
       row[OEcourseno] = conv_is(pc->getId());
-      row[OEcourse] = gdibase.recodeToNarrow(pc->getName());
+      row[OEcourse] = recodeToNarrow(pc->getName());
       if (pc->getLength()>0) {
         sprintf_s(bf, "%d.%d", pc->getLength() / 1000, pc->getLength() % 1000);
         row[OElength] = bf;
@@ -242,7 +242,7 @@ bool oEvent::exportOECSV(const wchar_t *file, const set<int>& classes, int langu
 
       row[OEcoursecontrols] = conv_is(pc->nControls());
     }
-    row[OEpl] = gdibase.recodeToNarrow(it->getPlaceS());
+    row[OEpl] = recodeToNarrow(it->getPlaceS());
 
     if (includeSplits && pc != NULL)
     {
@@ -263,9 +263,9 @@ bool oEvent::exportOECSV(const wchar_t *file, const set<int>& classes, int langu
       for (int k = startIx, m = 0; k < endIx; k++, m += 2) {
         if (pc->getControl(k)->isRogaining(hasRogaining))
           continue;
-        row.push_back(gdibase.recodeToNarrow(pc->getControl(k)->getIdS()));
+        row.push_back(recodeToNarrow(pc->getControl(k)->getIdS()));
         if (unsigned(k) < sp.size() && sp[k].getTime(false) > 0)
-          row.push_back(gdibase.recodeToNarrow(formatTimeHMS(sp[k].getTime(false) - it->tStartTime)));
+          row.push_back(recodeToNarrow(formatTimeHMS(sp[k].getTime(false) - it->tStartTime)));
         else
           row.push_back("-----");
       }
@@ -278,11 +278,11 @@ bool oEvent::exportOECSV(const wchar_t *file, const set<int>& classes, int langu
         pPunch punch = *punchIt;
         if (!punch->isUsed && !(punch->isFinish() && !pc->useLastAsFinish()) && !(punch->isStart() && !pc->useFirstAsStart()) && !punch->isCheck())
         {
-          row.push_back(gdibase.recodeToNarrow(punch->getType(it->getCourse(false))));
+          row.push_back(recodeToNarrow(punch->getType(it->getCourse(false))));
 
           int t = punch->getAdjustedTime();
           if (it->tStartTime > 0 && t > 0 && t > it->tStartTime)
-            row.push_back(gdibase.recodeToNarrow(formatTimeHMS(t - it->tStartTime)));
+            row.push_back(recodeToNarrow(formatTimeHMS(t - it->tStartTime)));
           else
             row.push_back("-----");
         }

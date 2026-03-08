@@ -6,6 +6,7 @@
 #include "oEvent.h"
 #include "Table.h"
 #include "metalist.h"
+#include "meos_util.h"
 
 class RelativeTimeFormatter : public oDataDefiner {
   string name;
@@ -349,7 +350,7 @@ public:
     }
     try {
       const MetaListContainer& lc = obj->getEvent()->getListContainer();
-      EStdListType type = lc.getCodeFromUnqiueId(gdioutput::narrow(listId));
+      EStdListType type = lc.getCodeFromUnqiueId(narrow(listId));
       const MetaList& ml = lc.getList(type);
       return ml.getListName();
     }
@@ -363,7 +364,7 @@ public:
     oe->getListContainer().getLists(out, false, false, false, true);
     out.insert(out.begin(), make_pair(lang.tl("Standard"), -10));
     wstring listId = obj->getDCI().getString("SplitPrint");
-    EStdListType type = oe->getListContainer().getCodeFromUnqiueId(gdioutput::narrow(listId));
+    EStdListType type = oe->getListContainer().getCodeFromUnqiueId(narrow(listId));
     if (type == EStdListType::EStdNone)
       selected = -10;
     else {
@@ -386,7 +387,7 @@ public:
     else {
       EStdListType type = obj->getEvent()->getListContainer().getType(inputId);
       string id = obj->getEvent()->getListContainer().getUniqueId(type);
-      obj->getDI().setString("SplitPrint", gdioutput::widen(id));
+      obj->getDI().setString("SplitPrint", widen(id));
     }
 
     output = formatData(obj, index);
@@ -517,23 +518,23 @@ public:
     fieldOrder.clear();
     int first = 100;
     if (!forTeam) {
-      first = table->addColumn("Anmäld API", max(minWidth, 90), false).firstColumn();
+      first = table->addColumn("Anmld API", max(minWidth, 90), false).firstColumn();
       fieldOrder.emplace_back(oAbstractRunner::FlagAddedViaAPI, false);
 
-      table->addColumn("Förskottsbetalning", max(minWidth, 90), false);
+      table->addColumn("Frskottsbetalning", max(minWidth, 90), false);
       fieldOrder.emplace_back(oAbstractRunner::FlagPayBeforeResult, true);
 
-      table->addColumn("Ändrad bricka", max(minWidth, 90), false);
+      table->addColumn("ndrad bricka", max(minWidth, 90), false);
       fieldOrder.emplace_back(oAbstractRunner::FlagUpdateCard, false);
 
-      table->addColumn("Ändrad avgift", max(minWidth, 90), false);
+      table->addColumn("ndrad avgift", max(minWidth, 90), false);
       fieldOrder.emplace_back(oAbstractRunner::FlagFeeSpecified, false);
     }
 
-    first = min(first, table->addColumn("Ändrat namn", max(minWidth, 90), false).firstColumn());
+    first = min(first, table->addColumn("ndrat namn", max(minWidth, 90), false).firstColumn());
     fieldOrder.emplace_back(oAbstractRunner::FlagUpdateName, false);
 
-    table->addColumn("Ändrad klass", max(minWidth, 90), false);
+    table->addColumn("ndrad klass", max(minWidth, 90), false);
     fieldOrder.emplace_back(oAbstractRunner::FlagUpdateClass, false);
 
     return TableColSpec(first, fieldOrder.size());

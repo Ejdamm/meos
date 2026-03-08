@@ -41,6 +41,7 @@ Eksoppsvägen 16, SE-75646 UPPSALA, Sweden
 #include "RunnerDB.h"
 #include "image.h"
 #include "cardsystem.h"
+#include "meos_util.h"
 
 extern Image image;
 using namespace restbed;
@@ -49,7 +50,7 @@ using namespace std;
 vector< shared_ptr<RestServer> > RestServer::startedServers;
 
 const wstring &wideParam(const string &param) {
-  return gdioutput::fromUTF8(param);
+  return fromUTF8(param);
 }
 
 shared_ptr<RestServer> RestServer::construct() {
@@ -201,7 +202,7 @@ void RestServer::compute(oEvent &ref) {
     computeInternal(ref, rq);
   }
   catch (meosException &ex) {
-    rq->answer = "Error (MeOS): Error: " + ref.gdiBase().toUTF8(lang.tl(ex.wwhat()));
+    rq->answer = "Error (MeOS): Error: " + toUTF8(lang.tl(ex.wwhat()));
   }
   catch (std::exception &ex) {
     rq->answer = "Error (MeOS): General Error: " + string(ex.what());
@@ -227,10 +228,10 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
       "</head>"
       "<body>"
       "<img src=\"/meos?image=meos\" alt=\"MeOS\" style=\"width:16em; height:6.656em;\">"
-      "<p>" + ref.gdiBase().toUTF8(lang.tl(getMeosFullVersion())) + "<p>"
+      "<p>" + toUTF8(lang.tl(getMeosFullVersion())) + "<p>"
       "<ul>\n";
 
-    rq->answer += "<h2>" + ref.gdiBase().toUTF8(lang.tl("Listor")) + "</h2>";
+    rq->answer += "<h2>" + toUTF8(lang.tl("Listor")) + "</h2>";
     vector<oListParam> lists;
     TabList::getPublicLists(ref, lists);
     map<EStdListType, oListInfo> listMap;
@@ -262,15 +263,15 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
         listCache[keyCand].second.reset();
       }
 
-      rq->answer += "<li><a href=\"?html=1&type=" + itos(keyCand) + "\">" + ref.gdiBase().toUTF8(n) + "</a></li>\n";
+      rq->answer += "<li><a href=\"?html=1&type=" + itos(keyCand) + "\">" + toUTF8(n) + "</a></li>\n";
     }
     //  "<li><a href=\"?html=1&result=1\">Resultat</a></li>"
     //  "<li><a href=\"?html=1&startlist=1\">Startlista</a></li>"
     rq->answer += "</ul>\n";
 
 
-    string entryLinks = "<h2>" + ref.gdiBase().toUTF8(lang.tl(L"Direktanmälan", true)) + "</h2>";
-    entryLinks += "<a href=\"?enter\">"+ref.gdiBase().toUTF8(lang.tl("Anmäl")) + "</a><br>";
+    string entryLinks = "<h2>" + toUTF8(lang.tl(L"Direktanmälan", true)) + "</h2>";
+    entryLinks += "<a href=\"?enter\">"+toUTF8(lang.tl("Anmäl")) + "</a><br>";
     
     entryLinks += "<hr>";
 
@@ -284,17 +285,17 @@ void RestServer::computeInternal(oEvent &ref, shared_ptr<RestServer::EventReques
         sRunnerId = itos(r->getId());
 
       if (sRunnerClub.empty()) {
-        sRunnerName = gdioutput::toUTF8(r->getName());
-        sRunnerClub = gdioutput::toUTF8(r->getClub());
+        sRunnerName = toUTF8(r->getName());
+        sRunnerClub = toUTF8(r->getClub());
         if (r->getClubId())
-          sRunnerClubId = gdioutput::toUTF8(r->getClubRef()->getExtIdentifierString());
+          sRunnerClubId = toUTF8(r->getClubRef()->getExtIdentifierString());
       }
 
       if (sRunnerCard.empty() && r->getCardNo() > 0)
         sRunnerCard = itos(r->getCardNo());
 
       if (sRunnerBib.empty() && !r->getBib().empty())
-        sRunnerBib = gdioutput::recodeToNarrow(r->getBib());
+        sRunnerBib = recodeToNarrow(r->getBib());
     }
     if (sRunnerId.empty())
       sRunnerId = "1";
@@ -815,7 +816,7 @@ void RestServer::getData(oEvent &oe, const string &what, const multimap<string, 
     }
 
     if (!resTag.empty())
-      prop.push_back(make_pair("module", oe.gdiBase().widen(resTag) + L"(" + itow(inputNumber) + L")"));
+      prop.push_back(make_pair("module", widen(resTag) + L"(" + itow(inputNumber) + L")"));
 
     if (controlId.first != oPunch::PunchStart) {
       pair<int, int> idIx = oControl::getIdIndexFromCourseControlId(controlId.first);

@@ -4,7 +4,7 @@ Started: sön  8 mar 2026 00:14:34 CET
 ## Codebase Patterns
 - Case Sensitivity: Always use `#include "StdAfx.h"` (not `stdafx.h`).
 - Case Sensitivity: File names are generally lowercase (`localizer.h`, `meosexception.h`), but UI components use PascalCase (`TabBase.h`).
-- String Utilities: String conversion functions (widen/narrow) are currently in `gdioutput.h` (US-002 will move them).
+- String Utilities: String conversion functions (widen/narrow) are now in `meos_util.h` (US-002).
 ---
 
 ## sön  8 mar 2026 11:52:10 CET - US-001
@@ -17,4 +17,16 @@ Started: sön  8 mar 2026 00:14:34 CET
   - Created a skill for include normalization in .gemini/skills/include-normalization.md.
 ---
 
-## US-001 (4m18s)
+## 2026-03-08 - US-002
+- Extracted widen, narrow, toUTF8, fromUTF8, recodeToWide, and recodeToNarrow from gdioutput.h/cpp to meos_util.h/cpp.
+- Updated gdioutput.h static methods to be wrappers for the new global functions.
+- Batch replaced prefixed calls (gdioutput::widen, gdibase.widen, etc.) with global calls (widen) across the codebase.
+- Files changed: meos_util.h/cpp, gdioutput.h/cpp, and numerous domain/utility files.
+- **Learnings for future iterations:**
+  - String conversion utilities are heavily used across the entire codebase.
+  - A common pattern is passing around references to cached strings (StringCache).
+  - When batch replacing, be careful with regex as instances (like oe.gdiBase()) might have been partially refactored already.
+  - Decoupling domain files from gdioutput.h is limited by other GUI-related calls (addInfoBox, delayAlert) which are still present.
+---
+
+## US-002 (18m49s)

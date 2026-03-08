@@ -457,7 +457,7 @@ bool csvparser::outputRow(const string &row)
 bool csvparser::outputRow(const vector<wstring>& out) {
   vector<string> outUTF(out.size());
   for (int i = 0; i < out.size(); i++)
-    outUTF[i] = gdioutput::toUTF8(out[i]);
+    outUTF[i] = toUTF8(out[i]);
 
   return outputRow(outUTF);
 }
@@ -840,7 +840,7 @@ bool csvparser::importPunches(const oEvent &oe, const wstring &file, vector<Punc
         PunchInfo pi;
         pi.card = card;
         pi.time = time;
-        string pd = gdioutput::narrow(processedDate);
+        string pd = narrow(processedDate);
         strncpy_s(pi.date, pd.c_str(), 26);
         pi.date[26] = 0;
         punches.push_back(pi);
@@ -1260,7 +1260,7 @@ void csvparser::parse(const wstring &file, list<vector<wstring>> &data) {
       split(&wbf[0], sp);
     }
     else {
-      w = gdi_main->recodeToWide(bf);
+      w = recodeToWide(bf);
       wchar_t *wbfL = const_cast<wchar_t *>(w.c_str());
       split(wbfL, sp);
     }
@@ -1298,8 +1298,8 @@ void csvparser::convertUTF(const wstring &file) {
         return; // Done
       }
     }
-    w = gdi_main->recodeToWide(bf);
-    out.push_back(gdi_main->toUTF8(w));
+    w = recodeToWide(bf);
+    out.push_back(toUTF8(w));
   }
   
   fin.close();

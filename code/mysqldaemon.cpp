@@ -102,7 +102,7 @@ void MySQLReconnect::process(gdioutput &gdi, oEvent *oe, AutoSyncType ast)
     mysqlStatus=0;
     string err;
     if (!oe->reConnect(err)) {
-      gdi.addInfoBox("", L"warning:dbproblem#" + gdi.widen(err), L"Databasvarning", BoxStyle::HeaderWarning, 9000);
+      gdi.addInfoBox("", L"warning:dbproblem#" + widen(err), L"Databasvarning", BoxStyle::HeaderWarning, 9000);
       interval = 10;
     }
     else {

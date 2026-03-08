@@ -883,7 +883,7 @@ void oEvent::loadGeneralResults(bool forceReload, bool loadFromDisc) const {
       catch (std::exception &ex) {
         if (err.first.empty()) {
           err.first = res2[k];
-          err.second = gdibase.widen(ex.what());
+          err.second = widen(ex.what());
         }
       }
     }
@@ -927,17 +927,17 @@ void oEvent::getGeneralResults(bool onlyEditable, vector< pair<int, pair<string,
         size_t res = generalResults[k].tag.find_last_of('v');
         if (res != string::npos) {
           string version = generalResults[k].tag.substr(res);
-          tagNameList.back().second.second += L", " + gdioutput::widen(version);
+          tagNameList.back().second.second += L", " + widen(version);
         }
         if (includeDate) {
           const string &datetime = generalResults[k].ptr->getTimeStamp();
           if (!datetime.empty()) {
             string date = datetime.substr(0, 10);
             if (countDate[make_pair(generalResults[k].name, date)] > 1) {
-              tagNameList.back().second.second += L", " + gdioutput::widen(datetime);
+              tagNameList.back().second.second += L", " + widen(datetime);
             }
             else {
-              tagNameList.back().second.second += L", " + gdioutput::widen(date);
+              tagNameList.back().second.second += L", " + widen(date);
             }
           }
         }

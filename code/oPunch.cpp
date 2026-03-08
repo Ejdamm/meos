@@ -47,10 +47,10 @@ oPunch::oPunch(oEvent* poe) : oBase(poe) {
 
 oPunch::~oPunch() = default;
 
-wstring oPunch::getInfo() const
-{
-  return L"Stämpling "+oe->gdiBase().widen(codeString());
+wstring oPunch::getInfo() const {
+  return L"Stämpling "+widen(codeString());
 }
+
 
 string oPunch::codeString() const
 {

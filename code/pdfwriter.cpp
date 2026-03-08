@@ -39,6 +39,7 @@
 #include "hpdf.h"
 
 #include "pdfwriter.h"
+#include "meos_util.h"
 
 using namespace std;
 extern Image image;
@@ -159,8 +160,8 @@ void pdfwriter::generatePDF(const gdioutput& gdi,
   const list<TextInfo>& tl,
   bool respectPageBreak) {
   checkWriteAccess(file);
-  string pageTitle = gdi.narrow(pageTitleW); // XXX WCS
-  string author = gdi.narrow(authorW);
+  string pageTitle = narrow(pageTitleW); // XXX WCS
+  string author = narrow(authorW);
 
   pdf = HPDF_New(pdfErrorhandler, 0);
   if (!pdf)
@@ -169,7 +170,7 @@ void pdfwriter::generatePDF(const gdioutput& gdi,
 
   // Set compression mode
   HPDF_SetCompressionMode(pdf, HPDF_COMP_ALL);
-  string creator = "MeOS " + gdi.toUTF8(getMeosCompectVersion());
+  string creator = "MeOS " + toUTF8(getMeosCompectVersion());
   HPDF_SetInfoAttr(pdf, HPDF_INFO_CREATOR, creator.c_str());
   HPDF_SetInfoAttr(pdf, HPDF_INFO_TITLE, pageTitle.c_str());
 
@@ -242,10 +243,10 @@ void pdfwriter::generatePDF(const gdioutput& gdi,
       selectFont(page, fs, fontSmall, scale);
       HPDF_Page_BeginText(page);
       float df = min(w, h) * 0.04f;
-      float sw = HPDF_Page_TextWidth(page, gdi.toUTF8(pinfo).c_str());
+      float sw = HPDF_Page_TextWidth(page, toUTF8(pinfo).c_str());
       float sy = HPDF_Page_TextWidth(page, "MMM");
 
-      HPDF_Page_TextOut(page, w - sw - df, h - sy, gdi.toUTF8(pinfo).c_str());
+      HPDF_Page_TextOut(page, w - sw - df, h - sy, toUTF8(pinfo).c_str());
       HPDF_Page_EndText(page);
     }
 
@@ -307,7 +308,7 @@ void pdfwriter::generatePDF(const gdioutput& gdi,
       float g = GetGValue(info[k].ti.color);
       float b = GetBValue(info[k].ti.color);
       HPDF_Page_SetRGBFill(page, r / 255.0f, g / 255.0f, b / 255.0f);
-      string nt = gdi.toUTF8(info[k].ti.text);
+      string nt = toUTF8(info[k].ti.text);
 
       if (info[k].ti.format & textRight) {
         float w = float(info[k].ti.xlimit) * scale;

@@ -26,6 +26,7 @@
 #include <string>
 #include "oListInfo.h"
 #include "importformats.h"
+#include "meos_util.h"
 
 using namespace std;
 
@@ -100,7 +101,7 @@ protected:
     }
     catch (const std::exception& ex) {
       lastRunStatus = Status::Error;
-      lastStatusMsg = gdioutput::widen(ex.what());
+      lastStatusMsg = widen(ex.what());
       if (ast == AutoSyncType::SyncNone)
         throw;
     }

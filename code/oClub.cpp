@@ -958,9 +958,9 @@ void oEvent::printInvoices(gdioutput &gdi, InvoicePrintType type,
         it->generateInvoice(gdi, pay, paid, definedPayModes, paidPerMode);
 
         if (type == IPTElectronincHTML && pay > 0) {
-          fout << it->getId() << ";" << gdi.toUTF8(it->getName()) << ";" <<
-            nr << ";" << gdi.toUTF8(filename) << ";" << gdi.toUTF8(email) << ";"
-                << gdi.toUTF8(formatCurrency(pay))  << std::endl;
+          fout << it->getId() << ";" << toUTF8(it->getName()) << ";" <<
+            nr << ";" << toUTF8(filename) << ";" << toUTF8(email) << ";"
+                << toUTF8(formatCurrency(pay))  << std::endl;
         }
 
         if (type == IPTAllPDF) {

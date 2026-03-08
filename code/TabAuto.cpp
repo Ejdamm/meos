@@ -204,7 +204,7 @@ void TabAuto::syncCallback(gdioutput& gdi)
       msg = ex.wwhat();
     }
     catch (std::exception& ex) {
-      msg = gdi.widen(ex.what());
+      msg = widen(ex.what());
     }
     catch (...) {
       msg = L"Ett okänt fel inträffade.";
@@ -249,7 +249,7 @@ void TabAuto::timerCallback(gdioutput &gdi) {
         msg = ex.wwhat();
       }
       catch (std::exception& ex) {
-        msg = gdi.widen(ex.what());
+        msg = widen(ex.what());
       }
       catch (...) {
         msg = L"Ett okänt fel inträffade.";
@@ -338,7 +338,7 @@ int TabAuto::processButton(gdioutput& gdi, const ButtonInfo& bu)
   }
   else if (bu.id == "BrowseFolder") {
     const wchar_t* edit = bu.getExtra();
-    wstring currentPath = gdi.getText(gdi.narrow(edit));
+    wstring currentPath = gdi.getText(narrow(edit));
     wstring newPath = gdi.browseForFolder(currentPath, 0);
     if (!newPath.empty())
       gdi.setText(edit, newPath);

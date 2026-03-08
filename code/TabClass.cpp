@@ -6098,10 +6098,10 @@ void DrawSettingsCSV::write(gdioutput &gdi, const oEvent &oe, const wstring &fn,
     const DrawSettingsCSV &ci = cInfo[k];
     line.clear();
     line.push_back(itos(ci.classId));
-    line.push_back(gdi.toUTF8(ci.cls));
+    line.push_back(toUTF8(ci.cls));
     line.push_back(itos(ci.nCmp));
     if (!ci.crs.empty()) {
-      line.push_back(gdi.toUTF8(ci.crs));
+      line.push_back(toUTF8(ci.crs));
     }
     else line.emplace_back("");
 
@@ -6110,10 +6110,10 @@ void DrawSettingsCSV::write(gdioutput &gdi, const oEvent &oe, const wstring &fn,
     }
     else line.emplace_back("");
 
-    line.push_back(gdi.narrow(oe.getAbsTime(ci.firstStart)));
-    line.push_back(gdi.narrow(formatTime(ci.interval, SubSecond::Off)));
+    line.push_back(narrow(oe.getAbsTime(ci.firstStart)));
+    line.push_back(narrow(formatTime(ci.interval, SubSecond::Off)));
     line.push_back(itos(ci.vacant));
-    line.push_back(gdi.toUTF8(ci.startName));
+    line.push_back(toUTF8(ci.startName));
     writer.outputRow(line);
   }
 }

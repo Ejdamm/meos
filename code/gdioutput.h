@@ -60,6 +60,7 @@ enum KeyCommandCode;
 enum gdiFonts;
 #include "gdistructures.h"
 #include <memory>
+#include "meos_util.h"
 
 #define START_YP 30
 #define NOTIMEOUT 0x0AAAAAAA
