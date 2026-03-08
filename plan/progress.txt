@@ -14,3 +14,17 @@ Started: sön  8 mar 2026 00:14:40 CET
   - npx create-vite@7 --template react-ts is a reliable way to scaffold the project without interactive prompts.
   - shadcn/ui components can be built manually using Radix UI primitives and Tailwind 4 CSS variables to avoid complicated setup scripts.
 ---
+## 2026-03-08 - US-002: App shell with sidebar navigation and routing
+- What was implemented:
+  - Created placeholder page components in `src/pages/` for all defined routes.
+  - Implemented a responsive `Layout` component with a sidebar and mobile hamburger menu.
+  - Configured `App.tsx` with `react-router-dom` and redirects.
+  - Added `src/lib/utils.ts` with the `cn` helper for Tailwind classes.
+- **Learnings for future iterations:**
+  - Using `NavLink` with `isActive` is the standard way to handle active route highlighting in React Router.
+  - The off-canvas sidebar pattern works well for mobile/desktop responsiveness.
+  - Tailwind 4 makes responsive utilities very clean (`lg:translate-x-0`).
+  - Keep components modular (e.g., `Layout` and `utils`) from the beginning to avoid refactoring.
+---
+
+## US-002 (3m12s)
