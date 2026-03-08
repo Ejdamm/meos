@@ -24,6 +24,10 @@
 - **Hooks**: Prefer custom hooks in `@/hooks/` (e.g., `useRunners`, `useClubs`) instead of calling the API directly in components.
 - **Endpoints**: All endpoints are under `/api/v1/`.
 - **Mocking**: Use MSW (Mock Service Worker) for local development if the C++ backend is not available.
+  - Mock data is in `src/mocks/data.ts`.
+  - API handlers are in `src/mocks/handlers.ts`.
+  - Mocking is enabled in `src/main.tsx` if `import.meta.env.MODE === 'development'`.
+  - Always run `npx msw init public/` if the service worker script is missing.
 
 ## TypeScript and Types
 - **Interfaces**: Defined in `@/api/types.ts`.

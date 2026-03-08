@@ -48,4 +48,19 @@ Started: sön  8 mar 2026 00:14:40 CET
   - Mapping C++ entity fields (from oEvent.h, oRunner.h, etc.) to TypeScript is straightforward but requires careful checking of header files for status codes and optional fields.
 ---
 
-## US-003 (5m46s)
+## 2026-03-08 - US-004: Mock API with MSW for frontend-only development
+- What was implemented:
+  - Installed MSW and initialized it in the public directory.
+  - Created src/mocks/data.ts with realistic seed data for all major entities.
+  - Implemented src/mocks/handlers.ts with full CRUD support for clubs, controls, courses, classes, runners, and teams.
+  - Added mock handlers for competitions, results, and startlists.
+  - Configured src/main.tsx to enable MSW in development mode.
+  - Verified that the project builds and typechecks successfully.
+- **Learnings for future iterations:**
+  - MSW 2.0+ uses the `http` and `HttpResponse` APIs, which are different from previous versions.
+  - Always run `npx msw init public/` to ensure the service worker script is present.
+  - In-memory state in handlers is sufficient for development but will reset on page reload unless persisted (e.g., to localStorage).
+  - The `import.meta.env.MODE` check in `main.tsx` is the standard way to conditionally enable mocking in Vite projects.
+---
+
+## US-004 (4m02s)
