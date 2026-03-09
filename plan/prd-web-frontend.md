@@ -25,6 +25,21 @@ The frontend connects to the C++ backend via `http://localhost:<port>/api/v1/...
 - Support tablet use for field operations
 - Enable frontend development fully decoupled from C++ backend work
 
+## Codebase Patterns (from Previous Runs)
+
+These patterns were discovered during previous Ralph runs and should be followed:
+
+- Use `const object + type` pattern for enums (Vite 7 compatibility)
+- Use `import type` for all TypeScript interfaces/types
+- Backend: XML API at `/meos`, Frontend: JSON REST API at `/api/v1`
+- Use `NavLink` for active route highlighting
+- Tailwind 4 for styling (CSS-first approach)
+- Use generic `DataTable` component for entity lists with sorting, filtering, and pagination.
+- Use `zod` for form validation and `react-hook-form` for form management.
+- Reuse standard form components (`FormField`, `FormInput`, `FormSelect`, `SearchableSelect`) for consistent styling and validation.
+- Use `size` property on `FormDialog` ('sm', 'md', 'lg', 'xl') to handle complex forms with varying width requirements.
+- `DataTable` supports row selection with `enableSelection` prop.
+
 ## User Stories
 
 ### US-007: React + TypeScript Web GUI Shell
@@ -64,6 +79,18 @@ The frontend connects to the C++ backend via `http://localhost:<port>/api/v1/...
 - Form validation should provide immediate feedback (client-side) with server-side validation as backup
 - Course editor should include a control sequence builder (drag-and-drop or ordered list)
 
+**Learnings from Previous Runs:**
+- `useMutation` only takes one argument for `mutate`. Options must be passed to `useMutation` hook itself, or handled via `async/await` in the caller.
+- `z.coerce.number()` might cause type inference issues with `zodResolver`; sometimes `valueAsNumber: true` in `register` with `z.number()` is cleaner.
+- `FormSelect` values are always strings; remember to convert back to numbers if needed for the API.
+- `DataTable` needs `isLoading` state to avoid flashing "No data" while fetching.
+- `FormDialog` needed more flexibility for width; added a `size` prop which is useful for complex editors.
+- `ControlSequenceBuilder` uses `SearchableSelect` for adding items, which works well for potentially large lists of controls.
+- Hover states (`opacity-0 group-hover:opacity-100`) provide a clean UI for per-item actions in a list.
+- The DataTable and FormDialog components are highly reusable for standard CRUD entities — follow the established pattern.
+- Standardized the `useUpdateEntity` hook pattern: use `{ id, data }` object for update mutations.
+- Optional string fields in zod should use `.optional().or(z.literal(''))` if the form might return an empty string.
+
 ### US-009: Web GUI — Runner & Team Management
 
 **Description:** As a competition organizer, I want to manage runners and teams through the web interface.
@@ -84,6 +111,14 @@ The frontend connects to the C++ backend via `http://localhost:<port>/api/v1/...
 - Runner list is the most data-heavy view — needs virtualized scrolling for large competitions (1000+ runners)
 - Club and class fields should use searchable dropdowns with typeahead
 
+**Learnings from Previous Runs:**
+- `SearchableSelect` is essential for entities with large numbers of related items (like Clubs and Classes).
+- Standardizing hook patterns (like the `{ id, data }` pattern for updates) prevents implementation errors.
+- Using a grid layout in `FormDialog` (`grid-cols-2`) is better for forms with many fields to avoid excessive vertical scrolling.
+- `FormDialog` and `ConfirmDialog` use `open` instead of `isOpen`, and `FormDialog` uses `onSave` instead of `onSubmit`.
+- `handleSubmit` from `react-hook-form` returns a function that expects an optional event; when used in a custom `onSave` handler, it must be called explicitly as `() => handleSubmit(onSubmit)()`.
+- Used `as any` for `zodResolver` to bypass complex type inference issues between Zod's coerced types and the expected form values — pragmatic for rapid development but should be investigated for a cleaner fix.
+
 #### US-009b: Import Runners
 
 **Description:** Import runners from external data sources.
@@ -99,6 +134,12 @@ The frontend connects to the C++ backend via `http://localhost:<port>/api/v1/...
 - IOF XML parsing may be better handled server-side with a dedicated upload endpoint
 - Preview step should show a diff-like view: new runners, updated runners, conflicts
 
+**Learnings from Previous Runs:**
+- `DataTable` does not use a `pagination` object prop; it expects `pageSize` directly.
+- CSV header mapping should be flexible (e.g., supporting "Name", "name", "Full Name").
+- Using a multi-step dialog (Upload -> Preview -> Import) provides a much better UX than immediate import.
+- MSW handlers for bulk operations and file uploads were essential for testing this feature without a real backend.
+
 #### US-009c: Bulk Operations
 
 **Description:** Efficient operations on multiple runners at once.
@@ -112,6 +153,10 @@ The frontend connects to the C++ backend via `http://localhost:<port>/api/v1/...
 **Implementation Notes:**
 - Checkbox selection in table views
 - Bulk operations should show a confirmation dialog with the number of affected runners
+
+**Learnings from Previous Runs:**
+- `DataTable` needs a stable `getItemId` prop (defaulting to `id`) to track selection correctly across filtering and sorting.
+- Using a dedicated selection state (`selectedItems`) in `DataTable` makes it easy to implement bulk actions in the parent page.
 
 ### US-010: Web GUI — Results & Live View
 
@@ -147,6 +192,11 @@ The frontend connects to the C++ backend via `http://localhost:<port>/api/v1/...
 - Highlight recently changed rows with a fade animation
 - Default refresh interval: 10 seconds, configurable in settings
 
+**Learnings from Previous Runs:**
+- Silent refresh (not setting `isLoading`) is crucial for live updates to avoid flickering the entire UI.
+- Tracking previous state with `Map` and `useEffect` is an effective way to detect changes in a list.
+- Using CSS transitions (`transition-colors duration-1000`) makes the highlight fade-out smooth.
+
 #### US-010c: Results Export
 
 **Description:** Export results in standard formats.
@@ -160,6 +210,11 @@ The frontend connects to the C++ backend via `http://localhost:<port>/api/v1/...
 - CSV export can be client-side (generate and trigger download)
 - IOF XML export should call a backend endpoint that generates the XML
 - Provide download buttons in the results/start list views
+
+**Learnings from Previous Runs:**
+- `Papa.unparse` is a reliable way to generate CSV from objects.
+- Blobs and temporary `<a>` elements are the standard way to trigger client-side downloads.
+- Reusing the API client for export URLs keeps the endpoint logic centralized.
 
 ## Functional Requirements
 
