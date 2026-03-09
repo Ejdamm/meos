@@ -17,9 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Ninja
-        uses: getsentry/action-setup-ninja@v1
-
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
         with:
