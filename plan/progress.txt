@@ -130,3 +130,21 @@ Started: sön  8 mar 2026 00:14:40 CET
 
 
 ## US-012 (6m17s)
+
+---
+## 2026-03-09 11:15:00 - US-013: Teams page with CRUD and member management
+- What was implemented:
+  - Created `useTeams.ts` hook for team CRUD operations.
+  - Implemented `TeamMemberManager.tsx` component for managing team members (runners) with reordering support.
+  - Implemented `TeamsPage.tsx` with full CRUD for teams, including club and class selection and member management.
+  - Updated `AGENTS.md` with documentation for the new components.
+  - Verified that build and typecheck pass.
+- **Learnings for future iterations:**
+  - `FormDialog` and `ConfirmDialog` use `open` instead of `isOpen`, and `FormDialog` uses `onSave` instead of `onSubmit`. This inconsistency was fixed in the implementation.
+  - `handleSubmit` from `react-hook-form` returns a function that expects an optional event; when used in a custom `onSave` handler, it must be called explicitly as `() => handleSubmit(onSubmit)()`.
+  - Used `as any` for `zodResolver` in this specific case to bypass complex type inference issues between Zod's coerced types and the expected form values, which is a pragmatic approach for rapid migration but should be investigated for a cleaner fix in the future.
+
+
+## US-013 (11m15s)
+
+## iteration-8 (60m00s)

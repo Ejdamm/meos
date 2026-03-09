@@ -8,6 +8,8 @@ This directory contains reusable form components for the MeOS Web Frontend.
 - `FormInput`: A standard text/number input wrapped in `FormField`.
 - `FormSelect`: A standard dropdown select wrapped in `FormField`.
 - `SearchableSelect`: A searchable combobox for large option lists, wrapped in `FormField`.
+- `ControlSequenceBuilder`: A specialized component for managing a course's control sequence with drag-and-drop-like reordering (up/down buttons) and removal.
+- `TeamMemberManager`: A specialized component for managing a team's runner list, supporting reordering and removal, ideal for relay team management.
 
 ## Usage with react-hook-form
 
