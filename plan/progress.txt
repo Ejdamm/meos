@@ -185,4 +185,18 @@ Started: sön  8 mar 2026 00:14:40 CET
   - Using a dedicated selection state (`selectedItems`) in `DataTable` makes it easy to implement bulk actions in the parent page.
   - Bulk actions should always have a confirmation step or a clear visual indicator of the affected items.
 
-## US-015 (4m56s)
+---
+## 2026-03-09 14:00:00 - US-016: Results and start list views
+- What was implemented:
+  - Created `useResults.ts` and `useStartList.ts` hooks.
+  - Updated `DataTable.tsx` to support `className` in column definitions.
+  - Implemented `ResultsPage.tsx` with class grouping, class filtering, and expandable split times.
+  - Implemented `StartListPage.tsx` with class grouping and filtering.
+  - Added `@media print` styles for clean results and start list printouts.
+  - Updated MSW handlers to provide realistic results with split data and support `classId` filtering.
+  - Verified that build and typecheck pass.
+- **Learnings for future iterations:**
+  - Standardizing `Column` interface to include styling properties like `className` makes it easier to handle specific layout needs without escaping the component.
+  - `import type` is strictly required by the project's TypeScript configuration (`verbatimModuleSyntax`).
+  - Using `React.Fragment` to inject extra rows in a `tbody` is a clean way to implement expandable table rows without a complex component library.
+  - Print styles are essential for competition software; always test with `@media print`.

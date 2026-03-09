@@ -229,25 +229,58 @@ export const handlers = [
   }),
 
   // Results
-  http.get(`${API_BASE}/results`, () => {
-    const results: Result[] = runners.map(r => ({
-      runnerId: r.id,
-      name: r.name,
-      clubName: r.clubName,
-      className: r.className,
-      status: r.status,
-      startTime: r.startTime,
-      runningTime: '00:45:30',
-      place: 1,
-      timeAfter: '00:00:00',
-      splits: []
-    }));
+  http.get(`${API_BASE}/results`, ({ request }) => {
+    const url = new URL(request.url);
+    const classId = url.searchParams.get('classId');
+    
+    let filteredRunners = runners;
+    if (classId) {
+      filteredRunners = runners.filter(r => r.classId === Number(classId));
+    }
+
+    const results: Result[] = filteredRunners.map((r, index) => {
+      const isOk = r.status === 1; // RunnerStatus.OK
+      return {
+        runnerId: r.id,
+        name: r.name,
+        clubName: r.clubName,
+        className: r.className,
+        status: r.status,
+        startTime: r.startTime,
+        runningTime: isOk ? `00:${40 + index}:${String(index * 5).padStart(2, '0')}` : undefined,
+        place: isOk ? index + 1 : undefined,
+        timeAfter: isOk ? (index === 0 ? '00:00:00' : `00:0${index}:0${index * 2}`) : undefined,
+        splits: isOk ? [
+          { controlId: 1, controlName: '31', time: '00:05:00', place: index + 1, timeAfter: index === 0 ? '00:00:00' : '00:00:30' },
+          { controlId: 2, controlName: '32', time: '00:12:00', place: index + 1, timeAfter: index === 0 ? '00:00:00' : '00:01:00' },
+          { controlId: 3, controlName: '33', time: '00:25:00', place: index + 1, timeAfter: index === 0 ? '00:00:00' : '00:01:30' },
+          { controlId: 6, controlName: '99', time: `00:${40 + index}:${String(index * 5).padStart(2, '0')}`, place: index + 1, timeAfter: index === 0 ? '00:00:00' : '00:02:00' },
+        ] : []
+      };
+    });
+
+    // Sort by place (OK status first)
+    results.sort((a, b) => {
+      if (a.status === 1 && b.status !== 1) return -1;
+      if (a.status !== 1 && b.status === 1) return 1;
+      if (a.status === 1 && b.status === 1) return (a.place || 0) - (b.place || 0);
+      return 0;
+    });
+
     return HttpResponse.json(results);
   }),
 
   // Startlist
-  http.get(`${API_BASE}/startlist`, () => {
-    const startlist: StartListEntry[] = runners.map(r => ({
+  http.get(`${API_BASE}/startlist`, ({ request }) => {
+    const url = new URL(request.url);
+    const classId = url.searchParams.get('classId');
+    
+    let filteredRunners = runners;
+    if (classId) {
+      filteredRunners = runners.filter(r => r.classId === Number(classId));
+    }
+
+    const startlist: StartListEntry[] = filteredRunners.map(r => ({
       runnerId: r.id,
       name: r.name,
       clubName: r.clubName,
@@ -255,6 +288,9 @@ export const handlers = [
       startTime: r.startTime || '00:00:00',
       cardNumber: r.cardNumber
     }));
+
+    startlist.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
     return HttpResponse.json(startlist);
   }),
 ];

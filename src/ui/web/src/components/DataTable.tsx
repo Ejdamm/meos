@@ -8,6 +8,7 @@ export interface Column<T> {
   accessorKey: keyof T;
   cell?: (item: T) => React.ReactNode;
   sortable?: boolean;
+  className?: string;
 }
 
 interface DataTableProps<T> {
