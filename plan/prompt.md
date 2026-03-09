@@ -103,7 +103,7 @@ After completing and committing your single story:
 
 After each completed story, save reusable learnings and scripts to `.gemini/skills/`:
 
-- **Create or update skill files** (e.g., `.gemini/skills/migration.md`, `.gemini/skills/win32-replacements.md`) with patterns, gotchas, and migration knowledge
+- **Create or update skill files** (e.g., `.gemini/skills/migration.md`, `.gemini/skills/cross-platform-cpp/SKILL.md`) with patterns, gotchas, and migration knowledge
 - **Save reusable scripts** (e.g., `.gemini/skills/fix-includes.sh`, `.gemini/skills/check-platform-deps.py`) that automate repetitive or time-consuming tasks discovered during migration
 - **Keep skills focused** — one topic per file, concise and actionable
 - **Skills must be self-contained** — they survive across migration runs where all previously generated code is discarded. A skill must work without depending on files or changes from a previous run. Scripts should operate on the raw legacy codebase, not on migrated output.
