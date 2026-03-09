@@ -1,0 +1,37 @@
+name: Build legacy MeOS
+
+on:
+  push:
+    paths:
+      - 'code/**'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'code/**'
+      - '.github/workflows/build.yml'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        configuration: [Release]
+        platform: [x64]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build
+        working-directory: code
+        run: msbuild MeOS.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MeOS-${{ matrix.configuration }}-${{ matrix.platform }}
+          path: code/**/MeOS.exe
+          if-no-files-found: warn
