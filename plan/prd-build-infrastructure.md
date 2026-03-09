@@ -58,7 +58,10 @@ All three stories establish the infrastructure that every other workstream depen
 **Implementation Notes:**
 - Start with a minimal `main.cpp` that compiles and links — domain code comes later via other stories
 - Create empty/stub CMake library targets for the modular layout (US-002): `src/domain/`, `src/util/`, etc. — these are placeholders that migration stories will populate with real source files
+- **Placeholder .cpp files are required** in every library target (CMake won't create a target with no sources) — a file with just a comment is sufficient
 - vcpkg toolchain: `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake`
+- **VCPKG_ROOT:** On the dev machine it's `~/vcpkg`. CMakePresets.json should use `$env{VCPKG_ROOT}` — set the env var before invoking cmake
+- **Use CMake preset version 6** (cmake 3.28 is available). g++ 13.3 and ninja are available as build tools
 - Precompiled headers via `target_precompile_headers()` — add common STL headers
 - Known risk: `libmysql` via vcpkg is problematic on Linux — stub or exclude early
 - The definition of done is: `cmake --build` compiles the skeleton successfully, not that MeOS runs
@@ -81,8 +84,13 @@ All three stories establish the infrastructure that every other workstream depen
 **Implementation Notes:**
 - C++ tests: one test executable per module (e.g., `test_util`, `test_domain`)
 - CMake pattern: `add_executable(test_util ...)` + `target_link_libraries(test_util GTest::gtest_main util)`
-- `ctest` discovers and runs all test executables
+- **Use `GTest::gtest_main`** — it provides `main()` automatically, no boilerplate needed
+- **`find_package(GTest REQUIRED)`** should be in `tests/CMakeLists.txt` (not top-level)
+- `ctest` discovers and runs all test executables. **Tip:** `ctest --test-dir build` when using a separate build directory
 - Vitest setup belongs in `src/ui/web/` but the CI integration is configured here
+- **Do NOT use `npm create vite@latest`** — it's interactive and hangs in automation. Create `package.json`, `vite.config.ts`, etc. manually
+- **React 17+ does not need `import React`** in every JSX/TSX file — omit it to avoid unused-import lint errors
+- **Use v8 as Vitest coverage provider**, jsdom as test environment for DOM testing
 - Coverage: `gcov`/`lcov` for C++, `vitest --coverage` for frontend
 - The goal is that when a migration story (e.g., US-003a) lands, it can add test files and they "just work" — no build system changes needed
 
@@ -99,12 +107,20 @@ All three stories establish the infrastructure that every other workstream depen
 - [ ] CI runs on push to main and on pull requests
 
 **Implementation Notes:**
+- **Use separate workflows** for C++ and frontend — allows independent failures and clearer CI feedback
 - GitHub Actions matrix strategy: `os: [ubuntu-latest, windows-latest]`
-- vcpkg caching via `actions/cache` for fast CI builds
+- **Use `lukka/run-vcpkg`** — it handles vcpkg bootstrap and caching automatically (no manual `actions/cache` needed)
 - Workflow steps: checkout → vcpkg bootstrap → cmake configure → build → test → lint → upload artifacts
-- clang-tidy can start with a minimal `.clang-tidy` config and grow over time
+- **clang-tidy only runs on Linux** — it's not available by default on Windows runners. Guard with `if: runner.os == 'Linux'`
+- **Artifact upload needs platform-aware paths** for binaries (Linux vs Windows extensions)
+- **Linting config:**
+  - `.clang-tidy` with readability + modernize checks; `.clang-format` based on LLVM style
+  - **Use `eslint.config.js` (flat config)** for ESLint 9+ — old `.eslintrc.*` is deprecated
+  - Integrate Prettier with ESLint via **`eslint-plugin-prettier`** to avoid conflicts
+  - clang-format/clang-tidy may need **version suffixes** on some systems (e.g., `clang-format-18`)
+- **`actions/setup-node`** has built-in npm caching — use `cache: 'npm'` with `cache-dependency-path`
+- **`working-directory`** is essential when running npm commands in a subdirectory
 - Frontend CI: `cd src/ui/web && npm ci && npm run lint && npm test && npm run build`
-- Consider separate workflows for C++ and frontend to allow independent failures
 
 ## Functional Requirements
 
