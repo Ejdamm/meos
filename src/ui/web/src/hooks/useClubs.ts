@@ -14,8 +14,8 @@ export function useCreateClub() {
   return useMutation((data: Partial<Club>) => api.createClub(data));
 }
 
-export function useUpdateClub(id: number) {
-  return useMutation((data: Partial<Club>) => api.updateClub(id, data));
+export function useUpdateClub() {
+  return useMutation(({ id, data }: { id: number; data: Partial<Club> }) => api.updateClub(id, data));
 }
 
 export function useDeleteClub() {

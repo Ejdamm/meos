@@ -96,3 +96,19 @@ Started: sön  8 mar 2026 00:14:40 CET
   - The DataTable and FormDialog components are highly reusable for standard CRUD entities.
 
 ## US-010 (5m15s)
+
+---
+## 2026-03-09 11:15:00 - US-011: Clubs page with CRUD
+- What was implemented:
+  - Fixed inconsistency in `useClubs.ts` by updating `useUpdateClub` to use the `{ id, data }` object pattern.
+  - Implemented `ClubsPage.tsx` with full CRUD for clubs.
+  - Integrated `DataTable`, `FormDialog`, `ConfirmDialog`, and `FormInput` on the Clubs page.
+  - Used `zod` for form validation (`name` is required).
+  - Verified that typecheck and build pass.
+- **Learnings for future iterations:**
+  - Standardized the `useUpdateEntity` hook pattern across the codebase improves predictability.
+  - Optional string fields in zod should use `.optional().or(z.literal(''))` if the form might return an empty string.
+
+## US-011 (5m35s)
+
+## US-011 (5m23s)
