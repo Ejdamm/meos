@@ -25,6 +25,14 @@ export function useDeleteRunner() {
   return useMutation((id: number) => api.deleteRunner(id));
 }
 
+export function useBulkCreateRunners() {
+  return useMutation((data: Partial<Runner>[]) => api.createRunnersBulk(data));
+}
+
+export function useImportXMLRunners() {
+  return useMutation((file: File) => api.importRunnersFromXML(file));
+}
+
 export function useSetRunnerStatus() {
   return useMutation(({ id, status }: { id: number; status: RunnerStatus }) =>
     api.setRunnerStatus(id, status)

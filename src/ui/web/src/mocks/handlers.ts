@@ -156,6 +156,23 @@ export const handlers = [
     runners.push(newRunner);
     return HttpResponse.json(newRunner, { status: 201 });
   }),
+  http.post(`${API_BASE}/runners/bulk`, async ({ request }) => {
+    const newRunnersData = await request.json() as Runner[];
+    const createdRunners = newRunnersData.map((r, index) => ({
+      ...r,
+      id: runners.length + index + 1
+    }));
+    runners.push(...createdRunners);
+    return HttpResponse.json(createdRunners, { status: 201 });
+  }),
+  http.post(`${API_BASE}/import/iof-xml`, async () => {
+    // Simulate server-side parsing of IOF XML
+    const mockImportedRunners: Partial<Runner>[] = [
+      { name: 'Imported Runner 1', clubName: 'Club A', className: 'Class 1', cardNumber: 123456, status: 1 },
+      { name: 'Imported Runner 2', clubName: 'Club B', className: 'Class 2', cardNumber: 654321, status: 1 },
+    ];
+    return HttpResponse.json(mockImportedRunners);
+  }),
   http.put(`${API_BASE}/runners/:id`, async ({ params, request }) => {
     const id = Number(params.id);
     const updated = await request.json() as Runner;

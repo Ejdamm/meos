@@ -2,11 +2,12 @@ import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Upload } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import type { Column } from '../components/DataTable';
 import { FormDialog } from '../components/FormDialog';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { ImportRunnersDialog } from '../components/ImportRunnersDialog';
 import { FormInput } from '../components/FormInput';
 import { FormSelect } from '../components/FormSelect';
 import { SearchableSelect } from '../components/SearchableSelect';
@@ -54,6 +55,7 @@ export default function RunnersPage() {
 
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
+  const [isImportOpen, setIsImportOpen] = React.useState(false);
   const [editingRunner, setEditingRunner] = React.useState<Runner | null>(null);
   const [deletingRunner, setDeletingRunner] = React.useState<Runner | null>(null);
 
@@ -194,10 +196,16 @@ export default function RunnersPage() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Runners</h1>
-        <Button onClick={handleCreate}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Runner
-        </Button>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+          <Button onClick={handleCreate}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Runner
+          </Button>
+        </div>
       </div>
 
       <DataTable
@@ -205,6 +213,12 @@ export default function RunnersPage() {
         data={runners}
         onRowClick={handleEdit}
         isLoading={isLoadingRunners || isLoadingClasses || isLoadingClubs}
+      />
+
+      <ImportRunnersDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        onImportComplete={() => refetchRunners()}
       />
 
       <FormDialog

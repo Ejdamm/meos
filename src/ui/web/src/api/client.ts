@@ -3,12 +3,19 @@ import * as T from './types';
 const API_BASE = '/api/v1';
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const headers = new Headers(options?.headers || {});
+  
+  // Set Content-Type only if it hasn't been set to something else (e.g., undefined or a specific type)
+  if (!headers.has('Content-Type') && !(options?.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  } else if (headers.get('Content-Type') === 'undefined') {
+    // This is a trick to delete the header so the browser can set it (e.g., for FormData)
+    headers.delete('Content-Type');
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -72,7 +79,22 @@ export const api = {
   createRunner: (data: Partial<T.Runner>) => request<T.Runner>('/runners', { method: 'POST', body: JSON.stringify(data) }),
   updateRunner: (id: number, data: Partial<T.Runner>) => request<T.Runner>(`/runners/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteRunner: (id: number) => request<void>(`/runners/${id}`, { method: 'DELETE' }),
+  createRunnersBulk: (data: Partial<T.Runner>[]) => request<T.Runner[]>('/runners/bulk', { method: 'POST', body: JSON.stringify(data) }),
   setRunnerStatus: (id: number, status: T.RunnerStatus) => request<T.Runner>(`/runners/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) }),
+
+  // Import
+  importRunnersFromXML: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request<T.Runner[]>('/import/iof-xml', { 
+      method: 'POST', 
+      body: formData,
+      headers: {
+        // Let the browser set the Content-Type with the boundary
+        'Content-Type': undefined as any,
+      } 
+    });
+  },
 
   // Teams
   getTeams: (params?: { classId?: number; clubId?: number }) => {
