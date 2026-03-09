@@ -1,6 +1,11 @@
 name: Build legacy MeOS
 
-on: workflow_dispatch
+on:
+  push:
+    branches: [base]
+    paths:
+      - 'code/**'
+      - '.github/workflows/build-legacy.yml'
 
 jobs:
   build:
