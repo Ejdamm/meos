@@ -93,6 +93,10 @@ Fixing these in `code/` eliminates entire categories of migration errors and red
 - Domain files include: `oEvent*.cpp`, `oRunner.cpp`, `oClass.cpp`, `oClub.cpp`, `oCourse.cpp`, `oControl.cpp`, `oCard.cpp`, `oTeam.cpp`, `oDataContainer.cpp`, `oBase.cpp`, `oFreePunch.cpp`
 - UI files (Tab*, gdioutput) are **out of scope**
 
+**Known Pitfalls:**
+- When replacing `sprintf_s`/`swprintf_s` with `snprintf`/`swprintf`, always verify whether the buffer is a fixed-size array or a pointer — `sizeof(buf)` only works correctly on arrays, not pointers
+- `lang.tl` returns `const wstring&`, which is directly compatible with `std::stoi` and `swprintf` — no intermediate conversion needed
+
 ### US-P0d: Replace Win32 Types with Standard Types in Domain Code
 
 **Description:** Replace Win32-specific type aliases (`DWORD` -> `uint32_t`, `BOOL` -> `bool`) with standard C++ types in domain code. UI code (Tab*, gdioutput) is out of scope.
@@ -106,6 +110,9 @@ Fixing these in `code/` eliminates entire categories of migration errors and red
 - `DWORD` -> `uint32_t` (or `unsigned int` / `int` depending on usage context)
 - Win32 `BOOL` -> `bool` (note: Win32 `BOOL` is `int`, so check for comparisons against `TRUE`/`FALSE`)
 - May need to keep `#include <windows.h>` in some files temporarily if other Win32 APIs are still used
+
+**Known Pitfalls:**
+- `MeosSQL.cpp` contains `DWORD` and `BOOL` inside SQL string literals — these must NOT be replaced. Filter out replacements inside string constants
 
 ### US-P0e: Normalize Path Separators in Domain Code
 
@@ -121,6 +128,10 @@ Fixing these in `code/` eliminates entire categories of migration errors and red
 - `path / "subdir" / "file.ext"` is the idiomatic cross-platform way
 - Be careful to distinguish path separators from escape sequences in strings
 - `#include <filesystem>` and use `namespace fs = std::filesystem;`
+
+**Known Pitfalls:**
+- Backslashes in SQL quoting and library code (e.g., escape sequences) are NOT path separators — skip these
+- Be careful with `parent_path()`: `parent_path()` of `"dir"` returns `""`, not a parent directory. To ensure a trailing separator, use `(p / "").wstring()`
 
 ### US-P0f: Decouple oEvent from Tab* UI Classes
 
@@ -138,6 +149,10 @@ Fixing these in `code/` eliminates entire categories of migration errors and red
 - Use `std::function` callbacks stored in `oEvent` — this pattern has already been proven in the migration work
 - Tab classes register their callbacks during application startup (e.g., in `main()` or initialization code)
 - This is the most complex preparation task — test thoroughly
+
+**Known Pitfalls:**
+- `meos.cpp` is the natural composition root where Tab callbacks should be registered (after `gEvent` initialization)
+- After decoupling Tab includes, `oEvent` still has coupling to `meos.cpp` via external declarations of `createTabs` and `hideTabs` — these could also be converted to callbacks for full library extraction
 
 ## Functional Requirements
 
