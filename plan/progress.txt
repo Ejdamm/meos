@@ -212,3 +212,5 @@ Started: sön  8 mar 2026 00:14:40 CET
   - `Papa.unparse` is a reliable way to generate CSV from objects.
   - Blobs and temporary `<a>` elements are the standard way to trigger client-side downloads.
   - Reusing the API client for export URLs keeps the endpoint logic centralized.
+
+## US-016 — COMPLETED (9m26s)

@@ -53,6 +53,18 @@
   ];
   ```
 
+## Results and Start Lists
+- **Grouping**: Both results and start lists should be grouped by class. Use a class selector for filtering, and if "All Classes" is selected, render separate sections for each class.
+- **Split Times**: Results must include split times. Use an expandable row pattern in the results table to show splits without cluttering the main list.
+- **Live Mode**: The `ResultsPage` supports a "Live" mode that auto-refreshes data using `silentRefresh` from `useResults` hook to avoid UI flickering.
+- **Change Highlighting**: When results change during live updates, use a transition animation (e.g., yellow pulse) to highlight the affected rows.
+- **Print Styles**: Always include `@media print` styles for results and start lists. Hide interactive elements and ensure tables are formatted for physical paper.
+
+## Exporting Data
+- **CSV**: Generate CSV files client-side using `papaparse` and trigger a download using a Blob and a temporary `<a>` element.
+- **IOF XML**: Call the corresponding backend endpoint and trigger a file download.
+- **Filenames**: Use descriptive filenames that include the competition name and date (e.g., `results_my_event_2026-04-12.csv`).
+
 ## TypeScript and Types
 - **Interfaces**: Defined in `@/api/types.ts`.
 - **Enums**: Do NOT use TypeScript `enum`. Use `const object + type` pattern to comply with `erasableSyntaxOnly` settings.
