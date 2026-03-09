@@ -9,7 +9,7 @@ Started: sön  8 mar 2026 00:14:40 CET
 - Tailwind 4 for styling (CSS-first approach)
 - Use generic `DataTable` component for entity lists with sorting, filtering, and pagination.
 - Use `zod` for form validation and `react-hook-form` for form management.
-- Reuse standard form components (`FormField`, `FormInput`, `FormSelect`, `SearchableSelect`) for consistent styling and validation.
+- Reuse standard form components (`FormField`, `FormInput`, \`FormSelect\`, \`SearchableSelect\`) for consistent styling and validation.
 - Use `size` property on `FormDialog` ('sm', 'md', 'lg', 'xl') to handle complex forms with varying width requirements.
 
 ---
@@ -148,3 +148,22 @@ Started: sön  8 mar 2026 00:14:40 CET
 ## US-013 (11m15s)
 
 ## iteration-8 (60m00s)
+
+---
+## 2026-03-09 12:00:00 - US-014: Runner import from CSV and IOF XML
+- What was implemented:
+  - Created `ImportRunnersDialog.tsx` component for multi-step runner import.
+  - Implemented client-side CSV parsing using `papaparse`.
+  - Integrated server-side IOF XML import via `useImportXMLRunners` hook.
+  - Added a preview step using `DataTable` to review imported runners before final submission.
+  - Implemented bulk creation using `useBulkCreateRunners` hook.
+  - Added an "Import" button to `RunnersPage.tsx`.
+  - Updated `AGENTS.md` with documentation for the new dialog.
+  - Verified that build and typecheck pass.
+- **Learnings for future iterations:**
+  - `DataTable` does not use a `pagination` object prop; it expects `pageSize` directly.
+  - CSV header mapping should be flexible (e.g., supporting "Name", "name", "Full Name").
+  - Using a multi-step dialog (Upload -> Preview -> Import) provides a much better UX than immediate import.
+  - MSW handlers for bulk operations and file uploads were essential for testing this feature without a real backend.
+
+## US-014 (3m11s)
