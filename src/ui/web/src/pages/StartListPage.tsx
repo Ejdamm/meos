@@ -1,15 +1,49 @@
 import * as React from 'react';
 import { useStartList } from '../hooks/useStartList';
 import { useClasses } from '../hooks/useClasses';
+import { useActiveCompetition } from '../hooks/useCompetition';
 import { DataTable } from '../components/DataTable';
 import type { Column } from '../components/DataTable';
 import type { StartListEntry } from '../api/types';
 import { FormSelect } from '../components/FormSelect';
+import { Button } from '../components/ui/Button';
+import { FileJson, FileSpreadsheet } from 'lucide-react';
+import { api } from '../api/client';
+import Papa from 'papaparse';
 
 export default function StartListPage() {
   const [selectedClassId, setSelectedClassId] = React.useState<number | undefined>(undefined);
   const { startList, isLoading: isLoadingStartList } = useStartList({ classId: selectedClassId });
   const { data: classes } = useClasses();
+  const { data: competition } = useActiveCompetition();
+
+  const exportCSV = () => {
+    const csvData = startList.map(r => ({
+      'Start Time': r.startTime,
+      Name: r.name,
+      Club: r.clubName || '',
+      Class: r.className || '',
+      Card: r.cardNumber || ''
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const filename = `startlist_${competition?.name || 'competition'}_${competition?.date || ''}.csv`.replace(/\s+/g, '_').toLowerCase();
+    
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportXML = () => {
+    const url = api.exportStartListXML({ classId: selectedClassId });
+    window.open(url, '_blank');
+  };
 
   const classOptions = [
     { label: 'All Classes', value: '' },
@@ -38,15 +72,27 @@ export default function StartListPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 print:p-0 print:m-0">
-      <div className="flex justify-between items-center mb-6 print:hidden">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 print:hidden">
         <h1 className="text-3xl font-bold">Start List</h1>
-        <div className="w-64">
-          <FormSelect
-            label="Filter by Class"
-            options={classOptions}
-            value={selectedClassId !== undefined ? String(selectedClassId) : ''}
-            onValueChange={(val) => setSelectedClassId(val ? Number(val) : undefined)}
-          />
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={exportCSV}>
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportXML}>
+              <FileJson className="w-4 h-4 mr-2" />
+              IOF XML
+            </Button>
+          </div>
+          <div className="w-64">
+            <FormSelect
+              label=""
+              options={classOptions}
+              value={selectedClassId !== undefined ? String(selectedClassId) : ''}
+              onValueChange={(val) => setSelectedClassId(val ? Number(val) : undefined)}
+            />
+          </div>
         </div>
       </div>
 

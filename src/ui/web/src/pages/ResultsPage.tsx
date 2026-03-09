@@ -1,22 +1,108 @@
 import * as React from 'react';
 import { useResults } from '../hooks/useResults';
 import { useClasses } from '../hooks/useClasses';
+import { useActiveCompetition } from '../hooks/useCompetition';
 import type { Column } from '../components/DataTable';
 import { FormSelect } from '../components/FormSelect';
 import { RunnerStatus } from '../api/types';
 import type { Result, Split } from '../api/types';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Activity, RefreshCw, FileJson, FileSpreadsheet } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Button } from '../components/ui/Button';
+import { api } from '../api/client';
+import Papa from 'papaparse';
 
 export default function ResultsPage() {
   const [selectedClassId, setSelectedClassId] = React.useState<number | undefined>(undefined);
   const [expandedRunners, setExpandedRunners] = React.useState<Set<number>>(new Set());
-  const { results, isLoading: isLoadingResults } = useResults({ classId: selectedClassId });
+  const [isLive, setIsLive] = React.useState(false);
+  const [refreshInterval, setRefreshInterval] = React.useState(10);
+  const [prevResults, setPrevResults] = React.useState<Map<number, Result>>(new Map());
+  const [changedRunners, setChangedRunners] = React.useState<Set<number>>(new Set());
+
+  const { 
+    results, 
+    isLoading: isLoadingResults, 
+    silentRefresh, 
+    isRefreshing, 
+    lastUpdated 
+  } = useResults({ classId: selectedClassId });
   const { data: classes } = useClasses();
+  const { data: competition } = useActiveCompetition();
+
+  // Track changes when results are updated
+  React.useEffect(() => {
+    if (results.length === 0) return;
+
+    const newChanged = new Set<number>();
+    results.forEach(r => {
+      const prev = prevResults.get(r.runnerId);
+      if (prev && (prev.runningTime !== r.runningTime || prev.status !== r.status || prev.place !== r.place)) {
+        newChanged.add(r.runnerId);
+      }
+    });
+
+    if (newChanged.size > 0) {
+      setChangedRunners(newChanged);
+      const timer = setTimeout(() => {
+        setChangedRunners(new Set());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+
+    setPrevResults(new Map(results.map(r => [r.runnerId, r])));
+  }, [results]);
+
+  // Handle auto-refresh
+  React.useEffect(() => {
+    if (!isLive) return;
+    const intervalId = setInterval(() => {
+      silentRefresh();
+    }, refreshInterval * 1000);
+    return () => clearInterval(intervalId);
+  }, [isLive, refreshInterval, silentRefresh]);
+
+  const exportCSV = () => {
+    const csvData = results.map(r => ({
+      Place: r.place || '',
+      Name: r.name,
+      Club: r.clubName || '',
+      Class: r.className || '',
+      Time: r.runningTime || '',
+      After: r.timeAfter || '',
+      Status: getStatusText(r.status) || 'OK'
+    }));
+
+    const csv = Papa.unparse(csvData);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const filename = `results_${competition?.name || 'competition'}_${competition?.date || ''}.csv`.replace(/\s+/g, '_').toLowerCase();
+    
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const exportXML = () => {
+    const url = api.exportResultsXML({ classId: selectedClassId });
+    window.open(url, '_blank');
+  };
 
   const classOptions = [
     { label: 'All Classes', value: '' },
     ...(classes?.map(c => ({ label: c.name, value: String(c.id) })) || [])
+  ];
+
+  const intervalOptions = [
+    { label: '5s', value: '5' },
+    { label: '10s', value: '10' },
+    { label: '20s', value: '20' },
+    { label: '30s', value: '30' },
+    { label: '60s', value: '60' },
   ];
 
   const toggleRunner = (runnerId: number) => {
@@ -98,15 +184,17 @@ export default function ResultsPage() {
     );
   };
 
-  // Custom row renderer to handle expansion
   const renderRow = (r: Result) => {
     const isExpanded = expandedRunners.has(r.runnerId);
+    const isChanged = changedRunners.has(r.runnerId);
+    
     return (
       <React.Fragment key={r.runnerId}>
         <tr 
           className={cn(
-            "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer",
-            isExpanded && "bg-blue-50/30 dark:bg-blue-900/10"
+            "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer transition-colors duration-1000",
+            isExpanded && "bg-blue-50/30 dark:bg-blue-900/10",
+            isChanged && "bg-yellow-100 dark:bg-yellow-900/30 animate-pulse"
           )}
           onClick={() => r.splits && r.splits.length > 0 && toggleRunner(r.runnerId)}
         >
@@ -127,7 +215,6 @@ export default function ResultsPage() {
     );
   };
 
-  // Group by class if "All Classes" is selected
   const resultsByClass = React.useMemo(() => {
     if (selectedClassId !== undefined) return null;
     
@@ -142,15 +229,63 @@ export default function ResultsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8 print:p-0 print:m-0">
-      <div className="flex justify-between items-center mb-6 print:hidden">
-        <h1 className="text-3xl font-bold">Results</h1>
-        <div className="w-64">
-          <FormSelect
-            label="Filter by Class"
-            options={classOptions}
-            value={selectedClassId !== undefined ? String(selectedClassId) : ''}
-            onValueChange={(val) => setSelectedClassId(val ? Number(val) : undefined)}
-          />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 print:hidden">
+        <div>
+          <h1 className="text-3xl font-bold">Results</h1>
+          <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+            {isLive ? (
+              <span className="flex items-center text-green-600 font-medium">
+                <Activity className="w-4 h-4 mr-1 animate-pulse" />
+                Live Mode Active
+              </span>
+            ) : (
+              <span className="flex items-center">
+                Last updated: {lastUpdated.toLocaleTimeString()}
+              </span>
+            )}
+            {isRefreshing && <RefreshCw className="w-3 h-3 animate-spin ml-2" />}
+          </div>
+        </div>
+        
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={exportCSV}>
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportXML}>
+              <FileJson className="w-4 h-4 mr-2" />
+              IOF XML
+            </Button>
+          </div>
+
+          <div className="w-48">
+            <FormSelect
+              label="Class"
+              options={classOptions}
+              value={selectedClassId !== undefined ? String(selectedClassId) : ''}
+              onValueChange={(val) => setSelectedClassId(val ? Number(val) : undefined)}
+            />
+          </div>
+          
+          <div className="flex items-center gap-2 pt-6">
+            <div className="w-24">
+              <FormSelect
+                label=""
+                options={intervalOptions}
+                value={String(refreshInterval)}
+                onValueChange={(val) => setRefreshInterval(Number(val))}
+              />
+            </div>
+            <Button 
+              variant={isLive ? "default" : "outline"}
+              onClick={() => setIsLive(!isLive)}
+              className={cn(isLive && "bg-green-600 hover:bg-green-700")}
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              {isLive ? 'LIVE ON' : 'LIVE OFF'}
+            </Button>
+          </div>
         </div>
       </div>
 

@@ -127,6 +127,20 @@ export const api = {
     return request<T.StartListEntry[]>(`/startlist${queryString ? `?${queryString}` : ''}`);
   },
 
+  // Export
+  exportResultsXML: (params?: { classId?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.classId) query.append('classId', params.classId.toString());
+    const queryString = query.toString();
+    return `${API_BASE}/results/export/iof-xml${queryString ? `?${queryString}` : ''}`;
+  },
+  exportStartListXML: (params?: { classId?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.classId) query.append('classId', params.classId.toString());
+    const queryString = query.toString();
+    return `${API_BASE}/startlist/export/iof-xml${queryString ? `?${queryString}` : ''}`;
+  },
+
   // Cards
   registerCard: (data: { cardNumber: number; runnerId?: number }) => request<void>('/cards', { method: 'POST', body: JSON.stringify(data) }),
 };
