@@ -14,6 +14,7 @@ interface DataTableProps<T> {
   data: T[];
   pageSize?: number;
   onRowClick?: (item: T) => void;
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -27,6 +28,7 @@ export function DataTable<T>({
   data,
   pageSize = 10,
   onRowClick,
+  isLoading,
   className,
 }: DataTableProps<T>) {
   const [sortConfig, setSortConfig] = useState<SortConfig<T>>(null);
@@ -130,7 +132,13 @@ export function DataTable<T>({
             </tr>
           </thead>
           <tbody>
-            {paginatedData.length > 0 ? (
+            {isLoading ? (
+              <tr>
+                <td colSpan={columns.length} className="px-6 py-4 text-center">
+                  Loading...
+                </td>
+              </tr>
+            ) : paginatedData.length > 0 ? (
               paginatedData.map((item, idx) => (
                 <tr
                   key={idx}

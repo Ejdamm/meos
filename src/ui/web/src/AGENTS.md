@@ -22,12 +22,18 @@
 ## API and Data Fetching
 - **Client**: Use the singleton `api` object from `@/api/client` for all backend communication.
 - **Hooks**: Prefer custom hooks in `@/hooks/` (e.g., `useRunners`, `useClubs`) instead of calling the API directly in components.
+- **Mutations**: The `useMutation` hook in `@/hooks/useApi` provides a `mutate` function that takes a single `variables` argument. Since it doesn't support options like `onSuccess` in the `mutate` call, use `async/await` to handle success/error logic or pass callbacks directly to the `useMutation` hook.
 - **Endpoints**: All endpoints are under `/api/v1/`.
 - **Mocking**: Use MSW (Mock Service Worker) for local development if the C++ backend is not available.
   - Mock data is in `src/mocks/data.ts`.
   - API handlers are in `src/mocks/handlers.ts`.
   - Mocking is enabled in `src/main.tsx` if `import.meta.env.MODE === 'development'`.
   - Always run `npx msw init public/` if the service worker script is missing.
+
+## Forms and Inputs
+- **React Hook Form**: Use `react-hook-form` with `zodResolver` for form management and validation.
+- **Selects**: The `FormSelect` component expects `value` and `onValueChange` to be strings. When working with numeric IDs, convert them using `String()` for the select and `Number()` when submitting the form.
+- **Numeric Inputs**: For numeric fields in `FormInput`, use `type="number"` and pass `{ valueAsNumber: true }` to the `register` function to ensure correct type handling in the form state.
 
 ## Data Table
 - Use the `DataTable` component from `src/components/DataTable` for all entity lists.

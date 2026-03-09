@@ -35,12 +35,12 @@ export const mockCourses: Course[] = [
 ];
 
 export const mockClasses: Class[] = [
-  { id: 1, name: 'H21E', sortOrder: 1, courseId: 1 },
-  { id: 2, name: 'D21E', sortOrder: 2, courseId: 1 },
-  { id: 3, name: 'H45', sortOrder: 3, courseId: 2 },
-  { id: 4, name: 'D45', sortOrder: 4, courseId: 2 },
-  { id: 5, name: 'H12', sortOrder: 5, courseId: 3 },
-  { id: 6, name: 'D12', sortOrder: 6, courseId: 3 },
+  { id: 1, name: 'H21E', sortOrder: 1, courseId: 1, startMethod: 0 },
+  { id: 2, name: 'D21E', sortOrder: 2, courseId: 1, startMethod: 0 },
+  { id: 3, name: 'H45', sortOrder: 3, courseId: 2, startMethod: 0 },
+  { id: 4, name: 'D45', sortOrder: 4, courseId: 2, startMethod: 0 },
+  { id: 5, name: 'H12', sortOrder: 5, courseId: 3, startMethod: 0 },
+  { id: 6, name: 'D12', sortOrder: 6, courseId: 3, startMethod: 0 },
 ];
 
 export const mockClubs: Club[] = [

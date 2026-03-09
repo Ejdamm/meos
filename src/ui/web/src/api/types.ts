@@ -23,11 +23,21 @@ export interface Competition {
   zeroTime?: string;
 }
 
+export const StartMethod = {
+  Time: 0,
+  Change: 1,
+  Drawn: 2,
+  Pursuit: 3,
+} as const;
+
+export type StartMethod = typeof StartMethod[keyof typeof StartMethod];
+
 export interface Class {
   id: number;
   name: string;
   sortOrder?: number;
   courseId?: number;
+  startMethod?: StartMethod;
 }
 
 export interface Course {

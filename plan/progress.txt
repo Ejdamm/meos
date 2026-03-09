@@ -12,19 +12,21 @@ Started: sön  8 mar 2026 00:14:40 CET
 - Reuse standard form components (`FormField`, `FormInput`, `FormSelect`, `SearchableSelect`) for consistent styling and validation.
 
 ---
-## 2026-03-09 - US-006 & US-007: Form Components and Competition Page
+## 2026-03-09 - US-008: Classes page with CRUD
 - What was implemented:
-  - Verified and finalized reusable form components: `FormField`, `FormInput`, `FormSelect`, `SearchableSelect`.
-  - Finalized `FormDialog` and `ConfirmDialog` components.
-  - Implemented `CompetitionPage.tsx` with a full CRUD form for competition settings.
-  - Added `zod` validation for competition fields (name, date, organizer, homepage, zeroTime).
-  - Updated MSW handlers to support single competition fetching and updating by ID.
-  - Integrated `useQuery` and `useMutation` hooks for competition data management.
+  - Created `useCourses.ts` hook for fetching courses.
+  - Updated `api/types.ts` to include `StartMethod` enum and `startMethod` field in `Class` interface.
+  - Updated `mocks/data.ts` to include `startMethod` in mock classes.
+  - Updated `DataTable.tsx` to support `isLoading` prop for better UX.
+  - Implemented `ClassesPage.tsx` with full CRUD for classes.
+  - Integrated `DataTable`, `FormDialog`, `ConfirmDialog`, `FormInput`, and `FormSelect` on the Classes page.
+  - Added `zod` validation for class fields (name, courseId, startMethod, sortOrder).
+  - Fixed TypeScript issues with `useMutation` and `zodResolver`.
 - **Learnings for future iterations:**
-  - `react-hook-form` works seamlessly with `forwardRef` components like `FormInput`.
-  - MSW handlers should be kept in sync with the `api/client.ts` to avoid "mismatched" endpoint assumptions.
-  - Simple `alert` for feedback is sufficient for early iterations, but a dedicated `Toast` component should be considered for better UX.
-  - Always check for existing components before implementing new ones, as some might have been partially completed in previous runs or iterations.
+  - `useMutation` in the current implementation only takes one argument for `mutate`. Options must be passed to `useMutation` hook itself, or handled via `async/await` in the caller.
+  - `z.coerce.number()` might cause type inference issues with `zodResolver` if not careful; sometimes setting `valueAsNumber: true` in `register` and using `z.number()` is cleaner.
+  - `FormSelect` values are always strings; remember to convert back to numbers if needed for the API.
+  - `DataTable` is a powerful generic component but needs `isLoading` state to avoid flashing "No data" while fetching.
 ---
 
 ## US-005 (2m32s)
@@ -62,3 +64,5 @@ Started: sön  8 mar 2026 00:14:40 CET
 ## iteration-20 (0m08s)
 
 ## US-006 (14m52s)
+
+## US-008 (22m11s)

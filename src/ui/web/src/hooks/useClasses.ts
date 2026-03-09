@@ -14,8 +14,8 @@ export function useCreateClass() {
   return useMutation((data: Partial<Class>) => api.createClass(data));
 }
 
-export function useUpdateClass(id: number) {
-  return useMutation((data: Partial<Class>) => api.updateClass(id, data));
+export function useUpdateClass() {
+  return useMutation(({ id, data }: { id: number; data: Partial<Class> }) => api.updateClass(id, data));
 }
 
 export function useDeleteClass() {
