@@ -36,10 +36,16 @@ export const handlers = [
   http.get(`${API_BASE}/competitions`, () => {
     return HttpResponse.json(competitions);
   }),
-  http.put(`${API_BASE}/competitions`, async ({ request }) => {
+  http.get(`${API_BASE}/competitions/:id`, ({ params }) => {
+    const id = Number(params.id);
+    const competition = competitions.find(c => c.id === id);
+    return competition ? HttpResponse.json(competition) : new HttpResponse(null, { status: 404 });
+  }),
+  http.put(`${API_BASE}/competitions/:id`, async ({ params, request }) => {
+    const id = Number(params.id);
     const updated = await request.json() as Competition;
-    competitions = [updated];
-    return HttpResponse.json(updated);
+    competitions = competitions.map(c => c.id === id ? { ...updated, id } : c);
+    return HttpResponse.json({ ...updated, id });
   }),
 
   // Clubs

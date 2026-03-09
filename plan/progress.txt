@@ -8,75 +8,23 @@ Started: sön  8 mar 2026 00:14:40 CET
 - Use `NavLink` for active route highlighting
 - Tailwind 4 for styling (CSS-first approach)
 - Use generic `DataTable` component for entity lists with sorting, filtering, and pagination.
+- Use `zod` for form validation and `react-hook-form` for form management.
+- Reuse standard form components (`FormField`, `FormInput`, `FormSelect`, `SearchableSelect`) for consistent styling and validation.
 
 ---
-## 2026-03-08 - US-001: Project scaffolding with Vite, React 18, and TypeScript
+## 2026-03-09 - US-006 & US-007: Form Components and Competition Page
 - What was implemented:
-  - Created src/ui/web/ directory and initialized Vite + React 18 + TypeScript project.
-  - Installed dependencies: react@18, react-dom@18, react-router-dom, vitest, tailwindcss@4, radix-ui, lucide-react, etc.
-  - Configured vite.config.ts with API proxy to http://localhost:2009.
-  - Configured Tailwind 4 in src/index.css.
-  - Verified build and typecheck with npm run build.
+  - Verified and finalized reusable form components: `FormField`, `FormInput`, `FormSelect`, `SearchableSelect`.
+  - Finalized `FormDialog` and `ConfirmDialog` components.
+  - Implemented `CompetitionPage.tsx` with a full CRUD form for competition settings.
+  - Added `zod` validation for competition fields (name, date, organizer, homepage, zeroTime).
+  - Updated MSW handlers to support single competition fetching and updating by ID.
+  - Integrated `useQuery` and `useMutation` hooks for competition data management.
 - **Learnings for future iterations:**
-  - Vite 7 + React 18 requires manual downgrading if the template defaults to React 19.
-  - Tailwind 4 simplifies configuration by using CSS imports and variables instead of tailwind.config.ts.
-  - npx create-vite@7 --template react-ts is a reliable way to scaffold the project without interactive prompts.
-  - shadcn/ui components can be built manually using Radix UI primitives and Tailwind 4 CSS variables to avoid complicated setup scripts.
----
-## 2026-03-08 - US-002: App shell with sidebar navigation and routing
-- What was implemented:
-  - Created placeholder page components in `src/pages/` for all defined routes.
-  - Implemented a responsive `Layout` component with a sidebar and mobile hamburger menu.
-  - Configured `App.tsx` with `react-router-dom` and redirects.
-  - Added `src/lib/utils.ts` with the `cn` helper for Tailwind classes.
-- **Learnings for future iterations:**
-  - Using `NavLink` with `isActive` is the standard way to handle active route highlighting in React Router.
-  - The off-canvas sidebar pattern works well for mobile/desktop responsiveness.
-  - Tailwind 4 makes responsive utilities very clean (`lg:translate-x-0`).
-  - Keep components modular (e.g., `Layout` and `utils`) from the beginning to avoid refactoring.
----
-## 2026-03-08 - US-003: API client layer with TypeScript types and React hooks
-- What was implemented:
-  - Created src/api/types.ts with TypeScript interfaces for all major entities (Competition, Class, Runner, etc.).
-  - Implemented src/api/client.ts with typed fetch-based functions for all CRUD endpoints.
-  - Created src/hooks/useApi.ts with generic useQuery and useMutation hooks.
-  - Implemented entity-specific hooks: useRunners, useClubs, useClasses.
-  - Fixed TypeScript errors related to Vite 7 default strict settings (erasableSyntaxOnly, verbatimModuleSyntax).
-- **Learnings for future iterations:**
-  - The legacy C++ backend (restserver.cpp) implements an XML API at /meos, but the frontend architecture requires a JSON REST API at /api/v1.
-  - Avoid TypeScript enums as they are not compatible with 'erasableSyntaxOnly' enabled by default in Vite 7 templates. Use 'const object + type' pattern instead.
-  - Always use 'import type' when importing interfaces/types to satisfy 'verbatimModuleSyntax'.
-  - Mapping C++ entity fields (from oEvent.h, oRunner.h, etc.) to TypeScript is straightforward but requires careful checking of header files for status codes and optional fields.
----
-
-## 2026-03-08 - US-004: Mock API with MSW for frontend-only development
-- What was implemented:
-  - Installed MSW and initialized it in the public directory.
-  - Created src/mocks/data.ts with realistic seed data for all major entities.
-  - Implemented src/mocks/handlers.ts with full CRUD support for clubs, controls, courses, classes, runners, and teams.
-  - Added mock handlers for competitions, results, and startlists.
-  - Configured src/main.tsx to enable MSW in development mode.
-  - Verified that the project builds and typechecks successfully.
-- **Learnings for future iterations:**
-  - MSW 2.0+ uses the `http` and `HttpResponse` APIs, which are different from previous versions.
-  - Always run `npx msw init public/` to ensure the service worker script is present.
-  - In-memory state in handlers is sufficient for development but will reset on page reload unless persisted (e.g., to localStorage).
-  - The `import.meta.env.MODE` check in `main.tsx` is the standard way to conditionally enable mocking in Vite projects.
----
-
-## 2026-03-08 - US-005: Reusable data table component with sorting, filtering, and pagination
-- What was implemented:
-  - Created src/components/DataTable.tsx as a reusable component.
-  - Implemented sorting (asc/desc) by clicking headers.
-  - Implemented global text filtering across all columns.
-  - Implemented pagination with configurable page size.
-  - Added row selection via onClick handler.
-  - Ensured responsive rendering with horizontal scroll.
-  - Verified with npm run build (typecheck).
-- **Learnings for future iterations:**
-  - A generic DataTable component with typed columns makes implementing entity lists (runners, clubs, etc.) much faster.
-  - `useMemo` is essential for performance when filtering and sorting large datasets client-side.
-  - Tailwind's `overflow-x-auto` is the simplest way to handle table responsiveness.
+  - `react-hook-form` works seamlessly with `forwardRef` components like `FormInput`.
+  - MSW handlers should be kept in sync with the `api/client.ts` to avoid "mismatched" endpoint assumptions.
+  - Simple `alert` for feedback is sufficient for early iterations, but a dedicated `Toast` component should be considered for better UX.
+  - Always check for existing components before implementing new ones, as some might have been partially completed in previous runs or iterations.
 ---
 
 ## US-005 (2m32s)
@@ -112,3 +60,5 @@ Started: sön  8 mar 2026 00:14:40 CET
 ## iteration-19 (0m07s)
 
 ## iteration-20 (0m08s)
+
+## US-006 (14m52s)
