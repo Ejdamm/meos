@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, Edit, Trash2, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, Upload, Users } from 'lucide-react';
 import { DataTable } from '../components/DataTable';
 import type { Column } from '../components/DataTable';
 import { FormDialog } from '../components/FormDialog';
@@ -12,7 +12,14 @@ import { FormInput } from '../components/FormInput';
 import { FormSelect } from '../components/FormSelect';
 import { SearchableSelect } from '../components/SearchableSelect';
 import { Button } from '../components/ui/Button';
-import { useRunners, useCreateRunner, useUpdateRunner, useDeleteRunner } from '../hooks/useRunners';
+import { 
+  useRunners, 
+  useCreateRunner, 
+  useUpdateRunner, 
+  useDeleteRunner, 
+  useUpdateRunnersBulk, 
+  useAssignStartTimesBulk 
+} from '../hooks/useRunners';
 import { useClasses } from '../hooks/useClasses';
 import { useClubs } from '../hooks/useClubs';
 import { RunnerStatus } from '../api/types';
@@ -44,6 +51,14 @@ const statusOptions = [
   { label: 'Not Competing', value: String(RunnerStatus.NotCompeting) },
 ];
 
+const bulkClassSchema = z.object({
+  classId: z.string().min(1, 'Class is required'),
+});
+
+const bulkStatusSchema = z.object({
+  status: z.string().min(1, 'Status is required'),
+});
+
 export default function RunnersPage() {
   const { data: runnersData, isLoading: isLoadingRunners, refetch: refetchRunners } = useRunners();
   const { data: classesData, isLoading: isLoadingClasses } = useClasses();
@@ -53,9 +68,16 @@ export default function RunnersPage() {
   const classes = classesData || [];
   const clubs = clubsData || [];
 
+  const [selectedRunners, setSelectedRunners] = React.useState<Runner[]>([]);
   const [isFormOpen, setIsFormOpen] = React.useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false);
   const [isImportOpen, setIsImportOpen] = React.useState(false);
+  
+  // Bulk action states
+  const [isBulkClassOpen, setIsBulkClassOpen] = React.useState(false);
+  const [isBulkStatusOpen, setIsBulkStatusOpen] = React.useState(false);
+  const [isBulkStartTimesConfirmOpen, setIsBulkStartTimesConfirmOpen] = React.useState(false);
+
   const [editingRunner, setEditingRunner] = React.useState<Runner | null>(null);
   const [deletingRunner, setDeletingRunner] = React.useState<Runner | null>(null);
 
@@ -78,9 +100,31 @@ export default function RunnersPage() {
     },
   });
 
+  const {
+    handleSubmit: handleBulkClassSubmit,
+    control: bulkClassControl,
+    reset: resetBulkClass,
+    formState: { errors: bulkClassErrors },
+  } = useForm<{ classId: string }>({
+    resolver: zodResolver(bulkClassSchema),
+    defaultValues: { classId: '' },
+  });
+
+  const {
+    handleSubmit: handleBulkStatusSubmit,
+    control: bulkStatusControl,
+    reset: resetBulkStatus,
+    formState: { errors: bulkStatusErrors },
+  } = useForm<{ status: string }>({
+    resolver: zodResolver(bulkStatusSchema),
+    defaultValues: { status: String(RunnerStatus.OK) },
+  });
+
   const createRunnerMutation = useCreateRunner();
   const updateRunnerMutation = useUpdateRunner();
   const deleteRunnerMutation = useDeleteRunner();
+  const updateRunnersBulkMutation = useUpdateRunnersBulk();
+  const assignStartTimesBulkMutation = useAssignStartTimesBulk();
 
   const onSubmit = async (values: RunnerFormValues) => {
     const data: Partial<Runner> = {
@@ -100,6 +144,47 @@ export default function RunnersPage() {
         await createRunnerMutation.mutate(data);
       }
       setIsFormOpen(false);
+      refetchRunners();
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const onBulkClassSubmit = async (values: { classId: string }) => {
+    try {
+      await updateRunnersBulkMutation.mutate({
+        ids: selectedRunners.map(r => r.id),
+        data: { classId: Number(values.classId) }
+      });
+      setIsBulkClassOpen(false);
+      setSelectedRunners([]);
+      resetBulkClass();
+      refetchRunners();
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const onBulkStatusSubmit = async (values: { status: string }) => {
+    try {
+      await updateRunnersBulkMutation.mutate({
+        ids: selectedRunners.map(r => r.id),
+        data: { status: Number(values.status) as RunnerStatus }
+      });
+      setIsBulkStatusOpen(false);
+      setSelectedRunners([]);
+      resetBulkStatus();
+      refetchRunners();
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  const onBulkStartTimesConfirm = async () => {
+    try {
+      await assignStartTimesBulkMutation.mutate(selectedRunners.map(r => r.id));
+      setIsBulkStartTimesConfirmOpen(false);
+      setSelectedRunners([]);
       refetchRunners();
     } catch (err: any) {
       alert(`Error: ${err.message}`);
@@ -208,11 +293,38 @@ export default function RunnersPage() {
         </div>
       </div>
 
+      {selectedRunners.length > 0 && (
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6 flex items-center justify-between animate-in fade-in slide-in-from-top-4">
+          <div className="flex items-center text-blue-800 dark:text-blue-300">
+            <Users className="w-5 h-5 mr-2" />
+            <span className="font-semibold">{selectedRunners.length}</span>
+            <span className="ml-1 text-sm">runners selected</span>
+          </div>
+          <div className="flex space-x-2">
+            <Button size="sm" variant="outline" onClick={() => setIsBulkClassOpen(true)}>
+              Assign Class
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setIsBulkStatusOpen(true)}>
+              Change Status
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setIsBulkStartTimesConfirmOpen(true)}>
+              Assign Start Times
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setSelectedRunners([])}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       <DataTable
         columns={columns}
         data={runners}
         onRowClick={handleEdit}
         isLoading={isLoadingRunners || isLoadingClasses || isLoadingClubs}
+        enableSelection
+        selectedItems={selectedRunners}
+        onSelectionChange={setSelectedRunners}
       />
 
       <ImportRunnersDialog
@@ -311,6 +423,75 @@ export default function RunnersPage() {
         onConfirm={confirmDelete}
         onCancel={() => setIsConfirmOpen(false)}
         loading={deleteRunnerMutation.isLoading}
+      />
+
+      <FormDialog
+        title="Bulk Assign Class"
+        open={isBulkClassOpen}
+        onOpenChange={setIsBulkClassOpen}
+        onSave={() => handleBulkClassSubmit(onBulkClassSubmit)()}
+        onCancel={() => setIsBulkClassOpen(false)}
+        loading={updateRunnersBulkMutation.isLoading}
+        size="sm"
+      >
+        <form className="space-y-4" onSubmit={handleBulkClassSubmit(onBulkClassSubmit)}>
+          <p className="text-sm text-gray-500 mb-4">
+            Assign <span className="font-semibold">{selectedRunners.length}</span> runners to a new class.
+          </p>
+          <Controller
+            name="classId"
+            control={bulkClassControl}
+            render={({ field }) => (
+              <SearchableSelect
+                label="Class"
+                options={classOptions}
+                value={field.value}
+                onValueChange={field.onChange}
+                error={bulkClassErrors.classId?.message}
+                placeholder="Select a class..."
+              />
+            )}
+          />
+        </form>
+      </FormDialog>
+
+      <FormDialog
+        title="Bulk Change Status"
+        open={isBulkStatusOpen}
+        onOpenChange={setIsBulkStatusOpen}
+        onSave={() => handleBulkStatusSubmit(onBulkStatusSubmit)()}
+        onCancel={() => setIsBulkStatusOpen(false)}
+        loading={updateRunnersBulkMutation.isLoading}
+        size="sm"
+      >
+        <form className="space-y-4" onSubmit={handleBulkStatusSubmit(onBulkStatusSubmit)}>
+          <p className="text-sm text-gray-500 mb-4">
+            Change status for <span className="font-semibold">{selectedRunners.length}</span> runners.
+          </p>
+          <Controller
+            name="status"
+            control={bulkStatusControl}
+            render={({ field }) => (
+              <FormSelect
+                label="Status"
+                options={statusOptions}
+                value={field.value}
+                onValueChange={field.onChange}
+                error={bulkStatusErrors.status?.message}
+              />
+            )}
+          />
+        </form>
+      </FormDialog>
+
+      <ConfirmDialog
+        title="Bulk Assign Start Times"
+        description={`Are you sure you want to assign start times to ${selectedRunners.length} runners? This will use the default start time assignment logic.`}
+        open={isBulkStartTimesConfirmOpen}
+        onOpenChange={setIsBulkStartTimesConfirmOpen}
+        onConfirm={onBulkStartTimesConfirm}
+        onCancel={() => setIsBulkStartTimesConfirmOpen(false)}
+        loading={assignStartTimesBulkMutation.isLoading}
       />
     </div>
   );

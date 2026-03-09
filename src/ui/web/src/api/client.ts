@@ -80,6 +80,8 @@ export const api = {
   updateRunner: (id: number, data: Partial<T.Runner>) => request<T.Runner>(`/runners/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteRunner: (id: number) => request<void>(`/runners/${id}`, { method: 'DELETE' }),
   createRunnersBulk: (data: Partial<T.Runner>[]) => request<T.Runner[]>('/runners/bulk', { method: 'POST', body: JSON.stringify(data) }),
+  updateRunnersBulk: (ids: number[], data: Partial<T.Runner>) => request<void>('/runners/bulk', { method: 'PATCH', body: JSON.stringify({ ids, data }) }),
+  assignStartTimesBulk: (ids: number[]) => request<void>('/runners/bulk/start-times', { method: 'POST', body: JSON.stringify({ ids }) }),
   setRunnerStatus: (id: number, status: T.RunnerStatus) => request<T.Runner>(`/runners/${id}/status`, { method: 'POST', body: JSON.stringify({ status }) }),
 
   // Import

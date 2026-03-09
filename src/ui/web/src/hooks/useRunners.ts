@@ -29,6 +29,14 @@ export function useBulkCreateRunners() {
   return useMutation((data: Partial<Runner>[]) => api.createRunnersBulk(data));
 }
 
+export function useUpdateRunnersBulk() {
+  return useMutation(({ ids, data }: { ids: number[]; data: Partial<Runner> }) => api.updateRunnersBulk(ids, data));
+}
+
+export function useAssignStartTimesBulk() {
+  return useMutation((ids: number[]) => api.assignStartTimesBulk(ids));
+}
+
 export function useImportXMLRunners() {
   return useMutation((file: File) => api.importRunnersFromXML(file));
 }

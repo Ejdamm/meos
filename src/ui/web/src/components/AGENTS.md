@@ -4,6 +4,11 @@ This directory contains reusable form components for the MeOS Web Frontend.
 
 ## Core Components
 
+- `DataTable`: A reusable data table component with sorting, filtering, and pagination.
+  - Supports row selection by setting `enableSelection={true}`.
+  - Use `selectedItems` and `onSelectionChange` to manage the selection state.
+  - Optional `getItemId` prop to uniquely identify items (defaults to `(item) => item.id`).
+- `Checkbox`: A simple Tailwind-styled checkbox component for use in forms and data tables.
 - `FormField`: A wrapper that provides a label, required indicator, and error message display.
 - `FormInput`: A standard text/number input wrapped in `FormField`.
 - `FormSelect`: A standard dropdown select wrapped in `FormField`.

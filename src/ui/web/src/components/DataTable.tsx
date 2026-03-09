@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronUp, ChevronDown, ChevronsUpDown, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Checkbox } from './ui/Checkbox';
 
 export interface Column<T> {
   header: string;
@@ -16,6 +17,10 @@ interface DataTableProps<T> {
   onRowClick?: (item: T) => void;
   isLoading?: boolean;
   className?: string;
+  enableSelection?: boolean;
+  selectedItems?: T[];
+  onSelectionChange?: (items: T[]) => void;
+  getItemId?: (item: T) => string | number;
 }
 
 type SortConfig<T> = {
@@ -30,6 +35,10 @@ export function DataTable<T>({
   onRowClick,
   isLoading,
   className,
+  enableSelection,
+  selectedItems = [],
+  onSelectionChange,
+  getItemId = (item: any) => item.id,
 }: DataTableProps<T>) {
   const [sortConfig, setSortConfig] = useState<SortConfig<T>>(null);
   const [filterQuery, setFilterQuery] = useState('');
@@ -72,6 +81,39 @@ export function DataTable<T>({
     return result;
   }, [data, filterQuery, sortConfig]);
 
+  // Selection logic
+  const isAllSelected = useMemo(() => {
+    if (filteredAndSortedData.length === 0) return false;
+    return filteredAndSortedData.every(item => 
+      selectedItems.some(selected => getItemId(selected) === getItemId(item))
+    );
+  }, [filteredAndSortedData, selectedItems, getItemId]);
+
+  const toggleSelectAll = () => {
+    if (!onSelectionChange) return;
+    if (isAllSelected) {
+      const remainingSelected = selectedItems.filter(selected => 
+        !filteredAndSortedData.some(item => getItemId(item) === getItemId(selected))
+      );
+      onSelectionChange(remainingSelected);
+    } else {
+      const newItems = filteredAndSortedData.filter(item => 
+        !selectedItems.some(selected => getItemId(selected) === getItemId(item))
+      );
+      onSelectionChange([...selectedItems, ...newItems]);
+    }
+  };
+
+  const toggleSelectItem = (item: T) => {
+    if (!onSelectionChange) return;
+    const isSelected = selectedItems.some(selected => getItemId(selected) === getItemId(item));
+    if (isSelected) {
+      onSelectionChange(selectedItems.filter(selected => getItemId(selected) !== getItemId(item)));
+    } else {
+      onSelectionChange([...selectedItems, item]);
+    }
+  };
+
   // Pagination logic
   const totalPages = Math.ceil(filteredAndSortedData.length / pageSize);
   const paginatedData = useMemo(() => {
@@ -105,6 +147,16 @@ export function DataTable<T>({
         <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
+              {enableSelection && (
+                <th scope="col" className="p-4">
+                  <div className="flex items-center">
+                    <Checkbox 
+                      checked={isAllSelected} 
+                      onChange={toggleSelectAll}
+                    />
+                  </div>
+                </th>
+              )}
               {columns.map((column) => (
                 <th
                   key={String(column.accessorKey)}
@@ -134,30 +186,44 @@ export function DataTable<T>({
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-4 text-center">
+                <td colSpan={columns.length + (enableSelection ? 1 : 0)} className="px-6 py-4 text-center">
                   Loading...
                 </td>
               </tr>
             ) : paginatedData.length > 0 ? (
-              paginatedData.map((item, idx) => (
-                <tr
-                  key={idx}
-                  className={cn(
-                    "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600",
-                    onRowClick && "cursor-pointer"
-                  )}
-                  onClick={() => onRowClick && onRowClick(item)}
-                >
-                  {columns.map((column) => (
-                    <td key={String(column.accessorKey)} className="px-6 py-4">
-                      {column.cell ? column.cell(item) : String(item[column.accessorKey] ?? '')}
-                    </td>
-                  ))}
-                </tr>
-              ))
+              paginatedData.map((item, idx) => {
+                const isSelected = selectedItems.some(selected => getItemId(selected) === getItemId(item));
+                return (
+                  <tr
+                    key={idx}
+                    className={cn(
+                      "bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600",
+                      onRowClick && "cursor-pointer",
+                      isSelected && "bg-blue-50 dark:bg-blue-900/20"
+                    )}
+                    onClick={() => onRowClick && onRowClick(item)}
+                  >
+                    {enableSelection && (
+                      <td className="w-4 p-4" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center">
+                          <Checkbox 
+                            checked={isSelected}
+                            onChange={() => toggleSelectItem(item)}
+                          />
+                        </div>
+                      </td>
+                    )}
+                    {columns.map((column) => (
+                      <td key={String(column.accessorKey)} className="px-6 py-4">
+                        {column.cell ? column.cell(item) : String((item as any)[column.accessorKey] ?? '')}
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-4 text-center">
+                <td colSpan={columns.length + (enableSelection ? 1 : 0)} className="px-6 py-4 text-center">
                   No data found.
                 </td>
               </tr>
@@ -180,7 +246,6 @@ export function DataTable<T>({
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            {/* Page numbers could be added here for better UX, but simple prev/next for now */}
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(currentPage + 1)}

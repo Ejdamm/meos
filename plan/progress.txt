@@ -11,6 +11,7 @@ Started: sön  8 mar 2026 00:14:40 CET
 - Use `zod` for form validation and `react-hook-form` for form management.
 - Reuse standard form components (`FormField`, `FormInput`, \`FormSelect\`, \`SearchableSelect\`) for consistent styling and validation.
 - Use `size` property on `FormDialog` ('sm', 'md', 'lg', 'xl') to handle complex forms with varying width requirements.
+- `DataTable` supports row selection with `enableSelection` prop.
 
 ---
 ## 2026-03-09 - US-008: Classes page with CRUD
@@ -167,3 +168,21 @@ Started: sön  8 mar 2026 00:14:40 CET
   - MSW handlers for bulk operations and file uploads were essential for testing this feature without a real backend.
 
 ## US-014 (3m11s)
+
+---
+## 2026-03-09 13:30:00 - US-015: Bulk operations on runners
+- What was implemented:
+  - Created `Checkbox.tsx` UI component.
+  - Updated `DataTable.tsx` to support row selection with checkboxes and select-all functionality.
+  - Added `updateRunnersBulk` and `assignStartTimesBulk` to the API client.
+  - Added MSW handlers for bulk runner updates and start time assignment.
+  - Implemented bulk action toolbar on `RunnersPage.tsx`.
+  - Added dialogs for bulk class assignment and bulk status change.
+  - Added confirmation dialog for bulk start time assignment.
+  - Verified that build and typecheck pass.
+- **Learnings for future iterations:**
+  - `DataTable` needs a stable `getItemId` prop (defaulting to `id`) to track selection correctly across filtering and sorting.
+  - Using a dedicated selection state (`selectedItems`) in `DataTable` makes it easy to implement bulk actions in the parent page.
+  - Bulk actions should always have a confirmation step or a clear visual indicator of the affected items.
+
+## US-015 (4m56s)

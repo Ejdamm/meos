@@ -165,6 +165,25 @@ export const handlers = [
     runners.push(...createdRunners);
     return HttpResponse.json(createdRunners, { status: 201 });
   }),
+  http.patch(`${API_BASE}/runners/bulk`, async ({ request }) => {
+    const { ids, data } = await request.json() as { ids: number[], data: Partial<Runner> };
+    runners = runners.map(r => ids.includes(r.id) ? { ...r, ...data } : r);
+    return new HttpResponse(null, { status: 204 });
+  }),
+  http.post(`${API_BASE}/runners/bulk/start-times`, async ({ request }) => {
+    const { ids } = await request.json() as { ids: number[] };
+    // Simple start time assignment logic for mock: assign 1 minute apart starting from 10:00:00
+    let currentMinute = 0;
+    runners = runners.map(r => {
+      if (ids.includes(r.id)) {
+        const time = `10:${String(currentMinute).padStart(2, '0')}:00`;
+        currentMinute++;
+        return { ...r, startTime: time };
+      }
+      return r;
+    });
+    return new HttpResponse(null, { status: 204 });
+  }),
   http.post(`${API_BASE}/import/iof-xml`, async () => {
     // Simulate server-side parsing of IOF XML
     const mockImportedRunners: Partial<Runner>[] = [
