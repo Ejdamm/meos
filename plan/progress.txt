@@ -10,6 +10,7 @@ Started: sön  8 mar 2026 00:14:40 CET
 - Use generic `DataTable` component for entity lists with sorting, filtering, and pagination.
 - Use `zod` for form validation and `react-hook-form` for form management.
 - Reuse standard form components (`FormField`, `FormInput`, `FormSelect`, `SearchableSelect`) for consistent styling and validation.
+- Use `size` property on `FormDialog` ('sm', 'md', 'lg', 'xl') to handle complex forms with varying width requirements.
 
 ---
 ## 2026-03-09 - US-008: Classes page with CRUD
@@ -19,7 +20,7 @@ Started: sön  8 mar 2026 00:14:40 CET
   - Updated `mocks/data.ts` to include `startMethod` in mock classes.
   - Updated `DataTable.tsx` to support `isLoading` prop for better UX.
   - Implemented `ClassesPage.tsx` with full CRUD for classes.
-  - Integrated `DataTable`, `FormDialog`, `ConfirmDialog`, `FormInput`, and `FormSelect` on the Classes page.
+  - Integrated `DataTable`, \`FormDialog\`, \`ConfirmDialog\`, \`FormInput\`, and \`FormSelect\` on the Classes page.
   - Added `zod` validation for class fields (name, courseId, startMethod, sortOrder).
   - Fixed TypeScript issues with `useMutation` and `zodResolver`.
 - **Learnings for future iterations:**
@@ -27,6 +28,20 @@ Started: sön  8 mar 2026 00:14:40 CET
   - `z.coerce.number()` might cause type inference issues with `zodResolver` if not careful; sometimes setting `valueAsNumber: true` in `register` and using `z.number()` is cleaner.
   - `FormSelect` values are always strings; remember to convert back to numbers if needed for the API.
   - `DataTable` is a powerful generic component but needs `isLoading` state to avoid flashing "No data" while fetching.
+---
+
+## 2026-03-09 10:45:00 - US-009: Courses page with CRUD and control sequence
+- What was implemented:
+  - Created `useControls.ts` hook for fetching and managing controls.
+  - Implemented `ControlSequenceBuilder.tsx` component for managing a course's control sequence.
+  - Added `size` property to `FormDialog.tsx` to support different dialog widths ('sm', 'md', 'lg', 'xl').
+  - Implemented `CoursesPage.tsx` with full CRUD for courses.
+  - Integrated `DataTable`, `FormDialog`, `ConfirmDialog`, `FormInput`, and `ControlSequenceBuilder` on the Courses page.
+  - Updated `AGENTS.md` with documentation for the new components and patterns.
+- **Learnings for future iterations:**
+  - `FormDialog` needed more flexibility for width; added a `size` prop which is useful for complex editors.
+  - `ControlSequenceBuilder` uses `SearchableSelect` for adding items, which works well for potentially large lists of controls.
+  - Hover states (`opacity-0 group-hover:opacity-100`) provide a clean UI for per-item actions in a list.
 ---
 
 ## US-005 (2m32s)
@@ -66,3 +81,5 @@ Started: sön  8 mar 2026 00:14:40 CET
 ## US-006 (14m52s)
 
 ## US-008 (22m11s)
+
+## US-009 (8m54s)

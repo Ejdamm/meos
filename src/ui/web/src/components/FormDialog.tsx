@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "./ui/Dialog"
 import { Button } from "./ui/Button"
+import { cn } from "../lib/utils"
 
 interface FormDialogProps {
   title: string
@@ -20,6 +21,14 @@ interface FormDialogProps {
   saveText?: string
   cancelText?: string
   children: React.ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+}
+
+const sizeClasses = {
+  sm: 'sm:max-w-[425px]',
+  md: 'sm:max-w-[600px]',
+  lg: 'sm:max-w-[800px]',
+  xl: 'sm:max-w-[1000px]',
 }
 
 const FormDialog: React.FC<FormDialogProps> = ({
@@ -33,10 +42,11 @@ const FormDialog: React.FC<FormDialogProps> = ({
   saveText = "Save",
   cancelText = "Cancel",
   children,
+  size = 'sm',
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className={cn(sizeClasses[size])}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}

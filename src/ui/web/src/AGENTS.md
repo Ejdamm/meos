@@ -35,6 +35,13 @@
 - **Selects**: The `FormSelect` component expects `value` and `onValueChange` to be strings. When working with numeric IDs, convert them using `String()` for the select and `Number()` when submitting the form.
 - **Numeric Inputs**: For numeric fields in `FormInput`, use `type="number"` and pass `{ valueAsNumber: true }` to the `register` function to ensure correct type handling in the form state.
 
+## Dialogs
+- **FormDialog**: Supports an optional `size` property (`sm`, `md`, `lg`, `xl`) to control the maximum width. Default is `sm` (425px). Use `lg` or `xl` for complex forms (e.g., course editor with control sequence).
+- **ConfirmDialog**: Use for delete operations and other critical actions.
+
+## Specialized Components
+- **ControlSequenceBuilder**: Used in `CoursesPage` to manage the list of control IDs for a course. It handles adding from a searchable list, removing, and reordering via up/down buttons.
+
 ## Data Table
 - Use the `DataTable` component from `src/components/DataTable` for all entity lists.
 - It supports sorting, global filtering, and pagination out of the box.
