@@ -112,3 +112,21 @@ Started: sön  8 mar 2026 00:14:40 CET
 ## US-011 (5m35s)
 
 ## US-011 (5m23s)
+
+---
+## 2026-03-09 11:30:00 - US-012: Runners page with CRUD, search, and filtering
+- What was implemented:
+  - Updated `useRunners.ts` to use the `{ id, data }` pattern for `useUpdateRunner`, consistent with other entity hooks.
+  - Implemented `RunnersPage.tsx` with full CRUD for runners.
+  - Integrated `DataTable`, `FormDialog`, `ConfirmDialog`, `FormInput`, `FormSelect`, and `SearchableSelect` on the Runners page.
+  - Used `SearchableSelect` for Club and Class assignment in the runner form.
+  - Implemented `zod` validation for runner fields.
+  - Verified that the Runners page is correctly integrated into the app shell.
+  - Confirmed that build and typecheck pass.
+- **Learnings for future iterations:**
+  - `SearchableSelect` is essential for entities with large numbers of related items (like Clubs and Classes).
+  - Standardizing hook patterns (like the `{ id, data }` pattern for updates) prevents implementation errors.
+  - Using a grid layout in `FormDialog` (`grid-cols-2`) is better for forms with many fields to avoid excessive vertical scrolling.
+
+
+## US-012 (6m17s)

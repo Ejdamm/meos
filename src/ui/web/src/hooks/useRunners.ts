@@ -17,8 +17,8 @@ export function useCreateRunner() {
   return useMutation((data: Partial<Runner>) => api.createRunner(data));
 }
 
-export function useUpdateRunner(id: number) {
-  return useMutation((data: Partial<Runner>) => api.updateRunner(id, data));
+export function useUpdateRunner() {
+  return useMutation(({ id, data }: { id: number; data: Partial<Runner> }) => api.updateRunner(id, data));
 }
 
 export function useDeleteRunner() {

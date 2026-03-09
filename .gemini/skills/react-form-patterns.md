@@ -3,20 +3,26 @@
 ## useMutation (Custom useApi Hook)
 The `useMutation` hook provides a `mutate` function that takes a single `variables` argument. Unlike standard TanStack Query, it does not support options like `onSuccess` or `onError` as a second argument to `mutate`.
 
-**Correct usage:**
-```tsx
-const mutation = useMutation(variables => api.updateEntity(id, variables));
+**Standard Update Pattern:**
+For update operations, pass an object containing both the `id` and the `data`.
 
-// Use async/await to handle success/error
-const onSubmit = async (data) => {
-  try {
-    await mutation.mutate(data);
-    onSuccess();
-  } catch (err) {
-    onError(err);
-  }
+```tsx
+// hook definition
+export function useUpdateEntity() {
+  return useMutation(({ id, data }: { id: number; data: Partial<Entity> }) =>
+    api.updateEntity(id, data)
+  );
+}
+
+// component usage
+const updateMutation = useUpdateEntity();
+const onSubmit = async (values) => {
+  await updateMutation.mutate({ id: editingItem.id, data: values });
 };
 ```
+
+**Correct usage (Async/Await):**
+Use async/await to handle success/error and trigger UI updates like refetching data or closing dialogs.
 
 ## FormSelect with Numeric IDs
 The `FormSelect` component (built on Radix Select) uses strings for its `value` and `onValueChange` props. If your underlying data uses numeric IDs (as most orienteering entities do), you must convert them.
