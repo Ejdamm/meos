@@ -83,3 +83,16 @@ Started: sön  8 mar 2026 00:14:40 CET
 ## US-008 (22m11s)
 
 ## US-009 (8m54s)
+
+---
+## 2026-03-09 11:00:00 - US-010: Controls page with CRUD
+- What was implemented:
+  - Implemented ControlsPage.tsx with full CRUD for controls.
+  - Integrated DataTable, FormDialog, ConfirmDialog, and FormInput on the Controls page.
+  - Used zod for form validation (name and code are required).
+  - Verified that typecheck passes.
+- **Learnings for future iterations:**
+  - Followed the established pattern from Classes and Courses pages, which proved efficient.
+  - The DataTable and FormDialog components are highly reusable for standard CRUD entities.
+
+## US-010 (5m15s)
