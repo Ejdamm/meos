@@ -21,6 +21,9 @@ jobs:
       - name: Add MSBuild to PATH
         uses: microsoft/setup-msbuild@v2
 
+      - name: Install OpenSSL 1.1
+        run: choco install openssl --version=1.1.1.2100 -y --no-progress
+
       - name: Build
         working-directory: code
         run: msbuild MeOS.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m
@@ -34,15 +37,26 @@ jobs:
           Copy-Item code/dll64/libharu.dll  $outDir
           Copy-Item code/dll64/libmysql.dll $outDir
 
-          $vcToolsDir = (& vswhere -latest -find "VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT") | Select-Object -Last 1
-          Copy-Item "$vcToolsDir\MSVCP140.dll"       $outDir
-          Copy-Item "$vcToolsDir\VCRUNTIME140_1.dll"  $outDir
+          $opensslDir = (Get-ChildItem "C:\Program Files\OpenSSL*" -Directory | Select-Object -First 1).FullName
+          Copy-Item "$opensslDir\libssl-1_1-x64.dll"    $outDir
+          Copy-Item "$opensslDir\libcrypto-1_1-x64.dll"  $outDir
 
-          Compress-Archive -Path "$outDir\MeOS.exe","$outDir\libharu.dll","$outDir\libmysql.dll","$outDir\MSVCP140.dll","$outDir\VCRUNTIME140_1.dll" -DestinationPath MeOS.zip
+          $vcToolsDir = (& vswhere -latest -find "VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT") | Select-Object -Last 1
+          Copy-Item "$vcToolsDir\MSVCP140.dll"        $outDir
+          Copy-Item "$vcToolsDir\VCRUNTIME140.dll"    $outDir
+          Copy-Item "$vcToolsDir\VCRUNTIME140_1.dll"  $outDir
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MeOS-${{ matrix.configuration }}-${{ matrix.platform }}
-          path: MeOS.zip
+          path: |
+            code/**/MeOS.exe
+            code/**/libharu.dll
+            code/**/libmysql.dll
+            code/**/libssl-1_1-x64.dll
+            code/**/libcrypto-1_1-x64.dll
+            code/**/MSVCP140.dll
+            code/**/VCRUNTIME140.dll
+            code/**/VCRUNTIME140_1.dll
           if-no-files-found: warn
