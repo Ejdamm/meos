@@ -154,6 +154,36 @@ Fixing these in `code/` eliminates entire categories of migration errors and red
 - `meos.cpp` is the natural composition root where Tab callbacks should be registered (after `gEvent` initialization)
 - After decoupling Tab includes, `oEvent` still has coupling to `meos.cpp` via external declarations of `createTabs` and `hideTabs` — these could also be converted to callbacks for full library extraction
 
+### US-P0g: Split Large Files
+
+**Description:** Several files in `code/` are extremely large (5000–8000+ lines), making migration to `src/` painful — large files cause merge conflicts, are hard to review, and slow down incremental migration. Split the biggest domain files into logical sub-files before migration.
+
+**Target files (lines):**
+- `oEvent.cpp` (~7400) — domain aggregate root with mixed responsibilities
+- `oRunner.cpp` (~7800) — runner logic, result calculation, ranking
+- `oClass.cpp` (~5700) — class configuration, draw, course assignment
+- `oListInfo.cpp` (~5900) — list/result formatting and output
+- `gdioutput.cpp` (~8200) — UI rendering (out of domain scope, but blocks migration)
+
+**Acceptance Criteria:**
+- [ ] No single domain `.cpp` file exceeds ~3000 lines after splitting
+- [ ] Splits follow logical/functional boundaries (e.g., `oEvent` IO vs draw vs SQL, `oRunner` results vs ranking)
+- [ ] All split files compile and link correctly — no missing symbols or duplicate definitions
+- [ ] Header files updated with any necessary forward declarations
+- [ ] Changes use only standard C++17 compatible with both MSVC and GCC/Clang (verified via CI post-hoc)
+
+**Implementation Notes:**
+- `oEvent.cpp` already has partial splits (`oEventDraw.cpp`, `oEventImport.cpp`) — follow the same pattern
+- Look for natural seams: groups of related methods, `#pragma region` blocks, comment section headers
+- Each split file should `#include` the parent class header and implement a coherent subset of methods
+- Update the build system (`.vcxproj` / CMake) to include the new files
+- Prefer splitting `.cpp` files only — avoid splitting `.h` files unless a class genuinely has separable interfaces
+
+**Known Pitfalls:**
+- Anonymous-namespace helpers and file-static variables used by only some methods need to move to the correct split file (or to an internal header)
+- `oRunner.cpp` has interleaved result/ranking logic — identify method groups carefully before splitting
+- `gdioutput.cpp` is UI code and not strictly domain, but its size blocks migration; split it if practical
+
 ## Functional Requirements
 
 - FR-1: All changes must use standard C++17 compatible with MSVC (v143), GCC 12+, and Clang 15+ — Windows build verification happens post-hoc via CI
@@ -179,9 +209,10 @@ US-P0c (string functions)   — independent, but easier after US-P0b
 US-P0d (Win32 types)        — independent
 US-P0e (path separators)    — independent
 US-P0f (decouple oEvent)    — independent, but benefits from US-P0b being done
+US-P0g (split large files)  — do after P0c/P0d/P0e to avoid conflicts with those changes
 ```
 
-Recommended order: P0a first (quick, mechanical), then P0b (unblocks cleaner domain files), then P0c-P0e in any order, then P0f last (most complex).
+Recommended order: P0a first (quick, mechanical), then P0b (unblocks cleaner domain files), then P0c-P0e in any order, then P0f (most complex), then P0g last (reduces churn from earlier refactorings).
 
 ## Success Metrics
 
@@ -189,4 +220,5 @@ Recommended order: P0a first (quick, mechanical), then P0b (unblocks cleaner dom
 - Domain `.cpp/.h` files have no direct `#include "gdioutput.h"` (only via utility headers)
 - `grep` for `_wtoi`, `sprintf_s`, `_itow_s`, `DWORD`, Win32 `BOOL` returns zero hits in domain files
 - `oEvent.cpp` has zero includes of `Tab*.h` headers
+- No single domain `.cpp` file exceeds ~3000 lines
 - Windows MSBuild build succeeds after all changes (verified via CI post-hoc)

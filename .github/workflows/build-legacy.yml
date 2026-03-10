@@ -2,7 +2,7 @@ name: Build legacy MeOS
 
 on:
   push:
-    branches: [base]
+    branches: [base, 'build-infrastructure-*']
     paths:
       - 'code/**'
       - '.github/workflows/build-legacy.yml'
@@ -34,7 +34,7 @@ jobs:
           Copy-Item code/dll64/libharu.dll  $outDir
           Copy-Item code/dll64/libmysql.dll $outDir
 
-          $vcToolsDir = & vswhere -latest -find "VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT"
+          $vcToolsDir = (& vswhere -latest -find "VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT") | Select-Object -Last 1
           Copy-Item "$vcToolsDir\MSVCP140.dll"       $outDir
           Copy-Item "$vcToolsDir\VCRUNTIME140_1.dll"  $outDir
 
