@@ -25,9 +25,24 @@ jobs:
         working-directory: code
         run: msbuild MeOS.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /m
 
+      - name: Package release
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path code -Recurse -Filter MeOS.exe | Select-Object -First 1
+          $outDir = $exe.DirectoryName
+
+          Copy-Item code/dll64/libharu.dll  $outDir
+          Copy-Item code/dll64/libmysql.dll $outDir
+
+          $vcToolsDir = & vswhere -latest -find "VC\Redist\MSVC\*\x64\Microsoft.VC*.CRT"
+          Copy-Item "$vcToolsDir\MSVCP140.dll"       $outDir
+          Copy-Item "$vcToolsDir\VCRUNTIME140_1.dll"  $outDir
+
+          Compress-Archive -Path "$outDir\MeOS.exe","$outDir\libharu.dll","$outDir\libmysql.dll","$outDir\MSVCP140.dll","$outDir\VCRUNTIME140_1.dll" -DestinationPath MeOS.zip
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MeOS-${{ matrix.configuration }}-${{ matrix.platform }}
-          path: code/**/MeOS.exe
+          path: MeOS.zip
           if-no-files-found: warn
