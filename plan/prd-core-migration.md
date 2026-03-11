@@ -41,6 +41,44 @@ The end result is a single executable that starts an embedded HTTP server and se
 - Migrate existing domain logic incrementally (module by module)
 - Maintain single-binary deployment model (download and run)
 
+## Codebase Patterns (from Previous Runs)
+
+These patterns were discovered during previous Ralph runs and should be followed:
+
+- Backend: XML API at `/meos`, JSON REST API at `/api/v1`
+- Use explicit module dependencies in CMake. `VCPKG_ROOT` must be set to `/home/adam.georgsson@fnox.it/vcpkg` in this environment.
+- Avoid nesting namespaces when migrating legacy code into modern modules.
+- **Foundation fragility:** Previous stories marked as "passed" might only have stubs. Always verify foundation logic if tests fail mysteriously.
+- Use `std::time_t` and `std::tm` with `timegm`/`_mkgmtime` for bit-compatible local time handling.
+- Use `thread_local` circular buffer (StringCache) for returning `wstring` references.
+- **StringCache and References:** When returning `const std::wstring&` from functions using `StringCache`, ensure the cache is used for all return paths (including fallbacks) to avoid returning references to temporaries.
+- **oDataContainer:** Manages fields in a raw buffer using offsets (Index). `oDataInterface` is a wrapper around `oDataContainer` + data pointer.
+- **oDataContainer Buffer Bounds:** Ensure the container's initial size is large enough to hold all fields (e.g., 4096 for `oClassData`), especially considering the 4-byte `wchar_t` size on Linux for string fields.
+- **Wchar_t Alignment and Size:** On Linux, `wchar_t` is 4 bytes. Alignment for 8-byte types (like `int64_t` or `double`) must be handled carefully.
+- **oEvent and Circular Dependencies:** Keep `oEvent.h` as a declaration-only header as much as possible, with entity-specific methods implemented in `oEvent.cpp`.
+- **Method Shadowing:** Be careful with `using namespace std;` in classes that have member functions with names common in `std` (like `set`).
+- **GUI Decoupling / Headless GDI:** The `gdioutput` class is the gateway to all legacy layout logic. A headless implementation providing approximate metrics is sufficient for most I/O tasks.
+- **Localizer:** Handles `.lng` files with `Key = Value` format. Replaces `\n` escaping in both keys and values.
+- **XML/CSV Parsing:** Core parsing logic is in `src/util/`. Domain-specific logic is in `src/io/`.
+- **XML Declaration:** Custom `xmlparser` only skips the first tag if it is a declaration (`<?xml ... ?>`).
+- **In-place XML parsing:** Requires careful handling of the closing quote in attribute values (`start <= end`).
+- **CSV Encoding:** Always use UTF-8 with BOM for CSV files. Use `std::ofstream` with explicit BOM instead of `std::wofstream` in tests.
+- **IOF 3.0 Time Handling:** ISO8601 time strings are handled by stripping the timezone and converting via `MeOSUtil::convertAbsoluteTimeISO`.
+- **Template System:** MeOS templates use @SECTION markers. Ensure all sections are handled and placeholders (@TITLE, @CONTENTS, etc.) are replaced globally.
+- **Color Math:** The `HLS` class is essential for preserving the "look and feel" of legacy MeOS results.
+- **REST API:** Use regex for path parameters in `cpp-httplib` (e.g., `R"(/api/v1/clubs/(\d+))"`).
+- **REST API Consistency:** Ensure both `oEvent` (live state) and repositories (persistent state) are updated on mutations.
+- **REST API Strings:** Use `MeOSUtil::toUTF8` and `MeOSUtil::fromUTF8` for `wstring` <-> JSON string conversion.
+- **SPA Fallback:** Implemented in `set_error_handler` of `cpp-httplib` by serving `index.html` for 404 GET requests that are not `/api/`.
+- Use `const object + type` pattern for enums (Vite 7 compatibility)
+- Use `import type` for all TypeScript interfaces/types
+- Use `NavLink` for active route highlighting
+- Tailwind 4 for styling (CSS-first approach)
+- Use generic `DataTable` component for entity lists with sorting, filtering, and pagination. Supports row selection with `enableSelection` prop.
+- Use `zod` for form validation and `react-hook-form` for form management.
+- Reuse standard form components (`FormField`, `FormInput`, `FormSelect`, `SearchableSelect`) for consistent styling and validation.
+- Use `size` property on `FormDialog` ('sm', 'md', 'lg', 'xl') to handle complex forms with varying width requirements.
+
 ## User Stories
 
 ### US-P0: Legacy Code Preparation
@@ -196,6 +234,10 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Full test suite passes
 - [ ] `oDataContainer`/`oDataInterface` pattern verified working
 
+**Learnings from Previous Runs:**
+- Legacy Win32 GUI integration was deeply rooted in `oDataDefiner` and `oClub`; these must be surgically removed.
+- `oEvent` acts as a central registry; `getControlByNumber` is essential for matching physical punch data to domain entities.
+
 ### US-004: SQLite Database Layer
 
 **Description:** As a developer, I want a SQLite-based persistence layer so that MeOS runs without a separate database server.
@@ -212,6 +254,12 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Initial schema (V1) for runners and clubs
 - [ ] Unit tests for database operations and migrations
 
+**Learnings from Previous Runs:**
+- VCPKG provides `sqlite3` as `unofficial-sqlite3` and `unofficial::sqlite3::sqlite3` targets.
+- Use `BEGIN TRANSACTION;`, `COMMIT;`, and `ROLLBACK;` in migration scripts to ensure atomicity.
+- Always use `CREATE TABLE IF NOT EXISTS` for idempotency, although the migration tracker should prevent double-execution.
+- `ctest` reported an existing SEGFAULT in `domain_tests` (GeneralResultTest.DynamicResultScoring) that appears to be environment-related (passes when run directly but fails in `ctest`).
+
 #### US-004b: Schema for Simple Entities
 
 **Description:** Add schema and CRUD for clubs, controls, and courses.
@@ -222,6 +270,12 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Repository/DAO pattern for data access
 - [ ] Unit tests for each entity's CRUD operations
 
+**Learnings from Previous Runs:**
+- Public getters for protected domain buffers (`oData`) are necessary for clean repository implementation.
+- Storing the `oData` buffer as a `BLOB` in SQLite allows for 100% state persistence without exhaustive schema mapping of all `oDataContainer` fields.
+- Semicolon-separated strings are used for mapping domain collections (like control IDs in a course) to single SQL columns, matching legacy serialization patterns.
+- Repository pattern effectively decouples domain entities from persistence logic, allowing for easy schema evolution.
+
 #### US-004c: Schema for Complex Entities
 
 **Description:** Add schema and CRUD for runners, classes, cards, and punches.
@@ -231,6 +285,12 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Foreign key relationships enforced
 - [ ] CRUD operations with relationship loading (e.g., runner with club/class)
 - [ ] Unit tests for complex entity operations
+
+**Learnings from Previous Runs:**
+- `oEvent::addRunner` and `oEvent::addCard` have different signatures and requirements; repositories must adapt to how the domain aggregate root manages its entities.
+- `oCard` and `oPunch` do not use `oDataContainer` buffers; their state is persisted via specialized serialization (punch strings) and dedicated tables.
+- Foreign key relationships in SQLite are best established during table creation; adding them via `ALTER TABLE` is limited.
+- Relationship loading requires a specific order of operations: load independent entities (Clubs, Courses) before dependent ones (Runners, Classes).
 
 #### US-004d: Schema for Events + Teams
 
@@ -243,6 +303,12 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Concurrent access handled appropriately
 - [ ] Full integration test: create event → add entities → query back
 - [ ] SQLite database is a single file in the working directory
+
+**Learnings from Previous Runs:**
+- Typo in SQL schema definitions can lead to silent or confusing failures in repositories (e.g., `sqlite3_step` returning `SQLITE_ERROR` because of an invalid column name).
+- `oEvent` acts as the central registry for ID-to-entity lookups during repository loading; repositories must be passed the `oEvent` instance to correctly wire up relationships.
+- Semicolon-separated strings are an effective way to store simple lists (like runners in a team) when a full join table might be overkill for the current domain model.
+- Always verify the aggregate root (`oEvent`) metadata is persisted, as it contains essential competition-wide settings like ZeroTime.
 
 ### US-005: JSON REST API — Core Entities
 
@@ -263,6 +329,13 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] API versioning (`/api/v1/...`)
 - [ ] Unit tests for routing and error handling
 
+**Learnings from Previous Runs:**
+- `cpp-httplib` requires `find_package(httplib CONFIG REQUIRED)` and links to `httplib::httplib`.
+- Use `std::thread` to run the server's `listen` method in the background to avoid blocking the main thread (essential for tests).
+- `httplib::Server::set_error_handler` and `set_exception_handler` provide a clean way to centralize error responses.
+- Ensure `std::this_thread::sleep_for` is used after `start()` to allow the background thread to initialize the socket before tests begin making requests.
+- Port selection for tests (e.g., 18080) should avoid standard ports (8080) to prevent conflicts with running dev servers.
+
 #### US-005b: Club + Control Endpoints
 
 **Description:** CRUD endpoints for the simplest entities — clubs and controls.
@@ -272,6 +345,11 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] `GET/POST/PUT/DELETE /api/v1/controls` and `/api/v1/controls/{id}`
 - [ ] List endpoints support basic filtering
 - [ ] Integration tests for each endpoint
+
+**Learnings from Previous Runs:**
+- `oEvent::addClub` and `oEvent::addControl` assign new IDs if 0 is passed; the returned entity should be saved to the database to ensure the ID is persisted.
+- Full qualification of namespaces (e.g., `meos::db::SQLiteDatabase`) in headers prevents ambiguity when included from different modules.
+- `httplib::Client` needs a small delay or should be instantiated after `server->start()` has had time to initialize.
 
 #### US-005c: Course + Class Endpoints
 
@@ -283,6 +361,12 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Course-control sequence in responses
 - [ ] Class-course assignment in requests/responses
 - [ ] Integration tests
+
+**Learnings from Previous Runs:**
+- `oCourse::importControls` expects a comma-separated string of IDs; this is an efficient way to update the entire control sequence from a JSON array.
+- Always allow setting relationship IDs to 0 (e.g., `courseId: 0`) in `POST` and `PUT` to support clearing associations.
+- Course-control and class-course relationships are unidirectional in the current domain model (course has controls, class has a course); the API should reflect this.
+- Integration tests for relationships must be sequential: create dependencies (Clubs, Controls, Courses) before creating dependent entities (Classes, Runners).
 
 #### US-005d: Runner + Team Endpoints
 
@@ -296,6 +380,13 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Competition entity endpoint (`GET/PUT /api/v1/competitions`)
 - [ ] Integration tests
 
+**Learnings from Previous Runs:**
+- `oRunner` and `oTeam` methods like `setStartTime` and `setStatus` require `oBase::ChangeType::Update` for persistent changes.
+- `oTeam::getDisplayClub()` is the preferred way to get the club name for a team.
+- Query parameters in `cpp-httplib` are accessed via `req.has_param(key)` and `req.get_param_value(key)`.
+- `SQLiteDatabase::open(":memory:")` is useful for fast API integration tests without disk I/O.
+- When updating runners/teams, ensure related entities (Clubs, Classes, Courses) already exist in `oEvent`.
+
 ### US-006: JSON REST API — Competition Operations
 
 **Description:** As a frontend developer, I want API endpoints for competition-specific operations (start lists, results, card readout) so that the GUI can support the full competition workflow.
@@ -307,6 +398,13 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] `POST /api/v1/runners/{id}/status` allows manual status changes (DNS, DNF, DSQ)
 - [ ] Result computation uses existing `GeneralResult` logic
 - [ ] Endpoints support both preliminary and final results
+
+**Learnings from Previous Runs:**
+- **Thread Safety is Critical:** Global objects like `Localizer` and static caches in `MeOSUtil` must be protected by mutexes or made thread-local, as the REST server handles requests in multiple threads.
+- **Electronic Timing Logic:** Electronic card readout via `POST /api/v1/cards` requires adding punches to an `oCard` and calling `oRunner::evaluateCard(true, ...)` to trigger the domain's result computation logic.
+- **UTF-8 Stability:** `std::wstring_convert` is deprecated and can be unstable; manual conversion is safer for a cross-platform core.
+- **Test Port Isolation:** Assigning unique ports to each test suite prevents flaky tests due to "port already in use" or interference from shutting down servers.
+- **Joining Server Threads:** Always `join()` the server thread instead of `detach()` to ensure a clean shutdown and avoid accessing destroyed objects from the background thread.
 
 ### US-007–010: React Web Frontend
 
@@ -323,6 +421,11 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Gzip/compression for static assets
 - [ ] React production build is integrated into CMake build process
 
+**Learnings from Previous Runs:**
+- **MIME Types:** `cpp-httplib` handles most standard web MIME types (html, js, css, svg, png, woff2) out of the box when using `set_mount_point`.
+- **Main Application Orchestration:** `src/main.cpp` is now a real application entry point that links all modules and can be used to run the full modernized stack.
+- **Build Artifacts:** When building the React frontend, use `--outDir ../../../web` to ensure it lands in a location the C++ server expects by default.
+
 ### US-012: Remove Win32 GUI Code
 
 **Description:** As a developer, I want Win32-specific GUI code removed so that the codebase is platform-independent.
@@ -333,6 +436,11 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Win32-specific APIs (`CreateWindow`, `SendMessage`, etc.) eliminated from core code
 - [ ] No Windows-only headers (`windows.h`, `commctrl.h`) in domain or server code
 - [ ] Application compiles and runs on Linux without Win32 dependencies
+
+**Learnings from Previous Runs:**
+- **Null Safety in REST handlers:** Iterating over entity lists in `RestServer` requires careful null checks, especially when multiple tests or threads might be interacting with the `oEvent` aggregate root.
+- **Abstract GDI usage:** Making `gdioutput` abstract required updates to tests that previously instantiated it directly.
+- **Win32 type elimination:** `RECT` is a common Win32 type that should be renamed or namespaced (e.g., `meosRect`) to ensure complete platform independence.
 
 ### US-013: Utility Migration
 
@@ -397,6 +505,10 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Platform-independent (no Win32 XML APIs)
 - [ ] Unit tests with sample IOF XML files
 
+**Learnings from Previous Runs:**
+- **Domain API Completeness:** The domain migration (US-003*) may have missed some mutation methods (like `oClass::addStageCourse`) that are essential for importers; these should be added as discovered.
+- **Course Control Persistence:** `oCourse::importControls` expects a comma-separated string of IDs and requires `setChanged` and `updateLegLengths` flags to be set correctly for state consistency.
+
 #### US-014b: CSV Import/Export
 
 **Description:** Migrate CSV data exchange.
@@ -405,6 +517,11 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] CSV import for runners migrated to `src/io/`
 - [ ] CSV export for results/start lists migrated
 - [ ] Unit tests for CSV round-trip
+
+**Learnings from Previous Runs:**
+- **Heuristic Format Detection:** A simple column-count heuristic (`size() > 10`) is effective for distinguishing between simple and complex (OE-CSV) formats.
+- **Domain Setup for Tests:** Proper result evaluation in tests requires setting up `oCard` and its `punches`, linking it to the `oRunner`, and calling `oRunner::evaluateCard`.
+- **oEvent Entity Lists:** Use `oe.Runners`, `oe.Clubs`, etc. directly when a getter is missing in the migrated `oEvent` API.
 
 #### US-014c: HTML Result Generation
 
@@ -415,6 +532,9 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] Templates work cross-platform
 - [ ] Unit tests for HTML output
 
+**Learnings from Previous Runs:**
+- **oListParam members:** Many I/O related members of `oListParam` were missing in the migrated domain layer and had to be added to support HTML generation.
+
 #### US-014d: PDF Generation
 
 **Description:** Migrate PDF output using libharu.
@@ -424,6 +544,12 @@ The end result is a single executable that starts an embedded HTTP server and se
 - [ ] libharu available via vcpkg
 - [ ] PDF output works on Linux and Windows
 - [ ] Unit tests for PDF generation
+
+**Learnings from Previous Runs:**
+- **Standard Font Limitations:** Standard PDF fonts (Helvetica, Times, etc.) in `libharu` do not support multibyte encodings like UTF-8. For now, `MeOSUtil::narrow` is used, but full UTF-8 support requires loading TrueType fonts (.ttf).
+- **VCPKG Targets:** `libharu` in vcpkg is provided as `unofficial-libharu` and should be linked via `unofficial::libharu::hpdf`.
+- **Conflict in Headers:** Do not forward declare `HPDF_Doc`, `HPDF_Page`, etc., as `void*` in headers if you plan to include `hpdf.h` later. Including `hpdf.h` in the header is safer.
+- **Image Rendering:** Image support is currently skipped because the `image` module hasn't been migrated yet.
 
 ## Functional Requirements
 
