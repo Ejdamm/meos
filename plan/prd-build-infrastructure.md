@@ -24,6 +24,7 @@ All three stories establish the infrastructure that every other workstream depen
 - Test infrastructure must support per-module test targets
 - CI must build and test on at least Linux and Windows
 - No dependency on legacy `code/` — works on empty `src/` skeleton
+- **Use latest stable versions** for all third-party libraries, tools, and dependencies (npm packages, vcpkg ports, GitHub Actions, etc.). Do not pin to old versions without a documented reason. When creating `package.json`, `vcpkg.json`, or workflow files, look up current stable versions rather than guessing
 
 ## Goals
 
@@ -32,6 +33,22 @@ All three stories establish the infrastructure that every other workstream depen
 - Set up Google Test and Vitest with per-module test targets
 - Automate builds, tests, and linting via GitHub Actions
 - Provide a working foundation that migration stories (US-003, US-013, etc.) can immediately use
+
+## Codebase Patterns (from Previous Runs)
+
+These patterns were discovered during previous Ralph runs and should be followed:
+
+- Use `target_precompile_headers` for common STL headers.
+- Always use namespaces (e.g., `meos::util`) in the modernized codebase.
+- Prefer vcpkg manifest mode for all external dependencies.
+- Follow `lower_case.cpp/h` naming convention for files.
+- Use ESLint 9+ flat config with `typescript-eslint` 8+ for frontend modules.
+- Use `meos_add_test` macro for standardized C++ test registration.
+- Enable code coverage via `-DMEOS_ENABLE_COVERAGE=ON`.
+- Separate GitHub Actions workflows for different stacks (C++, frontend).
+- Use `lukka/run-vcpkg` for vcpkg integration in CI.
+- Use `defaults: run: working-directory` for nested modules in CI.
+- Use `MEOS_ENABLE_CLANG_TIDY` toggle in CMake for CI static analysis.
 
 ## User Stories
 
@@ -67,6 +84,12 @@ All three stories establish the infrastructure that every other workstream depen
 - Known risk: `libmysql` via vcpkg is problematic on Linux — stub or exclude early
 - The definition of done is: `cmake --build` compiles the skeleton successfully, not that MeOS runs
 
+**Learnings from Previous Runs:**
+- The local vcpkg repository might be slightly behind the latest commit hash on GitHub. Always check the local HEAD hash for `builtin-baseline` if configuration fails.
+- `VCPKG_ROOT` must be explicitly exported in the shell for the CMake preset to find it — `$env{VCPKG_ROOT}` won't resolve otherwise.
+- The modernized codebase uses namespaces (e.g., `meos::domain`) unlike the legacy codebase which is flat.
+- Manually creating all module directories and placeholder files is time-consuming — consider scripting this for future runs.
+
 ### US-015: Test Infrastructure
 
 **Description:** As a developer, I want a test framework skeleton so that migration stories can immediately add tests. This story sets up the **test plumbing only** — real entity tests come with the migration stories.
@@ -94,6 +117,13 @@ All three stories establish the infrastructure that every other workstream depen
 - **Use v8 as Vitest coverage provider**, jsdom as test environment for DOM testing
 - Coverage: `gcov`/`lcov` for C++, `vitest --coverage` for frontend
 - The goal is that when a migration story (e.g., US-003a) lands, it can add test files and they "just work" — no build system changes needed
+
+**Learnings from Previous Runs:**
+- `enable_testing()` MUST be in the top-level `CMakeLists.txt` for `ctest` to find tests from the build root.
+- Using a custom macro like `meos_add_test` reduces boilerplate in `tests/CMakeLists.txt`.
+- Relative paths in `add_executable` within a subdirectory's `CMakeLists.txt` are relative to that subdirectory, not the project root.
+- Coverage flags (`--coverage`) work for both GCC and Clang and require both compile and link options.
+- Manual creation of smoke tests for each module is repetitive — consider automating this in future runs.
 
 ### US-017: React Frontend Shell
 
@@ -125,6 +155,11 @@ All three stories establish the infrastructure that every other workstream depen
 - Keep the shell as minimal as possible — migration stories will add real components
 - The goal is that US-015 (test infra) and US-016 (CI/CD) can run frontend checks without waiting for domain UI work
 
+**Learnings from Previous Runs:**
+- `typescript-eslint` 8.x is required for full ESLint 9 compatibility.
+- Prettier might flag formatting in `dist/` if not explicitly ignored, leading to lint failures in CI if the build is run before lint.
+- Peer dependency conflicts are common with ESLint 9 as plugins migrate — expect resolution issues.
+
 ### US-016: CI/CD Pipeline
 
 **Description:** As a developer, I want automated builds, tests, and quality checks on every push and PR so that regressions are caught early.
@@ -153,6 +188,12 @@ All three stories establish the infrastructure that every other workstream depen
 - **`actions/setup-node`** has built-in npm caching — use `cache: 'npm'` with `cache-dependency-path`
 - **`working-directory`** is essential when running npm commands in a subdirectory
 - Frontend CI: `cd src/ui/web && npm ci && npm run lint && npm test && npm run build`
+
+**Learnings from Previous Runs:**
+- Use `defaults: run: working-directory` in the workflow for nested frontend modules rather than `cd` in each step.
+- Prettier formatting of `AGENTS.md` files may cause linting failures in frontend CI if not properly handled.
+- `clang-tidy` may need explicit installation via `apt-get` on standard GitHub runners before use.
+- Adding a CMake option like `MEOS_ENABLE_CLANG_TIDY` makes it easy to selectively enable static analysis in CI without affecting local development by default.
 
 ## Functional Requirements
 

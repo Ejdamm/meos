@@ -26,6 +26,12 @@ cmake --build --preset default
 ctest --test-dir build --output-on-failure
 ```
 
+## vcpkg Manifest Mode (vcpkg.json)
+
+- Use \`builtin-baseline\` to specify the vcpkg version.
+- **Gotcha:** If \`cmake --preset default\` fails with a baseline error (e.g., "failed to git show versions/baseline.json"), the local vcpkg repo might be outdated compared to the hash in \`vcpkg.json\`.
+- **Solution:** Check the local vcpkg HEAD hash with \`cd $VCPKG_ROOT && git rev-parse HEAD\` and use that as the \`builtin-baseline\` in \`vcpkg.json\`.
+
 ## Project Structure
 
 ```

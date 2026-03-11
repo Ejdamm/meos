@@ -23,7 +23,7 @@ This migration is **iterative and disposable**. The entire migration will be run
 6. Update AGENTS.md files if you discover reusable patterns (see below)
 7. **Write your full progress report** to `plan/progress.txt` BEFORE committing (see format below). Never use placeholders like "..." or "TODO" — write the real content now.
 8. Update the PRD to set `passes: true` for the completed story
-9. Commit ALL changes (including the progress report and PRD update) with message: `feat: [Story ID] - [Story Title]`
+9. Commit all **source code changes** with message: `feat: [Story ID] - [Story Title]`. **Do NOT commit `plan/prd.json` or `plan/progress.txt`** — these are tracked outside of git and must not be included in commits. Use `git reset HEAD plan/prd.json plan/progress.txt` before committing if they are staged.
 
 ## Progress Report Format
 
@@ -89,6 +89,7 @@ Only update AGENTS.md if you have **genuinely reusable knowledge** that would he
 - Keep changes focused and minimal
 - Follow existing code patterns
 - **IMPORTANT:** Keep `.gitignore` updated so that build artifacts, generated files, and other unnecessary files are not committed. Check this BEFORE every commit.
+- **NEVER commit `plan/prd.json` or `plan/progress.txt`.** These files are managed outside git. Always unstage them before committing.
 
 ## Stop Condition — CRITICAL
 
@@ -98,6 +99,17 @@ After completing and committing your single story:
 
 - If ALL stories now have `passes: true`, reply with `<promise>COMPLETE</promise>`
 - Otherwise, **end your response immediately**. Do NOT start the next story. The outer loop will invoke you again for the next iteration.
+
+## Keep README.md Updated
+
+After each completed story, update `README.md` so it always reflects the current state of how to build and run MeOS:
+
+- **Build prerequisites** — compilers, toolchains, libraries, and their versions
+- **Build instructions** — exact commands to configure, build, and install (CMake, make, etc.)
+- **Run instructions** — how to launch the application after building
+- **Platform notes** — any platform-specific steps (Linux, Windows, macOS)
+
+Update only the sections that changed due to your story. If a story adds a new dependency, build step, or runtime flag, the README must reflect it. Keep the instructions concise and tested — run the commands yourself before documenting them.
 
 ## Update Gemini Skills
 

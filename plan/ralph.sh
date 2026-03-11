@@ -110,7 +110,7 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     echo "## $TASK_ID — COMPLETED (${STEP_DURATION_FMT})" >> "$PROGRESS_FILE"
 
     # Amend the last commit to include progress and metrics
-    git add plan/progress.txt plan/metrics.csv plan/prd.json
+    git add plan/prd.json
     git commit --amend --no-edit 2>/dev/null || true
 
     # Print summary
