@@ -1,17 +1,14 @@
 # Migration Skill — MeOS Legacy → Modern C++17/CMake
 
-This skill contains accumulated knowledge, patterns, gotchas, and useful scripts for migrating MeOS from its legacy Win32/MSBuild codebase (`code/`) to the modern modular CMake/vcpkg structure (`src/`).
+Accumulated patterns and gotchas for migrating MeOS from Win32/MSBuild (`code/`) to modern C++17/CMake/vcpkg (`src/`).
 
 ## Iterative Migration Context
 
-**This migration is run from scratch repeatedly.** Each attempt is executed by Ralph, analyzed, and discarded. Only the learnings persist (in this skill, progress.txt, and AGENTS.md). The PRD, skills, prompt.md, and ralph.sh are continuously improved based on each run's results.
-
-**This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos).** Upstream pushes changes at any time. Before each migration run, we sync with upstream. Therefore:
+Each migration attempt is executed from scratch by Ralph, analyzed, and discarded — only learnings persist. This is a fork of [melinsoftware/meos](https://github.com/melinsoftware/meos) that syncs with upstream. Therefore:
 
 - **Never hardcode assumptions about legacy code** (line numbers, exact signatures, specific file contents).
 - **Always read and parse legacy code dynamically** — enumerate files, grep for patterns, follow naming conventions.
-- **When documenting patterns below, describe the *shape* of the code** (e.g., "domain files include gdioutput.h"), not exact locations that may shift.
-- **If a pattern or gotcha becomes outdated after an upstream sync, update this file.**
+- **Describe the *shape* of code** (e.g., "domain files include gdioutput.h"), not exact locations that may shift.
 
 ## Architecture Overview
 
@@ -101,9 +98,7 @@ Redefine common Win32 types in `src/util/win_types.h` for Linux compatibility:
 | `_wsplitpath_s` / `_splitpath_s` | `std::filesystem::path` methods: `.stem()`, `.extension()`, `.filename()`, `.parent_path()` |
 | `GetFileAttributes` | `std::filesystem::exists` |
 
-Replace all Win32-specific function calls (`_wtoi`, `sprintf_s`, `swprintf_s`, `_itow_s`, `_wtoi64`, `_wtof`, `_stricmp`, `_wcsicmp`, `lstrcmpi`) with standard C++ equivalents in domain files (`o*.cpp/h`, `generalresult.cpp/h`, `metalist.cpp/h`, `datadefiners.h`).
-
-Replace all Win32 types (`DWORD`, `BOOL`, `WORD`, `BYTE`, `LPWSTR`, `LPCWSTR`) with standard C++ types (`uint32_t`, `bool`, `uint16_t`, `uint8_t`, `wchar_t*`, `const wchar_t*`) in domain files. Add `#include <cstdint>` to headers using these types.
+Replace Win32 functions and types in domain files (`o*.cpp/h`, `generalresult.cpp/h`, `metalist.cpp/h`, `datadefiners.h`). Add `#include <cstdint>` to headers using `uint*_t` types.
 
 ### 5. Path Separators
 
@@ -132,23 +127,9 @@ The codebase is **extremely coupled**. Migrating one class often requires stubbi
 
 ### 8. GUI Coupling in Domain Files
 
-9 of 11 domain files include `gdioutput.h` directly. Some only need it for non-GUI utility functions:
+9 of 11 domain files include `gdioutput.h` directly (all except `oBase.cpp`, `oPunch.cpp`). `oEvent.cpp` also includes `TabBase`, `TabAuto`, `TabSI`, `TabList`.
 
-| File | gdioutput.h | Table.h | Tab*.h |
-|---|---|---|---|
-| oRunner.cpp | yes | yes | — |
-| oEvent.cpp | yes | yes | TabBase, TabAuto, TabSI, TabList |
-| oClass.cpp | yes | yes | — |
-| oControl.cpp | yes | yes | — |
-| oCard.cpp | yes | yes | — |
-| oClub.cpp | yes | yes | — |
-| oCourse.cpp | yes | yes | — |
-| oTeam.cpp | yes | yes | — |
-| oFreePunch.cpp | yes | yes | — |
-| oBase.cpp | — | — | — |
-| oPunch.cpp | — | — | — |
-
-**Strategy**: Extract non-GUI utility functions (string conversions) from `gdioutput` to `meos_util.h` as globals. Files that only used those functions (e.g., `machinecontainer.cpp`, `infoserver.cpp`) can then drop the `gdioutput.h` include.
+**Strategy**: Extract non-GUI utility functions (string conversions) from `gdioutput` to `meos_util.h` as globals. See `decoupling.md` for callback patterns.
 
 ### 9. oEvent → Tab* Direct Coupling
 
@@ -172,25 +153,35 @@ Expose callback typedefs (e.g., `BaseButtonsCallback`) on `oEvent.h` via `std::f
 - **Decoupling**: Utility classes like `TimeStamp` should not include heavy application headers like `meos.h`. Ensure they only depend on `StdAfx.h` and other necessary utilities.
 - **Custom Epoch**: MeOS uses a custom 32-bit unsigned epoch relative to 2014-01-01 for `TimeStamp::Time`. This fits ~136 years of seconds in a 32-bit integer.
 
-### 11. Redundant Overload Avoidance
+### 11. Locale
+
+- Set locale to `"C.UTF-8"` early (in `main()` or test setup).
+- Without this, `wcscasecmp` and `towlower` fail for non-ASCII characters (Swedish å/ö/ä).
+- `std::setlocale(LC_ALL, "C.UTF-8")` or `setlocale(LC_ALL, "C.UTF-8")`.
+
+### 12. Multi-Character Literals
+
+- MSVC accepts `'--'` and `'x'` as multi-char constants.
+- Replace with wide character literals: `L'\u2013'` (en-dash), `L'\u00D7'` (multiplication sign).
+
+### 13. Redundant Overload Avoidance
 
 On 64-bit Linux, `unsigned long` == `uint64_t`. Avoid redundant overloads for:
 - `itos()` / `itow()` — don't provide both `unsigned long` and `uint64_t` versions
 
-### 12. Dependency Management (vcpkg)
+### 14. Dependency Management (vcpkg)
 
-- **libmysql**: Building `libmysql` from source via vcpkg can be fragile on Linux environments due to heavy dependencies and build tool requirements (e.g., specific `ninja` versions). If it fails, consider using `libmariadb` or system-provided MySQL client libraries, or stubbing MySQL functionality for minimal builds.
-- **Package Names**: Some vcpkg packages use `unofficial-` prefix for CMake targets (e.g., `unofficial-libharu`, `unofficial-minizip`).
-- **vcpkg toolchain**: `CMAKE_TOOLCHAIN_FILE` must point to `vcpkg/scripts/buildsystems/vcpkg.cmake`.
+- **libmysql**: Fragile on Linux via vcpkg. Consider `libmariadb` or system packages, or stub MySQL for minimal builds.
+- **Package Names**: Some vcpkg packages use `unofficial-` prefix (e.g., `unofficial-libharu`, `unofficial-minizip`).
 
 ## Test Infrastructure
 
 - **GTest**: `find_package(GTest CONFIG REQUIRED)` + link `GTest::gtest GTest::gtest_main`.
 - **Coverage**: Pass `-DCOVERAGE=ON` to CMake to enable `--coverage` flags for GCC/Clang.
 - **Stubs**: Heavy coupling often requires stubs in `src/util/meos_stubs.cpp` to make modules like `util` or `domain` compile in isolation.
-- **Data Container Initialization**: For domain object unit tests, ensure `oe->oControlData` (or relevant data container) is initialized before testing. The `oDataContainer` system requires explicit setup.
-- **`StringCache` Initialization**: Ensure `StringCache` (used by `meos_util` string functions) is initialized via its constructor; otherwise, `wget()`/`get()` will segfault on empty vectors.
-- **Protected Member Access**: For unit testing legacy classes, using `#define protected public` before including headers can be an effective way to access internal state without modifying the original code too much.
+- **Data Container Initialization**: Ensure `oe->oControlData` is initialized before testing — `oDataContainer` requires explicit setup.
+- **`StringCache` Initialization**: Must be initialized via constructor; otherwise `wget()`/`get()` will segfault.
+- **Protected Member Access**: Use `#define protected public` before including headers to access internal state in tests.
 - **`enable_testing()`** must be in top-level `CMakeLists.txt`.
 
 ## Known Gotchas
@@ -203,56 +194,3 @@ On 64-bit Linux, `unsigned long` == `uint64_t`. Avoid redundant overloads for:
 5. **Static members and globals** (like `lang`) need careful handling in modular builds.
 6. **oEvent.cpp** is massive — don't try full migration in one step. Use a minimal skeleton initially.
 
-## Useful Diagnostic Scripts
-
-### Find all Win32 API calls in migrated code
-```bash
-grep -rn 'GetTickCount\|GetSystemTime\|CreateFile\|ReadFile\|WriteFile\|LoadResource\|FindResource\|MessageBox\|SetWindowText' src/
-```
-
-### Find remaining stdafx.h includes
-```bash
-grep -rni 'stdafx' src/
-```
-
-### Check for Windows-only headers
-```bash
-grep -rn '#include <windows.h>\|#include <tchar.h>\|#include <atlbase.h>\|#include <commctrl.h>' src/
-```
-
-### Find case-sensitivity issues in includes
-```bash
-for f in $(grep -roh '#include "[^"]*"' src/ | sed 's/#include "//;s/"//' | sort -u); do
-  found=$(find src/ -iname "$(basename "$f")" 2>/dev/null | head -1)
-  if [ -z "$found" ]; then
-    echo "NOT FOUND: $f"
-  fi
-done
-```
-
-### List all migrated files vs legacy
-```bash
-echo "=== Migrated ==="
-find src/ -name '*.cpp' -o -name '*.h' | wc -l
-echo "=== Legacy ==="
-find code/ -name '*.cpp' -o -name '*.h' | wc -l
-```
-
-### Compare class presence (legacy vs modern)
-```bash
-for cls in oRunner oTeam oClass oClub oCourse oControl oCard oFreePunch oPunch oEvent oBase; do
-  legacy=$(find code/ -name "${cls}.*" 2>/dev/null | wc -l)
-  modern=$(find src/ -name "${cls}.*" 2>/dev/null | wc -l)
-  echo "$cls: legacy=$legacy modern=$modern"
-done
-```
-
-### Build and test quick cycle
-```bash
-cmake --build --preset default 2>&1 | tail -20 && ctest --preset default
-```
-
-### Find compilation errors pattern
-```bash
-cmake --build --preset default 2>&1 | grep -E 'error:' | sed 's/.*error://' | sort | uniq -c | sort -rn | head -20
-```

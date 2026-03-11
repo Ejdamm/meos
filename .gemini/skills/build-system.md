@@ -3,10 +3,28 @@
 ## CMake + vcpkg Configuration
 
 - CMakePresets.json uses `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake` for toolchain
-- VCPKG_ROOT must be set before running cmake (on dev machine: ~/vcpkg)
-- Configure: `VCPKG_ROOT=~/vcpkg cmake --preset default`
-- Build: `VCPKG_ROOT=~/vcpkg cmake --build --preset default`
-- Test: `ctest --test-dir build --output-on-failure`
+- VCPKG_ROOT must be set before running cmake
+
+### Setting VCPKG_ROOT
+
+```bash
+export VCPKG_ROOT=/home/adam.georgsson@fnox.it/vcpkg
+```
+
+### Commands
+
+```bash
+# Configure
+cmake --preset default
+# OR manually:
+cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+
+# Build
+cmake --build --preset default
+
+# Test
+ctest --test-dir build --output-on-failure
+```
 
 ## Project Structure
 
@@ -21,6 +39,8 @@ src/
   util/
     CMakeLists.txt      # util static library
 ```
+
+Modules are **static libraries**. When adding new files, ensure they are added to the corresponding `CMakeLists.txt`. Dependencies between modules must be explicitly declared in `target_link_libraries`.
 
 ## Adding New Dependencies
 
