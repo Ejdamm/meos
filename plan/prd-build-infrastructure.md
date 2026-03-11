@@ -95,6 +95,36 @@ All three stories establish the infrastructure that every other workstream depen
 - Coverage: `gcov`/`lcov` for C++, `vitest --coverage` for frontend
 - The goal is that when a migration story (e.g., US-003a) lands, it can add test files and they "just work" — no build system changes needed
 
+### US-017: React Frontend Shell
+
+**Description:** As a developer, I want a minimal React project skeleton in `src/ui/web/` so that the frontend build, test, and CI infrastructure has something to compile and run against. This is the frontend equivalent of the C++ stub executable in US-001.
+
+**Scope:** A minimal buildable React app — just enough for Vitest, ESLint, Prettier, and `npm run build` to succeed. No actual MeOS UI components.
+
+**Acceptance Criteria:**
+- [ ] `src/ui/web/package.json` exists with React, TypeScript, Vite, Vitest, ESLint, and Prettier as dependencies
+- [ ] `src/ui/web/vite.config.ts` configures the Vite build
+- [ ] `src/ui/web/tsconfig.json` configures TypeScript with strict mode
+- [ ] A minimal `src/ui/web/src/App.tsx` renders a placeholder element
+- [ ] `src/ui/web/src/App.test.tsx` contains a trivial smoke test (renders without crashing)
+- [ ] `npm run build` produces output in `src/ui/web/dist/`
+- [ ] `npm test` runs Vitest and passes
+- [ ] `npm run lint` runs ESLint + Prettier and passes
+- [ ] Vitest coverage reporting is configured (v8 provider)
+
+**Out of scope:**
+- Actual MeOS UI components, pages, or routing — those come with frontend stories (US-007, etc.)
+- State management, API integration, or design system setup
+
+**Implementation Notes:**
+- **Do NOT use `npm create vite@latest`** — it's interactive and hangs in automation. Create all files manually
+- **React 17+ does not need `import React`** in every JSX/TSX file — omit it to avoid unused-import lint errors
+- **Use `eslint.config.js` (flat config)** for ESLint 9+ — old `.eslintrc.*` is deprecated
+- Integrate Prettier with ESLint via **`eslint-plugin-prettier`** to avoid conflicts
+- **Use v8 as Vitest coverage provider**, jsdom as test environment for DOM testing
+- Keep the shell as minimal as possible — migration stories will add real components
+- The goal is that US-015 (test infra) and US-016 (CI/CD) can run frontend checks without waiting for domain UI work
+
 ### US-016: CI/CD Pipeline
 
 **Description:** As a developer, I want automated builds, tests, and quality checks on every push and PR so that regressions are caught early.
@@ -135,7 +165,7 @@ All three stories establish the infrastructure that every other workstream depen
 ## Non-Goals
 
 - Migrating actual domain code (covered by main PRD US-003)
-- Setting up the React project itself (covered by frontend PRD US-007)
+- Building out actual React UI components/pages (covered by frontend PRD US-007) — US-017 only provides a minimal shell
 - Database or HTTP server setup (covered by main PRD US-004/US-005)
 - macOS CI (nice-to-have, not required initially — local macOS builds should work via CMake)
 
@@ -143,11 +173,12 @@ All three stories establish the infrastructure that every other workstream depen
 
 ```
 US-001 (CMake)           — start here, everything else depends on it
-US-015 (test infra)      — after US-001 (needs CMake targets to attach tests to)
-US-016 (CI/CD)           — after US-001 + US-015 (needs something to build and test)
+US-017 (React shell)     — independent of US-001 (no C++ dependency), can start in parallel
+US-015 (test infra)      — after US-001 + US-017 (needs CMake targets and React shell to attach tests to)
+US-016 (CI/CD)           — after US-001 + US-015 + US-017 (needs something to build and test)
 ```
 
-US-001 is the foundation. US-015 and US-016 can overlap once the basic CMake build works.
+US-001 and US-017 can run in parallel. US-015 and US-016 can overlap once both foundations are in place.
 
 ## Success Metrics
 

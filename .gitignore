@@ -3,6 +3,7 @@ build/
 build-release/
 Debug/
 Release/
+out/
 x64/
 x86/
 *.obj
@@ -29,6 +30,12 @@ dist/
 
 # vcpkg
 vcpkg_installed/
+
+# Editor/tool cache
+.cache/
+
+# Test coverage
+coverage/
 
 # ralph
 prd.json
