@@ -24,7 +24,7 @@ All three stories establish the infrastructure that every other workstream depen
 - Test infrastructure must support per-module test targets
 - CI must build and test on at least Linux and Windows
 - No dependency on legacy `code/` — works on empty `src/` skeleton
-- **Use latest stable versions** for all third-party libraries, tools, and dependencies (npm packages, vcpkg ports, GitHub Actions, etc.). Do not pin to old versions without a documented reason. When creating `package.json`, `vcpkg.json`, or workflow files, look up current stable versions rather than guessing
+- **Use latest stable versions** for all third-party libraries, tools, and dependencies (npm packages, vcpkg ports, GitHub Actions, etc.). Do not pin to old versions without a documented reason. When creating `package.json`, `vcpkg.json`, or workflow files, look up current stable versions rather than guessing. After running `npm ci`, verify there are no `npm warn deprecated` messages — if there are, update or replace the offending dependencies
 
 ## Goals
 
@@ -49,6 +49,17 @@ These patterns were discovered during previous Ralph runs and should be followed
 - Use `lukka/run-vcpkg` for vcpkg integration in CI.
 - Use `defaults: run: working-directory` for nested modules in CI.
 - Use `MEOS_ENABLE_CLANG_TIDY` toggle in CMake for CI static analysis.
+- Use `CMakePresets.json` version 6 for modern C++ projects.
+- Integrate vcpkg via `CMAKE_TOOLCHAIN_FILE` in CMake presets.
+- Always use `$env{VCPKG_ROOT}` to avoid hardcoding paths.
+- Enable `CMAKE_EXPORT_COMPILE_COMMANDS` for IDE support.
+- Keep the top-level `CMakeLists.txt` minimal for initial scaffolding.
+- Use Vite for React frontend development and building.
+- Use Vitest with `jsdom` for React component testing.
+- Always add `.prettierignore` to exclude `dist` and `node_modules`.
+- Apply coverage flags (`--coverage`) to both compile and link steps for GCC/Clang.
+- Do not reference ESLint plugins in rules unless the plugin is actually installed as a dependency.
+- CI workflow branch triggers must match the actual default branch name — use `on: [push, pull_request]` to avoid `main` vs `master` mismatches.
 
 ## User Stories
 
@@ -91,6 +102,10 @@ These patterns were discovered during previous Ralph runs and should be followed
 - Enable `CMAKE_EXPORT_COMPILE_COMMANDS` in the top-level `CMakeLists.txt` — without it, clangd and other LSP tools cannot provide code navigation or diagnostics. This is especially important for onboarding developers who use VS Code or other LSP-based editors.
 - `vcpkg.json` should use `"version"` instead of `"version-string"` when the version follows semver. `version-string` is for non-semver formats and bypasses vcpkg's version comparison logic.
 - Do not create empty shell module directories (domain, util, db, etc.) up front — they add boilerplate without value. Let migration stories create module directories when they have real code to put in them.
+- Modular `CMakeLists.txt` using `add_subdirectory` is cleaner than monolithic build files.
+- Using `target_precompile_headers` on a base library like `meos_util` is a good way to share common STL headers across the project.
+- CMake presets version 6 is a good choice for modern C++ projects with cmake 3.28+.
+- The top-level `CMakeLists.txt` should be kept minimal, focusing only on project configuration and global settings initially.
 
 ### US-015: Test Infrastructure
 
@@ -126,6 +141,7 @@ These patterns were discovered during previous Ralph runs and should be followed
 - Relative paths in `add_executable` within a subdirectory's `CMakeLists.txt` are relative to that subdirectory, not the project root.
 - Coverage flags (`--coverage`) work for both GCC and Clang and require both compile and link options.
 - Manual creation of smoke tests for each module is repetitive — consider automating this in future runs.
+- `find_package(GTest)` is better placed in the `tests/` directory to keep the top-level CMakeLists.txt clean.
 
 ### US-017: React Frontend Shell
 
@@ -161,6 +177,11 @@ These patterns were discovered during previous Ralph runs and should be followed
 - `typescript-eslint` 8.x is required for full ESLint 9 compatibility.
 - Prettier might flag formatting in `dist/` if not explicitly ignored, leading to lint failures in CI if the build is run before lint.
 - Peer dependency conflicts are common with ESLint 9 as plugins migrate — expect resolution issues.
+- Vite requires an `index.html` at the root of the project (or configured) and a `main.tsx` entry point.
+- Vitest setup with `jsdom` and `@testing-library/jest-dom` is straightforward and provides a good testing environment for React.
+- Using `npm run build` which includes `tsc` ensures type safety before bundling.
+- Do not add ESLint rules referencing plugins (e.g., `react-refresh`) that are not installed — this causes lint failures.
+- After `npm ci`, check for deprecation warnings (`npm warn deprecated`). Transitive deps like `whatwg-encoding` and `glob` may be pulled in by outdated direct dependencies — update or replace the offending direct dependency to resolve.
 
 ### US-016: CI/CD Pipeline
 
@@ -196,6 +217,10 @@ These patterns were discovered during previous Ralph runs and should be followed
 - Prettier formatting of `AGENTS.md` files may cause linting failures in frontend CI if not properly handled.
 - `clang-tidy` may need explicit installation via `apt-get` on standard GitHub runners before use.
 - Adding a CMake option like `MEOS_ENABLE_CLANG_TIDY` makes it easy to selectively enable static analysis in CI without affecting local development by default.
+- `lukka/run-vcpkg` handles vcpkg bootstrapping and caching efficiently — no manual `actions/cache` setup needed.
+- Clang-Tidy integration via CMake's `CMAKE_CXX_CLANG_TIDY` can be slow; running it as a separate CI step or only on Debug builds saves time.
+- Always ensure `package-lock.json` is tracked in git when using `npm ci` in CI.
+- Workflow branch triggers (`on: push/pull_request: branches`) must match the actual default branch — use `on: [push, pull_request]` to trigger on all branches and avoid `main` vs `master` mismatches.
 
 ## Functional Requirements
 
