@@ -1,0 +1,53 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Debug, Release]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Restore vcpkg and build dependencies
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgJsonGlob: 'vcpkg.json'
+
+    - name: Configure CMake
+      run: cmake --preset ${{ matrix.build_type == 'Debug' && 'debug' || 'release' }}
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+    - name: Build
+      run: cmake --build --preset ${{ matrix.build_type == 'Debug' && 'debug' || 'release' }}
+
+    - name: Static Analysis (Clang-Tidy)
+      if: runner.os == 'Linux' && matrix.build_type == 'Debug'
+      run: |
+        cmake --preset debug -DMEOS_ENABLE_CLANG_TIDY=ON
+        cmake --build --preset debug
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+    - name: Test
+      working-directory: ${{ github.workspace }}/build/${{ matrix.build_type == 'Debug' && 'debug' || 'release' }}
+      run: ctest -C ${{ matrix.build_type }} --output-on-failure
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: meos-${{ runner.os }}-${{ matrix.build_type }}
+        path: |
+          build/${{ matrix.build_type == 'Debug' && 'debug' || 'release' }}/meos
+          build/${{ matrix.build_type == 'Debug' && 'debug' || 'release' }}/meos.exe
+        if-no-files-found: ignore

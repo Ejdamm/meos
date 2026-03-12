@@ -78,6 +78,14 @@ Custom exception `meosException` (with `wwhat()` for wide-string messages) and `
 - **@testing-library/react:** Used for testing React components.
 - **Coverage:** Configured with the `v8` provider in Vitest.
 
+## CI/CD Pipeline
+
+- **GitHub Actions:** Automated workflows for C++ and frontend.
+- **`cpp.yml`:** Matrix strategy for Linux (ubuntu-latest) and Windows (windows-latest). Uses `lukka/run-vcpkg` for dependency management and `MEOS_ENABLE_CLANG_TIDY` for static analysis on Linux.
+- **`frontend.yml`:** Node.js-based workflow for linting, testing, and building the React frontend.
+- **`package-lock.json`:** Must be committed and tracked to ensure reliable `npm ci` runs in CI.
+- **Static Analysis:** `.clang-tidy` and `.clang-format` are used for C++ code quality and formatting.
+
 ## Modernization
 
 The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite. The modernization has started, and a modern codebase exists in `src/`.

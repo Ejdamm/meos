@@ -26,7 +26,6 @@ CMakeUserPresets.json
 
 # Node
 node_modules/
-package-lock.json
 dist/
 
 # vcpkg

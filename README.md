@@ -44,6 +44,13 @@ This project uses CMake presets for configuration and building.
     ```
     Run tests and check for `.gcda` files in the build directory.
 
+5.  **Static Analysis (Clang-Tidy):**
+    Enable clang-tidy static analysis:
+    ```bash
+    cmake --preset debug -DMEOS_ENABLE_CLANG_TIDY=ON
+    cmake --build --preset debug
+    ```
+
 ### React Frontend
 
 The frontend is located in `src/ui/web/`.
