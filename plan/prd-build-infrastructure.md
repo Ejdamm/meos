@@ -221,7 +221,7 @@ These patterns were discovered during previous Ralph runs and should be followed
 - Clang-Tidy integration via CMake's `CMAKE_CXX_CLANG_TIDY` can be slow; running it as a separate CI step or only on Debug builds saves time.
 - Always ensure `package-lock.json` is tracked in git when using `npm ci` in CI.
 - Workflow branch triggers (`on: push/pull_request: branches`) must match the actual default branch — use `on: [push, pull_request]` to trigger on all branches and avoid `main` vs `master` mismatches.
-- GitHub Actions that use Node.js 20 (e.g., `actions/checkout@v4`, `actions/setup-node@v4`) are deprecated — Node.js 24 becomes the default from June 2026. Use `@v6` for both `actions/checkout` and `actions/setup-node` to avoid deprecation warnings and ensure compatibility.
+- Always use the latest major version of all GitHub Actions (e.g., `actions/checkout`, `actions/setup-node`, `actions/upload-artifact`). GitHub deprecates actions running on older Node.js versions — using outdated major versions causes deprecation warnings and will eventually break.
 - On Windows GitHub Actions runners, MinGW GCC is on PATH and will be picked up by Ninja before MSVC. Since vcpkg triplet `x64-windows` produces MSVC-compatible `.lib` files, linking fails with undefined references. Fix by adding `ilammy/msvc-dev-cmd@v1` before the CMake configure step (guarded with `if: runner.os == 'Windows'`).
 
 ## Functional Requirements

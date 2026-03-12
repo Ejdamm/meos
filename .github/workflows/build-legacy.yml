@@ -47,7 +47,7 @@ jobs:
           Copy-Item "$vcToolsDir\VCRUNTIME140_1.dll"  $outDir
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: MeOS-${{ matrix.configuration }}-${{ matrix.platform }}
           path: |
