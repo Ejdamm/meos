@@ -9,6 +9,7 @@ MeOS (Much Easier Orienteering System) is a Windows desktop application for mana
 | Directory | Purpose |
 |-----------|---------|
 | `code/` | Legacy Windows-only codebase (MSBuild, Win32/GDI, MySQL). Has its own `AGENTS.md` with detailed architecture docs. |
+| `src/` | Modern C++20 codebase (CMake, vcpkg, SQLite). This is where the migrated code lives. |
 | `plan/` | PRD and planning artifacts for the modernization effort. |
 
 ## Legacy Codebase (`code/`)
