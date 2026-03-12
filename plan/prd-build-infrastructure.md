@@ -59,13 +59,16 @@ These patterns were discovered during previous Ralph runs and should be followed
 **Scope:** A minimal "hello world" level project that proves CMake, vcpkg, and cross-platform compilation work. The actual MeOS source files are added later by migration stories (US-003, US-013, etc.).
 
 **Acceptance Criteria:**
-- [ ] Top-level `CMakeLists.txt` exists and builds a minimal stub executable (e.g., `main.cpp` with `int main() { return 0; }`)
-- [ ] Module library targets exist as empty shells (e.g., `src/domain/`, `src/util/`) ready for migration stories to populate
+- [ ] Top-level `CMakeLists.txt` exists and builds a minimal stub executable named `meos` from `src/main.cpp` (e.g., `int main() { return 0; }`)
+- [ ] No module library targets — only the stub executable. Module directories (`src/domain/`, `src/util/`, etc.) are created by migration stories when needed
 - [ ] vcpkg is integrated as the dependency manager (via toolchain file)
 - [ ] `vcpkg.json` manifest declares all external dependencies
 - [ ] Builds successfully on Linux (GCC/Clang) and Windows (MSVC)
-- [ ] Precompiled headers are configured for build performance
 - [ ] Debug and Release configurations work
+- [ ] `CMAKE_EXPORT_COMPILE_COMMANDS` is enabled for clangd/LSP tooling support
+- [ ] `CMakeUserPresets.json` is listed in `.gitignore` for local developer overrides
+- [ ] `CMakePresets.json` does NOT hardcode `VCPKG_ROOT` — relies solely on `$env{VCPKG_ROOT}`
+- [ ] `vcpkg.json` uses `"version"` (not `"version-string"`) for semver-compatible version strings
 
 **Out of scope:**
 - Compiling any legacy `code/` files
@@ -73,22 +76,21 @@ These patterns were discovered during previous Ralph runs and should be followed
 - Making the full MeOS application build end-to-end — that happens incrementally as migration stories land
 
 **Implementation Notes:**
-- Start with a minimal `main.cpp` that compiles and links — domain code comes later via other stories
-- Create empty/stub CMake library targets for the modular layout (US-002): `src/domain/`, `src/util/`, etc. — these are placeholders that migration stories will populate with real source files
-- **Placeholder .cpp files are required** in every library target (CMake won't create a target with no sources) — a file with just a comment is sufficient
+- The entire C++ skeleton is a single `src/main.cpp` that compiles and links — no module subdirectories. Module directories (`src/domain/`, `src/util/`, etc.) are created by migration stories when they need them
 - **`vcpkg.json` must include `builtin-baseline`** — a vcpkg Git commit hash that pins the dependency versions. Without it, `lukka/run-vcpkg` in CI will fail. Get the latest with `git ls-remote https://github.com/microsoft/vcpkg.git HEAD`
 - vcpkg toolchain: `-DCMAKE_TOOLCHAIN_FILE=[vcpkg root]/scripts/buildsystems/vcpkg.cmake`
 - **VCPKG_ROOT:** On the dev machine it's `~/vcpkg`. CMakePresets.json should use `$env{VCPKG_ROOT}` — set the env var before invoking cmake
 - **Use CMake preset version 6** (cmake 3.28 is available). g++ 13.3 and ninja are available as build tools
-- Precompiled headers via `target_precompile_headers()` — add common STL headers
 - Known risk: `libmysql` via vcpkg is problematic on Linux — stub or exclude early
 - The definition of done is: `cmake --build` compiles the skeleton successfully, not that MeOS runs
 
 **Learnings from Previous Runs:**
 - The local vcpkg repository might be slightly behind the latest commit hash on GitHub. Always check the local HEAD hash for `builtin-baseline` if configuration fails.
 - `VCPKG_ROOT` must be explicitly exported in the shell for the CMake preset to find it — `$env{VCPKG_ROOT}` won't resolve otherwise.
-- The modernized codebase uses namespaces (e.g., `meos::domain`) unlike the legacy codebase which is flat.
-- Manually creating all module directories and placeholder files is time-consuming — consider scripting this for future runs.
+- `CMakePresets.json` must NOT hardcode `VCPKG_ROOT` in the `environment` block — this makes the preset unusable for other developers. Use only `$env{VCPKG_ROOT}` (reads from the shell environment). Developers with non-standard paths should create a `CMakeUserPresets.json` (gitignored) that inherits from `default` and overrides the environment.
+- Enable `CMAKE_EXPORT_COMPILE_COMMANDS` in the top-level `CMakeLists.txt` — without it, clangd and other LSP tools cannot provide code navigation or diagnostics. This is especially important for onboarding developers who use VS Code or other LSP-based editors.
+- `vcpkg.json` should use `"version"` instead of `"version-string"` when the version follows semver. `version-string` is for non-semver formats and bypasses vcpkg's version comparison logic.
+- Do not create empty shell module directories (domain, util, db, etc.) up front — they add boilerplate without value. Let migration stories create module directories when they have real code to put in them.
 
 ### US-015: Test Infrastructure
 
