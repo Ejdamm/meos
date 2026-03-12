@@ -62,7 +62,7 @@ ctest --test-dir build
 
 To run with code coverage (GCC/Clang):
 ```bash
-cmake build -DMEOS_ENABLE_COVERAGE=ON
+cmake --preset default -DMEOS_ENABLE_COVERAGE=ON
 cmake --build build
 ctest --test-dir build
 # Use gcovr/lcov to process .gcda files in build/
@@ -77,12 +77,30 @@ npm test
 
 ## Quality Checks
 
+### C++ Core
+Run `clang-tidy` as part of the build:
+```bash
+cmake --preset default -DMEOS_ENABLE_CLANG_TIDY=ON
+cmake --build build
+```
+
+Format the code with `clang-format`:
+```bash
+find . -name "*.cpp" -o -name "*.h" | xargs clang-format -i
+```
+
 ### React Frontend
 Run ESLint and Prettier:
 ```bash
 cd src/ui/web
 npm run lint
 ```
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for automated building, testing, and linting on every push and pull request:
+- **C++ CI:** Builds and tests on Linux (Ubuntu) and Windows (MSVC). Runs `clang-tidy` on Linux.
+- **Frontend CI:** Installs dependencies, runs ESLint, Prettier, Vitest, and builds the React application.
 
 ## Platform Notes
 

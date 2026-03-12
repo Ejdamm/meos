@@ -1,73 +1,27 @@
-# CI/CD Infrastructure Skill
+# CI/CD and Quality Infrastructure Skill
 
-## GitHub Actions Patterns
+Expert guidance for maintaining and extending the MeOS build, test, and quality infrastructure.
 
-- **Separation of Concerns:** Use separate workflow files for different stacks (e.g., `cpp.yml`, `frontend.yml`). This makes it easier to debug failures and allows for parallel execution.
-- **Matrix Strategy:** Use a matrix strategy to test on multiple operating systems (e.g., `ubuntu-latest`, `windows-latest`).
-- **Caching:** 
-  - For Node.js, use `actions/setup-node` with `cache: 'npm'` and specify `cache-dependency-path` to include subdirectories.
-  - For vcpkg, use `lukka/run-vcpkg` which handles dependency installation and binary caching.
-- **Artifacts:** Upload build artifacts with platform-specific names to distinguish between builds from different matrix jobs.
+## GitHub Actions
 
-## C++ CI Configuration
+- **Windows Runner Setup:** Always include `ilammy/msvc-dev-cmd@v1` before CMake configuration on Windows to set up the environment for the Ninja generator.
+- **vcpkg Caching:** Use `lukka/run-vcpkg` for automatic bootstrap and caching of vcpkg dependencies.
+- **Node.js Caching:** Use `actions/setup-node` with `cache: 'npm'` and `cache-dependency-path` for fast frontend CI runs.
+- **Artifact Naming:** Use `${{ runner.os }}-${{ matrix.config }}` as a suffix for build artifacts to avoid name collisions in the matrix.
 
-- **vcpkg Integration:** Use `lukka/run-vcpkg` to manage dependencies. It integrates with CMake and handles caching efficiently.
-- **Ninja Generator:** Prefer `Ninja` for faster builds across all platforms. Ninja is preinstalled on GitHub runners.
-- **Static Analysis in CI:** 
-  - Guard `clang-tidy` or other heavy linting tools to run only on a single platform (e.g., Linux) to save runner minutes.
-  - Use `CMAKE_CXX_CLANG_TIDY` in CMake to integrate `clang-tidy` directly into the build process.
-- **Testing:** Use `ctest --output-on-failure` to ensure that test logs are available in the GitHub Actions output when a test fails.
+## Static Analysis (clang-tidy)
 
-## Frontend CI Configuration
+- **Integration:** Prefer integrating `clang-tidy` directly into the CMake build via `CMAKE_CXX_CLANG_TIDY`.
+- **Warning Suppression:** Use `// NOLINT` for specific lines or `-readability-*` in `.clang-tidy` for global exclusions.
+- **Performance:** Clang-tidy is slow. On CI, only run it on one platform (e.g., Linux) to save runner time.
 
-- **Working Directory:** Use `defaults: run: working-directory: path/to/frontend` to avoid repeating paths in every step.
-- **npm ci:** Always use `npm ci` instead of `npm install` in CI environments to ensure a consistent and clean installation of dependencies based on `package-lock.json`.
-- **Pre-build Checks:** Run linting and tests before building the application to catch errors early and avoid unnecessary build time.
+## Code Formatting (clang-format)
 
-## Reusable Snippets
+- **Execution:** Use `find . -name "*.cpp" -o -name "*.h" | xargs clang-format -i` for bulk formatting.
+- **Standards:** Always keep `.clang-format` in sync with the project's C++ version (currently C++20).
 
-### C++ CI Workflow (cpp.yml)
+## Troubleshooting
 
-```yaml
-name: C++ CI
-on: [push, pull_request]
-jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: lukka/run-vcpkg@v11
-      - name: Configure and Build
-        run: |
-          cmake --preset default
-          cmake --build build
-      - name: Test
-        run: ctest --test-dir build --output-on-failure
-```
-
-### Frontend CI Workflow (frontend.yml)
-
-```yaml
-name: Frontend CI
-on: [push, pull_request]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/ui/web
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: 'src/ui/web/package-lock.json'
-      - run: npm ci
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build
-```
+- **vcpkg failures:** Check the `vcpkg-manifest-install.log` for details on dependency resolution errors.
+- **YAML syntax:** Use a YAML linter if workflows fail to trigger. Common issues include incorrect indentation or missing quotes for complex strings.
+- **MSVC Environment:** If Ninja fails to find the compiler on Windows, ensure `msvc-dev-cmd` was executed in the same step or a previous step that exports environment variables.

@@ -1,0 +1,64 @@
+name: C++ CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: ${{ matrix.os }} - ${{ matrix.config }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        config: [Debug, Release]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgJsonGlob: 'vcpkg.json'
+
+      - name: Install Ninja
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Install clang-tidy
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y clang-tidy
+
+      - name: Set up MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Configure CMake
+        run: >
+          cmake --preset ${{ matrix.config == 'Debug' && 'default' || 'release' }}
+          -DMEOS_ENABLE_CLANG_TIDY=${{ runner.os == 'Linux' && 'ON' || 'OFF' }}
+
+      - name: Build
+        if: runner.os == 'Windows'
+        run: cmake --build --preset ${{ matrix.config == 'Debug' && 'default' || 'release' }}
+
+      - name: Build with Static Analysis (clang-tidy)
+        if: runner.os == 'Linux'
+        run: cmake --build --preset ${{ matrix.config == 'Debug' && 'default' || 'release' }}
+
+      - name: Test
+        run: ctest --test-dir build -C ${{ matrix.config }} --output-on-failure
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: meos-${{ runner.os }}-${{ matrix.config }}
+          path: |
+            build/meos*
+            build/tests/smoke_test*
+            !build/**/*.obj
+            !build/**/*.o
+            !build/**/*.a
+            !build/**/*.lib
+            !build/**/*.pdb

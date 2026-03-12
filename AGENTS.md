@@ -12,6 +12,25 @@ MeOS (Much Easier Orienteering System) is a Windows desktop application for mana
 | `src/` | Modern C++20 codebase (CMake, vcpkg, SQLite). This is where the migrated code lives. |
 | `plan/` | PRD and planning artifacts for the modernization effort. |
 
+## Modern Build Infrastructure
+
+The modernized project in the root and `src/` uses a cross-platform build system and CI/CD pipeline:
+
+- **Build System:** CMake 3.25+ with Ninja generator and `CMakePresets.json`.
+- **Dependency Management:** vcpkg via `vcpkg.json` manifest mode.
+- **Testing:** Google Test for C++ and Vitest for the React frontend.
+- **CI/CD:** GitHub Actions (see `.github/AGENTS.md` for conventions).
+- **Code Quality:**
+  - `.clang-format`: LLVM-based C++ code formatting.
+  - `.clang-tidy`: C++ static analysis with `readability-*` and `modernize-*` checks.
+  - `eslint`: React/TypeScript linting with Flat Config (v9+).
+  - `prettier`: Integrated with ESLint for consistent formatting.
+
+### Quality Workflows
+
+- **C++:** Format with `find . -name "*.cpp" -o -name "*.h" | xargs clang-format -i`. Run static analysis by building with `-DMEOS_ENABLE_CLANG_TIDY=ON`.
+- **Frontend:** Run `npm run lint` in `src/ui/web` to execute ESLint and Prettier checks.
+
 ## Legacy Codebase (`code/`)
 
 See `code/AGENTS.md` for full details. In summary:
