@@ -2,6 +2,7 @@
 
 ## CMake + vcpkg Configuration
 
+- Use `CMakePresets.json` version 6 for modern C++ projects.
 - CMakePresets.json uses `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake` for toolchain
 - VCPKG_ROOT must be set before running cmake
 
@@ -15,15 +16,17 @@ export VCPKG_ROOT=/home/adam.georgsson@fnox.it/vcpkg
 
 ```bash
 # Configure
-cmake --preset default
-# OR manually:
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+cmake --preset debug
+# or
+cmake --preset release
 
 # Build
-cmake --build --preset default
+cmake --build --preset debug
+# or
+cmake --build --preset release
 
 # Test
-ctest --test-dir build --output-on-failure
+ctest --test-dir build/debug --output-on-failure
 ```
 
 ## vcpkg Manifest Mode (vcpkg.json)
@@ -32,19 +35,43 @@ ctest --test-dir build --output-on-failure
 - **Gotcha:** If \`cmake --preset default\` fails with a baseline error (e.g., "failed to git show versions/baseline.json"), the local vcpkg repo might be outdated compared to the hash in \`vcpkg.json\`.
 - **Solution:** Check the local vcpkg HEAD hash with \`cd $VCPKG_ROOT && git rev-parse HEAD\` and use that as the \`builtin-baseline\` in \`vcpkg.json\`.
 
-## Project Structure
+## Testing and Coverage
 
+### C++ Tests (Google Test)
+
+- Use vcpkg manifest mode to add `gtest` dependency.
+- Define tests in the `tests/` directory with a local `CMakeLists.txt`.
+- Use a macro for consistent test registration:
+```cmake
+macro(meos_add_test NAME)
+    set(TEST_SRC ${ARGN})
+    add_executable(${NAME} ${TEST_SRC})
+    target_link_libraries(${NAME} PRIVATE GTest::gtest_main)
+    add_test(NAME ${NAME} COMMAND ${NAME})
+endmacro()
 ```
-CMakeLists.txt          # Top-level: project(), add_subdirectory(), meos executable
-CMakePresets.json       # default (Debug) and release (Release) presets
-vcpkg.json              # Package manifest
-src/
-  main.cpp              # Entry point
-  domain/
-    CMakeLists.txt      # domain static library
-  util/
-    CMakeLists.txt      # util static library
+- Link against `GTest::gtest_main` to automatically include a `main()` function for tests.
+
+### Running Tests
+
+```bash
+# From build directory
+ctest
 ```
+
+### Code Coverage (GCC/Clang)
+
+- Enable via CMake option: `-DMEOS_ENABLE_COVERAGE=ON`.
+- Apply flags to both compile and link steps:
+```cmake
+if(MEOS_ENABLE_COVERAGE)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(--coverage)
+        add_link_options(--coverage)
+    endif()
+endif()
+```
+- Running the tests will generate `.gcno` (at compile time) and `.gcda` (at runtime) files.
 
 Modules are **static libraries**. When adding new files, ensure they are added to the corresponding `CMakeLists.txt`. Dependencies between modules must be explicitly declared in `target_link_libraries`.
 

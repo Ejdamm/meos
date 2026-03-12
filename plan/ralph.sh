@@ -109,10 +109,6 @@ for i in $(seq 1 $MAX_ITERATIONS); do
     echo "" >> "$PROGRESS_FILE"
     echo "## $TASK_ID — COMPLETED (${STEP_DURATION_FMT})" >> "$PROGRESS_FILE"
 
-    # Amend the last commit to include progress and metrics
-    git add plan/prd.json
-    git commit --amend --no-edit 2>/dev/null || true
-
     # Print summary
     echo ""
     echo "=== Metrics Summary (see $METRICS_FILE) ==="
@@ -131,10 +127,6 @@ for i in $(seq 1 $MAX_ITERATIONS); do
   echo "$TASK_ID,$TOOL,$STEP_START_FMT,$STEP_DURATION,continuing" >> "$METRICS_FILE"
   echo "" >> "$PROGRESS_FILE"
   echo "## $TASK_ID (${STEP_DURATION_FMT})" >> "$PROGRESS_FILE"
-
-  # Amend the last commit to include progress and metrics
-  git add plan/progress.txt plan/metrics.csv plan/prd.json
-  git commit --amend --no-edit 2>/dev/null || true
 
   echo "Iteration $i complete (${STEP_DURATION_FMT}). Continuing..."
   sleep 2

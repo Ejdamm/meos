@@ -25,6 +25,10 @@ This migration is **iterative and disposable**. The entire migration will be run
 8. Update the PRD to set `passes: true` for the completed story
 9. Commit all **source code changes** with message: `feat: [Story ID] - [Story Title]`. **Do NOT commit `plan/prd.json` or `plan/progress.txt`** — these are tracked outside of git and must not be included in commits. Use `git reset HEAD plan/prd.json plan/progress.txt` before committing if they are staged.
 
+## Writing to plan/ files — IMPORTANT
+
+**Never use bash heredocs (`<<EOF`), `echo`, or `printf` to write to `plan/progress.txt` or `plan/prd.json`.** These files contain backticks, parentheses, `$` signs, and other characters that break shell parsing. Always use your **file editing/writing tool** (e.g., Edit, Write, file_edit, insert_text) to modify these files directly.
+
 ## Progress Report Format
 
 APPEND to plan/progress.txt (never replace, always append):
