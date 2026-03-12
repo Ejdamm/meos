@@ -62,17 +62,21 @@ Custom exception `meosException` (with `wwhat()` for wide-string messages) and `
 - Smart pointers for ownership; raw pointers for parent/back-references
 - No namespaces — flat namespace with `using std::` in `StdAfx.h`
 
-## Frontend Patterns (Modernization)
+## Testing Patterns
 
-The modern frontend is built with React, TypeScript, and Vite.
+### C++ Backend
 
-- **Vite:** Used for building and development.
-- **Vitest:** Used for unit and component testing with `jsdom`.
-- **ESLint:** Flat configuration (`eslint.config.js`) with `typescript-eslint`.
-- **Prettier:** Used for code formatting.
-- **React 19+:** No `import React` needed (JSX transform).
-- **TypeScript:** Strict mode enabled.
-- **Testing Library:** Used for React component testing (`@testing-library/react`).
+- **Google Test:** The primary framework for C++ unit and integration testing.
+- **`meos_add_test`:** A CMake macro in `tests/CMakeLists.txt` for standardized test registration. It links against `GTest::gtest_main`.
+- **Code Coverage:** Enable with `MEOS_ENABLE_COVERAGE=ON` (GCC/Clang only). It applies `--coverage` to both compilation and linking.
+- **CTest:** Use `ctest` from the build directory to run tests.
+
+### React Frontend
+
+- **Vitest:** The primary framework for unit and component testing.
+- **jsdom:** Used as the test environment for React components.
+- **@testing-library/react:** Used for testing React components.
+- **Coverage:** Configured with the `v8` provider in Vitest.
 
 ## Modernization
 

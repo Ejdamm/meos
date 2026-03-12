@@ -30,6 +30,20 @@ This project uses CMake presets for configuration and building.
     cmake --build --preset release
     ```
 
+3.  **Run tests:**
+    ```bash
+    cd build/debug
+    ctest
+    ```
+
+4.  **Code Coverage (GCC/Clang):**
+    Enable coverage flags:
+    ```bash
+    cmake --preset debug -DMEOS_ENABLE_COVERAGE=ON
+    cmake --build --preset debug
+    ```
+    Run tests and check for `.gcda` files in the build directory.
+
 ### React Frontend
 
 The frontend is located in `src/ui/web/`.
