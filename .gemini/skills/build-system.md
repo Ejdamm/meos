@@ -2,6 +2,7 @@
 
 ## CMake + vcpkg Configuration
 
+- Use `CMakePresets.json` version 6 for modern C++ projects.
 - CMakePresets.json uses `$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake` for toolchain
 - VCPKG_ROOT must be set before running cmake
 
@@ -15,15 +16,17 @@ export VCPKG_ROOT=/home/adam.georgsson@fnox.it/vcpkg
 
 ```bash
 # Configure
-cmake --preset default
-# OR manually:
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake
+cmake --preset debug
+# or
+cmake --preset release
 
 # Build
-cmake --build --preset default
+cmake --build --preset debug
+# or
+cmake --build --preset release
 
 # Test
-ctest --test-dir build --output-on-failure
+ctest --test-dir build/debug --output-on-failure
 ```
 
 ## vcpkg Manifest Mode (vcpkg.json)

@@ -9,6 +9,7 @@ MeOS (Much Easier Orienteering System) is a Windows desktop application for mana
 | Directory | Purpose |
 |-----------|---------|
 | `code/` | Legacy Windows-only codebase (MSBuild, Win32/GDI, MySQL). Has its own `AGENTS.md` with detailed architecture docs. |
+| `src/` | Modern cross-platform codebase (CMake, C++20, React/TypeScript, SQLite). |
 | `plan/` | PRD and planning artifacts for the modernization effort. |
 
 ## Legacy Codebase (`code/`)
@@ -63,7 +64,7 @@ Custom exception `meosException` (with `wwhat()` for wide-string messages) and `
 
 ## Modernization
 
-The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite. No modern codebase (`src/`) exists yet — the migration has not started.
+The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite. The modernization has started, and a modern codebase exists in `src/`.
 
 ### Iterative Migration Approach
 
