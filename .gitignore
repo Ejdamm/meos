@@ -22,10 +22,10 @@ x86/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
+CMakeUserPresets.json
 
 # Node
 node_modules/
-package-lock.json
 dist/
 
 # vcpkg
