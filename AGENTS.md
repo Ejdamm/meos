@@ -62,6 +62,18 @@ Custom exception `meosException` (with `wwhat()` for wide-string messages) and `
 - Smart pointers for ownership; raw pointers for parent/back-references
 - No namespaces — flat namespace with `using std::` in `StdAfx.h`
 
+## Frontend Patterns (Modernization)
+
+The modern frontend is built with React, TypeScript, and Vite.
+
+- **Vite:** Used for building and development.
+- **Vitest:** Used for unit and component testing with `jsdom`.
+- **ESLint:** Flat configuration (`eslint.config.js`) with `typescript-eslint`.
+- **Prettier:** Used for code formatting.
+- **React 19+:** No `import React` needed (JSX transform).
+- **TypeScript:** Strict mode enabled.
+- **Testing Library:** Used for React component testing (`@testing-library/react`).
+
 ## Modernization
 
 The PRD at `plan/prd-platform-modernization.md` describes the planned migration from Win32/GDI + MSBuild + MySQL to CMake + React/TypeScript + SQLite. The modernization has started, and a modern codebase exists in `src/`.
