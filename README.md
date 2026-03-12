@@ -58,3 +58,10 @@ npm run typecheck  # TypeScript type checking
 npm test           # Vitest unit tests
 npm run test:coverage  # Tests with v8 coverage
 ```
+
+## CI/CD
+
+GitHub Actions workflows run automatically on every push and pull request.
+
+- **C++ CI** (`.github/workflows/cpp.yml`) — builds and tests on Linux and Windows, runs clang-tidy on Linux
+- **Frontend CI** (`.github/workflows/frontend.yml`) — lint, test, and build the React frontend

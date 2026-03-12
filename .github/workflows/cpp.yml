@@ -1,0 +1,38 @@
+name: C++ CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Restore vcpkg and install dependencies
+        uses: lukka/run-vcpkg@v11
+
+      - name: Configure
+        run: cmake --preset default ${{ runner.os == 'Linux' && '-DMEOS_ENABLE_CLANG_TIDY=ON' || '' }}
+
+      - name: Build
+        run: cmake --build --preset default
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: meos-${{ runner.os }}
+          path: |
+            build/meos
+            build/meos.exe
+          if-no-files-found: warn
