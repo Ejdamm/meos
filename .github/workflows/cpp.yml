@@ -15,7 +15,7 @@ jobs:
         config: [Debug, Release]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup vcpkg
         uses: lukka/run-vcpkg@v11
@@ -51,7 +51,7 @@ jobs:
         run: ctest --test-dir build -C ${{ matrix.config }} --output-on-failure
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: meos-${{ runner.os }}-${{ matrix.config }}
           path: |
