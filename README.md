@@ -60,6 +60,14 @@ Run the tests using `ctest`:
 ctest --test-dir build
 ```
 
+To run with code coverage (GCC/Clang):
+```bash
+cmake build -DMEOS_ENABLE_COVERAGE=ON
+cmake --build build
+ctest --test-dir build
+# Use gcovr/lcov to process .gcda files in build/
+```
+
 ### React Frontend
 Run the Vitest tests:
 ```bash
