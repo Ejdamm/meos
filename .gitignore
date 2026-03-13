@@ -27,6 +27,7 @@ CMakeUserPresets.json
 # Node
 node_modules/
 dist/
+*.tsbuildinfo
 
 # vcpkg
 vcpkg_installed/

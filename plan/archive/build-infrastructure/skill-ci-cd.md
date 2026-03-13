@@ -24,6 +24,14 @@
 - **npm ci:** Always use `npm ci` instead of `npm install` in CI environments to ensure a consistent and clean installation of dependencies based on `package-lock.json`.
 - **Pre-build Checks:** Run linting and tests before building the application to catch errors early and avoid unnecessary build time.
 
+## Gotchas
+
+- **Trigger without branch filter:** Use `on: [push, pull_request]` — adding a branch filter like `branches: [main]` breaks repos that use `master` as default branch.
+- **MSVC on Windows:** Always use `ilammy/msvc-dev-cmd@v1` before cmake on Windows — without it, cmake may pick MinGW g++ instead of MSVC cl.exe.
+- **Conditional cmake flags:** Use `${{ runner.os == 'Linux' && '-DFLAG=ON' || '' }}` inline in the cmake command — avoids duplicating configure steps per platform.
+- **clang-tidy:** Disable `modernize-use-trailing-return-type` in `.clang-tidy` — it rewrites every function to trailing return style, which is too noisy for legacy code.
+- **Artifact paths:** Use `if-no-files-found: warn` on upload-artifact to prevent workflow failure when paths differ across platforms (e.g., `meos` vs `meos.exe`).
+
 ## Reusable Snippets
 
 ### C++ CI Workflow (cpp.yml)
@@ -39,13 +47,24 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
+      - name: Setup MSVC
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
       - uses: lukka/run-vcpkg@v11
-      - name: Configure and Build
-        run: |
-          cmake --preset default
-          cmake --build build
+      - name: Configure
+        run: cmake --preset default ${{ runner.os == 'Linux' && '-DMEOS_ENABLE_CLANG_TIDY=ON' || '' }}
+      - name: Build
+        run: cmake --build --preset default
       - name: Test
         run: ctest --test-dir build --output-on-failure
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: meos-${{ runner.os }}
+          path: |
+            build/meos
+            build/meos.exe
+          if-no-files-found: warn
 ```
 
 ### Frontend CI Workflow (frontend.yml)

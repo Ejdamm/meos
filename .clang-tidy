@@ -1,0 +1,10 @@
+---
+Checks: >
+  -*,
+  readability-*,
+  modernize-*,
+  -modernize-use-trailing-return-type
+
+WarningsAsErrors: ''
+
+HeaderFilterRegex: 'src/.*'
