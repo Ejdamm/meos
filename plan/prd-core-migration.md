@@ -87,7 +87,7 @@ These patterns were discovered during previous Ralph runs and should be followed
 
 ### US-001, US-015, US-016: Build & Infrastructure
 
-> **Extracted to separate PRD:** See [`plan/prd-build-infrastructure.md`](prd-build-infrastructure.md) for the full breakdown (US-001 CMake, US-015 Test Infrastructure, US-016 CI/CD). This work operates on an empty project skeleton and can run **in parallel** with all other workstreams.
+> **Extracted to separate PRD (DONE):** See [`plan/archive/prd-build-infrastructure.md`](archive/prd-build-infrastructure.md) for the full breakdown (US-001 CMake, US-015 Test Infrastructure, US-016 CI/CD). This work is complete and archived.
 
 ### US-002: Modular Source Layout
 
